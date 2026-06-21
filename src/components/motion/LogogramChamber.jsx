@@ -30,7 +30,7 @@ const FOG_LAYER_MID = fogNoiseSvg(0.022, 3, 19);
 const FOG_LAYER_FINE = fogNoiseSvg(0.05, 2, 41);
 
 /** 배경 Z-dive 지속 시간 (ms) — 문자 생성 시 안개가 화면 안쪽으로 가속하는 1회 버스트 */
-const DIVE_MS = 1800;
+const DIVE_MS = 1300;
 
 /** 평상시 상시 전진 주기 (ms) — 한 겹이 한 번 안으로 줌인하는 시간 (작을수록 빠름).
  *  우선 확실히 보이는 강도로 둠 — 동작 확인 후 천천히로 올린다(값↑ = 느림). */
@@ -53,15 +53,15 @@ const zoomKeyframes = {
 };
 
 /**
- * 배경 Z-dive 키프레임 — 안개 전체를 화면 안쪽으로 파고드는 가속 진입.
- * 0→62%: 천천히 들어가다 급가속(ease-in)하며 스케일업(=깊이 전진),
- * 62→100%: 감속하며 원위치 정착. (글리프 아님 — 안개 배경 전용)
+ * 배경 Z-dive 키프레임 — 문자 생성 순간 안개가 안쪽으로 "확" 가속해 들어간다.
+ * 단조 전진(scale 1→1.32)만 — 뒤로 가는(scale 축소) 구간 없음 = bounce 없음.
+ * front-load(ease-out)는 animation shorthand의 타이밍 함수로 줘서 Enter 직후
+ * 즉시 빠르게 나갔다 감속한다. forwards로 끝값(1.32)을 유지(다음 생성 시 리셋).
  */
 const diveKeyframes = {
   '@keyframes fogDiveIn': {
-    '0%': { transform: 'scale(1)', animationTimingFunction: 'cubic-bezier(0.7, 0, 0.84, 0)' },
-    '62%': { transform: 'scale(1.85)', animationTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' },
-    '100%': { transform: 'scale(1)' },
+    '0%': { transform: 'scale(1)' },
+    '100%': { transform: 'scale(1.32)' },
   },
 };
 
@@ -170,7 +170,8 @@ function renderLayers(layerBaseSx, isActive, diveKey = 0) {
         inset: 0,
         pointerEvents: 'none',
         transformOrigin: '50% 45%',
-        animation: diveKey > 0 ? `fogDiveIn ${DIVE_MS}ms ease-out` : 'none',
+        // front-load ease-out — Enter 직후 즉시 빠르게 나갔다 감속, 뒤로 안 감(forwards)
+        animation: diveKey > 0 ? `fogDiveIn ${DIVE_MS}ms cubic-bezier(0.05, 0.7, 0.1, 1) forwards` : 'none',
         '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
       } }
     >
