@@ -29,6 +29,42 @@ const FOG_LAYER_LARGE = fogNoiseSvg(0.012, 2, 7);
 const FOG_LAYER_MID = fogNoiseSvg(0.022, 3, 19);
 const FOG_LAYER_FINE = fogNoiseSvg(0.05, 2, 41);
 
+/** 배경 Z-dive 지속 시간 (ms) — 문자 생성 시 안개가 화면 안쪽으로 가속하는 1회 버스트 */
+const DIVE_MS = 1800;
+
+/** 평상시 상시 전진 주기 (ms) — 한 겹이 한 번 안으로 줌인하는 시간 (작을수록 빠름).
+ *  우선 확실히 보이는 강도로 둠 — 동작 확인 후 천천히로 올린다(값↑ = 느림). */
+const CREEP_MS = 8000;
+
+/**
+ * 평상시 상시 전진 키프레임 — 안개가 끊임없이 안으로(scale up) 빨려든다.
+ * 핵심: opacity를 대부분 구간(15~85%)에서 1로 유지(flat-top)해, 보이는 겹이
+ * scale 1→2.1을 끝까지 통과하며 줌하도록 한다. opacity 피크가 중간 스케일이면
+ * 두 겹의 평균 스케일이 고정돼 "멈춰" 보이므로 금지. 이음새(0%/100%)에서만 0으로
+ * 떨구고, 같은 키프레임을 절반 위상차로 두 겹 겹쳐 그 짧은 이음새를 서로 가린다.
+ */
+const zoomKeyframes = {
+  '@keyframes fogZoom': {
+    '0%': { transform: 'scale(1)', opacity: 0 },
+    '15%': { transform: 'scale(1.16)', opacity: 1 },
+    '85%': { transform: 'scale(1.93)', opacity: 1 },
+    '100%': { transform: 'scale(2.1)', opacity: 0 },
+  },
+};
+
+/**
+ * 배경 Z-dive 키프레임 — 안개 전체를 화면 안쪽으로 파고드는 가속 진입.
+ * 0→62%: 천천히 들어가다 급가속(ease-in)하며 스케일업(=깊이 전진),
+ * 62→100%: 감속하며 원위치 정착. (글리프 아님 — 안개 배경 전용)
+ */
+const diveKeyframes = {
+  '@keyframes fogDiveIn': {
+    '0%': { transform: 'scale(1)', animationTimingFunction: 'cubic-bezier(0.7, 0, 0.84, 0)' },
+    '62%': { transform: 'scale(1.85)', animationTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+    '100%': { transform: 'scale(1)' },
+  },
+};
+
 /** 느린 드리프트 키프레임 — transform만 사용, linear 무한 루프 (GPU 합성 단계) */
 const driftKeyframes = {
   '@keyframes chamberDriftA': {
@@ -52,7 +88,14 @@ const driftKeyframes = {
  * @param {boolean} isActive - 드리프트 동작 여부
  * @returns {JSX.Element} 안개 레이어 프래그먼트
  */
-function renderLayers(layerBaseSx, isActive) {
+/**
+ * 안개 노이즈 3장(큰 덩어리/중간 결/미세 입자) — 평상시 느린 2D drift 부착.
+ *
+ * @param {object} layerBaseSx - 레이어 공통 스타일
+ * @param {boolean} isActive - drift 동작 여부
+ * @returns {JSX.Element} 3장 프래그먼트
+ */
+function fogStack(layerBaseSx, isActive) {
   return (
     <>
       <Box
@@ -98,6 +141,46 @@ function renderLayers(layerBaseSx, isActive) {
   );
 }
 
+function renderLayers(layerBaseSx, isActive, diveKey = 0) {
+  /** 평상시 전진 한 겹 — fogZoom 무한 루프 + delay로 위상차. 정적 환경(reduced)은 1겹 고정 */
+  const creepLayerSx = (delayMs) => ({
+    ...zoomKeyframes,
+    position: 'absolute',
+    inset: 0,
+    pointerEvents: 'none',
+    transformOrigin: '50% 45%',
+    animation: `fogZoom ${CREEP_MS}ms linear infinite`,
+    animationDelay: `${delayMs}ms`,
+    '@media (prefers-reduced-motion: reduce)': { animation: 'none', opacity: 1, transform: 'none' },
+  });
+
+  // 정적(reduced-motion): 크로스페이드 없이 단일 스택 — 안개 농도 2배 방지
+  if (!isActive) {
+    return fogStack(layerBaseSx, false);
+  }
+
+  return (
+    // 바깥(burst) 래퍼 — 문자 생성 시 가속(fogDiveIn). diveKey 변경 시 remount되어
+    // 1회 재생되고, 안쪽 creep transform과 합성되어 "상시 전진이 확 빨라지는" 가속이 된다.
+    <Box
+      key={ diveKey }
+      sx={ {
+        ...diveKeyframes,
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        transformOrigin: '50% 45%',
+        animation: diveKey > 0 ? `fogDiveIn ${DIVE_MS}ms ease-out` : 'none',
+        '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
+      } }
+    >
+      {/* 평상시 상시 전진 — 같은 fogZoom을 절반 위상차로 두 겹 크로스페이드(끊김 없는 연속 줌) */}
+      <Box sx={ creepLayerSx(0) }>{ fogStack(layerBaseSx, isActive) }</Box>
+      <Box sx={ creepLayerSx(-CREEP_MS / 2) }>{ fogStack(layerBaseSx, isActive) }</Box>
+    </Box>
+  );
+}
+
 /**
  * LogogramChamber 컴포넌트
  *
@@ -117,6 +200,7 @@ function renderLayers(layerBaseSx, isActive) {
  * @param {string} maxWidth - 챔버 최대 너비 [Optional]
  * @param {boolean} isActive - 안개 드리프트 동작 여부 (false면 정적 안개) [Optional, 기본값: true]
  * @param {boolean} isFullscreen - 비율 컨테이너 대신 부모를 가득 채우는 안개 공간 (absolute inset 0) [Optional, 기본값: false]
+ * @param {number} diveKey - 값이 바뀔 때마다 안개가 화면 안쪽으로 가속 진입(Z-dive) 1회 재생 [Optional, 기본값: 0]
  * @param {object} sx - 추가 스타일 오버라이드 [Optional]
  *
  * Example usage:
@@ -133,6 +217,7 @@ function LogogramChamber({
   maxWidth,
   isActive = true,
   isFullscreen = false,
+  diveKey = 0,
   sx = {},
 }) {
   /** 레이어 공통 — 절대 위치로 무대 전체를 덮고, 동작 시에만 drift 애니메이션 부착 */
@@ -170,7 +255,7 @@ function LogogramChamber({
   if (isFullscreen) {
     return (
       <Box sx={ { position: 'absolute', inset: 0, overflow: 'hidden', ...chamberSx } }>
-        { renderLayers(layerBaseSx, isActive) }
+        { renderLayers(layerBaseSx, isActive, diveKey) }
         <Box
           sx={ {
             position: 'relative',
@@ -196,7 +281,7 @@ function LogogramChamber({
       background="custom.chamber.fog"
       sx={ chamberSx }
     >
-      { renderLayers(layerBaseSx, isActive) }
+      { renderLayers(layerBaseSx, isActive, diveKey) }
       {/* 로고그램 렌더러 무대 — 안개 레이어 위, 비네트 아래 */}
       <Box
         sx={ {

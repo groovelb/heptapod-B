@@ -34,6 +34,7 @@ const EXPORT_SCALE = 2;
 /** 뷰포트 짧은 변 대비 로고그램 크기 비율 — 영화처럼 화면을 압도하는 스케일 */
 const FULLSCREEN_FILL = 0.62;
 
+
 /** 모노스페이스 토큰 폴백 — theme.typography.custom?.mono 미정의 환경 대비 */
 const MONO_FALLBACK = {
   fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace",
@@ -396,6 +397,9 @@ function HeptapodEncoderPage() {
   const musicRef = useRef(null);
   const musicAutoStartedRef = useRef(false);
   const [isMusicOn, setIsMusicOn] = useState(false);
+  // 배경 안개 Z-dive 트리거 — 값이 바뀔 때마다 챔버가 "안개 속으로 파고드는"
+  // 가속 진입 애니메이션을 1회 재생한다 (글리프 아님 — 배경 전용).
+  const [diveKey, setDiveKey] = useState(0);
 
   // 의문형은 입력의 '?'로 자동 판별 (토글 아님). '?'는 무드 마커이므로
   // 본체 시드에서 제외하고 questionHook 플래그로만 — 'Louise'와 'Louise?'는
@@ -501,6 +505,18 @@ function HeptapodEncoderPage() {
     setIsMusicOn(on);
   }, []);
 
+  /**
+   * 배경 안개 Z-dive 트리거 — 배경(안개)이 천천히 들어가다 생성 타이밍에 가속하며
+   * 화면 안쪽으로 파고드는 진입을 1회 재생한다. 글리프는 건드리지 않는다.
+   * reduced-motion은 무동작.
+   */
+  const triggerRush = useCallback(() => {
+    if (reducedMotion) {
+      return;
+    }
+    setDiveKey((k) => k + 1);
+  }, [reducedMotion]);
+
   /** 형성/등장 연출 완료 — 모델 완료 표시 + 사운드 settle */
   const handleFormationComplete = useCallback(() => {
     setFormedModel(model);
@@ -523,6 +539,7 @@ function HeptapodEncoderPage() {
       return;
     }
     audioRef.current?.encodeStart();
+    triggerRush(); // Z-depth 가속 진입
     // 최초 ENCODE 제스처에서 배경음악(Heptapod B) 시작 — 이후엔 토글로 제어
     if (!musicAutoStartedRef.current) {
       musicAutoStartedRef.current = true;
@@ -531,7 +548,7 @@ function HeptapodEncoderPage() {
     }
     setStack([]); // 새 인코딩 시 최상위로
     setEncodedName(trimmed);
-  }, [name]);
+  }, [name, triggerRush]);
 
   /** Enter 키로 ENCODE 실행 — 한글 IME 조합 중 Enter는 무시 (조기 확정 방지) */
   const handleKeyDown = useCallback((event) => {
@@ -618,8 +635,9 @@ function HeptapodEncoderPage() {
         backgroundColor: 'background.default',
       } }
     >
-      {/* L0 — 화면 전체 안개 공간 (영화: 챔버 안에 들어와 있는 구도) */}
-      <LogogramChamber isFullscreen isActive={ !reducedMotion }>
+      {/* L0 — 화면 전체 안개 공간 (영화: 챔버 안에 들어와 있는 구도).
+          diveKey 변경 시 안개가 화면 안쪽으로 가속 진입(Z-dive)한다. */}
+      <LogogramChamber isFullscreen isActive={ !reducedMotion } diveKey={ diveKey }>
         <Box
           ref={ stageRef }
           sx={ {
@@ -633,7 +651,7 @@ function HeptapodEncoderPage() {
           {/* 확정 인코딩 — 루트 단일 (클릭 시 분해) */}
           { model && stageMin > 0 && atRoot && (
             <Box
-              onClick={ canSplitRoot ? () => { setStack([rootCore]); audioRef.current?.encodeStart(); } : undefined }
+              onClick={ canSplitRoot ? () => { setStack([rootCore]); audioRef.current?.encodeStart(); triggerRush(); } : undefined }
               sx={ {
                 position: 'relative',
                 display: 'inline-flex',
@@ -658,7 +676,7 @@ function HeptapodEncoderPage() {
               stageMin={ stageMin }
               ink={ ink }
               fg={ fg }
-              onSelect={ (node) => { setStack((s) => [...s, node.text]); audioRef.current?.encodeStart(); } }
+              onSelect={ (node) => { setStack((s) => [...s, node.text]); audioRef.current?.encodeStart(); triggerRush(); } }
             />
           ) }
 
