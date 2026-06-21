@@ -395,8 +395,7 @@ function HeptapodEncoderPage() {
   const copyTimerRef = useRef(null);
   const audioRef = useRef(null);
   const musicRef = useRef(null);
-  const musicAutoStartedRef = useRef(false);
-  const [isMusicOn, setIsMusicOn] = useState(false);
+  const [isMusicOn, setIsMusicOn] = useState(true); // 기본 재생(default on)
   // 배경 안개 Z-dive 트리거 — 값이 바뀔 때마다 챔버가 "안개 속으로 파고드는"
   // 가속 진입 애니메이션을 1회 재생한다 (글리프 아님 — 배경 전용).
   const [diveKey, setDiveKey] = useState(0);
@@ -490,11 +489,28 @@ function HeptapodEncoderPage() {
     };
   }, []);
 
-  /** Heptapod B 배경음악 컨트롤러 — 마운트 시 생성(재생은 제스처 때) */
+  /**
+   * Heptapod B 배경음악 — 기본 재생(default on). 마운트 시 즉시 재생 시도하되,
+   * 브라우저 자동재생 정책으로 막히면 첫 사용자 상호작용(클릭/키)에서 1회 보장한다.
+   */
   useEffect(() => {
-    musicRef.current = createBackgroundMusic({ volume: 20 });
+    const music = createBackgroundMusic({ volume: 20 });
+    musicRef.current = music;
+    music.play(); // 즉시 시도 (정책상 막힐 수 있음 — 아래 kick에서 보장)
+
+    // 자동재생 차단 대비 — 첫 제스처에서 재생 보장 후 리스너 해제
+    const kick = () => {
+      music.play();
+      window.removeEventListener('pointerdown', kick);
+      window.removeEventListener('keydown', kick);
+    };
+    window.addEventListener('pointerdown', kick);
+    window.addEventListener('keydown', kick);
+
     return () => {
-      musicRef.current?.dispose();
+      window.removeEventListener('pointerdown', kick);
+      window.removeEventListener('keydown', kick);
+      music.dispose();
       musicRef.current = null;
     };
   }, []);
@@ -540,12 +556,6 @@ function HeptapodEncoderPage() {
     }
     audioRef.current?.encodeStart();
     triggerRush(); // Z-depth 가속 진입
-    // 최초 ENCODE 제스처에서 배경음악(Heptapod B) 시작 — 이후엔 토글로 제어
-    if (!musicAutoStartedRef.current) {
-      musicAutoStartedRef.current = true;
-      musicRef.current?.play();
-      setIsMusicOn(true);
-    }
     setStack([]); // 새 인코딩 시 최상위로
     setEncodedName(trimmed);
   }, [name, triggerRush]);
