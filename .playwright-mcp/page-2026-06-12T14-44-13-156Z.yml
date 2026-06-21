@@ -1,0 +1,67 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e6]:
+      - heading "Heptapod B Encoder" [level=1] [ref=e7]
+      - paragraph [ref=e8]: 이름은 번역되지 않는다 — 시드로 인코딩될 뿐이다
+    - generic [ref=e13]: Awaiting Input
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e17]:
+          - textbox "인코딩할 이름" [ref=e18]:
+            - /placeholder: YOUR NAME
+            - text: Louise
+          - group
+        - button "ENCODE" [ref=e19] [cursor=pointer]
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic:
+              - switch "ANALYSIS" [disabled]
+          - generic [ref=e24]: ANALYSIS
+        - generic [ref=e25] [cursor=pointer]:
+          - switch "INTERROGATIVE" [ref=e28]
+          - generic [ref=e31]: INTERROGATIVE
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - generic [ref=e35]: READOUT
+        - generic [ref=e36]:
+          - generic [ref=e37]: Seed Hash
+          - generic [ref=e38]: 6FF69958
+        - generic [ref=e39]:
+          - generic [ref=e40]: NFD Units
+          - generic [ref=e41]: "6"
+        - generic [ref=e42]:
+          - generic [ref=e43]: Active Segments
+          - generic [ref=e44]: "6"
+        - generic [ref=e45]:
+          - generic [ref=e46]: Weight Center
+          - generic [ref=e47]: 330.6°
+        - generic [ref=e48]:
+          - generic [ref=e49]: Render Tier
+          - generic [ref=e50]: WEBGL
+        - generic [ref=e51]:
+          - generic [ref=e52]: Slot States
+          - generic [ref=e53]:
+            - 'generic "slot 0: active" [ref=e54]': ■
+            - 'generic "slot 1: active" [ref=e55]': ■
+            - 'generic "slot 2: active" [ref=e56]': ■
+            - 'generic "slot 3: active" [ref=e57]': ■
+            - 'generic "slot 4: active" [ref=e58]': ■
+            - 'generic "slot 5: active" [ref=e59]': ■
+            - 'generic "slot 6: inactive" [ref=e60]': □
+            - 'generic "slot 7: inactive" [ref=e61]': □
+            - 'generic "slot 8: inactive" [ref=e62]': □
+            - 'generic "slot 9: inactive" [ref=e63]': □
+            - 'generic "slot 10: inactive" [ref=e64]': □
+            - 'generic "slot 11: inactive" [ref=e65]': □
+        - generic [ref=e66]:
+          - generic [ref=e67]: Type Codes
+          - text: WISP SPIK HOOK HOOK SPIK HOOK
+      - generic [ref=e68]:
+        - button "SAVE PNG" [ref=e69] [cursor=pointer]
+        - button "COPY LINK" [ref=e70] [cursor=pointer]
+    - contentinfo [ref=e71]:
+      - generic [ref=e72]:
+        - paragraph [ref=e73]: THIS IS NOT TRANSLATION. THIS IS ENCODING.
+        - paragraph [ref=e74]: 헵타포드 B에는 표음 체계가 없어 이름을 소리로 옮기는 음역은 원리적으로 불가능하다. 이 로고그램은 이름을 시드로 삼은 결정론적 절차 생성의 결과이며, 같은 이름은 언제나 같은 형태로 응집한다.
+  - img [ref=e76]
