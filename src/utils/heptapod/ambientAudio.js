@@ -66,7 +66,7 @@ export function createAmbientAudio() {
   let noise = null;
   let voices = [];
   let enabled = true;
-  const PEAK = 0.26;
+  const PEAK = 0.44; // 효과음 피크 — 배경음악(Heptapod B)에 묻히지 않게 상향
 
   /** AudioContext + 마스터 + reverb 버스 1회 구성 (제스처 시점) */
   function ensure() {

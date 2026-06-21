@@ -14,6 +14,7 @@ import { buildModelReversible, decode, inspect } from '../../utils/heptapod/reve
 import { detectRenderTier, subscribeReducedMotion } from '../../utils/heptapod/detectRenderTier';
 import { exportLogogramPng } from '../../utils/heptapod/exportPng';
 import { createAmbientAudio } from '../../utils/heptapod/ambientAudio';
+import { createBackgroundMusic } from '../../utils/heptapod/backgroundMusic';
 
 /**
  * tier → 렌더러 매핑 — v2 클러스터 모델은 Canvas 렌더러가 전담한다.
@@ -392,6 +393,9 @@ function HeptapodEncoderPage() {
   const stageRef = useRef(null);
   const copyTimerRef = useRef(null);
   const audioRef = useRef(null);
+  const musicRef = useRef(null);
+  const musicAutoStartedRef = useRef(false);
+  const [isMusicOn, setIsMusicOn] = useState(false);
 
   // 의문형은 입력의 '?'로 자동 판별 (토글 아님). '?'는 무드 마커이므로
   // 본체 시드에서 제외하고 questionHook 플래그로만 — 'Louise'와 'Louise?'는
@@ -482,6 +486,21 @@ function HeptapodEncoderPage() {
     };
   }, []);
 
+  /** Heptapod B 배경음악 컨트롤러 — 마운트 시 생성(재생은 제스처 때) */
+  useEffect(() => {
+    musicRef.current = createBackgroundMusic({ volume: 20 });
+    return () => {
+      musicRef.current?.dispose();
+      musicRef.current = null;
+    };
+  }, []);
+
+  /** 배경음악 토글 — 클릭 제스처 안에서 재생 시작(자동재생 정책) */
+  const handleToggleMusic = useCallback(() => {
+    const on = musicRef.current?.toggle() ?? false;
+    setIsMusicOn(on);
+  }, []);
+
   /** 형성/등장 연출 완료 — 모델 완료 표시 + 사운드 settle */
   const handleFormationComplete = useCallback(() => {
     setFormedModel(model);
@@ -504,6 +523,12 @@ function HeptapodEncoderPage() {
       return;
     }
     audioRef.current?.encodeStart();
+    // 최초 ENCODE 제스처에서 배경음악(Heptapod B) 시작 — 이후엔 토글로 제어
+    if (!musicAutoStartedRef.current) {
+      musicAutoStartedRef.current = true;
+      musicRef.current?.play();
+      setIsMusicOn(true);
+    }
     setStack([]); // 새 인코딩 시 최상위로
     setEncodedName(trimmed);
   }, [name]);
@@ -834,6 +859,28 @@ function HeptapodEncoderPage() {
         >
           Heptapod B
         </Typography>
+        {/* 타이틀곡 'Heptapod B' 재생 토글 — 타이틀에 묶어 의미·위치 정렬 */}
+        <Button
+          onClick={ handleToggleMusic }
+          variant="text"
+          startIcon={ <span style={ { fontSize: '0.7rem' } }>{ isMusicOn ? '❚❚' : '►' }</span> }
+          sx={ {
+            ...monoSx,
+            mt: 1,
+            py: 0.4,
+            px: 1,
+            minWidth: 0,
+            color: fg,
+            opacity: isMusicOn ? 0.85 : 0.45,
+            fontSize: '0.52rem',
+            letterSpacing: '0.22em',
+            borderRadius: 0,
+            border: `1px solid ${alpha(fg, isMusicOn ? 0.4 : 0.18)}`,
+            '&:hover': { opacity: 0.95, backgroundColor: alpha(fg, 0.06), borderColor: alpha(fg, 0.55) },
+          } }
+        >
+          { isMusicOn ? 'PLAYING OST' : 'PLAY OST' }
+        </Button>
       </Box>
 
       {/* 깊이 내비 — 상단 중앙, 화살표 하나 (← 한 단계 위로) */}

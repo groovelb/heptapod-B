@@ -108,7 +108,7 @@ function LogogramRendererCanvas({
 
     let raf = 0;
     let done = false;
-    const t0 = performance.now();
+    let t0 = performance.now();
 
     const tick = (now) => {
       const t = (now - t0) * timeScale; // timeScale>1이면 형성이 빠르게 감김 (프리뷰용)
@@ -154,8 +154,59 @@ function LogogramRendererCanvas({
       }
       raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+
+    // ── 가시성 게이트: 보일 때만 루프 가동 (성능 — 발열/배터리 절감) ──────
+    // 화면 밖(IntersectionObserver)·탭 백그라운드(visibilitychange)에서는
+    // RAF를 멈춘다. 복귀 시 멈춰 있던 시간만큼 t0를 밀어 형성 위상이 끊기지
+    // 않게 보정하므로, 보이는 동안의 비주얼은 기존과 100% 동일하다.
+    let running = false;
+    let pausedAt = 0;
+    const start = () => {
+      if (running) return;
+      running = true;
+      if (pausedAt) {
+        t0 += performance.now() - pausedAt;
+        pausedAt = 0;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    const stop = () => {
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(raf);
+      raf = 0;
+      pausedAt = performance.now();
+    };
+
+    let visible = !document.hidden;
+    let onScreen = true;
+    const evaluate = () => {
+      if (visible && onScreen) start();
+      else stop();
+    };
+
+    const onVisibility = () => {
+      visible = !document.hidden;
+      evaluate();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    let io = null;
+    if (typeof IntersectionObserver !== 'undefined') {
+      io = new IntersectionObserver((entries) => {
+        onScreen = entries[entries.length - 1]?.isIntersecting ?? true;
+        evaluate();
+      });
+      io.observe(canvas);
+    }
+
+    evaluate();
+
+    return () => {
+      stop();
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (io) io.disconnect();
+    };
   }, [built, vapor, size, ink, isActive, prefersReduced, timeScale]);
 
   return (
