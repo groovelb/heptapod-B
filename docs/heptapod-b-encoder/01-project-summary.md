@@ -27,6 +27,9 @@
 | 10 | 입자 형성 애니메이션 (Canvas 2D) | 파리 떼 모션 — 개별 jitter + 군집 응집(단순 boids). 완성 후 가장자리 영구 미세 진동. 영화 핵심 무드의 본질 | 필수 |
 | 11 | WebGL 유체 렌더링 (3단계) | Navier-Stokes 기반 유체 시뮬레이션에 로고그램 형태를 밀도 소스로 주입. 현실적 잉크 응집·확산 표현의 최고 완성도 목표 | 필수 |
 | 12 | 접근성 (prefers-reduced-motion) | 형성 애니메이션 생략, 즉시 완성 표시 | 필수 |
+| 13 | 시네마틱 효과음 (합성) | Web Audio API 합성 — ENCODE 시 whoosh+boom 전환음, 분석 스캔 톤. 저작권 회피(원음 미사용). 상세: `04-audio-and-motion.md` §1.1 | 구현됨 |
+| 14 | 배경음악 (Heptapod B OST) | YouTube IFrame API(API key 불필요)로 영화 OST 풀트랙 루프, 기본 재생(default on) + 음소거 토글. 상세: `04-audio-and-motion.md` §1.2 | 구현됨 |
+| 15 | 배경 Z-depth 모션 | 안개 배경이 평상시 천천히 안으로 전진(creep) + 문자 생성 시 가속(dive). 글리프 불변. 상세: `04-audio-and-motion.md` §2 | 구현됨 |
 
 ## 대상 사용자
 

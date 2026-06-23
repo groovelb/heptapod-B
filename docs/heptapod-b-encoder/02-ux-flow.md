@@ -7,17 +7,20 @@
 - **사용자**: 처음 방문한 일반 사용자
 - **목표**: 자기 이름이 헵타포드 B 로고그램으로 변환되는 것을 본다
 - **플로우**:
-  1. 챔버(안개 낀 서리 유리 공간)와 입력 필드가 있는 메인 화면 진입
-  2. 이름 입력 (한글/영문) 후 ENCODE 실행
+  1. 챔버(안개 낀 서리 유리 공간)와 입력 필드가 있는 메인 화면 진입. 안개 배경은 평상시 천천히 안으로 전진(Z-depth creep). 배경음악(Heptapod B OST) 기본 재생 — 첫 상호작용에서 시작 (자동재생 정책)
+  2. 이름 입력 (한글/영문) 후 ENCODE 실행 → **그 즉시** 시네마틱 전환음(whoosh+boom) + 안개 가속(dive) 동시 발화
   3. 이름 → 해시(xmur3) → 시드 → sfc32 PRNG → 형태 파라미터 결정 (순간)
   4. 입자들이 안개 속에서 모여들며 로고그램 형태로 응집 (형성 애니메이션)
   5. 완성 후 가장자리가 미세하게 살아 움직이는 "살아있는 문자" 상태 유지
   6. 데이터 리드아웃에 시드·NFD 유닛 수·활성 슬롯 등 표기
+
+  > 오디오·Z-depth 모션 상세: `04-audio-and-motion.md`
 - **성공 조건**: 같은 이름은 항상 같은 로고그램. 형태가 "규칙이 있어 보임"
 - **예외 상황**:
   - 빈 입력 → ENCODE 비활성
-  - `prefers-reduced-motion` → 형성 애니메이션 생략, 즉시 완성형 표시
+  - `prefers-reduced-motion` → 형성 애니메이션·Z-depth 모션 생략, 즉시 완성형/정적 안개
   - 저성능/비WebGL 기기 → 렌더러 자동 폴백(WebGL→Canvas→SVG)
+  - 브라우저 자동재생 차단 → 배경음악은 첫 클릭/키 입력에서 시작
 
 ### 시나리오 2: 해독 과정 탐색 (분석 오버레이)
 
@@ -107,7 +110,8 @@ flowchart LR
 ```
 Heptapod B Encoder
 ├── 메인 (Encoder)
-│   ├── 챔버 (로고그램 렌더 영역, 정방형, 서리 유리)
+│   ├── 챔버 (로고그램 렌더 영역, 정방형, 서리 유리, 안개 Z-depth 모션)
+│   ├── 타이틀 블록 (Heptapod B + 배경음악 토글 ► PLAY OST)
 │   ├── 입력 컨트롤 (이름 입력 + ENCODE)
 │   ├── 토글 컨트롤 (분석 오버레이 / 의문형 갈고리)
 │   ├── 데이터 리드아웃 (시드·NFD·슬롯·무게중심)
@@ -159,7 +163,11 @@ Heptapod B Encoder
 | **AnalysisOverlay** | 12세그먼트 분할선·슬롯 마커·유형 코드 오버레이 | 신규 | 카테고리: `overlay-feedback` (확정) |
 | **DataReadout** | 시드·NFD·슬롯 상태 모노스페이스 패널 | 신규 | 카테고리: `data-display` (Table 조합) |
 
-**신규 로직 모듈** (컴포넌트 아님 — `utils/` 배치):
+**신규 로직 모듈** (컴포넌트 아님 — `utils/heptapod/` 배치):
 - `encode.js`: xmur3 해시 + sfc32 PRNG + NFD 분해 (순수 함수)
-- `buildModel.js`: 시드 → LogogramModel 변환 (형태 모델 매핑 — R&D 1순위)
+- `buildModel.js` / `reversibleModel.js` / `reversibleCodec.js`: 시드 → LogogramModel 변환 + 가역 인코딩/디코딩
+- `logogramParticles.js`: 입자 형성 타임라인(`totalMs`) 생성 (Canvas 렌더러 입력)
 - `detectRenderTier.js`: WebGL/Canvas 능력 감지 + reduced-motion
+- `exportPng.js`: 고해상도 PNG 추출
+- `ambientAudio.js`: 시네마틱 효과음 합성 컨트롤러 (`04-audio-and-motion.md` §1.1)
+- `backgroundMusic.js`: YouTube IFrame 배경음악 컨트롤러 — API key 불필요 (`04-audio-and-motion.md` §1.2)
