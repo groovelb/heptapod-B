@@ -1,0 +1,77 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "submissions": [
+    {
+      "id": "s01-exterior-scale",
+      "scene": "S01",
+      "part": "start-to-end",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019ef3fe-0bb2-73e0-92bd-8c75fe0369b6",
+      "status": "COMPLETED",
+      "output": "public/heptapod-b-encoder/hero-motion/s01-s02-agent-a/s01-exterior-scale-v001.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f6fd7/hFx9heAEe1SxOivq6wvcs_output.mp4",
+      "start": "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/end.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f6fcc/7G1I7wWHGJR87-Pvx-0n3_start.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f6fc5/kQGq9na2ta0qZjpP1oLld_end.png",
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f6fd7/hFx9heAEe1SxOivq6wvcs_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 14043198
+        }
+      },
+      "submitted_at": "2026-06-23T10:22:52.289Z"
+    },
+    {
+      "id": "s02-threshold-start-to-mid",
+      "scene": "S02",
+      "part": "start-to-mid",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019ef401-2b7a-73a2-abda-e147dd994b1c",
+      "status": "COMPLETED",
+      "output": "public/heptapod-b-encoder/hero-motion/s01-s02-agent-a/s02-threshold-start-to-mid-v001.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f6ff2/eDTq6FnI6fsoGoFdFCMj4_output.mp4",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/start.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/mid.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f6fd9/bywVn5ZDt97aR7pkFmZfw_start.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f6fd9/BvfgLI3pWJdiORSIgU4ve_mid.png",
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f6ff2/eDTq6FnI6fsoGoFdFCMj4_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 15152658
+        }
+      },
+      "submitted_at": "2026-06-23T10:27:22.269Z"
+    },
+    {
+      "id": "s02-threshold-mid-to-end",
+      "scene": "S02",
+      "part": "mid-to-end",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019ef405-452a-7422-9fb0-e975793c4a5b",
+      "status": "COMPLETED",
+      "output": "public/heptapod-b-encoder/hero-motion/s01-s02-agent-a/s02-threshold-mid-to-end-v001.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f6fff/KkgySY-ssV-wCn3oCvDUF_output.mp4",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/mid.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/end.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f6ff4/yZ3NnvBdj9QLZTreu_kpI_mid.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f6ff4/oJcFdTunUZSNh3j06g5l5_end.png",
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f6fff/KkgySY-ssV-wCn3oCvDUF_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 10165062
+        }
+      },
+      "submitted_at": "2026-06-23T10:29:26.663Z"
+    }
+  ]
+}

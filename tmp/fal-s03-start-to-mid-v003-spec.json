@@ -1,0 +1,20 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "duration": "5",
+  "cfg_scale": 0.35,
+  "generate_audio": false,
+  "negative_prompt": "audio, speech, music, sound effects, fast cuts, shaky camera, fog membrane moving toward viewer, wall sliding toward camera, floating screen, platform staying same distance from membrane, researchers moving toward camera, researchers growing larger toward lens, chamber collapsing, stretched geometry, distorted perspective, circular ribbed tunnel, biomechanical alien texture, wet cave corridor, spaceship panels, glossy sci-fi, neon, blue laser portal, readable text, subtitles, logos, watermark, actor likeness",
+  "out": "public/heptapod-b-encoder/hero-motion/s03-agent-b/submissions-s03-start-to-mid-v003.json",
+  "clips": [
+    {
+      "id": "s03-chamber-start-to-mid-v003",
+      "scene": "S03",
+      "part": "start-to-mid",
+      "start": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/start.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/mid-approach-v2.png",
+      "output": "public/heptapod-b-encoder/hero-motion/s03-agent-b/s03-chamber-start-to-mid-v003.raw.mp4",
+      "generate_audio": false,
+      "prompt": "Silent video, no audio. Physical motion: the cold white fog membrane is a fixed wall at the far end of the chamber. The fog membrane does not move toward the viewer. The camera dollies forward through the rectangular chamber toward this fixed membrane. At the same time, the right-side lift platform carrying tiny protected researchers moves forward along the right wall toward the membrane. The visible distance between the researchers and the fog membrane must shrink over time. The researchers and platform must not move toward the camera and must not grow larger toward the lens except from the natural camera approach. The chamber geometry remains locked in world space: flat floor, flat ceiling, softly rounded rectangular corners, black-green vertical wall striations. Preserve low contrast, desaturated blue-grey and green-black film grade, soft halation around the membrane, mild 35mm grain, slow solemn documentary movement."
+    }
+  ]
+}

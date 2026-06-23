@@ -1,0 +1,27 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "duration": "5",
+  "cfg_scale": 0.5,
+  "negative_prompt": "fast cuts, shaky camera, glossy sci-fi, neon, cyberpunk, circular ribbed tunnel, biomechanical alien texture, wet cave corridor, spaceship panels, blue laser portal, readable text, subtitles, logos, watermark, distorted geometry, morphing walls, actor likeness",
+  "out": "public/heptapod-b-encoder/hero-motion/s03-agent-b/submissions.json",
+  "clips": [
+    {
+      "id": "s03-chamber-start-to-mid",
+      "scene": "S03",
+      "part": "start-to-mid",
+      "start": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/start.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/mid.png",
+      "output": "public/heptapod-b-encoder/hero-motion/s03-agent-b/s03-chamber-start-to-mid-v001.mp4",
+      "prompt": "Slow forward drift through a vast dark rectangular chamber inside a matte-black ovoid vessel. The distant cold white fog membrane grows slightly larger while the flat-ish floor and ceiling, softly rounded rectangular corners, and subtle black-green vertical wall striations remain stable. Tiny protected researchers on the right-side platform stay as small scale marks. Preserve desaturated blue-grey and green-black color grade, low contrast, soft halation, mild 35mm grain, and quiet documentary stillness."
+    },
+    {
+      "id": "s03-chamber-mid-to-end",
+      "scene": "S03",
+      "part": "mid-to-end",
+      "start": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/mid.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/end.png",
+      "output": "public/heptapod-b-encoder/hero-motion/s03-agent-b/s03-chamber-mid-to-end-v001.mp4",
+      "prompt": "Continue the slow forward drift toward the cold white rectangular fog membrane. The fog wall becomes larger and more luminous with soft blue-grey halation, while the near-black chamber edges remain rectangular and stable, not circular. Researchers on the right-side platform stay small and mostly silhouetted. Keep motion low, smooth, and solemn with desaturated blue-grey grade, crushed black edges, and mild analog film grain."
+    }
+  ]
+}

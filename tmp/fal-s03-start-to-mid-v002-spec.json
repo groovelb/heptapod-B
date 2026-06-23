@@ -1,0 +1,20 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "duration": "5",
+  "cfg_scale": 0.35,
+  "generate_audio": false,
+  "negative_prompt": "audio, speech, music, sound effects, fast cuts, shaky camera, camera dolly backward, camera rushing forward, researchers walking toward camera, platform moving toward viewer, figures growing larger toward lens, chamber walls sliding toward camera, distorted geometry, morphing walls, circular ribbed tunnel, biomechanical alien texture, wet cave corridor, spaceship panels, glossy sci-fi, neon, blue laser portal, readable text, subtitles, logos, watermark, actor likeness",
+  "out": "public/heptapod-b-encoder/hero-motion/s03-agent-b/submissions-s03-start-to-mid-v002.json",
+  "clips": [
+    {
+      "id": "s03-chamber-start-to-mid-v002",
+      "scene": "S03",
+      "part": "start-to-mid",
+      "start": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/start.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/mid.png",
+      "output": "public/heptapod-b-encoder/hero-motion/s03-agent-b/s03-chamber-start-to-mid-v002.raw.mp4",
+      "generate_audio": false,
+      "prompt": "Silent video, no audio. Locked-off wide observational shot inside a vast dark rectangular chamber. The camera is almost fixed, with only an extremely subtle forward push if needed. The rectangular fog membrane stays anchored at the far wall and grows only slightly. The right-side lift platform with tiny protected researchers glides away from the camera, deeper into the chamber, toward the white fog membrane. The researchers should become slightly farther from the viewer, not larger, and they must not walk toward the camera. The chamber walls, floor, ceiling, and rounded rectangular fog opening remain physically stable. Preserve the desaturated blue-grey and green-black color grade, low contrast, crushed black edges, soft halation, mild 35mm grain, and quiet documentary stillness."
+    }
+  ]
+}

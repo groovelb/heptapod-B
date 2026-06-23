@@ -1,0 +1,53 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "submissions": [
+    {
+      "id": "s03-chamber-start-to-mid",
+      "scene": "S03",
+      "part": "start-to-mid",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019ef3fd-cfe1-7c11-b42b-f4423937f46d",
+      "status": "COMPLETED",
+      "output": "public/heptapod-b-encoder/hero-motion/s03-agent-b/s03-chamber-start-to-mid-v001.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f6fd1/6mqaO4BrrfGGkOmu2W1Ej_output.mp4",
+      "start": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/start.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/mid.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f6fcb/MV64Gj6W9oZVX70MbGsDr_start.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f6fc3/JXvdp-ocbYuOgquU2EczB_mid.png",
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f6fd1/6mqaO4BrrfGGkOmu2W1Ej_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 16958992
+        }
+      },
+      "submitted_at": "2026-06-23T10:21:50.434Z"
+    },
+    {
+      "id": "s03-chamber-mid-to-end",
+      "scene": "S03",
+      "part": "mid-to-end",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019ef400-3954-7be3-84da-f5d171fe2caf",
+      "status": "COMPLETED",
+      "output": "public/heptapod-b-encoder/hero-motion/s03-agent-b/s03-chamber-mid-to-end-v001.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f6fe2/Zwc1sfVvyqLpdbALNlcQX_output.mp4",
+      "start": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/mid.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/end.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f6fd3/osNDBGbeTeGriBzaoM0K1_mid.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f6fd3/EwvlwGza6lb4QbGYbQfFU_end.png",
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f6fe2/Zwc1sfVvyqLpdbALNlcQX_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 18386581
+        }
+      },
+      "submitted_at": "2026-06-23T10:24:42.466Z"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "duration": "5",
+  "cfg_scale": 0.5,
+  "negative_prompt": "fast cuts, shaky camera, glossy sci-fi, neon, cyberpunk, circular ribbed tunnel, biomechanical alien texture, wet cave corridor, spaceship panels, blue laser portal, readable text, subtitles, logos, watermark, distorted geometry, morphing vessel, actor likeness",
+  "out": "public/heptapod-b-encoder/hero-motion/s01-s02-agent-a/submissions.json",
+  "clips": [
+    {
+      "id": "s01-exterior-scale",
+      "scene": "S01",
+      "part": "start-to-end",
+      "start": "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/end.png",
+      "output": "public/heptapod-b-encoder/hero-motion/s01-s02-agent-a/s01-exterior-scale-v001.mp4",
+      "prompt": "Slow controlled aerial push-in toward a huge matte-black vertical ovoid hovering above a misty muted green field under overcast grey light. Preserve the quiet documentary scale, low contrast, desaturated green-grey color grade, soft atmospheric haze, mild 35mm grain, and stable composition. The vessel should grow slightly in frame without revealing mechanical panels. Tiny researchers and vehicles stay far below as scale marks."
+    },
+    {
+      "id": "s02-threshold-start-to-mid",
+      "scene": "S02",
+      "part": "start-to-mid",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/start.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/mid.png",
+      "output": "public/heptapod-b-encoder/hero-motion/s01-s02-agent-a/s02-threshold-start-to-mid-v001.mp4",
+      "prompt": "A slow top-down camera move from inside a near-black matte vessel toward a large rounded-rectangle aperture. The dark interior edges become more dominant while muted grass and tiny researchers remain visible far below. Preserve the black-green vertical striated wall texture, crushed shadows, low contrast, desaturated green-grey and blue-grey grade, and analog 35mm grain. Keep the aperture rectangular with softly rounded corners."
+    },
+    {
+      "id": "s02-threshold-mid-to-end",
+      "scene": "S02",
+      "part": "mid-to-end",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/mid.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/end.png",
+      "output": "public/heptapod-b-encoder/hero-motion/s01-s02-agent-a/s02-threshold-mid-to-end-v001.mp4",
+      "prompt": "Continue the threshold entry as the camera passes almost fully into the dark vessel interior. The outside grass recedes into a soft distant patch while near-black striated interior mass fills the frame. Motion should be smooth and controlled, with no shake. Preserve the rounded-rectangle threshold shape, crushed black edges, low contrast, blue-grey falloff, and subtle 35mm film grain."
+    }
+  ]
+}
