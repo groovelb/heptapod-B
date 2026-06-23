@@ -15,8 +15,14 @@
 /** YouTube IFrame API 스크립트 주소 (key 불필요) */
 const YT_SCRIPT_SRC = 'https://www.youtube.com/iframe_api';
 
-/** Jóhann Jóhannsson — Heptapod B (Arrival OST, UMG/Paramount 제공) */
-const VIDEO_ID = 'KzaqrQuwr1k';
+/**
+ * Jóhann Jóhannsson — Heptapod B (Arrival OST, UMG/Paramount 제공).
+ * 환경변수(VITE_MUSIC_VIDEO_ID)로 교체 가능. 미설정 시 기본 ID.
+ */
+const VIDEO_ID = import.meta.env.VITE_MUSIC_VIDEO_ID || 'KzaqrQuwr1k';
+
+/** 기본 음량(0~100) — VITE_MUSIC_VOLUME, 미설정/무효 시 20 */
+const DEFAULT_VOLUME = Number(import.meta.env.VITE_MUSIC_VOLUME) || 20;
 
 /** IFrame API 로드 1회 공유 — 여러 컨트롤러가 같은 Promise를 재사용 */
 let apiPromise = null;
@@ -77,7 +83,7 @@ function loadYouTubeApi() {
  */
 export function createBackgroundMusic(opts = {}) {
   const videoId = opts.videoId || VIDEO_ID;
-  const volume = opts.volume ?? 32;
+  const volume = opts.volume ?? DEFAULT_VOLUME;
   let player = null;
   let container = null;
   let ready = false;

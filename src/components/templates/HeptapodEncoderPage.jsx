@@ -34,6 +34,9 @@ const EXPORT_SCALE = 2;
 /** 뷰포트 짧은 변 대비 로고그램 크기 비율 — 영화처럼 화면을 압도하는 스케일 */
 const FULLSCREEN_FILL = 0.62;
 
+/** 배경음악 기본 재생 여부 — VITE_MUSIC_AUTOPLAY (기본 true, 'false'일 때만 끔) */
+const MUSIC_AUTOPLAY = import.meta.env.VITE_MUSIC_AUTOPLAY !== 'false';
+
 
 /** 모노스페이스 토큰 폴백 — theme.typography.custom?.mono 미정의 환경 대비 */
 const MONO_FALLBACK = {
@@ -395,7 +398,7 @@ function HeptapodEncoderPage() {
   const copyTimerRef = useRef(null);
   const audioRef = useRef(null);
   const musicRef = useRef(null);
-  const [isMusicOn, setIsMusicOn] = useState(true); // 기본 재생(default on)
+  const [isMusicOn, setIsMusicOn] = useState(MUSIC_AUTOPLAY); // 기본 재생 여부는 env로
   // 배경 안개 Z-dive 트리거 — 값이 바뀔 때마다 챔버가 "안개 속으로 파고드는"
   // 가속 진입 애니메이션을 1회 재생한다 (글리프 아님 — 배경 전용).
   const [diveKey, setDiveKey] = useState(0);
@@ -494,8 +497,16 @@ function HeptapodEncoderPage() {
    * 브라우저 자동재생 정책으로 막히면 첫 사용자 상호작용(클릭/키)에서 1회 보장한다.
    */
   useEffect(() => {
-    const music = createBackgroundMusic({ volume: 20 });
+    const music = createBackgroundMusic(); // 음원·음량은 env(backgroundMusic) 기본값
     musicRef.current = music;
+
+    if (!MUSIC_AUTOPLAY) {
+      return () => {
+        music.dispose();
+        musicRef.current = null;
+      };
+    }
+
     music.play(); // 즉시 시도 (정책상 막힐 수 있음 — 아래 kick에서 보장)
 
     // 자동재생 차단 대비 — 첫 제스처에서 재생 보장 후 리스너 해제

@@ -26,3 +26,8 @@ CLAUDE.local.md
 *.sln
 *.sw?
 storybook-static
+
+# env (로컬 설정 — .env.example만 추적)
+.env
+.env.local
+.env.*.local
