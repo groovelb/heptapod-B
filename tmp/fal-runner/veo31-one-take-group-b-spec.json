@@ -9,49 +9,40 @@
   "out": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-b/submissions.json",
   "clips": [
     {
-      "id": "clip-05-05-5-lift-closeup-to-distant-ceiling-bridge",
-      "scene": "one-take-front",
-      "part": "05-05.5",
-      "start": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/transition-to-lift-v2-bridge-v1.png",
-      "end": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/operator-distant-ceiling-bridge-v1.png",
-      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-b/clip-05-05-5-lift-closeup-to-distant-ceiling-bridge.mp4",
-      "prompt": "Veo 3.1 first-last-frame motion. Start on the dark industrial lift close-up with the same four pale grey-suited researchers, black guard rails, and compact black equipment cases. Begin a restrained practical tilt and pull of attention upward into the new operator-to-distant-ceiling bridge: the lift/worker remains visible low in frame while the very distant ceiling-direction fog contact plane is only beginning to be discovered high above. This is a vertical scale reveal inside a very tall vessel, not a hallway move. Audio is present but subdued: lift motor, fabric movement, low chamber air. Avoid horizontal corridor, walking, stepping off, fog wall moving toward camera, portal, tractor beam, laser, sleek elevator pod, glossy panels, orange hazmat suits, red lift, suit color changes, clean CG, game render, readable text, logos, subtitles, watermark."
-    },
-    {
-      "id": "clip-05-5-06-distant-ceiling-to-long-ascent-start",
-      "scene": "one-take-front",
-      "part": "05.5-06",
-      "start": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/operator-distant-ceiling-bridge-v1.png",
-      "end": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/long-vertical-ascent-start-v1.png",
-      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-b/clip-05-5-06-distant-ceiling-to-long-ascent-start.mp4",
-      "prompt": "Veo 3.1 first-last-frame motion. Continue upward from the operator-to-distant-ceiling bridge into the long vertical ascent start. The vessel interior must read as extremely tall: at frame 06 the overhead fog contact plane is tiny and distant, like a small pale target far above the lift, not a nearby wall. The lift rises vertically through near-black striated volume; researchers stay braced behind black rails with equipment secured. Keep motion slow and heavy with subtle wall parallax, low contrast blue-grey fog glow, crushed readable shadows, mild 35mm grain. Audio is restrained but audible: low lift motor, rail vibration, chamber resonance. Avoid forward hallway travel, horizontal corridor, walking during ascent, stepping off, fog wall rushing toward camera, portal, tractor beam, levitation beam, sleek elevator pod, glossy panels, orange/red transfer, suit changes, clean CG, game render, readable text, watermark."
-    },
-    {
-      "id": "clip-06-07-long-vertical-ascent",
+      "id": "clip-06-07-lift-transition-to-distant-ceiling",
       "scene": "one-take-front",
       "part": "06-07",
-      "start": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/long-vertical-ascent-start-v1.png",
-      "end": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/long-vertical-ascent-mid-v1.png",
-      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-b/clip-06-07-long-vertical-ascent.mp4",
-      "prompt": "Veo 3.1 first-last-frame motion. The same dark industrial lift continues a long, slow vertical ascent inside the matte-black ovoid interior. The fixed overhead contact plane remains far above and grows only modestly by frame 07 through actual distance traveled, never jumping close or becoming a corridor wall. Researchers remain standing or bracing behind black rails with equipment cases secured; nobody walks or floats. Emphasize the long vertical scale, subtle parallax on dark striated walls, restrained lens breathing, blue-grey fog glow, low-contrast practical film texture. Audio is restrained but audible: low lift motor, rail vibration, chamber resonance. Avoid forward hallway travel, horizontal corridor, walking during ascent, stepping off, fog wall moving toward camera, portal, tractor beam, levitation beam, sleek elevator pod, glossy panels, orange/red transfer, suit changes, clean CG, game render, readable text, watermark."
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/lift-scene-start-v2.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/operator-distant-ceiling-reveal-v2.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-b/clip-06-07-lift-transition-to-distant-ceiling.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Continue the new lift scene inside the same vessel. Move from the practical lift transition frame into a rider-level upward view: the same four pale grey-suited researchers, black guard rails, and compact black equipment cases stay anchored low in frame while the camera discovers the very distant ceiling/front contact target high above. This is a vertical scale reveal, not a hallway move. Audio is present but subdued: lift motor, fabric movement, low chamber air, faint rail vibration. Avoid walking, stepping off, horizontal corridor, fog wall moving toward camera, portal, tractor beam, laser, sleek elevator pod, glossy panels, orange or red suits, orange or red lift, suit color changes, clean CG, game render, readable text, logos, subtitles, watermark."
     },
     {
-      "id": "clip-07-08-ascent-to-gravity-settle-prewalk",
+      "id": "clip-07-08-distant-ceiling-to-ascent-start",
       "scene": "one-take-front",
       "part": "07-08",
-      "start": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/long-vertical-ascent-mid-v1.png",
-      "end": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/gravity-settle-prewalk-v1.png",
-      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-b/clip-07-08-ascent-to-gravity-settle-prewalk.mp4",
-      "prompt": "Veo 3.1 first-last-frame motion. Continue from the long vertical ascent continuation into the new gravity-settle/prewalk landing frame. The lift reaches the arrival zone after a real vertical climb; the camera and bodies pass through a quiet controlled gravity reorientation so the new floor plane becomes readable by frame 08. The same researchers are still bracing or just about to step off, not walking yet. Keep the contact plane and chamber destination physically locked, with matte black striated surfaces, restrained fog glow, blue-grey color grade, crushed edges, mild 35mm grain. Audio is present but contained: low pressure shift, restrained lift motor, fabric movement, faint rail vibration. Avoid walking before gravity stabilizes, stepping off early, floating bodies, zero-gravity drift, portal, tractor beam, suction effect, fast spin, shaky camera, glossy panels, orange/red transfer, suit changes, clean CG, game render, readable text, watermark."
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/operator-distant-ceiling-reveal-v2.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/long-vertical-ascent-start-v1.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-b/clip-07-08-distant-ceiling-to-ascent-start.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Continue upward from the operator-to-distant-ceiling bridge into the long vertical ascent start. The vessel interior must read as extremely tall: the overhead fog contact surface is tiny and distant, like a small pale target far above the lift, not a nearby wall. The lift rises vertically through near-black striated volume; researchers stay braced behind black rails with equipment secured. Keep motion slow and heavy with subtle wall parallax, low contrast blue-grey fog glow, crushed readable shadows, mild 35mm grain. Audio is restrained but audible: low lift motor, rail vibration, chamber resonance. Avoid forward hallway travel, horizontal corridor, walking during ascent, stepping off, fog wall rushing toward camera, portal, tractor beam, levitation beam, sleek elevator pod, glossy panels, orange/red transfer, suit changes, clean CG, game render, readable text, watermark."
     },
     {
-      "id": "clip-08-09-gravity-settle-prewalk-to-walking",
+      "id": "clip-08-09-ascent-to-distant-wide-wall",
       "scene": "one-take-front",
       "part": "08-09",
-      "start": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/gravity-settle-prewalk-v1.png",
-      "end": "../../public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/walking-approach-v2.png",
-      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-b/clip-08-09-gravity-settle-prewalk-to-walking.mp4",
-      "prompt": "Veo 3.1 first-last-frame motion. Start from the gravity-settle/prewalk frame: gravity has just stabilized, the new floor plane is readable, and the same pale grey-suited team is still braced or just preparing to step off. Only after the settle completes, they begin a slow grounded walk toward the large fixed white fog membrane in the rectangular chamber. The dark industrial lift and black rails remain a continuity anchor behind them. Keep the transition physically plausible: controlled camera roll settles, bodies shift weight, then cautious walking begins. Preserve matte black rectangular chamber, blue-grey fog, low contrast, film grain. Audio is restrained: pressure settling, soft bootfalls, fabric rustle, low room tone. Avoid walking during the roll, floating, zero-gravity drift, horizontal corridor before gravity completes, fog wall moving toward camera, portal, tractor beam, orange/red transfer, suit changes, glossy CG, game render, readable text, watermark."
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/long-vertical-ascent-start-v1.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/distant-wide-wall-ascent-v2.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-b/clip-08-09-ascent-to-distant-wide-wall.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. The same dark industrial lift continues a long, slow vertical ascent inside the matte-black ovoid interior toward a distant wide luminous wall. The wall remains farther away than the next landing frame, growing only through real vertical lift travel and subtle wall parallax. Researchers remain standing or bracing behind black rails with equipment cases secured; nobody walks or floats. Keep the space as a vertical void with no floor plane and no corridor, blue-grey fog glow, low contrast, crushed readable shadows, mild 35mm grain. Audio is restrained but audible: low lift motor, rail vibration, chamber resonance. Avoid floor plane, hallway, horizontal corridor, walking during ascent, stepping off, fog wall rushing toward camera, boxed screen border, small glowing rectangle, portal, tractor beam, levitation beam, glossy panels, orange/red transfer, suit changes, clean CG, game render, readable text, watermark."
+    },
+    {
+      "id": "clip-09-10-wide-wall-to-prewalk-landing",
+      "scene": "one-take-front",
+      "part": "09-10",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/distant-wide-wall-ascent-v2.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/prewalk-landing-wide-wall-v2.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-b/clip-09-10-wide-wall-to-prewalk-landing.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Continue from the distant wide luminous wall ascent into the approach and gravity-settle prewalk landing. The lift reaches the arrival zone after a real vertical climb; the camera and bodies pass through a quiet controlled gravity reorientation as the wide luminous fog wall expands left-to-right across the frame. The final frame is immediately before the walking frame: the same workers are still on or at the lift, not walking yet, with the dark lift and black rails still readable. Preserve matte black striated curved surfaces, pale grey suits, dark lift, black rails, blue-grey fog glow, crushed readable edges, mild 35mm grain. Audio is present but contained: low pressure shift, restrained lift motor, fabric movement, faint rail vibration. Avoid walking before gravity stabilizes, stepping off early, floor-corridor travel, floating bodies, zero-gravity drift, portal, tractor beam, boxed screen border, small glowing rectangle, fast spin, shaky camera, glossy panels, orange/red transfer, suit changes, clean CG, game render, readable text, watermark."
     }
   ]
 }
