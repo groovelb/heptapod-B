@@ -1,0 +1,63 @@
+{
+  "profile": "veo",
+  "duration": "6s",
+  "aspect_ratio": "16:9",
+  "resolution": "1080p",
+  "out": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-final/submissions.json",
+  "clips": [
+    {
+      "id": "s02-threshold-breach",
+      "scene": "S02",
+      "part": "entrance-reveal-to-threshold-breach",
+      "start": "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/entrance-reveal-pan-v1.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/threshold-breach-v2.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-final/s02-threshold-breach-v001.mp4",
+      "prompt": "Final hero-shot motion. The camera crosses into the lower rounded-rectangle entrance immediately after the exterior entrance reveal. The near-black aperture rim grows around the frame while the muted field and tiny support crew remain visible below and behind. Preserve physical camera continuity into vertical shaft ascent, gravity reorientation, step-off, then walking approach, with desaturated green-grey and blue-grey film color, crushed dark edges, and mild 35mm grain. Avoid teleporting viewpoint, portal effects, tractor beams, neon, glossy panels, readable text, logos, actor likeness, and shaky camera."
+    },
+    {
+      "id": "s02-lift-ascent",
+      "scene": "S02",
+      "part": "threshold-breach-to-lift-ascent",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/threshold-breach-v2.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/lift-ascent-v3.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-final/s02-lift-ascent-v001.mp4",
+      "prompt": "Final hero-shot motion. Continue into the lower entrance as a practical lift platform carries anonymous researchers and compact equipment upward into the rounded-rectangle aperture. The motion is physical, slow, and heavy as the lift lines up with the vertical shaft ascent, with documentary restraint, low-contrast blue-grey and green-grey film color, crushed black edges, and mild 35mm grain. Avoid tractor-beam visuals, teleport effects, sleek sci-fi elevator design, neon, glossy panels, readable text, logos, actor likeness, and shaky camera. Sound, if generated, should be present but low and restrained."
+    },
+    {
+      "id": "s02-vertical-shaft-ascent",
+      "scene": "S02",
+      "part": "lift-ascent-to-vertical-shaft-ascent",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/lift-ascent-v3.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/vertical-shaft-ascent-v1.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-final/s02-vertical-shaft-ascent-v001.mp4",
+      "prompt": "Final hero-shot motion. The lift continues into a tall vertical shaft inside the vessel while anonymous researchers and compact equipment remain on the practical platform. The ascent is physical, slow, and heavy, with documentary restraint, near-black rectangular geometry, faint wall striations, low-contrast blue-grey color, crushed edges, and mild 35mm grain. Avoid floating bodies, tractor beams, portal effects, neon, glossy panels, readable text, logos, actor likeness, and shaky camera."
+    },
+    {
+      "id": "s02-gravity-rotation-handoff",
+      "scene": "S02",
+      "part": "vertical-shaft-ascent-to-gravity-rotation-handoff",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/vertical-shaft-ascent-v1.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/gravity-rotation-handoff-v1.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-final/s02-gravity-rotation-handoff-v001.mp4",
+      "prompt": "Final hero-shot motion. At the top of the vertical shaft ascent, the camera rolls through a quiet gravity reorientation into the new floor plane. Researchers stay controlled and grounded through the handoff. Preserve physical continuity, near-black rectangular geometry, faint wall striations, low-contrast blue-grey color, crushed edges, and mild 35mm grain. Avoid floating bodies, zero-gravity drift after the handoff, tractor beams, portal effects, neon, glossy panels, readable text, logos, actor likeness, and shaky camera."
+    },
+    {
+      "id": "s02-step-off-new-floor",
+      "scene": "S02",
+      "part": "gravity-rotation-handoff-to-step-off-new-floor",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/gravity-rotation-handoff-v1.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/step-off-new-floor-v1.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-final/s02-step-off-new-floor-v001.mp4",
+      "prompt": "Final hero-shot motion. After gravity reorientation, anonymous researchers step off the lift onto the new floor plane and prepare for the walking approach. The step-off is cautious, physical, and grounded, with documentary restraint, near-black rectangular geometry, low-contrast blue-grey color, crushed edges, and mild 35mm grain. Avoid floating bodies, zero-gravity drift, tractor beams, portal effects, neon, glossy panels, readable text, logos, actor likeness, and shaky camera."
+    },
+    {
+      "id": "s03-walking-approach",
+      "scene": "S03",
+      "part": "gravity-stable-walking-approach",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/step-off-new-floor-v1.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/walking-approach-v2.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-final/s03-walking-approach-v001.mp4",
+      "prompt": "Final hero-shot motion. After vertical shaft ascent, gravity reorientation, and step-off, anonymous researchers begin the walking approach toward a fixed white fog contact membrane at the far end. The camera and people advance slowly while the membrane remains physically locked in place. Preserve near-black rectangular chamber geometry, faint vertical wall striations, low-contrast blue-grey color, crushed edges, and mild 35mm grain. Avoid floating bodies, zero-gravity drift, the wall moving toward camera, circular tunnels, neon, glossy spaceship panels, readable text, logos, actor likeness, and shaky camera."
+    }
+  ]
+}

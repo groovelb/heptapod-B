@@ -20,7 +20,74 @@ fal.config({ credentials: key });
 
 const workspace = process.cwd();
 const spec = JSON.parse(await fs.readFile(specPath, 'utf8'));
-const model = spec.model || 'fal-ai/kling-video/v3/pro/image-to-video';
+const profile = resolveModelProfile(spec.profile || spec.model_profile, spec.model);
+const model = spec.model || profile.model;
+
+function resolveModelProfile(profileName, modelId) {
+  const modelProfiles = {
+    kling: {
+      model: 'fal-ai/kling-video/v3/pro/image-to-video',
+      startField: 'start_image_url',
+      endField: 'end_image_url',
+      defaultDuration: '5',
+      allowedDurations: new Set(['3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']),
+      optionFields: ['negative_prompt', 'cfg_scale', 'generate_audio', 'shot_type'],
+      requiresEndFrame: false,
+    },
+    'veo-fast': {
+      model: 'fal-ai/veo3.1/fast/first-last-frame-to-video',
+      startField: 'first_frame_url',
+      endField: 'last_frame_url',
+      defaultDuration: '6s',
+      allowedDurations: new Set(['4s', '6s', '8s']),
+      optionFields: ['generate_audio', 'aspect_ratio', 'resolution', 'seed', 'auto_fix', 'safety_tolerance'],
+      defaults: {
+        aspect_ratio: '16:9',
+        resolution: '720p',
+      },
+      requiresEndFrame: true,
+    },
+    veo: {
+      model: 'fal-ai/veo3.1/first-last-frame-to-video',
+      startField: 'first_frame_url',
+      endField: 'last_frame_url',
+      defaultDuration: '6s',
+      allowedDurations: new Set(['4s', '6s', '8s']),
+      optionFields: ['generate_audio', 'aspect_ratio', 'resolution', 'seed', 'auto_fix', 'safety_tolerance'],
+      defaults: {
+        aspect_ratio: '16:9',
+        resolution: '1080p',
+      },
+      requiresEndFrame: true,
+    },
+  };
+
+  if (profileName && modelProfiles[profileName]) return modelProfiles[profileName];
+  if (modelId?.includes('/veo3.1/fast/')) return modelProfiles['veo-fast'];
+  if (modelId?.includes('/veo3.1/')) return modelProfiles.veo;
+  if (modelId?.includes('/kling-video/')) return modelProfiles.kling;
+  return modelProfiles.kling;
+}
+
+function normalizeDuration(rawDuration, activeProfile) {
+  const value = String(rawDuration || activeProfile.defaultDuration);
+  if (activeProfile.allowedDurations.has(value)) return value;
+
+  if (activeProfile.startField === 'first_frame_url') {
+    const normalized = value.endsWith('s') ? value : `${value}s`;
+    if (activeProfile.allowedDurations.has(normalized)) return normalized;
+    if (value === '5') return '6s';
+  }
+
+  throw new Error(`Unsupported duration "${value}" for ${model}.`);
+}
+
+function addProfileOptions(input, clip) {
+  for (const field of profile.optionFields) {
+    const value = clip[field] ?? spec[field] ?? profile.defaults?.[field];
+    if (value !== undefined) input[field] = value;
+  }
+}
 
 async function uploadImage(localPath) {
   const abs = path.resolve(workspace, localPath);
@@ -34,16 +101,16 @@ async function submitClip(clip) {
   const endImageUrl = clip.end ? await uploadImage(clip.end) : undefined;
   const input = {
     prompt: clip.prompt,
-    start_image_url: startImageUrl,
-    duration: clip.duration || spec.duration || '5',
-    negative_prompt: clip.negative_prompt || spec.negative_prompt,
-    cfg_scale: clip.cfg_scale ?? spec.cfg_scale,
+    duration: normalizeDuration(clip.duration ?? spec.duration, profile),
   };
 
-  if (endImageUrl) input.end_image_url = endImageUrl;
-  if (clip.generate_audio !== undefined || spec.generate_audio !== undefined) {
-    input.generate_audio = clip.generate_audio ?? spec.generate_audio;
+  input[profile.startField] = startImageUrl;
+  if (endImageUrl) {
+    input[profile.endField] = endImageUrl;
+  } else if (profile.requiresEndFrame) {
+    throw new Error(`${model} requires an end frame for clip "${clip.id}".`);
   }
+  addProfileOptions(input, clip);
 
   let lastStatus = null;
   const result = await fal.subscribe(model, {
@@ -87,6 +154,8 @@ async function submitClip(clip) {
     end: clip.end || null,
     start_image_url: startImageUrl,
     end_image_url: endImageUrl || null,
+    profile: spec.profile || spec.model_profile || null,
+    input,
     result_data: result.data,
     submitted_at: new Date().toISOString(),
   };

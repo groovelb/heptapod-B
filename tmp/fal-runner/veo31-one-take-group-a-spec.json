@@ -1,0 +1,57 @@
+{
+  "profile": "veo",
+  "duration": "6s",
+  "generate_audio": true,
+  "aspect_ratio": "16:9",
+  "resolution": "1080p",
+  "poll_interval_ms": 10000,
+  "timeout_ms": 1800000,
+  "out": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-a/submissions.json",
+  "clips": [
+    {
+      "id": "clip-01-02-exterior-approach",
+      "scene": "one-take-front",
+      "part": "01-02",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/end-close-underside-v2.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-a/clip-01-02-exterior-approach.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Start from the misty exterior scale frame and glide slowly closer under the huge matte-black ovoid until the final frame's underside fills the view. Keep the field, tiny support team, and overcast green-grey atmosphere as continuity markers. The vessel grows through real camera movement, not morphing. Motion is restrained, heavy, documentary, with mild 35mm grain, low contrast, desaturated green-grey and blue-grey color grading, crushed readable shadows. Audio should be present but quiet: low wind, distant field ambience, and a subdued mechanical hush. Avoid fast motion, whip pan, shaky camera, teleport cuts, portal beams, tractor beams, blue lasers, glossy sci-fi panels, clean CG, game render, neon, orange hazmat suits, red lift, suit color changes, readable text, logos, subtitles, watermark."
+    },
+    {
+      "id": "clip-02-03-underside-pan-to-aperture",
+      "scene": "one-take-front",
+      "part": "02-03",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/end-close-underside-v2.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/entrance-reveal-pan-v1.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-a/clip-02-03-underside-pan-to-aperture.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Continue beneath the same matte-black ovoid and perform a slow physical pan/creep that reveals the lower rounded-rectangle aperture in the underside. The opening is discovered by camera movement along the craft, not by a portal effect. Keep the misty field and waiting team far below, preserving scale and the approved desaturated green-grey exterior grade. Audio should be subtle but not absent: low wind, distant lift hardware, muted pressure tone. Avoid teleporting viewpoint, glowing portal, tractor beam, blue laser, shiny mechanical hatch, fast reveal, clean CG, game render, orange/red palette transfer, black tactical suits, readable text, logos, subtitles, watermark."
+    },
+    {
+      "id": "clip-03-04-aperture-to-same-entrance",
+      "scene": "one-take-front",
+      "part": "03-04",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/entrance-reveal-pan-v1.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/same-entrance-confirmation-v1.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-a/clip-03-04-aperture-to-same-entrance.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Move from the exterior underside aperture reveal into a closer approach that confirms this is the exact same lower rounded entrance. The dark industrial lift with black rails rises into the same aperture carrying the same four pale grey-suited researchers and compact black equipment cases. Preserve object continuity: matte black shell, dark lift, pale grey suits, black rails, muted packs. Keep motion slow and physically plausible. Audio is low but present: lift motor, metal rail creak, damp exterior air. Avoid a second doorway, horizontal corridor, walking, levitation beam, portal, tractor beam, orange hazmat suits, red lift, suit color changes, glossy panels, clean CG, game render, readable text, logos, subtitles, watermark."
+    },
+    {
+      "id": "clip-04-04-5-same-entrance-to-threshold-lip",
+      "scene": "one-take-front",
+      "part": "04-04.5",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/same-entrance-confirmation-v1.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/threshold-lip-angle-bridge-v1.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-a/clip-04-04-5-same-entrance-to-threshold-lip.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Continue from the same underside entrance confirmation into the new threshold lip angle bridge. The camera crosses only partway inside the same rounded aperture so the exterior-to-interior angle change feels physical and continuous, with the matte-black shell and aperture lip still legible as the same entrance. Motion is slow, heavy, and documentary; the lift approach is implied but nobody walks. Preserve desaturated green-grey exterior spill falling into blue-grey near-black interior, crushed readable shadows, mild 35mm grain. Audio is restrained: damp exterior air, low lift hardware, muted interior resonance. Avoid a new doorway, horizontal corridor, teleporting viewpoint, portal, tractor beam, blue laser, sleek hatch, orange hazmat suits, red lift, black tactical suits, suit color changes, glossy CG, game render, readable text, subtitles, logos, watermark."
+    },
+    {
+      "id": "clip-04-5-05-threshold-lip-to-lift-closeup",
+      "scene": "one-take-front",
+      "part": "04.5-05",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/threshold-lip-angle-bridge-v1.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/transition-to-lift-v2-bridge-v1.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-a/clip-04-5-05-threshold-lip-to-lift-closeup.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Move from the partial threshold lip bridge into the operator/lift close-up frame on the same dark industrial lift. Black guard rails, compact black equipment cases, and the same pale grey-suited researchers become readable as the camera pushes inward; the team stands or braces on the lift and does not walk. Keep the aperture relationship behind them and preserve the low-contrast blue-grey/green-grey practical film look. Audio is restrained: quiet lift motor, fabric rustle, dull interior resonance. Avoid walking, horizontal corridor, new doorway, portal, tractor beam, levitation beam, orange hazmat suits, red lift, black tactical suits, suit color changes, glossy CG, game render, readable text, subtitles, logos, watermark."
+    }
+  ]
+}

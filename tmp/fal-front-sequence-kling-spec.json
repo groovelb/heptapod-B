@@ -1,0 +1,81 @@
+{
+  "profile": "kling",
+  "duration": "5",
+  "cfg_scale": 0.5,
+  "negative_prompt": "fast cuts, shaky camera, glossy sci-fi, neon, cyberpunk, circular ribbed tunnel, biomechanical alien texture, wet cave corridor, spaceship panels, blue laser portal, readable text, subtitles, logos, watermark, distorted geometry, morphing vessel, actor likeness, tractor beam, teleport effect",
+  "out": "public/heptapod-b-encoder/hero-motion/front-sequence-kling/submissions.json",
+  "clips": [
+    {
+      "id": "s01-underside-push",
+      "scene": "S01",
+      "part": "start-to-close-underside",
+      "start": "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/end-close-underside-v2.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-kling/s01-underside-push-v001.mp4",
+      "prompt": "Slow controlled exterior push-in toward the underside of a huge matte-black vertical ovoid hovering above a misty muted field. Keep the camera movement quiet and documentary, with desaturated green-grey color grade, low contrast, soft haze, mild 35mm grain, and no mechanical panel reveal. Tiny ground teams and vehicles remain scale marks."
+    },
+    {
+      "id": "s01-s02-entrance-reveal-pan",
+      "scene": "S01/S02",
+      "part": "underside-to-entrance-reveal",
+      "start": "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/end-close-underside-v2.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/entrance-reveal-pan-v1.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-kling/s01-s02-entrance-reveal-pan-v001.mp4",
+      "prompt": "Camera pans under the matte-black ovoid to reveal the lower rounded-rectangle entrance. Preserve the same quiet overcast film look, crushed dark underside, tiny human scale below, and practical military-science staging. The entrance should be revealed by camera movement, not by a portal or sci-fi mechanism."
+    },
+    {
+      "id": "s02-threshold-breach",
+      "scene": "S02",
+      "part": "entrance-reveal-to-threshold-breach",
+      "start": "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/entrance-reveal-pan-v1.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/threshold-breach-v2.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-kling/s02-threshold-breach-v001.mp4",
+      "prompt": "The camera crosses into the lower rounded-rectangle entrance immediately after the exterior entrance reveal. The near-black aperture rim grows around the frame while the muted field and tiny support crew remain visible below and behind. This begins the corrected S02 flow toward vertical shaft ascent, gravity reorientation, step-off, then walking approach. Preserve a physical camera move with no teleporting viewpoint, no portal effect, and no sudden perspective jump."
+    },
+    {
+      "id": "s02-lift-ascent",
+      "scene": "S02",
+      "part": "threshold-breach-to-lift-ascent",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/threshold-breach-v2.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/lift-ascent-v3.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-kling/s02-lift-ascent-v001.mp4",
+      "prompt": "Continue into the lower entrance as a practical lift platform carries anonymous researchers and compact equipment upward. The platform rises slowly into the rounded-rectangle aperture and lines up with the vertical shaft ascent. Keep the motion physical and restrained, with no tractor beam, no teleport effect, no sleek elevator cabin, and no loud visual machinery. Sound, if generated, should be present but low and restrained."
+    },
+    {
+      "id": "s02-vertical-shaft-ascent",
+      "scene": "S02",
+      "part": "lift-ascent-to-vertical-shaft-ascent",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/lift-ascent-v3.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/vertical-shaft-ascent-v1.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-kling/s02-vertical-shaft-ascent-v001.mp4",
+      "prompt": "The lift continues into a tall vertical shaft inside the vessel. Anonymous researchers and compact equipment remain on the practical platform as the shaft walls slide past slowly. Keep the ascent heavy and physical, with restrained blue-grey film color, no floating bodies, no tractor beam, and no sudden camera jump."
+    },
+    {
+      "id": "s02-gravity-rotation-handoff",
+      "scene": "S02",
+      "part": "vertical-shaft-ascent-to-gravity-rotation-handoff",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/vertical-shaft-ascent-v1.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/gravity-rotation-handoff-v1.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-kling/s02-gravity-rotation-handoff-v001.mp4",
+      "prompt": "At the top of the vertical shaft ascent, the camera and researchers experience a quiet gravity reorientation. The frame rolls with the new floor plane while people stay controlled and grounded through the handoff. Preserve near-black rounded rectangular geometry, faint striations, low contrast blue-grey grade, and no zero-gravity drift."
+    },
+    {
+      "id": "s02-step-off-new-floor",
+      "scene": "S02",
+      "part": "gravity-rotation-handoff-to-step-off-new-floor",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/gravity-rotation-handoff-v1.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/step-off-new-floor-v1.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-kling/s02-step-off-new-floor-v001.mp4",
+      "prompt": "After gravity reorientation, researchers step off the lift onto the new floor plane and prepare for the walking approach. The step-off is slow, cautious, and physical, with the platform behind them and the dark interior ahead. Avoid floating bodies, teleporting, tractor beams, portal effects, and glossy sci-fi surfaces."
+    },
+    {
+      "id": "s03-walking-approach",
+      "scene": "S03",
+      "part": "gravity-stable-walking-approach",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/step-off-new-floor-v1.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/walking-approach-v2.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-kling/s03-walking-approach-v001.mp4",
+      "prompt": "After vertical shaft ascent, gravity reorientation, and step-off, researchers begin the walking approach toward the fixed white fog contact membrane. The membrane stays locked at the far end while the camera and people approach it. Keep the motion slow, physical, and solemn, with no floating bodies, no zero-gravity drift, and no wall moving toward the camera."
+    }
+  ]
+}

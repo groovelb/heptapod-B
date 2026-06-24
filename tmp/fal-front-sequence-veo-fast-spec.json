@@ -1,0 +1,63 @@
+{
+  "profile": "veo-fast",
+  "duration": "6s",
+  "aspect_ratio": "16:9",
+  "resolution": "720p",
+  "out": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-fast/submissions.json",
+  "clips": [
+    {
+      "id": "s02-threshold-breach",
+      "scene": "S02",
+      "part": "entrance-reveal-to-threshold-breach",
+      "start": "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/entrance-reveal-pan-v1.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/threshold-breach-v2.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-fast/s02-threshold-breach-v001.mp4",
+      "prompt": "A restrained cinematic first-last-frame motion test. The camera crosses into the lower rounded-rectangle entrance immediately after the exterior entrance reveal. Preserve the relationship between the near-black aperture rim, the muted field below, and the physical lift approach into vertical shaft ascent, gravity reorientation, step-off, then walking approach. Avoid teleporting viewpoint, portal effects, tractor beams, neon, glossy panels, readable text, logos, actor likeness, and shaky camera."
+    },
+    {
+      "id": "s02-lift-ascent",
+      "scene": "S02",
+      "part": "threshold-breach-to-lift-ascent",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/threshold-breach-v2.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/lift-ascent-v3.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-fast/s02-lift-ascent-v001.mp4",
+      "prompt": "A restrained cinematic first-last-frame motion test. Continue into the lower entrance as a practical lift platform carries anonymous researchers and compact equipment upward into the rounded-rectangle aperture. Keep the motion physical and slow as the lift lines up with the vertical shaft ascent. Avoid tractor-beam visuals, teleport effects, sleek sci-fi elevator design, neon, glossy panels, readable text, logos, actor likeness, and shaky camera. Sound, if generated, should be present but low and restrained."
+    },
+    {
+      "id": "s02-vertical-shaft-ascent",
+      "scene": "S02",
+      "part": "lift-ascent-to-vertical-shaft-ascent",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/lift-ascent-v3.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/vertical-shaft-ascent-v1.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-fast/s02-vertical-shaft-ascent-v001.mp4",
+      "prompt": "A restrained cinematic first-last-frame motion test. The lift continues into a tall vertical shaft inside the vessel while anonymous researchers and compact equipment remain on the practical platform. Keep the ascent slow, physical, and heavy. Avoid floating bodies, tractor beams, teleport effects, neon, glossy panels, readable text, logos, actor likeness, and shaky camera."
+    },
+    {
+      "id": "s02-gravity-rotation-handoff",
+      "scene": "S02",
+      "part": "vertical-shaft-ascent-to-gravity-rotation-handoff",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/vertical-shaft-ascent-v1.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/gravity-rotation-handoff-v1.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-fast/s02-gravity-rotation-handoff-v001.mp4",
+      "prompt": "A restrained cinematic first-last-frame motion test. At the top of the vertical shaft ascent, the camera rolls through a quiet gravity reorientation into the new floor plane. Researchers remain controlled through the handoff. Avoid floating bodies, zero-gravity drift after the handoff, tractor beams, portal effects, neon, glossy panels, readable text, logos, actor likeness, and shaky camera."
+    },
+    {
+      "id": "s02-step-off-new-floor",
+      "scene": "S02",
+      "part": "gravity-rotation-handoff-to-step-off-new-floor",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/gravity-rotation-handoff-v1.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/step-off-new-floor-v1.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-fast/s02-step-off-new-floor-v001.mp4",
+      "prompt": "A restrained cinematic first-last-frame motion test. After gravity reorientation, anonymous researchers step off the lift onto the new floor plane and prepare for the walking approach. Keep the step-off cautious, physical, and grounded. Avoid floating bodies, zero-gravity drift, tractor beams, portal effects, neon, glossy panels, readable text, logos, actor likeness, and shaky camera."
+    },
+    {
+      "id": "s03-walking-approach",
+      "scene": "S03",
+      "part": "gravity-stable-walking-approach",
+      "start": "public/heptapod-b-encoder/hero-scenes/s02-threshold-opening/step-off-new-floor-v1.png",
+      "end": "public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/walking-approach-v2.png",
+      "output": "public/heptapod-b-encoder/hero-motion/front-sequence-veo-fast/s03-walking-approach-v001.mp4",
+      "prompt": "A restrained cinematic first-last-frame motion test. After vertical shaft ascent, gravity reorientation, and step-off, anonymous researchers begin the walking approach toward a fixed white fog contact membrane at the far end. The membrane remains physically locked while the camera and people approach. Avoid floating bodies, zero-gravity drift, the wall moving toward camera, circular tunnels, neon, glossy spaceship panels, readable text, logos, actor likeness, and shaky camera."
+    }
+  ]
+}

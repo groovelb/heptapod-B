@@ -1,0 +1,48 @@
+{
+  "profile": "veo",
+  "duration": "6s",
+  "generate_audio": true,
+  "aspect_ratio": "16:9",
+  "resolution": "1080p",
+  "poll_interval_ms": 10000,
+  "timeout_ms": 1800000,
+  "out": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-c/submissions.json",
+  "clips": [
+    {
+      "id": "clip-09-10-walk-to-fog-contact",
+      "scene": "one-take-front",
+      "part": "09-10",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s03-rectangular-chamber/walking-approach-v2.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s04-fog-contact/start.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-c/clip-09-10-walk-to-fog-contact.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Gravity is already stable. The same pale grey-suited researchers walk slowly and cautiously on the new floor plane inside the near-black rectangular chamber toward the large fixed white fog membrane. The camera advances slightly with them; the membrane stays architectural and stationary, growing only through approach. End on the lead researcher at the membrane with a hand raised near contact and a faint smoky circular response forming in the fog. Preserve matte black striated walls, desaturated blue-grey fog, low contrast, crushed readable edges, mild 35mm grain. Audio is present but subtle: soft bootfalls, fabric movement, low chamber air, faint fog pressure. Avoid walking before gravity, floating bodies, fog wall moving toward camera, small glowing rectangle, portal, tractor beam, glossy panels, circular tunnel, neon, orange hazmat suits, red lift, suit color changes, readable text, subtitles, UI overlay, logos, watermark, actor likeness."
+    },
+    {
+      "id": "clip-10-11-fog-contact-to-full-fog",
+      "scene": "one-take-front",
+      "part": "10-11",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s04-fog-contact/start.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s05-fog-fill-match/start.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-c/clip-10-11-fog-contact-to-full-fog.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Start from the fog-contact frame and end exactly on the full fog match frame. Hold the human figure near the edge with the hand steady at the membrane while the smoky circular logogram response slowly thickens, breathes, and diffuses. The exposure gently dissolves into the membrane until the person, hand, and dark wall edge disappear into full-frame cold white-blue fog. Motion is very low and physical, as if fog absorbs the image rather than pulling the camera. Audio is present but restrained: low contact hiss, damp room tone, barely audible pressure swell. Avoid portal opening, camera suction, fog wall rushing forward, explosive ink, vortex, orange hazmat suits, red lift, suit color changes, readable symbols or Latin letters, subtitles, UI elements, actor likeness, glossy CG, game render, jump cut, watermark, logo."
+    },
+    {
+      "id": "clip-11-12-full-fog-to-idle-ui",
+      "scene": "one-take-front",
+      "part": "11-12",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s05-fog-fill-match/start.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s06-encoder-idle-plate/ui-capture.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-c/clip-11-12-full-fog-to-idle-ui.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Begin on the full-frame fog match plate and end exactly on the real encoder idle UI capture. Let the remaining smoky logogram trace dissolve into a clean UI-ready fog field. The transition should feel like a restrained match cut from cinematic fog into the live web chamber, with subtle fog creep, gentle vignette settling, and a quiet exposure shift. UI may appear only as it exists in the provided final capture; do not invent interface text, labels, panels, or controls before the final capture. Once visible, the UI remains locked, flat, and undistorted. Audio is subtle: chamber air, low electronic room tone, no speech. Avoid new UI text, garbled interface text, fake controls, animated typography, text crawling, portal beam, neon, glossy CG, harsh bloom, fast fog, camera shake, hard cut, overexposed blank white frame, watermark."
+    },
+    {
+      "id": "clip-12-13-idle-ui-to-response-ui",
+      "scene": "one-take-front",
+      "part": "12-13",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s06-encoder-idle-plate/ui-capture.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s07-logogram-response-plate/ui-capture.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/group-c/clip-12-13-idle-ui-to-response-ui.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Start from the real encoder idle UI capture and end exactly on the real response UI capture. Treat the interface as a locked final capture layer: preserve layout, linework, spacing, and text that already exists in the start and end frames, with no invented UI copy. Motion belongs mainly to the fog chamber and logogram: center fog subtly breathes, the idle state gives way to response, and a black smoky circular logogram forms with restrained ink diffusion behind the UI. The final typed input and analysis panel should match only the provided last frame. Audio is subtle: quiet UI hum, muted confirmation tick, soft ink bloom hiss. Avoid new UI text beyond provided captures, misspelled input, garbled letters, extra panels, jittering UI, warped interface lines, flashy HUD animation, neon, glitch, aggressive ink explosion, camera shake, glossy CG, game render, watermark."
+    }
+  ]
+}
