@@ -1,0 +1,19 @@
+{
+  "profile": "kling",
+  "duration": "6",
+  "cfg_scale": 0.28,
+  "generate_audio": true,
+  "negative_prompt": "shot 08, intermediate frame, visible cut, edit, jump cut, camera teleport, perspective flip, camera direction change, reverse view, look back, side pan, lateral camera move, orbit, forward hallway move, background sliding sideways, vessel moving, vessel translating, vessel descending, vessel rising, vessel drifting, vessel sliding, vessel rotating, vessel resizing itself, vessel relighting, aperture warping, hull stretching, geometry distortion, lift moving sideways, lift sliding, lift rolling, lift swinging, lift detaching, lift redesign, orange lift, red lift, people walking, people stepping off, people jumping, people teleporting, people duplicating, floating bodies, falling bodies, orange suits, red suits, costume change, destination stop, floor path, hallway, horizontal corridor, ramp, bridge, stairs, gangway, walkway, portal, blue laser, new interior lights, bright lamps, glowing panels, small bright rectangle becoming a light source, wall rushing toward camera, fog wall rushing forward, clean CG, game render, neon, increased saturation, readable text, subtitles, logos, watermark, sharp percussive sound, metallic hit, loud impact, music, dialogue",
+  "out": "../../public/heptapod-b-encoder/hero-motion/kling-audio-07-09-direct/submissions-07-09-direct-wide-wall-ascent-v2.json",
+  "clips": [
+    {
+      "id": "kling-audio-07-09-direct-wide-wall-ascent-v2",
+      "scene": "vertical-ascent-to-distant-wide-wall",
+      "part": "07-09",
+      "start": "../heptapod-motion-frames/07-09-direct/shot-07-last-from-01-07-direct.png",
+      "end": "../heptapod-motion-frames/07-09-direct/shot-09-distant-wide-wall-ascent-1916x1080.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-07-09-direct/kling-audio-07-09-direct-wide-wall-ascent-v2.mp4",
+      "prompt": "Kling first-last-frame motion with generated audio. Skip Shot 08 completely. Continue directly from Shot 07 to Shot 09 as one continuous vertical lift ascent. The motion is straight upward along the same vertical shaft axis, not forward travel toward a wall. Keep the same upward-facing camera axis inside the fixed matte black ovoid interior: no camera turn-around, no reverse view, no look back, no side pan, no visible cut. The vessel interior is fixed in world space and never moves or changes shape. The same dark industrial lift rises vertically in place with no horizontal travel, no sliding, no swinging, and no redesign. The camera rides with the lift on the same vertical axis, using only a restrained upward push and slow zoom as the lift travels higher. The tiny distant contact point from Shot 07 gradually reads wider from left to right by Shot 09 only because of vertical lift ascent and lens compression, not because the camera moves forward. This is still mid-ascent: the lift has not stopped, nobody leaves the lift, nobody walks, and no floor path or corridor appears. The four researchers in pale grey protective suits remain on the dark lift behind black rails with compact black cases, subtly bracing during upward motion; nobody changes costume, walks, steps off, jumps, duplicates, floats, or falls. Preserve desaturated green grey and blue grey 35mm film grade, low contrast, readable black shadows, rough striated matte black surfaces, dark lift color, pale grey suits, natural haze, no orange or red shift, no clean CG look. Do not add new lights, panels, portal effects, corridors, ramps, bridges, or walkways. Audio is restrained low wind pressure and deep interior air resonance only, soft and continuous, with no music, no dialogue, no sharp transients."
+    }
+  ]
+}
