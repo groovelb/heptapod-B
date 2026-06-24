@@ -1,0 +1,18 @@
+{
+  "profile": "kling",
+  "duration": "6",
+  "cfg_scale": 0.25,
+  "generate_audio": true,
+  "negative_prompt": "end frame, first-last-frame, visible cut, edit, jump cut, scene cut, internal cut, camera teleport, rapid zoom, strong forward dolly, camera sucked into membrane, portal tunnel, vortex, spiral, ink swirl, beam, laser, explosion, shockwave, aggressive fog wall rushing toward camera, violent wipe, hard flash, overexposed blast, new UI, interface graphics, symbols, readable text, subtitles, logos, watermark, new doorway, new room, corridor travel, wall redesign, lift redesign, extra people, duplicate people, people walking, people waving, large pose change, sharp contrast, saturated color, orange lighting, red lighting, clean CG, game render, music, dialogue, voice, loud impact, pop sound, click sound, sharp transient, alarm, siren",
+  "out": "../../public/heptapod-b-encoder/hero-motion/kling-audio-11-whiteout/submissions-11-whiteout-full-screen-fog-v1.json",
+  "clips": [
+    {
+      "id": "kling-audio-11-whiteout-full-screen-fog-v1",
+      "scene": "final-contact-membrane-match-fog-whiteout",
+      "part": "11-whiteout",
+      "start": "../heptapod-motion-frames/11-whiteout/shot-11-walking-to-wide-wall-1916x1080.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-11-whiteout/kling-audio-11-whiteout-full-screen-fog-v1.mp4",
+      "prompt": "Kling image-to-video motion with generated audio, using only the provided Shot 11 start image as the source. Create one uninterrupted 6 second final hero ending. The wide pale contact membrane and blue grey white fog gently bloom outward and thicken until the frame becomes almost entirely cool soft white fog. This should feel like a match-fog whiteout swallowing the image, not a portal and not the camera being pulled into the wall. Keep the camera nearly locked with only a tiny natural breathing drift; no forward rush, no vortex, no tunnel, no beam, no explosion, and no aggressive zoom. The people, lift, black railings, wall edges, and chamber texture gradually lose contrast, become weak silhouettes, then dissolve into the fog. Do not create any new UI, text, symbols, graphics, logos, or subtitles. Preserve the 35mm film look, low contrast, blue grey and cold white fog palette, soft halation, gentle film grain, and restrained cinematic haze. The last second should be a quiet full-screen cold white fog field with only very faint residual texture and no readable subjects. Audio is a deep low-frequency interior pressure tone, soft fog hiss, and very low room tone only. No music, no dialogue, no voice, no pops, no clicks, no impacts, and no sharp transient sounds."
+    }
+  ]
+}

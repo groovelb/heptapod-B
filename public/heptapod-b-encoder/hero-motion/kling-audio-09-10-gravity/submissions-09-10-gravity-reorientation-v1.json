@@ -1,0 +1,39 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "submissions": [
+    {
+      "id": "kling-audio-09-10-gravity-reorientation-v1",
+      "scene": "gravity-reorientation-from-ceiling-to-forward-threshold",
+      "part": "09-10",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019efa3a-7f1a-7801-b2c6-817baea514b4",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-09-10-gravity/kling-audio-09-10-gravity-reorientation-v1.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f98b9/oLtPBpLzJnkhrTbbZ7Cf5_output.mp4",
+      "start": "../heptapod-motion-frames/07-09-direct/shot-09-distant-wide-wall-ascent-ceiling-far-1916x1080.png",
+      "end": "../heptapod-motion-frames/09-10-gravity/shot-10-prewalk-landing-wide-wall-1916x1080.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f98a3/GPWVhcql0NIC5-pOI6OEZ_shot-09-distant-wide-wall-ascent-ceiling-far-1916x1080.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f98a3/kNuac7MD-LIXnsAY-rsNL_shot-10-prewalk-landing-wide-wall-1916x1080.png",
+      "profile": "kling",
+      "input": {
+        "prompt": "Kling first-last-frame motion with generated audio. Continue from Shot 09 to Shot 10 as one uninterrupted 6 second gravity reorientation inside the same matte black chamber. The small bright ceiling membrane in Shot 09 gradually becomes the wide forward membrane wall in Shot 10. Treat this as the riders' gravity reference changing, not as a new room or a new doorway. The camera stays tied to the lift and slowly eases through one controlled 90 degree roll and tilt across the full duration, changing from an upward-looking view to a level forward-looking landing view. The motion is calm, weighted, and readable, never a spin or whip pan. The dark lift arrives at the landing plane and stabilizes. It may settle slightly, but it does not drive forward, slide sideways, swing, change shape, or change color. Keep the same four crew members in pale grey coveralls on the lift behind the black railings with the compact black cases. They stay on the platform through the final frame, feet planted, hands low, with only tiny balance corrections. No walking, no stepping down, no leaving the lift. End prewalk, with everyone still on the lift facing the wide luminous membrane. Preserve the dark lift, black railings, pale grey clothing, black cases, desaturated green grey and blue grey 35mm film grade, low contrast, readable black shadows, rough striated matte black surfaces, and natural haze. Do not add orange or red light, new light panels, glowing strips, ramp, bridge, stairs, or walkway. Audio is soft low-frequency wind pressure, deep interior air resonance, and a very low gravity transition tone only. Keep it continuous and restrained with no music, no dialogue, no clicks, no pops, and no sharp sounds.",
+        "duration": "6",
+        "start_image_url": "https://v3b.fal.media/files/b/0a9f98a3/GPWVhcql0NIC5-pOI6OEZ_shot-09-distant-wide-wall-ascent-ceiling-far-1916x1080.png",
+        "end_image_url": "https://v3b.fal.media/files/b/0a9f98a3/kNuac7MD-LIXnsAY-rsNL_shot-10-prewalk-landing-wide-wall-1916x1080.png",
+        "negative_prompt": "visible cut, edit, jump cut, internal cut, camera teleport, sudden perspective flip, chaotic spin, fast roll, tumble, whip pan, shaky camera, rapid rotation, orbit, side pan, lateral camera move, hallway travel, fast forward dolly, wall rushing toward camera, lift sliding across the floor, lift driving away, lift swinging, lift redesign, lift color change, orange lighting, red lighting, crew walking, crew stepping down, crew off platform, large pose change, duplicate crew, outfit color change, cases sliding away, new doorway, second opening, new light strips, bright panels, ramp, bridge, stairs, walkway, handrail redesign, vessel moving, vessel relighting, aperture warping, hull stretching, geometry distortion, clean CG, game render, neon, increased saturation, readable text, subtitles, logos, watermark, sharp sound, pop sound, click sound, impact sound, trailer boom, music, dialogue, alarm, siren",
+        "cfg_scale": 0.3,
+        "generate_audio": true
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f98b9/oLtPBpLzJnkhrTbbZ7Cf5_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 13939029
+        }
+      },
+      "submitted_at": "2026-06-24T15:25:47.019Z"
+    }
+  ]
+}

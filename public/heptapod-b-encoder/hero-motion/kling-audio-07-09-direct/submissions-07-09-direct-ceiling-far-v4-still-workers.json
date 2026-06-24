@@ -1,0 +1,39 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "submissions": [
+    {
+      "id": "kling-audio-07-09-direct-ceiling-far-v4-still-workers",
+      "scene": "vertical-ascent-to-distant-ceiling-contact-still-workers",
+      "part": "07-09",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019efa34-567a-7b10-8b79-05357dab6a5b",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-07-09-direct/kling-audio-07-09-direct-ceiling-far-v4-still-workers.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f9888/yUQZY1CLx7otjhzDm4SIA_output.mp4",
+      "start": "../heptapod-motion-frames/07-09-direct/shot-07-last-from-01-07-direct.png",
+      "end": "../heptapod-motion-frames/07-09-direct/shot-09-distant-wide-wall-ascent-ceiling-far-1916x1080.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f9883/OnjcvWSYVGfNm2nEBquwu_shot-07-last-from-01-07-direct.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f987b/VkOU4HjsEyxKOIuDiJIse_shot-09-distant-wide-wall-ascent-ceiling-far-1916x1080.png",
+      "profile": "kling",
+      "input": {
+        "prompt": "Kling first-last-frame motion with generated audio. Skip Shot 08 completely. Transform directly from Shot 07 to the revised far Shot 09 as one continuous uninterrupted 6 second take. This is a vertical lift ascent before gravity reorientation: the lift rises straight upward along the same vertical shaft axis only, with zero horizontal travel. Do not move toward a wall, do not pan sideways, do not rotate the camera, do not reverse the viewpoint, and do not cut internally. The camera rides with the dark industrial lift on the same vertical axis, using only a restrained upward push and slow zoom while the vessel interior stays fixed in world space. The lift never slides, swings, rolls, changes color, detaches, or redesigns itself. The four researchers in pale grey protective suits remain standing on the lift behind the black railings with compact black cases. They are still passengers: feet planted, no walking, no stepping, no leg swing, no leaving the lift, no teleporting, no large pose change. Only tiny natural balance corrections and slight bracing from vertical acceleration are allowed. Keep their silhouettes and spacing consistent. The distant contact point above Shot 07 gradually reads as a wide overhead ceiling membrane in Shot 09, but it stays far away, clearly farther from the camera than the luminous membrane wall in Shot 10. Shot 09 is still before the 90 degree gravity change, so show no landing, no corridor, no forward floor, no walkway, and no reoriented wall/floor relationship. Preserve the desaturated green grey and blue grey 35mm film grade, low contrast, readable black shadows, rough striated matte black surfaces, dark lift color, pale grey suits, and natural haze. Avoid orange or red shift, clean CG, neon, glowing panels, portals, ramps, bridges, or new lights. Audio is soft continuous low-frequency wind pressure and deep interior air resonance only, with no music, no dialogue, no sharp transient, no pop, no click, and no metallic hit.",
+        "duration": "6",
+        "start_image_url": "https://v3b.fal.media/files/b/0a9f9883/OnjcvWSYVGfNm2nEBquwu_shot-07-last-from-01-07-direct.png",
+        "end_image_url": "https://v3b.fal.media/files/b/0a9f987b/VkOU4HjsEyxKOIuDiJIse_shot-09-distant-wide-wall-ascent-ceiling-far-1916x1080.png",
+        "negative_prompt": "shot 08, intermediate frame, visible cut, edit, jump cut, scene cut, internal cut, match cut, camera teleport, viewpoint teleport, perspective flip, camera direction change, reverse view, look back, side pan, lateral camera move, horizontal camera move, orbit, dolly sideways, forward hallway move, background sliding sideways, parallax drift sideways, gravity reorientation in shot 09, ninety degree rotation, destination stop, landing, prewalk landing, floor path, hallway, horizontal corridor, ramp, bridge, stairs, gangway, walkway, vessel moving, vessel translating, vessel descending, vessel rising, vessel drifting, vessel sliding, vessel rotating, vessel resizing itself, vessel relighting, aperture warping, hull stretching, geometry distortion, lift moving sideways, lift sliding, lift rolling, lift swinging, lift detaching, lift redesign, orange lift, red lift, people walking, people stepping, footstep, gait cycle, leg swing, people stepping off, disembarking, boarding, jumping, kneeling, crouching, turning around, waving arms, large pose change, people teleporting, people duplicating, floating bodies, falling bodies, orange suits, red suits, costume change, portal, blue laser, new interior lights, bright lamps, glowing panels, contact membrane closer than Shot 10, wall rushing toward camera, fog wall rushing forward, clean CG, game render, neon, increased saturation, readable text, subtitles, logos, watermark, sharp percussive sound, pop sound, click sound, metallic hit, loud impact, music, dialogue",
+        "cfg_scale": 0.25,
+        "generate_audio": true
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f9888/yUQZY1CLx7otjhzDm4SIA_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 14489039
+        }
+      },
+      "submitted_at": "2026-06-24T15:18:48.631Z"
+    }
+  ]
+}

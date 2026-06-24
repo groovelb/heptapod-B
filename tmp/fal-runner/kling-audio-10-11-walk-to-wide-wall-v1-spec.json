@@ -1,0 +1,19 @@
+{
+  "profile": "kling",
+  "duration": "6",
+  "cfg_scale": 0.32,
+  "generate_audio": true,
+  "negative_prompt": "visible cut, edit, jump cut, scene cut, internal cut, camera teleport, viewpoint teleport, perspective flip, camera rush, fast dolly, wall rushing toward camera, fog wall rushing forward, contact wall moving, contact wall opening, portal, new doorway, second opening, new light strips, bright panels, laser, blue laser, scanning beam, orange lighting, red lighting, neon, increased saturation, lift sliding away, lift driving forward, lift swinging, lift rolling, lift redesign, lift color change, workers still trapped on lift at end, workers teleporting, workers duplicating, workers disappearing, extra people, running, sprinting, jumping, leaping, falling, floating, kneeling, crouching, exaggerated gait, fast leg swing, arm waving, large pose change, suit color change, orange suits, red suits, cases sliding away, cases disappearing, ramp, bridge, stairs, handrail redesign, glossy sci-fi set, clean CG, game render, readable text, subtitles, logos, watermark, sharp sound, loud footstep, heavy impact, pop sound, click sound, metallic hit, trailer boom, music, dialogue, alarm, siren",
+  "out": "../../public/heptapod-b-encoder/hero-motion/kling-audio-10-11-walk/submissions-10-11-walk-to-wide-wall-v1.json",
+  "clips": [
+    {
+      "id": "kling-audio-10-11-walk-to-wide-wall-v1",
+      "scene": "first-cautious-walk-from-lift-to-wide-contact-wall",
+      "part": "10-11",
+      "start": "../heptapod-motion-frames/10-11-walk/shot-10-prewalk-landing-wide-wall-1916x1080.png",
+      "end": "../heptapod-motion-frames/10-11-walk/shot-11-walking-to-wide-wall-1916x1080.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-10-11-walk/kling-audio-10-11-walk-to-wide-wall-v1.mp4",
+      "prompt": "Kling first-last-frame motion with generated audio. Continue from Shot 10 to Shot 11 as one uninterrupted 6 second take after the gravity reorientation has stabilized. At the start, the same four workers are still on the dark industrial lift behind black railings, wearing pale grey protective suits with compact black cases, facing the broad white fog/contact wall. The lift is stopped and stable; it may make only a tiny final settling motion. For the first moment the workers hold position, then they carefully step down from the lift and begin the first slow walk of the sequence toward the wide fixed white membrane wall. Their motion is cautious, heavy, and human: a few small measured steps, low hands, restrained shoulders, no running, no sprinting, no jumping, no teleporting, and no exaggerated gait. Keep the same people, suits, cases, lift, railings, wall scale, and color grade. The black cases stay with the workers and can be carried low; they must not slide away or vanish. The wide white fog/contact wall is a fixed physical structure in the chamber. It does not move toward camera, expand, open, glow into a portal, add panels, or emit lasers. The workers become slightly larger only because they are walking toward the wall, not because the wall rushes forward. The camera remains calm and continuous, either locked near the lift or drifting forward only minimally behind the workers; no side pan, no orbit, no whip movement, no internal cut. Preserve the desaturated blue grey and green grey 35mm film look, low contrast, readable black shadows, matte striated dark interior surfaces, pale grey suits, dark lift hardware, natural haze, and the broad white contact membrane. Do not add orange or red lighting, new lights, ramps, bridges, stairs, handrails, glossy sci-fi panels, text, logos, or CG-looking surfaces. Audio is restrained: deep low indoor pressure, soft room air resonance, barely audible cloth movement, and very gentle footsteps only. No music, no dialogue, no sharp transient, no click, no pop, no metallic hit, no alarm, and no loud impact."
+    }
+  ]
+}

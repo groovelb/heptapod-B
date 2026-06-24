@@ -1,0 +1,18 @@
+{
+  "profile": "kling",
+  "duration": "6",
+  "cfg_scale": 0.32,
+  "generate_audio": true,
+  "negative_prompt": "smoke, fog, mist, haze, whiteout cloud, smoke plume, sprayed fog, fog machine, aerosol, vapor, dust, particles, floating particles, cloud burst, smoke blowing from screen, screen emitting smoke, emission, portal effect, vortex, tunnel, beam, laser, explosion, hard flash, sudden white wipe, sudden lighting change, cut, angle change, camera pan, camera tilt, wall rushing forward, membrane moving toward camera, final two seconds showing people, final two seconds showing heads, final two seconds showing bodies, final two seconds showing floor, final two seconds showing chamber walls, final two seconds showing wall frame, final two seconds showing membrane border, final two seconds showing rails, final frame showing people, final frame showing heads, final frame showing floor, final frame showing chamber walls, final frame showing wall frame, final frame showing membrane border, final frame showing rails, new UI, interface graphics, readable text, subtitles, logos, watermark, new doorway, new room, corridor change, wall redesign, extra people, duplicate people, people disappearing abruptly, large pose change, sharp contrast, saturated color, orange lighting, red lighting, clean CG, game render, music, dialogue, loud impact, sharp sound",
+  "out": "../../public/heptapod-b-encoder/hero-motion/kling-audio-11-screen-fill/submissions-11-screen-fill-camera-push-v4.json",
+  "clips": [
+    {
+      "id": "kling-audio-11-screen-fill-camera-push-v4",
+      "scene": "final-camera-push-to-screen-only",
+      "part": "11-screen-fill",
+      "start": "../heptapod-motion-frames/11-whiteout/shot-11-walking-to-wide-wall-1916x1080.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-11-screen-fill/kling-audio-11-screen-fill-camera-push-v4.mp4",
+      "prompt": "Kling image-to-video motion with generated audio, using only the provided Shot 11 start image as the source. Create one uninterrupted 6 second final hero ending with no cut, no angle change, and no extra event. The four researchers keep walking slowly toward the fixed wide luminous contact membrane while the camera performs a single smooth forward push or optical zoom straight into that same fixed membrane. The membrane stays locked in place on the wall; it never moves toward camera, opens, emits anything, creates a portal, or changes shape. The image becomes white only because the camera gets physically closer until the luminous membrane surface itself fills the lens. Workers, lift rails, floor, side walls, wall frame, membrane border, and chamber edges must be cropped out by the forward camera approach only. The final 2 seconds are mandatory screen-only frames: only the luminous membrane surface fills the entire image edge to edge, with no floor at the bottom, no people or silhouettes, no wall frame, no rails, no side walls, no visible border, and no chamber geometry anywhere. Hold those final screen-only frames as a clean full-frame luminous membrane plate with subtle cold white texture and very soft blue grey halation. Preserve the 35mm film look, low contrast, desaturated blue grey and green grey grade at the start, and restrained cinematic motion. No mist, no smoke, no fog, no haze, no particles, no emission, no sudden lighting, no flash, no whiteout cloud, no UI, no text, no symbols, no logos, no portal, no beams, and no aggressive zoom. Audio is restrained low indoor pressure, soft room tone, gentle fabric movement, and very quiet footsteps fading into the membrane tone. No music, no dialogue, and no sharp transient sounds."
+    }
+  ]
+}

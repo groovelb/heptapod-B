@@ -1,0 +1,38 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "submissions": [
+    {
+      "id": "kling-audio-11-screen-fill-camera-push-v3",
+      "scene": "final-camera-push-to-screen-only",
+      "part": "11-screen-fill",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019efa55-f2c3-7e42-99dc-8ae78318f43d",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-11-screen-fill/kling-audio-11-screen-fill-camera-push-v3.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f9972/-RlWSAMf9BV1NumLA4xNm_output.mp4",
+      "start": "../heptapod-motion-frames/11-whiteout/shot-11-walking-to-wide-wall-1916x1080.png",
+      "end": null,
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f995f/xSUEQu2WPPJKy66zdOgZB_shot-11-walking-to-wide-wall-1916x1080.png",
+      "end_image_url": null,
+      "profile": "kling",
+      "input": {
+        "prompt": "Kling image-to-video motion with generated audio, using only the provided Shot 11 start image as the source. Create one uninterrupted 6 second final hero ending. The four researchers continue slowly walking toward the fixed wide white contact screen while the camera makes a steady forward push or lens zoom toward the screen. The screen is stationary; it does not move toward camera, open, emit smoke, or behave like a portal. The frame becomes white only because the camera closes distance until the screen itself fills the entire image edge to edge. People, lift rails, floor, side walls, and chamber edges are gradually cropped out by the camera approach, not dissolved by smoke. By around the last two seconds, no people, no floor, no railings, and no chamber edges remain visible: only the fixed luminous white membrane surface fills the full frame with subtle cold white texture and soft blue grey halation. This final screen-only plate is the hero video ending. Preserve the 35mm film look, low contrast, desaturated blue grey and green grey grade at the start, and restrained cinematic motion. No new UI, no text, no symbols, no logos, no portal, no beams, no sprayed fog, no smoke plume, no sudden flash, and no aggressive zoom. Audio is restrained low indoor pressure, soft room tone, gentle fabric movement, and very quiet footsteps fading into the membrane tone. No music, no dialogue, and no sharp transient sounds.",
+        "duration": "6",
+        "start_image_url": "https://v3b.fal.media/files/b/0a9f995f/xSUEQu2WPPJKy66zdOgZB_shot-11-walking-to-wide-wall-1916x1080.png",
+        "negative_prompt": "smoke plume, sprayed fog, fog machine, aerosol, cloud burst, smoke blowing from screen, screen emitting smoke, portal effect, vortex, tunnel, beam, laser, explosion, hard flash, sudden white wipe, wall rushing forward, membrane moving toward camera, final frame showing people, final frame showing heads, final frame showing floor, final frame showing chamber walls, final frame showing rails, new UI, interface graphics, readable text, subtitles, logos, watermark, new doorway, new room, corridor change, wall redesign, extra people, duplicate people, people disappearing abruptly, large pose change, sharp contrast, saturated color, orange lighting, red lighting, clean CG, game render, music, dialogue, loud impact, sharp sound",
+        "cfg_scale": 0.3,
+        "generate_audio": true
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f9972/-RlWSAMf9BV1NumLA4xNm_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 17533662
+        }
+      },
+      "submitted_at": "2026-06-24T15:56:27.162Z"
+    }
+  ]
+}

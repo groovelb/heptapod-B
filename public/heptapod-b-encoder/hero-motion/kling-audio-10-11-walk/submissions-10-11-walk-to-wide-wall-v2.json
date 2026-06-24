@@ -1,0 +1,39 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "submissions": [
+    {
+      "id": "kling-audio-10-11-walk-to-wide-wall-v2",
+      "scene": "first-cautious-walk-from-lift-to-wide-contact-wall",
+      "part": "10-11",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019efa4f-465f-7832-9b3d-6b3c45362c76",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-10-11-walk/kling-audio-10-11-walk-to-wide-wall-v2.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f993b/_g6F9OXih4ehQ7nawRx96_output.mp4",
+      "start": "../heptapod-motion-frames/10-11-walk/shot-10-prewalk-landing-wide-wall-1916x1080.png",
+      "end": "../heptapod-motion-frames/10-11-walk/shot-11-walking-to-wide-wall-1916x1080.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f992b/PSdgR0QGqb36Tr7gUE3Nd_shot-10-prewalk-landing-wide-wall-1916x1080.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f992b/VKxtrx-p5nJvfVC5JbMui_shot-11-walking-to-wide-wall-1916x1080.png",
+      "profile": "kling",
+      "input": {
+        "prompt": "Kling first-last-frame motion with generated audio. Continue from Shot 10 to Shot 11 as one uninterrupted 6 second take after gravity has stabilized. At the start, the same four researchers are still standing on the stopped dark industrial lift behind black railings, wearing pale grey protective suits with compact black cases, facing the broad fixed white fog membrane. Hold them steady for a brief moment, then let them carefully step down from the lift and begin the first slow grounded walk of the sequence toward the wide white membrane. The movement is quiet and measured: small cautious steps, subtle weight shifts, restrained arms, natural fabric movement, no sudden pose changes, and no change in identity or costume. Keep the same four researchers, pale grey suits, black cases, dark lift, black rails, chamber scale, and color grade. The wide white membrane is a fixed physical wall in the chamber. It does not move, expand, open, or behave like a portal. The people grow slightly only because they walk forward. The camera remains calm and continuous, nearly locked or drifting forward very slightly behind them. Preserve the desaturated blue grey and green grey 35mm film look, low contrast, readable black shadows, matte striated dark interior surfaces, natural haze, and broad white contact membrane. Do not add orange or red lighting, new lights, ramps, bridges, stairs, glossy sci-fi panels, text, logos, or CG-looking surfaces. Audio is restrained: deep low indoor pressure, soft room air, barely audible cloth movement, and gentle footfalls only. No music, no dialogue, and no sharp transient sounds.",
+        "duration": "6",
+        "start_image_url": "https://v3b.fal.media/files/b/0a9f992b/PSdgR0QGqb36Tr7gUE3Nd_shot-10-prewalk-landing-wide-wall-1916x1080.png",
+        "end_image_url": "https://v3b.fal.media/files/b/0a9f992b/VKxtrx-p5nJvfVC5JbMui_shot-11-walking-to-wide-wall-1916x1080.png",
+        "negative_prompt": "visible cut, edit, jump cut, internal cut, camera teleport, viewpoint jump, fast camera move, wall rushing toward camera, contact wall moving, portal effect, new doorway, new light strips, bright panels, laser, orange lighting, red lighting, neon, lift sliding, lift driving forward, lift swinging, lift redesign, lift color change, duplicated workers, disappearing workers, extra people, exaggerated gait, large pose change, suit color change, orange suits, red suits, cases sliding away, cases disappearing, ramp, bridge, stairs, handrail redesign, glossy sci-fi set, clean CG, game render, readable text, subtitles, logos, watermark, sharp sound, loud step, hard impact, music, dialogue",
+        "cfg_scale": 0.28,
+        "generate_audio": true
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f993b/_g6F9OXih4ehQ7nawRx96_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 21428549
+        }
+      },
+      "submitted_at": "2026-06-24T15:48:56.307Z"
+    }
+  ]
+}
