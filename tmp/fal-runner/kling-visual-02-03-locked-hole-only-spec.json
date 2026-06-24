@@ -1,0 +1,19 @@
+{
+  "profile": "kling",
+  "duration": "8",
+  "cfg_scale": 0.25,
+  "generate_audio": false,
+  "negative_prompt": "camera movement, camera pan, camera tilt, camera dolly, camera zoom, angle change, background motion, horizon shift, vehicle movement, equipment sliding, field sliding, parallax shift, hard cut, edit, shot change, jump cut, camera teleport, sudden snap zoom, random insert shot, space warp, warped surface, bending hull, stretching hull, morphing vessel, geometry distortion, aperture rim warping, surrounding surface deformation, extra UFO lights, glowing UFO lamps, interior lights turning on, bright aperture lamps, portal, tractor beam, blue laser, ramp, bridge, stairs, soldiers walking in, researchers walking in, fast lift, lift jumping upward, glossy sci-fi panels, clean CG, game render, neon, orange suits, red suits, orange lift, red lift, readable text, subtitles, logos, watermark",
+  "out": "../../public/heptapod-b-encoder/hero-motion/kling-fixed-01-03/submissions-02-03-locked-hole-only.json",
+  "clips": [
+    {
+      "id": "kling-visual-02-03-locked-hole-only",
+      "scene": "one-take-front",
+      "part": "02-03",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-v3.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/pure-aperture-lift-entry-v3.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-fixed-01-03/kling-visual-02-03-locked-hole-only.mp4",
+      "prompt": "Kling first-last-frame motion, visual only, no generated audio. Locked-off tripod shot from Shot 02 to Shot 03. The camera is already at the UFO entrance and must not move at all: no pan, no tilt, no dolly, no zoom, no angle change, no parallax shift. The UFO underside, horizon, forest line, vehicles, field equipment, people on the ground, fog layer, lighting, color grade, exposure, black level, and surrounding matte-black surface stay pinned in place. The only visible changes are: the existing black rounded-rectangle entrance aperture slowly expands like a simple flat black mask opening in the fixed underside, and the dark industrial lift rises very slowly and vertically beneath it with the same pale grey suited researchers and black equipment. Allow only tiny natural fog shimmer, minimal human bracing, and slight lift mechanics. No bending hull, no warping surface, no spatial distortion, no relighting, no UFO lights, no new scene, no sudden acceleration, no portal, no tractor beam, no ramp, no bridge, no stairs, no walking entry, no glossy CG."
+    }
+  ]
+}

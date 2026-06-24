@@ -1,0 +1,39 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "submissions": [
+    {
+      "id": "kling-audio-v2-01-02-fast-lowwind-no-cut",
+      "scene": "one-take-front",
+      "part": "01-02",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019ef901-cd05-74f1-9ecc-95dfd5c17c99",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-v2-01-03/kling-audio-v2-01-02-fast-lowwind-no-cut.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f90ac/EbENnDapYesvW3RlbzGro_output.mp4",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-v3.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f90a2/F8zzOgkntTb1qpyg6xjZR_start.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f90a2/mNv1BuNYzNHm9WJvUr6yY_underside-surface-opening-v3.png",
+      "profile": "kling",
+      "input": {
+        "prompt": "Kling first-last-frame motion with generated audio. One continuous take, preserving the original 01 to 02 tone, lighting, color grade, exposure, fog density, black level, and camera feel. Make a fast physical approach from frame 01, driven by real camera movement and fog parallax, arriving exactly at frame 02 framing and composition. Preserve the same matte-black ovoid, foggy field scale, support crew, pale grey suits, black lift hardware, low-contrast 35mm documentary look. Audio must be cinematic but restrained: deep low wind, soft sub-bass air pressure, and a smooth low-frequency pressure hush only, gently swelling with the camera approach. No gunshot-like transient, no bullet sound, no clicking, no metallic hit, no percussion, no sharp attack, no loud impact, no trailer boom, no music, no voices. No cuts, no UFO lighting, no random new scene, no extra objects.",
+        "duration": "4",
+        "start_image_url": "https://v3b.fal.media/files/b/0a9f90a2/F8zzOgkntTb1qpyg6xjZR_start.png",
+        "end_image_url": "https://v3b.fal.media/files/b/0a9f90a2/mNv1BuNYzNHm9WJvUr6yY_underside-surface-opening-v3.png",
+        "negative_prompt": "hard cut, edit, shot change, jump cut, camera teleport, sudden snap zoom, random insert shot, extra UFO lights, glowing UFO lamps, interior lights turning on, portal, tractor beam, blue laser, ramp, bridge, stairs, soldiers walking in, researchers walking in, glossy sci-fi panels, clean CG, game render, neon, orange suits, red suits, orange lift, red lift, readable text, subtitles, logos, watermark, distorted geometry, morphing vessel, gunshot sound, bullet sound, click sound, clicking, metallic hit, metal impact, percussion, drum hit, sharp transient, sharp attack, loud impact, trailer boom, alarm, siren, music, voices, dialogue",
+        "cfg_scale": 0.45,
+        "generate_audio": true
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f90ac/EbENnDapYesvW3RlbzGro_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 6114969
+        }
+      },
+      "submitted_at": "2026-06-24T09:43:34.059Z"
+    }
+  ]
+}

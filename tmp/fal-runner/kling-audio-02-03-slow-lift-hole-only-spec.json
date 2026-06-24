@@ -1,0 +1,19 @@
+{
+  "profile": "kling",
+  "duration": "8",
+  "cfg_scale": 0.35,
+  "generate_audio": true,
+  "negative_prompt": "hard cut, edit, shot change, jump cut, camera teleport, sudden snap zoom, random insert shot, space warp, warped surface, bending hull, stretching hull, morphing vessel, geometry distortion, aperture rim warping, surrounding surface deformation, extra UFO lights, glowing UFO lamps, interior lights turning on, bright aperture lamps, portal, tractor beam, blue laser, ramp, bridge, stairs, soldiers walking in, researchers walking in, fast lift, lift jumping upward, glossy sci-fi panels, clean CG, game render, neon, orange suits, red suits, orange lift, red lift, readable text, subtitles, logos, watermark, music, voices, dialogue, dramatic sound effect, loud hit, trailer boom",
+  "out": "../../public/heptapod-b-encoder/hero-motion/kling-audio-01-03/submissions-02-03-slow-lift-hole-only.json",
+  "clips": [
+    {
+      "id": "kling-audio-02-03-slow-lift-hole-only-no-cut",
+      "scene": "one-take-front",
+      "part": "02-03",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-v3.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/pure-aperture-lift-entry-v3.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-01-03/kling-audio-02-03-slow-lift-hole-only-no-cut.mp4",
+      "prompt": "Kling first-last-frame motion with usable minimal audio. Single continuous locked shot from Shot 02 to Shot 03: no internal cuts, no cutaways, no angle changes. Camera, surrounding underside surface, UFO body, lights, fog, field equipment, and people stay fixed in place except for natural micro movement. Lock the color grade, exposure, fog density, and black level. Only the black rounded-rectangle entrance aperture slowly expands, like a simple black hole growing in the fixed matte-black underside, with no bending, warping, redesign, deformation, stretching, or relighting around it. The dark industrial lift rises slowly and smoothly beneath it with the same pale grey suited researchers and black equipment. Allow only subtle natural fog drift, tiny equipment vibration, minimal human micro-movement, and lift mechanics. Audio is minimal but usable: low lift motor hum, soft air-pressure hiss, faint fog ambience. No music, no dialogue, no cuts, no acceleration, no new scene, no UFO light change, no structural redesign, no surface bending, no spatial distortion, no teleport, no portal, no tractor beam, no ramp, no bridge, no stairs, no walking entry, no glossy CG."
+    }
+  ]
+}

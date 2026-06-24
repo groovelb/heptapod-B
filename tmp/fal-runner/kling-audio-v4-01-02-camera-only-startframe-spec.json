@@ -1,0 +1,18 @@
+{
+  "profile": "kling",
+  "duration": "5",
+  "cfg_scale": 0.35,
+  "generate_audio": true,
+  "negative_prompt": "UFO moving toward camera, UFO descending, UFO approaching, UFO drifting, UFO sliding, UFO translation, UFO rotation, UFO self-scaling, UFO growing without parallax, fake zoom by scaling the object, lift moving, lift sliding, lift rolling, lift rising during 01-02, lift translation, vehicle sliding, equipment sliding, horizon sliding, background sliding independently, foreground objects sliding independently, object animation, object transform, hard cut, edit, shot change, jump cut, camera teleport, sudden snap zoom, whip pan, shaky camera, random insert shot, extra UFO lights, glowing UFO lamps, interior lights turning on, portal, tractor beam, blue laser, ramp, bridge, stairs, soldiers walking in, researchers walking in, glossy sci-fi panels, clean CG, game render, neon, orange suits, red suits, orange lift, red lift, readable text, subtitles, logos, watermark, distorted geometry, morphing vessel, music, voices, dialogue, dramatic sound effect, loud hit, trailer boom, gunshot sound, bullet sound, metallic hit, percussion, sharp transient",
+  "out": "../../public/heptapod-b-encoder/hero-motion/kling-audio-v4-01-02-camera-only/submissions-01-02-camera-only-startframe.json",
+  "clips": [
+    {
+      "id": "kling-audio-v4-01-02-camera-only-startframe",
+      "scene": "one-take-front",
+      "part": "01-02",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-v4-01-02-camera-only/kling-audio-v4-01-02-camera-only-startframe.mp4",
+      "prompt": "Kling image-to-video from a single start frame only. Treat the start image as a frozen real physical set in world space. The huge matte-black ovoid UFO, the ground lift position under it, vehicles, equipment, horizon, forest line, fog field, and field geography are fixed objects that never animate, never translate, and never change their world transform. Only a real camera mounted on a dolly/crane moves forward and slightly upward through the mist toward the underside of the fixed UFO. Apparent growth of the UFO and lift must come only from the virtual camera physically moving closer, with natural perspective change, parallax, depth compression, and fog occlusion. The UFO must not move toward the camera, descend, drift, slide, rotate, scale itself, wobble, morph, breathe, pulse, relight, or turn on lights. The lift must not move during 01-02: no rising, no rolling, no sliding, no redesign. Keep the UFO locked to the horizon and field, and keep the lift locked below the same underside location. End near the underside entrance viewpoint: a subtle dark slit/seam is visible in the matte-black underside and the lift remains below it, with pale grey suited researchers already on or implied on the lift if visible at this scale. The priority is physical camera-only motion and world stability, not matching a separate end keyframe exactly. Preserve the desaturated green-grey and blue-grey grade, low contrast, matte black texture, soft fog, mild 35mm grain, and documentary scale. Audio is restrained: deep low wind, soft sub-bass air pressure, and smooth low-frequency pressure hush only. No cuts, no shot changes, no sudden zoom, no object motion, no UFO lights, no portal, no ramp, no bridge, no stairs, no glossy CG, no game render."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "profile": "kling",
+  "duration": "4",
+  "cfg_scale": 0.45,
+  "generate_audio": false,
+  "negative_prompt": "UFO moving toward camera, UFO descending, UFO drifting, UFO sliding, UFO rotation, UFO self-scaling, fake zoom by scaling object, lift moving, lift sliding, lift rising during 01-02, vehicle sliding, equipment sliding, horizon sliding, background sliding, object translation, hard cut, edit, shot change, jump cut, camera teleport, sudden snap zoom, random insert shot, extra UFO lights, glowing UFO lamps, interior lights turning on, portal, tractor beam, blue laser, ramp, bridge, stairs, soldiers walking in, researchers walking in, glossy sci-fi panels, clean CG, game render, neon, orange suits, red suits, orange lift, red lift, readable text, subtitles, logos, watermark, distorted geometry, morphing vessel",
+  "out": "../../public/heptapod-b-encoder/hero-motion/kling-test-01-03/submissions-01-02-fast-waypoint.json",
+  "clips": [
+    {
+      "id": "kling-01-02-fast-waypoint-no-cut",
+      "scene": "one-take-front",
+      "part": "01-02",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-boarded-v1.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-test-01-03/kling-01-02-fast-waypoint-no-cut.mp4",
+      "prompt": "Kling first-last-frame motion. Start on frame 01 and make one continuous, unbroken, fast physical camera push-in to the supplied boarded-lift frame 02. This is a world-locked camera move: the UFO and lift are fixed in their same physical field positions and only the camera travels forward and slightly upward toward them. The huge matte-black ovoid must not move toward camera, descend, drift, slide, rotate, self-scale, wobble, morph, relight, or turn on lights. The dark industrial lift must not slide, roll, rise, or redesign during 01-02. Reach and hold frame 02 exactly as the final frame, preserving vessel identity, horizon, vehicles, support equipment, foggy field scale, pale grey suits, black lift hardware, and low-contrast 35mm documentary look. The motion is quick but heavy and physical, driven only by real camera movement, perspective change, and fog parallax. Absolutely no internal camera cut, edit, jump cut, shot change, reverse angle, teleporting camera, random insert scene, or invented new environment. No object translation, no fake zoom by scaling the UFO, no UFO lights, glowing lamps, blue lasers, portals, tractor beams, ramps, bridges, stairs, walking entry, glossy sci-fi panels, neon, readable text, logos, music, dialogue, or loud hits."
+    }
+  ]
+}

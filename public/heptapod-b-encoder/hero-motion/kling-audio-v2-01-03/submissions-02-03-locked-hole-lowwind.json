@@ -1,0 +1,39 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "submissions": [
+    {
+      "id": "kling-audio-v2-02-03-locked-hole-lowwind-no-cut",
+      "scene": "one-take-front",
+      "part": "02-03",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019ef901-ccb3-7530-b91d-93d9aca96ab6",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-v2-01-03/kling-audio-v2-02-03-locked-hole-lowwind-no-cut.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f90b1/URS97oiauisypeOOtPxix_output.mp4",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-v3.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/pure-aperture-lift-entry-v3.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f90a2/weWMiWZ8PLZyGzP0147pR_underside-surface-opening-v3.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f90a2/F492RkLJjEIA-_bDRhiLD_pure-aperture-lift-entry-v3.png",
+      "profile": "kling",
+      "input": {
+        "prompt": "Kling first-last-frame motion with generated audio. Locked-off static shot from Shot 02 to Shot 03. The camera is already at the UFO entrance and must not move at all: no pan, no tilt, no dolly, no zoom, no roll, no push-in, no pullback, no parallax, no reframing, no perspective shift, no horizon drift. Preserve exact framing, perspective, horizon, UFO hull, aperture frame, surrounding matte-black surface, background vehicles, field equipment, people, fog density, lighting, exposure, black level, and color grade. Only the black rounded-rectangle aperture grows open in place, like a simple flat black hole expanding in a fixed surface, and the dark lift platform rises very slowly straight upward through it with the same pale grey suited researchers and black equipment. No movement, sliding, warping, breathing, morphing, or scale change in the hull, background, vehicles, equipment, or aperture frame surface. Audio must be cinematic but restrained: deep low wind, soft sub-bass pressure rumble, faint low lift motor hum, and soft air-pressure hiss only. No gunshot-like transient, no bullet sound, no clicking, no metallic hit, no percussion, no sharp attack, no loud impact, no trailer boom, no music, no dialogue. No UFO light change, no new scene, no structural redesign, no surface bending, no spatial distortion.",
+        "duration": "8",
+        "start_image_url": "https://v3b.fal.media/files/b/0a9f90a2/weWMiWZ8PLZyGzP0147pR_underside-surface-opening-v3.png",
+        "end_image_url": "https://v3b.fal.media/files/b/0a9f90a2/F492RkLJjEIA-_bDRhiLD_pure-aperture-lift-entry-v3.png",
+        "negative_prompt": "camera movement, camera pan, camera tilt, camera dolly, camera zoom, camera roll, push-in, pullback, angle change, background motion, horizon shift, vehicle movement, equipment sliding, field sliding, parallax shift, reframing, perspective shift, hard cut, edit, shot change, jump cut, camera teleport, sudden snap zoom, random insert shot, space warp, warped surface, bending hull, stretching hull, morphing vessel, geometry distortion, aperture rim warping, surrounding surface deformation, extra UFO lights, glowing UFO lamps, interior lights turning on, bright aperture lamps, portal, tractor beam, blue laser, ramp, bridge, stairs, soldiers walking in, researchers walking in, fast lift, lift jumping upward, glossy sci-fi panels, clean CG, game render, neon, orange suits, red suits, orange lift, red lift, readable text, subtitles, logos, watermark, gunshot sound, bullet sound, click sound, clicking, metallic hit, metal impact, percussion, drum hit, sharp transient, sharp attack, loud impact, trailer boom, alarm, siren, music, voices, dialogue",
+        "cfg_scale": 0.3,
+        "generate_audio": true
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f90b1/URS97oiauisypeOOtPxix_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 12799743
+        }
+      },
+      "submitted_at": "2026-06-24T09:44:27.678Z"
+    }
+  ]
+}

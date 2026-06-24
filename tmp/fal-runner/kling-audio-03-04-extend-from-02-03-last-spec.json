@@ -1,0 +1,19 @@
+{
+  "profile": "kling",
+  "duration": "4",
+  "cfg_scale": 0.35,
+  "generate_audio": true,
+  "negative_prompt": "hard cut, edit, shot change, jump cut, camera teleport, reverse angle, second doorway, new entrance, hallway, horizontal corridor, ramp, bridge, stairs, gangway, walkway, soldiers walking in, people walking, people stepping off, people descending from opening, people teleporting, people duplicating, lift redesign, lift color change, orange lift, red lift, orange suits, red suits, black tactical suits, suit color change, fast lift, lift jumping upward, floating bodies, tractor beam, portal, blue laser, new UFO lights, interior lights turning on, bright aperture lamps, glossy sci-fi panels, clean CG, game render, neon, surface warping, bending hull, stretching hull, morphing vessel, geometry distortion, aperture rim warping, relighting, color shift, increased saturation, readable text, subtitles, logos, watermark, gunshot sound, bullet sound, click sound, metallic hit, percussion, sharp transient, loud impact, trailer boom, music, dialogue",
+  "out": "../../public/heptapod-b-encoder/hero-motion/kling-audio-02-04-extension/submissions-03-04-extend-from-02-03-last.json",
+  "clips": [
+    {
+      "id": "kling-audio-03-04-extend-from-02-03-last-v1",
+      "scene": "same-entrance-confirmation",
+      "part": "03-04",
+      "start": "../heptapod-motion-frames/kling-02-03-last-frame-for-04.png",
+      "end": "../heptapod-motion-frames/shot-04-same-entrance-1916x1080.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-02-04-extension/kling-audio-03-04-extend-from-02-03-last-v1.mp4",
+      "prompt": "Kling first-last-frame motion with generated audio. Continue directly from the final frame of the approved 02-03 lift/aperture clip into Shot 04 same-entrance confirmation. This is the exact same lower rounded-rectangle aperture under the same matte-black ovoid vessel, not a new doorway. Keep one continuous physical take with no cut, no reverse angle, no teleport, and no new environment. The camera makes only a very restrained forward and slightly off-axis confirmation move, enough to teach that the lift is aligned beneath the same opening. The matte-black hull, rounded aperture rim, pale grey protective suits, dark industrial lift platform, black rails, compact black equipment cases, foggy field, forest line, exposure, black level, and desaturated green-grey/blue-grey grade must stay consistent. The four researchers remain standing or lightly bracing on the same lift; nobody walks, steps off, descends, duplicates, floats, or changes costume. The lift may continue a very slow physical rise or settle under the aperture, but it must not jump, redesign, change color, or detach from the exterior geography. The aperture interior remains pure black and featureless with no lights, panels, texture, or glowing rectangle. Audio is restrained and continuous from the previous clip: low wind, soft pressure hush, faint smooth lift motor, and subtle rail vibration only. No music, no dialogue, no sharp hits, no clicks, no metallic impacts."
+    }
+  ]
+}

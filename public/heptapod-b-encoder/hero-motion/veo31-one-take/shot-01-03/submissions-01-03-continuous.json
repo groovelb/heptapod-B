@@ -1,0 +1,41 @@
+{
+  "model": "fal-ai/veo3.1/first-last-frame-to-video",
+  "submissions": [
+    {
+      "id": "clip-01-03-continuous-no-cut",
+      "scene": "one-take-front",
+      "part": "01-03",
+      "model": "fal-ai/veo3.1/first-last-frame-to-video",
+      "request_id": "019ef8d0-9990-7d71-b001-56e6c2ff662f",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-01-03/clip-01-03-continuous-no-cut.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f8f6a/aoiKxzSnklEdlUOhuAt0N_4a9fd064cc5a48c1ad98bda082e8cbdb.mp4",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/pure-aperture-lift-entry-v3.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f8f5f/6-sU54ZKq7ksCXFX1vRtT_start.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f8f5f/LmilDlDtKrCvRuJBhk8T5_pure-aperture-lift-entry-v3.png",
+      "profile": "veo",
+      "input": {
+        "prompt": "One continuous first-last-frame cinematic motion, no camera cut at any point. Start on the distant misty field with the enormous vertical matte black ovoid hovering above the support team. The same camera slowly pushes forward and slightly upward under the vessel, passing from wide exterior scale to the underside. The lower surface remains the same physical object as it fills the frame, then a dark rounded rectangular aperture opens in that underside while the same dark industrial lift rises toward it with the same pale grey suited researchers and black equipment. Preserve one unbroken camera move, continuous perspective, stable object identity, heavy physical scale, overcast green-grey fog, desaturated blue-grey shadows, low contrast, practical 35mm film grain, pale grey suits, black lift hardware, and matte black textured vessel surface. Audio is minimal and only story-useful: faint wind at the beginning, then a very low pressure hush and barely audible lift motor as the aperture opens. No music, no dialogue, no loud impact, no trailer riser. Absolutely no edit, no hard cut, no shot change, no jump cut, no teleporting camera, no ramp, no bridge, no stairs, no walking entry, no portal, no tractor beam, no glossy CG look, no orange or red suits, no orange or red lift, no readable text, no subtitles, no watermark.",
+        "duration": "8s",
+        "first_frame_url": "https://v3b.fal.media/files/b/0a9f8f5f/6-sU54ZKq7ksCXFX1vRtT_start.png",
+        "last_frame_url": "https://v3b.fal.media/files/b/0a9f8f5f/LmilDlDtKrCvRuJBhk8T5_pure-aperture-lift-entry-v3.png",
+        "generate_audio": true,
+        "aspect_ratio": "16:9",
+        "resolution": "1080p",
+        "auto_fix": true,
+        "safety_tolerance": "4"
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f8f6a/aoiKxzSnklEdlUOhuAt0N_4a9fd064cc5a48c1ad98bda082e8cbdb.mp4",
+          "content_type": "video/mp4",
+          "file_name": "4a9fd064cc5a48c1ad98bda082e8cbdb.mp4",
+          "file_size": 9820956
+        }
+      },
+      "submitted_at": "2026-06-24T08:49:50.497Z"
+    }
+  ]
+}

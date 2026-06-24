@@ -1,0 +1,23 @@
+{
+  "profile": "veo",
+  "duration": "8s",
+  "generate_audio": true,
+  "aspect_ratio": "16:9",
+  "resolution": "1080p",
+  "auto_fix": false,
+  "safety_tolerance": "4",
+  "poll_interval_ms": 10000,
+  "timeout_ms": 1800000,
+  "out": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-02-03/submissions-02-03-boarded-safe-void-colorlock.json",
+  "clips": [
+    {
+      "id": "veo31-02-03-boarded-safe-void-colorlock",
+      "scene": "one-take-front",
+      "part": "02-03",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-boarded-v1.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/pure-aperture-lift-entry-v3-veo-safe-black-void-v2.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-02-03/veo31-02-03-boarded-safe-void-colorlock.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. One continuous take from Shot 02 boarded-lift waypoint to Shot 03 safe black void. Shot 02 starts with the same four pale grey suited researchers already standing naturally on the low dark industrial lift platform behind black rails, facing the UFO underside. They remain on the lift the entire time, continuously visible and grounded, with only subtle bracing, rail holding, weight shifts, and fabric movement. No person appears on the ground, descends from the UFO opening, jumps, floats, teleports, duplicates, vanishes, or snaps between positions. The camera makes a restrained same-axis physical push-in/zoom-in toward the underside with no cut, no angle change, no sudden zoom, no horizon drift, and no background sliding. The aperture opens physically from the existing thin black slit in Shot 02: the slit separates and widens into a rounded-rectangle entrance, like a dark seam slowly spreading open in the fixed matte-black underside. The lift then rises slowly and vertically toward the opening. The interior of the opening must remain a featureless absolute black void with no visible architecture, no panels, no wall detail, no depth texture, no lamps, no glowing rectangles, no internal light source, and no reflected light. The surrounding hull stays rigid and stable without warping, bending, breathing, redesign, relighting, or added UFO lights. Preserve the exact source-image look: same desaturated green-grey and blue-grey color grade, same exposure, same low contrast, same black level, same fog density, same overcast sky brightness, same matte texture, same pale grey suit color, same dark lift color. Do not reinterpret the scene, do not improve the lighting, do not brighten the sky, do not add green tint, do not add blue tint, do not increase saturation, do not change contrast, do not relight faces or equipment. Audio must be cinematic but restrained: deep low wind, soft sub-bass pressure rumble, faint smooth lift motor hum, and soft air-pressure hiss only. No gunshot-like transient, no bullet sound, no clicking, no metallic hit, no percussion, no sharp attack, no loud impact, no trailer boom, no music, no dialogue. Avoid hard cut, edit, shot change, jump cut, camera teleport, random insert shot, strong camera movement, space warp, warped surface, bending hull, stretching hull, morphing vessel, geometry distortion, surrounding surface deformation, extra UFO lights, glowing UFO lamps, interior lights turning on, bright aperture lamps, portal, tractor beam, blue laser, ramp, bridge, stairs, fast lift, lift jumping upward, glossy sci-fi panels, clean CG, game render, neon, orange suits, red suits, orange lift, red lift, readable text, subtitles, logos, watermark."
+    }
+  ]
+}

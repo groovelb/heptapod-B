@@ -1,0 +1,19 @@
+{
+  "profile": "kling",
+  "duration": "4",
+  "cfg_scale": 0.45,
+  "generate_audio": true,
+  "negative_prompt": "UFO moving toward camera, UFO descending, UFO drifting, UFO sliding, UFO rotation, UFO self-scaling, fake zoom by scaling object, lift moving, lift sliding, lift rising during 01-02, vehicle sliding, equipment sliding, horizon sliding, background sliding, object translation, hard cut, edit, shot change, jump cut, camera teleport, sudden snap zoom, random insert shot, extra UFO lights, glowing UFO lamps, interior lights turning on, portal, tractor beam, blue laser, ramp, bridge, stairs, soldiers walking in, researchers walking in, glossy sci-fi panels, clean CG, game render, neon, orange suits, red suits, orange lift, red lift, readable text, subtitles, logos, watermark, distorted geometry, morphing vessel, music, voices, dialogue, dramatic sound effect, loud hit, trailer boom",
+  "out": "../../public/heptapod-b-encoder/hero-motion/kling-audio-01-03/submissions-01-02-fast-waypoint.json",
+  "clips": [
+    {
+      "id": "kling-audio-01-02-fast-waypoint-no-cut",
+      "scene": "one-take-front",
+      "part": "01-02",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-boarded-v1.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-01-03/kling-audio-01-02-fast-waypoint-no-cut.mp4",
+      "prompt": "Kling first-last-frame motion with usable minimal audio. One continuous world-locked take from frame 01 to the supplied boarded-lift frame 02. The UFO and lift are fixed in the field before the shot begins and remain in the exact same physical positions; only the camera moves toward them. Make a fast heavy camera dolly/push-in forward and slightly upward from the distant misty field toward the underside, driven by real camera movement, perspective change, and fog parallax. Do not animate the UFO itself: no translation toward camera, no descent, no drift, no sliding, no rotation, no self-scaling, no wobble, no morphing, no relighting, no new lights. Do not animate the lift during 01-02: no sliding, no rolling, no rising, no redesign. Preserve the horizon, vehicles, equipment, support crew, foggy field scale, pale grey suits, black lift hardware, matte-black ovoid texture, low-contrast 35mm documentary look, and exact color grade. Arrive exactly at Shot 02 framing, where the same four researchers are already standing on the low dark lift behind black rails under the subtle slit. Audio stays minimal: faint wind and low pressure hush only, synced softly to the camera approach. No cuts, no UFO lighting, no random new scene, no extra objects, no music, no voices, no dramatic sound effects."
+    }
+  ]
+}

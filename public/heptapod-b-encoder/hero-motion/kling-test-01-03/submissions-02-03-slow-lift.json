@@ -1,0 +1,39 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "submissions": [
+    {
+      "id": "kling-02-03-slow-lift-no-cut",
+      "scene": "one-take-front",
+      "part": "02-03",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019ef8e1-91c8-7161-94cd-e74d62240b98",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-test-01-03/kling-02-03-slow-lift-no-cut.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f8fe0/tuqlgstBFsCnnOZe_Geb7_output.mp4",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-v3.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/pure-aperture-lift-entry-v3.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f8fce/XilYd8YbAH8G0h25Es4tQ_underside-surface-opening-v3.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f8fce/Ya0USlglJYFS4ExO8HEPr_pure-aperture-lift-entry-v3.png",
+      "profile": "kling",
+      "input": {
+        "prompt": "Kling first-last-frame motion. Keep a single continuous camera take: no internal cuts, no cutaways, no angle changes. Start exactly from Shot 02, pass through the actual underside opening relationship, and transition slowly into Shot 03. The matte-black surface opens into the same rounded-rectangle aperture while the dark industrial lift rises very slowly beneath it, carrying the same pale grey suited researchers and black equipment. Only subtle fog drift, tiny human bracing, equipment sway, grass movement, distant field equipment movement, and lift mechanics may move naturally. End exactly on the approved lift-at-aperture frame. No new UFO lights, no extra scene, no sudden acceleration, no teleport, no portal, no tractor beam, no ramp, no bridge, no stairs, no walking entry, no glossy CG, no readable text, no logos, no music, no dialogue, no loud hits.",
+        "duration": "8",
+        "start_image_url": "https://v3b.fal.media/files/b/0a9f8fce/XilYd8YbAH8G0h25Es4tQ_underside-surface-opening-v3.png",
+        "end_image_url": "https://v3b.fal.media/files/b/0a9f8fce/Ya0USlglJYFS4ExO8HEPr_pure-aperture-lift-entry-v3.png",
+        "negative_prompt": "hard cut, edit, shot change, jump cut, camera teleport, sudden snap zoom, random insert shot, extra UFO lights, glowing UFO lamps, interior lights turning on, bright aperture lamps, portal, tractor beam, blue laser, ramp, bridge, stairs, soldiers walking in, researchers walking in, fast lift, lift jumping upward, glossy sci-fi panels, clean CG, game render, neon, orange suits, red suits, orange lift, red lift, readable text, subtitles, logos, watermark, distorted geometry, morphing vessel",
+        "cfg_scale": 0.45,
+        "generate_audio": false
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f8fe0/tuqlgstBFsCnnOZe_Geb7_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 13038967
+        }
+      },
+      "submitted_at": "2026-06-24T09:09:36.432Z"
+    }
+  ]
+}

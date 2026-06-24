@@ -1,0 +1,41 @@
+{
+  "model": "fal-ai/veo3.1/first-last-frame-to-video",
+  "submissions": [
+    {
+      "id": "veo31-02-03-natural-boarding-colorlock",
+      "scene": "one-take-front",
+      "part": "02-03",
+      "model": "fal-ai/veo3.1/first-last-frame-to-video",
+      "request_id": "019ef913-cc7c-7532-9f0f-83101a917f16",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-02-03/veo31-02-03-natural-boarding-colorlock.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f9123/vssEEgyqwKI1gowljohCZ_38ce7b08ef4d4e4fb029fd80d076ab1d.mp4",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-v3.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/pure-aperture-lift-entry-v3.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f9117/nlUcEeqRe_ZcRRIpRPCsx_underside-surface-opening-v3.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f9118/wr5cDnLLynI9hHdYlqxC0_pure-aperture-lift-entry-v3.png",
+      "profile": "veo",
+      "input": {
+        "prompt": "Veo 3.1 first-last-frame motion. Use the improved Kling v3 motion logic: one continuous take from Shot 02 to Shot 03 where the pale grey suited researchers on the ground walk a few cautious steps, climb naturally onto the dark industrial lift platform one by one, hold the rails, settle their weight, then the lift rises slowly and vertically toward the black rounded-rectangle aperture. Keep all people continuously visible during the action: no teleporting, no popping in, no disappearing, no duplication, no instant snap from ground to lift. The camera is already near the UFO entrance and should stay stable: no cut, no angle change, no sudden zoom, no horizon drift, no background sliding. The black rounded-rectangle aperture opens larger in the same fixed matte-black underside while the surrounding hull remains stable with no warping, bending, redesign, relighting, or added UFO lights. Preserve the exact source-image look: same desaturated green-grey and blue-grey color grade, same exposure, same low contrast, same black level, same fog density, same overcast sky brightness, same matte texture, same pale grey suit color, same dark lift color. Do not reinterpret the scene, do not improve the lighting, do not brighten the sky, do not add green tint, do not add blue tint, do not increase saturation, do not change contrast, do not relight faces or equipment. Audio must be cinematic but restrained: deep low wind, soft sub-bass pressure rumble, faint smooth lift motor hum, and soft air-pressure hiss only. No gunshot-like transient, no bullet sound, no clicking, no metallic hit, no percussion, no sharp attack, no loud impact, no trailer boom, no music, no dialogue. Avoid hard cut, edit, shot change, jump cut, camera teleport, sudden snap zoom, random insert shot, strong camera movement, space warp, warped surface, bending hull, stretching hull, morphing vessel, geometry distortion, surrounding surface deformation, extra UFO lights, glowing UFO lamps, interior lights turning on, bright aperture lamps, portal, tractor beam, blue laser, ramp, bridge, stairs, soldiers marching in, fast lift, lift jumping upward, glossy sci-fi panels, clean CG, game render, neon, orange suits, red suits, orange lift, red lift, readable text, subtitles, logos, watermark.",
+        "duration": "8s",
+        "first_frame_url": "https://v3b.fal.media/files/b/0a9f9117/nlUcEeqRe_ZcRRIpRPCsx_underside-surface-opening-v3.png",
+        "last_frame_url": "https://v3b.fal.media/files/b/0a9f9118/wr5cDnLLynI9hHdYlqxC0_pure-aperture-lift-entry-v3.png",
+        "generate_audio": true,
+        "aspect_ratio": "16:9",
+        "resolution": "1080p",
+        "auto_fix": false,
+        "safety_tolerance": "4"
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f9123/vssEEgyqwKI1gowljohCZ_38ce7b08ef4d4e4fb029fd80d076ab1d.mp4",
+          "content_type": "video/mp4",
+          "file_name": "38ce7b08ef4d4e4fb029fd80d076ab1d.mp4",
+          "file_size": 22011505
+        }
+      },
+      "submitted_at": "2026-06-24T10:03:24.642Z"
+    }
+  ]
+}
