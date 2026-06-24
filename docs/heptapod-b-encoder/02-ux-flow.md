@@ -1,6 +1,24 @@
 # Heptapod B Encoder — UX Flow
 
+> 히어로 인트로의 스크롤 비트·카피 상세는 `06-hero-storyline.md` 참조.
+
 ## 유저 시나리오
+
+### 시나리오 0: 히어로 인트로 진입 (영상 스크러빙)
+
+- **사용자**: 최초 진입(랜딩) 사용자
+- **목표**: 외계 비행체 진입 여정을 스크롤로 체험하며 세계관을 흡수하고, 자연스럽게 인코더(메인 체험)에 도달
+- **내러티브 프레임**: "그들이 먼저 말을 걸었다 → 이제 당신이 답한다" (영상=발화/초대, 인코더=응답)
+- **플로우**:
+  1. 풀스크린 히어로 인트로 진입(560vh sticky 컨테이너). 스크롤 = 영상(47s, Shot 02→11) 프레임 스크럽
+  2. 스크롤 진행에 따라 세계관 카피 비트(B0~B6)가 느린/억제된 영상 구간에 페이드 노출 — 비선형 문자 → 동시성 → "번역이 아니라 인코딩" 명제
+  3. 막바지 화이트아웃(full fog)이 라이브 `LogogramChamber` 안개로 **매치컷** → 스크롤락 해제, 인코더(시나리오 1) 시작
+- **성공 조건**: 영상→인코더 경계가 이음새 없이 연결되고, 도달 시점에 "응답할 차례"라는 동기가 형성됨
+- **예외 상황**:
+  - `prefers-reduced-motion` → 스크럽·핀 생략, 정지 안개 프레임 + 카피 순차 노출 후 바로 인코더 노출
+  - `SKIP INTRO →` → 즉시 인코더로 점프
+  - URL 공유 진입(`?name=`) → 기본 skip(재현 우선)
+  > 스크롤당 컨텐츠 배치·카피 원문·영상 타임라인 상세: `06-hero-storyline.md`
 
 ### 시나리오 1: 이름 인코딩 (핵심 플로우)
 
@@ -71,6 +89,9 @@
 
 ```mermaid
 flowchart TD
+    Z[랜딩 진입] --> Z1[히어로 인트로<br/>영상 스크럽 + 세계관 카피]
+    Z1 -->|화이트아웃 매치컷| A
+    Z1 -.SKIP / reduced-motion / 공유URL.-> A
     A[메인 진입: 챔버 + 입력] --> B{이름 입력?}
     B -->|빈 값| A
     B -->|입력 후 ENCODE| C[인코딩 엔진: 해시→시드→파라미터]
@@ -109,6 +130,11 @@ flowchart LR
 
 ```
 Heptapod B Encoder
+├── 히어로 인트로 (Hero Intro — 영상 스크러빙)
+│   ├── 스크럽 영상 (sticky, 47s, Shot 02→11)
+│   ├── 세계관 카피 비트 (B0~B6 페이드 오버레이)
+│   ├── SKIP INTRO 컨트롤
+│   └── 화이트아웃 매치컷 → 챔버 핸드오프
 ├── 메인 (Encoder)
 │   ├── 챔버 (로고그램 렌더 영역, 정방형, 서리 유리, 안개 Z-depth 모션)
 │   ├── 타이틀 블록 (Heptapod B + 배경음악 토글 ► PLAY OST)
@@ -152,10 +178,12 @@ Heptapod B Encoder
 | Table | 데이터 리드아웃(12슬롯 상태) | 재활용 | MUI `components/data-display/Table` — 모노스페이스 sx |
 | RatioContainer | 챔버 정방형 비율 고정 | 재활용 | `components/container/RatioContainer.jsx` |
 | SectionContainer | 제작 비하인드 섹션 | 재활용 | `components/container/SectionContainer.jsx` |
-| FadeTransition | 섹션·오버레이 등장 페이드 | 재활용 | `components/motion/FadeTransition.jsx` |
+| FadeTransition | 섹션·오버레이·**인트로 카피 비트** 등장 페이드 | 재활용 | `components/motion/FadeTransition.jsx` |
+| VideoScrubbing | 히어로 인트로 스크롤→영상 프레임 스크럽 | 재활용 | `components/scroll/VideoScrubbing.jsx` |
 | ScrambleText | 데이터 리드아웃 값 전환 연출(연구 장비 톤) | 재활용 | `components/kinetic-typography/ScrambleText.jsx` |
 | GradientOverlay | 안개 배경의 기반(Three.js·Simplex Noise·필름 그레인) | 수정 | `components/dynamic-color/GradientOverlay.jsx` — 저채도 모노크롬 안개로 파라미터 조정 |
 | StyledParagraph / Title | 제작 비하인드 텍스트 | 재활용 | `components/typography/` |
+| **HeptapodHeroIntro** | 영상 스크럽 + 카피 비트 + 챔버 매치컷 핸드오프 컨테이너 | 신규 | 카테고리: `templates` (또는 `motion`). 상세: `06-hero-storyline.md` |
 | **LogogramChamber** | 로고그램 렌더 컨테이너(서리 유리·안개·렌더러 마운트) | 신규 | 카테고리: `motion` |
 | **LogogramRenderer (SVG)** | MVP 렌더러: 리본 path + feTurbulence 번짐 + 다층 opacity 농담 | 신규 | 카테고리: `motion` |
 | **LogogramRenderer (Canvas)** | 입자 형성 애니메이션: jitter + 단순 boids 응집 | 신규 | 카테고리: `motion` |

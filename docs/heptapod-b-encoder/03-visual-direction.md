@@ -107,6 +107,7 @@
 | 본문 | Pretendard Variable | **유지** | 중립적 산세리프 — 무드와 충돌 없음 |
 | Headline (영문) | Outfit, weight 900 | **Outfit 유지하되 weight 300~400 + letter-spacing 0.25em + uppercase** | 포스터의 와이드 트래킹 세장형 타이포. 헤비 웨이트는 무드와 반대 — 가늘고 넓게 |
 | Headline (한글) | Pretendard 최고 weight | **Pretendard 300~400으로 하향** | 동일 원칙 — 얇음이 곧 차가움 |
+| **Hero 헤드라인 (영문 serif)** | — (신규) | **모던 serif 스택: `'Fraunces', 'Newsreader', Georgia, serif`. weight 300~400, italic 옵션, letter-spacing 0.01~0.04em** | 히어로 스토리텔링 전용 — 영화적·문학적 온도. 인코더 UI의 산세리프와 의도적 대비 (§8) |
 | 데이터 리드아웃 (신규) | — | **모노스페이스 스택 신규: 'JetBrains Mono', 'IBM Plex Mono', monospace. 11~13px, letter-spacing 0.05em** | 군사 과학 연구 장비의 분석 화면 톤 (기획서 §3.3) |
 | 전체 스케일 | MUI 기본 | h1도 과시하지 않는 절제된 크기 (clamp 32~56px) | UI는 로고그램의 들러리 |
 
@@ -118,6 +119,35 @@
 - **그림자/글로우**: 기존 dimmed shadow 원칙 유지. 다크 배경에서 elevation은 그림자 대신 표면 밝기 미세 차등으로. 네온 글로우 금지
 - **모션 페이싱**: 등장·전환 600~1200ms ease-out, 앰비언트 루프(안개 drift) 20~40s. 빠른 스냅 전환 금지. `prefers-reduced-motion` 시 전부 정적
 - **반응형**: 모바일에서도 챔버 정방형 유지 (가로 100%), 리드아웃은 하단 접이식
+
+## 5.5 히어로 인트로 — 스토리텔링 비주얼
+
+> 영상 스크러빙 히어로(`06-hero-storyline.md` B0~B6)의 카피를 시각화하는 타이포·레이아웃 규칙.
+> 컨텐츠 데이터: `src/data/heptapodHeroStory.js`. 인코더 본편 UI와 **의도적으로 다른 타이포 언어**를 쓴다 — 본편은 차가운 산세리프/모노스페이스(연구 장비), 히어로는 모던 serif(영화적·문학적).
+
+### 5.5.1 타이포그래피 (이중 언어 구조)
+
+| 요소 | 폰트 | 스펙 | 역할 |
+|------|------|------|------|
+| **Headline (영문 serif)** | `'Fraunces', 'Newsreader', Georgia, serif` | weight 300~400, `clamp(28px, 4vw, 64px)`, letter-spacing 0.01~0.04em, line-height 1.1, 좌측 정렬 또는 중앙, italic은 명제 비트(B3)에만 | 각 비트의 정서적 진입점. 모던 serif의 고대비 획이 "잉크/문자" 모티프와 공명 |
+| **Body (한글)** | Pretendard 300~400 | `clamp(14px, 1.6vw, 19px)`, letter-spacing 0, line-height 1.7, 1~2줄 | 세계관 설명. 얇은 웨이트로 차분하게, headline 아래 작게 |
+| **마스터 타이틀** | 영문 serif (동일 스택) | `HEPTAPOD B`, letter-spacing 0.2~0.3em, B0에서만 노출 | 작품 표제 |
+| **SKIP / 캡션** | 모노스페이스(`custom.mono`) | 11~12px, 0.05em, 저명도 | 시스템 톤 — 본편 UI와의 연결 고리 |
+
+- **위계**: headline(serif) → body(한글) → (옵션) 모노스페이스 메타. serif와 한글의 크기 대비를 분명히(약 2.5~3.5:1).
+- **명제 비트(B3) 강조**: headline italic + body weight 400로 한 단계 올림. 나머지 비트는 동일 스케일 유지(균질한 리듬).
+- **금지**: headline에 한글 혼용 금지(영문 serif 전용), body에 영문 장문 금지(한글 전용). 이모지·불릿·과한 장식 금지.
+
+### 5.5.2 레이아웃 특징
+
+- **풀블리드 영상 + 오버레이 카피**: 스크럽 영상이 뷰포트 전체(`100vw × 100vh`, `object-fit: cover`), 카피는 그 위 `position: absolute` 오버레이. 영상이 배경, 텍스트가 전경.
+- **카피 정착 위치**: 화면 하단 1/3 또는 좌하단 세이프 영역(`bottom: 12~16vh`, `padding-inline: clamp(24px, 6vw, 96px)`). 중앙 비주얼(개구부·막·상승축)을 가리지 않도록 **하단·측면 여백에 배치**.
+- **가독성 보조**: 영상 위 텍스트 대비 확보를 위해 카피 영역에만 **국소 그라데이션 스크림**(하단→상단 `rgba(8,12,11,0.0→0.55)`). 전면 오버레이 금지 — 영상 톤 보존.
+- **단일 컬럼·좌측 정렬 기조**: 비트 카피는 좌측 정렬로 "읽는 흐름" 부여(중앙 정렬은 마스터 타이틀·B6 CTA만). max-width 약 `42ch`로 줄길이 제어.
+- **비트 전환**: `FadeTransition`으로 opacity만(이동 최소). 구간 경계 ±3%에서 크로스페이드. translateY 8~12px 미세 상승 허용(빠른 슬라이드 금지).
+- **B6 → 챔버 핸드오프**: 화이트아웃에서 카피는 중앙 정렬 CTA로 모이고, 영상 안개가 라이트 챔버 안개로 매치컷되며 카피 페이드아웃 → 인코더 입력 필드 등장.
+- **반응형**: 모바일은 headline `clamp` 하한, 카피 하단 고정(`bottom: 10vh`), 컨테이너 높이 `HERO_SCROLL_VH_MOBILE`(420vh)로 축소.
+- **색상**: 카피 텍스트는 `text.primary`(#e8ecec 한색 백). 어두운 영상 구간엔 그대로, 화이트아웃(B6) 구간엔 잉크색(`custom.chamber.ink` #1c2226)으로 반전해 흰 안개 위 가독성 확보.
 
 ## 6. 레퍼런스 목록
 
@@ -150,6 +180,7 @@
 | `palette.custom.chamber.*` | — | **fog #dfe3e6 / ink #1c2226 / fogDeep #c9cfd4** | 챔버 전용 (신규 네임스페이스) |
 | `typography.h1~h3` | Outfit 900 | **Outfit 300~400, ls 0.25em, uppercase** | 헤드라인 |
 | `typography.custom.mono` | — | **'JetBrains Mono', monospace 스택** | 데이터 리드아웃 (신규) |
+| `typography.custom.serif` | — | **'Fraunces', 'Newsreader', Georgia, serif** | 히어로 인트로 영문 헤드라인 (신규, §5.5) |
 | `shape.borderRadius` | 0 | **0 유지** | 전체 |
 
 **비토큰 시각 자산** (테마 외 — 렌더러·챔버 구현 입력): §1.2 형태 정량표(F1~F8), §1.4 질감표(T1~T5)는 `buildModel.js`와 렌더러 3종의 파라미터 기본값으로 사용한다.
