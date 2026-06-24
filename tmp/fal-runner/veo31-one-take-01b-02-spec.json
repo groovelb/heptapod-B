@@ -1,0 +1,23 @@
+{
+  "profile": "veo",
+  "duration": "4s",
+  "generate_audio": true,
+  "aspect_ratio": "16:9",
+  "resolution": "1080p",
+  "auto_fix": true,
+  "safety_tolerance": "4",
+  "poll_interval_ms": 10000,
+  "timeout_ms": 1800000,
+  "out": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-01-03/submissions-01b-02.json",
+  "clips": [
+    {
+      "id": "clip-01b-02-underside-to-surface-opening",
+      "scene": "one-take-front",
+      "part": "01b-02",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/end-close-underside-v2.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-v3.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-01-03/clip-01b-02-underside-to-surface-opening.mp4",
+      "prompt": "First-last-frame cinematic motion. Continue under the same enormous matte black ovoid. The camera settles beneath the curved underside as a subtle lower surface seam becomes visible and begins opening. Keep the field crew and equipment small below, foggy green-grey atmosphere, pale grey protective suits, dark field hardware, low contrast, soft haze, and practical 35mm film grain. Audio is minimal and functional: faint exterior air and a soft low pressure shift during the opening."
+    }
+  ]
+}

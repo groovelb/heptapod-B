@@ -1,0 +1,41 @@
+{
+  "model": "fal-ai/veo3.1/first-last-frame-to-video",
+  "submissions": [
+    {
+      "id": "clip-01b-02-underside-to-surface-opening",
+      "scene": "one-take-front",
+      "part": "01b-02",
+      "model": "fal-ai/veo3.1/first-last-frame-to-video",
+      "request_id": "019ef8c2-99db-7eb1-aea4-5719a89d7983",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-01-03/clip-01b-02-underside-to-surface-opening.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f8f2e/_z7cPo4BgQoJVpNrl3pyA_4046a5e7517943a9a1b4c2f9de34750e.mp4",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/end-close-underside-v2.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-v3.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f8f03/ImbMIDuom0ACmqCmq26zP_end-close-underside-v2.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f8f0c/8Xjuuu_044xCGpoQMMYo-_underside-surface-opening-v3.png",
+      "profile": "veo",
+      "input": {
+        "prompt": "First-last-frame cinematic motion. Continue under the same enormous matte black ovoid. The camera settles beneath the curved underside as a subtle lower surface seam becomes visible and begins opening. Keep the field crew and equipment small below, foggy green-grey atmosphere, pale grey protective suits, dark field hardware, low contrast, soft haze, and practical 35mm film grain. Audio is minimal and functional: faint exterior air and a soft low pressure shift during the opening.",
+        "duration": "4s",
+        "first_frame_url": "https://v3b.fal.media/files/b/0a9f8f03/ImbMIDuom0ACmqCmq26zP_end-close-underside-v2.png",
+        "last_frame_url": "https://v3b.fal.media/files/b/0a9f8f0c/8Xjuuu_044xCGpoQMMYo-_underside-surface-opening-v3.png",
+        "generate_audio": true,
+        "aspect_ratio": "16:9",
+        "resolution": "1080p",
+        "auto_fix": true,
+        "safety_tolerance": "4"
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f8f2e/_z7cPo4BgQoJVpNrl3pyA_4046a5e7517943a9a1b4c2f9de34750e.mp4",
+          "content_type": "video/mp4",
+          "file_name": "4046a5e7517943a9a1b4c2f9de34750e.mp4",
+          "file_size": 11377613
+        }
+      },
+      "submitted_at": "2026-06-24T08:39:50.032Z"
+    }
+  ]
+}

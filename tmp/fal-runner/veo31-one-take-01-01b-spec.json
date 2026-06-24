@@ -1,0 +1,23 @@
+{
+  "profile": "veo",
+  "duration": "4s",
+  "generate_audio": true,
+  "aspect_ratio": "16:9",
+  "resolution": "1080p",
+  "auto_fix": true,
+  "safety_tolerance": "4",
+  "poll_interval_ms": 10000,
+  "timeout_ms": 1800000,
+  "out": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-01-03/submissions-01-01b.json",
+  "clips": [
+    {
+      "id": "clip-01-01b-exterior-to-underside-close",
+      "scene": "one-take-front",
+      "part": "01-01b",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/end-close-underside-v2.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-01-03/clip-01-01b-exterior-to-underside-close.mp4",
+      "prompt": "First-last-frame cinematic motion. In a misty field, the camera slowly pushes from the distant vertical matte black ovoid toward the lower underside of the same object. Keep the motion heavy and physically grounded, like a long lens documentary push-in through fog. Preserve overcast green-grey light, tiny field crew scale, pale grey protective suits, military field equipment, low contrast, soft haze, and practical 35mm film grain. Audio is almost silent: faint wind and a very low distant pressure tone only."
+    }
+  ]
+}

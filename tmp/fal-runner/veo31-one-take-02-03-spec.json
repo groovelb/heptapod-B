@@ -1,0 +1,21 @@
+{
+  "profile": "veo",
+  "duration": "6s",
+  "generate_audio": true,
+  "aspect_ratio": "16:9",
+  "resolution": "1080p",
+  "poll_interval_ms": 10000,
+  "timeout_ms": 1800000,
+  "out": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-01-03/submissions-02-03.json",
+  "clips": [
+    {
+      "id": "clip-02-03-surface-opening-to-pure-aperture",
+      "scene": "one-take-front",
+      "part": "02-03",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-v3.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/pure-aperture-lift-entry-v3.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-01-03/clip-02-03-surface-opening-to-pure-aperture.mp4",
+      "prompt": "Veo 3.1 first-last-frame motion. Continue beneath the same matte-black ovoid as the underside surface opens into a pure dark rounded-rectangle aperture. The opening is a physical slit/aperture in the vessel surface, not a portal or hatch spectacle. The only entry mechanism is the same dark industrial lift rising toward the aperture; nobody walks in and no bridge appears. Keep the misty field far below, preserving scale, pale grey suits, black lift hardware, and the approved desaturated green-grey exterior grade. Motion stays slow, heavy, and physically plausible with no jump in camera geography. Sound must be minimal and story-useful only: low wind nearly fading out, a faint lift motor/mechanical strain, and a muted pressure change as the aperture opens. No music, no dialogue, no alarm, no loud hydraulic slam, no trailer impact. Avoid ramp, bridge, stairs, gangway, soldiers walking in, researchers walking in, teleporting viewpoint, glowing portal, tractor beam, blue laser, shiny mechanical hatch, fast reveal, clean CG, game render, orange/red palette transfer, black tactical suits, readable text, logos, subtitles, watermark."
+    }
+  ]
+}

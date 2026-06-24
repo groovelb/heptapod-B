@@ -1,0 +1,41 @@
+{
+  "model": "fal-ai/veo3.1/first-last-frame-to-video",
+  "submissions": [
+    {
+      "id": "clip-01-01b-exterior-to-underside-close",
+      "scene": "one-take-front",
+      "part": "01-01b",
+      "model": "fal-ai/veo3.1/first-last-frame-to-video",
+      "request_id": "019ef8c2-9e12-7e12-b271-37e8dd5de9ee",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-01-03/clip-01-01b-exterior-to-underside-close.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f8f16/Qk72j8VAKPtY6dkrOrnJT_d5609e5390ba40c3a6ef129fcd943fb4.mp4",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/end-close-underside-v2.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f8f03/iJL-PzG1Xq__ELHtylhKV_start.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f8f04/B13C6hbAkZZC8Q1frjblo_end-close-underside-v2.png",
+      "profile": "veo",
+      "input": {
+        "prompt": "First-last-frame cinematic motion. In a misty field, the camera slowly pushes from the distant vertical matte black ovoid toward the lower underside of the same object. Keep the motion heavy and physically grounded, like a long lens documentary push-in through fog. Preserve overcast green-grey light, tiny field crew scale, pale grey protective suits, military field equipment, low contrast, soft haze, and practical 35mm film grain. Audio is almost silent: faint wind and a very low distant pressure tone only.",
+        "duration": "4s",
+        "first_frame_url": "https://v3b.fal.media/files/b/0a9f8f03/iJL-PzG1Xq__ELHtylhKV_start.png",
+        "last_frame_url": "https://v3b.fal.media/files/b/0a9f8f04/B13C6hbAkZZC8Q1frjblo_end-close-underside-v2.png",
+        "generate_audio": true,
+        "aspect_ratio": "16:9",
+        "resolution": "1080p",
+        "auto_fix": true,
+        "safety_tolerance": "4"
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f8f16/Qk72j8VAKPtY6dkrOrnJT_d5609e5390ba40c3a6ef129fcd943fb4.mp4",
+          "content_type": "video/mp4",
+          "file_name": "d5609e5390ba40c3a6ef129fcd943fb4.mp4",
+          "file_size": 6906872
+        }
+      },
+      "submitted_at": "2026-06-24T08:34:33.376Z"
+    }
+  ]
+}

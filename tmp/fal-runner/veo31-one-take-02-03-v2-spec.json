@@ -1,0 +1,23 @@
+{
+  "profile": "veo",
+  "duration": "4s",
+  "generate_audio": true,
+  "aspect_ratio": "16:9",
+  "resolution": "1080p",
+  "auto_fix": true,
+  "safety_tolerance": "4",
+  "poll_interval_ms": 10000,
+  "timeout_ms": 1800000,
+  "out": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-01-03/submissions-02-03-v2.json",
+  "clips": [
+    {
+      "id": "clip-02-03-surface-opening-to-pure-aperture-v2",
+      "scene": "one-take-front",
+      "part": "02-03",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-v3.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/pure-aperture-lift-entry-v3.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/veo31-one-take/shot-01-03/clip-02-03-surface-opening-to-pure-aperture-v2.mp4",
+      "prompt": "First-last-frame cinematic motion. Under the same enormous matte black ovoid, the lower surface opens further into a dark rounded rectangular aperture. A dark industrial lift rises toward that same aperture with the same pale grey suited research team and black equipment. Keep the camera geography continuous beneath the ship, slow and heavy, with misty field scale far below, desaturated green-grey and blue-grey color grade, low contrast, practical 35mm grain, and no glossy CG look. Audio is nearly silent and only functional: faint wind, very soft lift motor, and a low pressure change during the opening."
+    }
+  ]
+}
