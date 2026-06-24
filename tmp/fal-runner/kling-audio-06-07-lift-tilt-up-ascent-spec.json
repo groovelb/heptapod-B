@@ -1,0 +1,19 @@
+{
+  "profile": "kling",
+  "duration": "5",
+  "cfg_scale": 0.34,
+  "generate_audio": true,
+  "negative_prompt": "hard cut, edit, jump cut, camera teleport, side pan, lateral camera move, orbit, reverse angle, background sliding sideways, spatial morph, geometry distortion, wall stretching, aperture warping, UFO moving, UFO translating, UFO descending, UFO rising, UFO drifting, UFO sliding, UFO rotating, UFO scaling itself, vessel relighting, lift moving sideways, lift sliding, lift rolling, lift swinging, lift detaching, lift redesign, lift color change, orange lift, red lift, people walking, people stepping off, people jumping, people teleporting, people duplicating, floating bodies, falling bodies, orange suits, red suits, black tactical suits, suit color change, new doorway, hallway, horizontal corridor, ramp, bridge, stairs, gangway, walkway, tractor beam, portal, blue laser, new UFO lights, interior lights turning on, bright aperture lamps, glowing panels, clean CG, game render, neon, increased saturation, readable text, subtitles, logos, watermark, gunshot sound, bullet sound, click sound, metallic hit, percussion, sharp transient, loud impact, trailer boom, music, dialogue",
+  "out": "../../public/heptapod-b-encoder/hero-motion/kling-audio-05-07/submissions-06-07-lift-tilt-up-ascent.json",
+  "clips": [
+    {
+      "id": "kling-audio-06-07-lift-tilt-up-ascent-v1",
+      "scene": "lift-ascent-gravity",
+      "part": "06-07",
+      "start": "../heptapod-motion-frames/05-07/shot-06-lift-scene-start-1916x1080.png",
+      "end": "../heptapod-motion-frames/05-07/shot-07-distant-ceiling-reveal-1916x1080.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-05-07/kling-audio-06-07-lift-tilt-up-ascent-v1.mp4",
+      "prompt": "Kling first-last-frame motion with generated audio. Continue from Shot 06 to Shot 07 as one continuous interior lift movement. The same dark industrial scissor lift is now inside the fixed matte-black ovoid vessel. The lift rises straight upward in place with no horizontal travel, no sliding, no swinging, and no detaching. The camera behaves like a restrained passenger viewpoint on or just behind the lift: it slowly tilts and aligns upward toward the tall vertical interior while the exterior aperture leaves the frame naturally because of the camera tilt and ascent. The UFO interior is a fixed, extremely tall black shaft with rough striated matte surfaces; walls do not move toward the camera, do not warp, and do not turn into panels. The distant pale ceiling/contact point grows only slightly and remains far above, preserving the enormous vessel scale. The four pale grey-suited researchers stay on the lift platform, bracing subtly against the rails; nobody walks, steps off, jumps, teleports, duplicates, floats, or changes costume. Preserve black rails, dark cases, muted backpacks, matte black hull texture, low contrast, fog, desaturated green-grey and blue-grey 35mm film grade, and crushed readable blacks. No new lights switch on, no orange/red color shift, no portal, no glowing sci-fi machinery, no corridor. Audio is minimal but present: low wind pressure, deep interior air resonance, faint smooth lift motor, soft rail vibration, and a quiet gravitational hum only; no music, no dialogue, no gunshots, no clicks, no metallic hits, no sharp transients."
+    }
+  ]
+}

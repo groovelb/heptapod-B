@@ -1,0 +1,39 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "submissions": [
+    {
+      "id": "kling-audio-05-06-entry-through-black-interior-settle-v1",
+      "scene": "threshold-to-lift-interior",
+      "part": "05-06",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019ef9f5-0572-7e63-a9b5-23ce5b401e49",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-05-07/kling-audio-05-06-entry-through-black-interior-settle-v1.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f96e7/G9ArVBbgv_f-LS3wu0YXc_output.mp4",
+      "start": "../heptapod-motion-frames/05-07/shot-05-last-from-corrected-01-05.png",
+      "end": "../heptapod-motion-frames/05-07/shot-06-lift-scene-start-1916x1080.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f96db/FCJo0gjWrv6loi3RLFsJa_shot-05-last-from-corrected-01-05.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f96dc/xMhhxNMskFuHs2z4ii0PJ_shot-06-lift-scene-start-1916x1080.png",
+      "profile": "kling",
+      "input": {
+        "prompt": "Kling first-last-frame motion with generated audio. Continue from Shot 05 into Shot 06. This is the only allowed hidden transition point: the camera and the occupied dark industrial scissor lift pass into the fixed matte-black lower aperture, the frame is briefly swallowed by a featureless black void, then the view settles just inside the same aperture looking back out to the grey field. Do not show a visible hard cut or a spatially impossible flip; hide the viewpoint handoff inside pure black occlusion. The UFO hull is an absolute fixed structure in world space and never moves, translates, descends, rises, slides, rotates, scales itself, relights, or changes shape. The lift remains the same dark industrial lift with black rails and compact black cases; it does not slide sideways, detach, redesign, or change color. The same four researchers in pale grey protective suits remain on the platform, lightly bracing; nobody walks, jumps, teleports, falls, duplicates, floats, or steps off. Preserve the same aperture shape and matte rough striated black interior surface. The outside field and fog are visible only after the camera has settled inside the threshold; there is no corridor, ramp, bridge, stairs, gangway, portal, panels, blue light, new lighting, or glowing machinery. Keep Arrival-like physical realism: desaturated green-grey and blue-grey 35mm film grade, low contrast, crushed readable blacks, natural fog, rough material texture, no clean CG look. Audio is restrained and continuous: low wind pressure, soft air hush inside the aperture, faint smooth lift motor and subtle rail vibration only; no music, no dialogue, no gunshots, no clicks, no sharp impacts, no trailer booms.",
+        "duration": "5",
+        "start_image_url": "https://v3b.fal.media/files/b/0a9f96db/FCJo0gjWrv6loi3RLFsJa_shot-05-last-from-corrected-01-05.png",
+        "end_image_url": "https://v3b.fal.media/files/b/0a9f96dc/xMhhxNMskFuHs2z4ii0PJ_shot-06-lift-scene-start-1916x1080.png",
+        "negative_prompt": "visible hard cut, obvious edit, jump cut, camera teleport, instant perspective flip, spatial morph, warped doorway, aperture stretching, extra doorway, second opening, corridor, hallway, ramp, bridge, stairs, gangway, walkway, portal, tractor beam, blue laser, new UFO lights, interior lights turning on, glowing panels, sci-fi panel texture, orange light, red light, saturated color, clean CG, game render, glossy metal, UFO moving, UFO translating, UFO descending, UFO rising, UFO rotating, UFO drifting, UFO sliding, vessel relighting, lift moving sideways, lift sliding, lift rolling, lift swinging, lift detaching, lift redesign, orange lift, red lift, people teleporting, people duplicating, people jumping, people walking off, people falling, floating bodies, orange suits, red suits, black tactical suits, costume change, readable text, subtitles, logos, watermark, gunshot sound, bullet sound, click sound, metallic hit, sharp transient, percussion, trailer boom, music, dialogue",
+        "cfg_scale": 0.32,
+        "generate_audio": true
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f96e7/G9ArVBbgv_f-LS3wu0YXc_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 6983859
+        }
+      },
+      "submitted_at": "2026-06-24T14:09:27.092Z"
+    }
+  ]
+}

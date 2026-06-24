@@ -1,0 +1,39 @@
+{
+  "model": "fal-ai/kling-video/v3/pro/image-to-video",
+  "submissions": [
+    {
+      "id": "kling-audio-03-05-direct-lift-up-camera-zoom-v1",
+      "scene": "entry-into-darkness-close",
+      "part": "03-05",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "request_id": "019ef9d6-1223-77a3-9d55-0823ad7fe197",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/kling-audio-03-05-direct/kling-audio-03-05-direct-lift-up-camera-zoom-v1.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0a9f961e/H3uaObCpwT0NG7MpAFfwt_output.mp4",
+      "start": "../heptapod-motion-frames/kling-02-03-last-frame-for-04.png",
+      "end": "../heptapod-motion-frames/shot-05-entry-into-darkness-1916x1080.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0a9f9611/CFV5otr20udJlLDeANd8P_kling-02-03-last-frame-for-04.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0a9f9611/BuDLkbzOweaqaQw2PnJ4t_shot-05-entry-into-darkness-1916x1080.png",
+      "profile": "kling",
+      "input": {
+        "prompt": "Kling first-last-frame motion with generated audio. Continue directly from the approved 02-03 final frame into Shot 05 entry-into-darkness close. Do not go through Shot 04. The matte-black ovoid vessel is an absolute fixed structure in world space: it does not move, translate, descend, rise, drift, slide, rotate, resize, warp, relight, or change shape. The lift stays under the same aperture and has no horizontal travel: no side sliding, no rolling, no swinging, no detaching, no redesign. The only physical story motion is the same dark industrial scissor lift rising straight upward in place into the fixed black rounded-rectangle aperture, carrying the same four pale grey-suited researchers and compact black equipment cases. The only camera motion is a same-axis push-in or lens zoom toward the lift and aperture, with no pan, no orbit, no reverse angle, no lateral drift, and no background-sideways slide. Background vehicles and field equipment disappear only because the camera/lens moves tighter and crops them out of frame, not because the vessel or lift travels across the field. Keep the aperture fixed in the same underside location while it grows in frame through camera zoom and lift ascent. The four researchers remain standing or lightly bracing on the lift; nobody walks, steps off, descends from the opening, floats, duplicates, or changes costume. Preserve pale grey suits, dark boots, dark gloves, muted backpacks, black rails, dark lift color, matte rough black vessel texture, low contrast, crushed readable blacks, fog, and the desaturated green-grey/blue-grey 35mm film grade. The aperture interior remains pure black and featureless with no lights, no panels, no texture, no glowing rectangle, and no new interior architecture. Audio is restrained and continuous: low wind fading, soft pressure hush, faint smooth lift motor, and subtle rail vibration only. No music, no dialogue, no clicks, no sharp hits, no metallic impacts.",
+        "duration": "5",
+        "start_image_url": "https://v3b.fal.media/files/b/0a9f9611/CFV5otr20udJlLDeANd8P_kling-02-03-last-frame-for-04.png",
+        "end_image_url": "https://v3b.fal.media/files/b/0a9f9611/BuDLkbzOweaqaQw2PnJ4t_shot-05-entry-into-darkness-1916x1080.png",
+        "negative_prompt": "hard cut, edit, shot change, jump cut, camera teleport, side pan, lateral camera move, orbit, reverse angle, off-axis drift, background sliding sideways, UFO moving, UFO translating, UFO descending, UFO rising, UFO drifting, UFO sliding, UFO rotating, UFO scaling itself, vessel moving, vessel warping, lift moving sideways, lift sliding, lift rolling, lift swinging, lift detaching, lift redesign, lift color change, orange lift, red lift, orange suits, red suits, black tactical suits, suit color change, people walking, people stepping off, people descending from opening, people teleporting, people duplicating, floating bodies, second doorway, new entrance, hallway, horizontal corridor, ramp, bridge, stairs, gangway, walkway, soldiers walking in, tractor beam, portal, blue laser, new UFO lights, interior lights turning on, bright aperture lamps, glowing rectangle, glossy sci-fi panels, clean CG, game render, neon, surface warping, bending hull, stretching hull, morphing vessel, geometry distortion, aperture rim warping, relighting, color shift, increased saturation, readable text, subtitles, logos, watermark, gunshot sound, bullet sound, click sound, metallic hit, percussion, sharp transient, loud impact, trailer boom, music, dialogue",
+        "cfg_scale": 0.3,
+        "generate_audio": true
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0a9f961e/H3uaObCpwT0NG7MpAFfwt_output.mp4",
+          "content_type": "video/mp4",
+          "file_name": "output.mp4",
+          "file_size": 7943847
+        }
+      },
+      "submitted_at": "2026-06-24T13:35:57.888Z"
+    }
+  ]
+}
