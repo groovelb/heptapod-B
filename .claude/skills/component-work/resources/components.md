@@ -99,7 +99,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 ## 12. Scroll (Interactive) — 스크롤 기반 효과
 
-- VideoScrubbing: 스크롤 기반 비디오 스크러빙 (`components/scroll/VideoScrubbing.jsx`)
+- VideoScrubbing: 스크롤 기반 비디오 스크러빙. 레이아웃 메트릭 캐시(per-frame 강제 리플로우 제거). `reverseSrc` 주면 **방향 인지 듀얼 비디오** 모드 — 아래로 스크롤은 원본을, 위로 스크롤은 역재생 클립을 각각 forward-seek 해서 `<video>`의 backward-seek 비대칭을 우회(진입/역방향 퍼포먼스 동일). 가시성은 대상 클립이 해당 프레임에 도달했을 때만 스왑(플래시 방지) (`components/scroll/VideoScrubbing.jsx`)
 - ScrollScaleContainer: 뷰포트 노출 비율 연동 스케일 컨테이너. Framer Motion useScroll + useTransform (`components/scroll/ScrollScaleContainer.jsx`)
 
 ## 14. Motion (Interactive) — 스토리텔링 모션
@@ -124,4 +124,5 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - Indicator: 범용 인디케이터 (`common/ui/Indicator.jsx`)
 - Placeholder: 스토리 예제용 FPO 플레이스홀더 시스템. Box/Image/Media/Text/Line/Paragraph/Card 서브컴포넌트 (`common/ui/Placeholder.jsx`)
 - FilterBar: 필터 바 (`components/templates/FilterBar.jsx`)
+- HeptapodHeroIntro: Heptapod B Encoder 영상 스크러빙 히어로 인트로. sticky 트랙(560vh/모바일 420vh)에서 `VideoScrubbing` 재사용으로 진입 영상(Shot 02→11, 47s)을 스크롤 스크럽, Framer MotionValue+useTransform으로 세계관 카피 비트(B0~B6, 영문 serif 헤드라인 + 한글 본문)를 per-frame 리렌더 없이 크로스페이드. **인코더 캔버스를 children(크로스페이드 타깃)으로 받아** 스크럽 끝(진행도 0.85→1.0)에서 영상·오버레이 fade-out / 캔버스 fade-in 디졸브 매치컷, 진행도 ≥0.97에서 `pointerEvents` 활성(상호작용). 위로 스크롤 시 디졸브 역전(왕복, 언마운트 없음). SKIP/ENTER는 트랙 끝으로 scrollTo. `App.jsx`가 `<HeptapodHeroIntro><HeptapodEncoderPage/></HeptapodHeroIntro>`로 합성(공유 URL `?name=`은 인트로 생략). 데이터는 `data/heptapodHeroStory.js`, prefers-reduced-motion 시 캔버스 위 정지 안개 오버레이+ENTER 폴백 (`components/templates/HeptapodHeroIntro.jsx`)
 - HeptapodEncoderPage: Heptapod B Encoder 메인 페이지. 풀스크린 안개 챔버 + 비네트 + 분석 스크림, 가역 인코딩(`buildModelReversible`) — 이름을 손실 없이 형태에 인코딩하고 우상단 status의 DECODE 행으로 형태→원본 복원을 증명, 깊이 내비게이션(N레벨 fractal — 문단↔문장↔단어↔글자, splitText 재귀 분할. 로고그램 클릭 시 하위 격자로 드릴다운, 경로 브레드크럼으로 복귀, 글자 hover 시 글리프 중앙에 원본). ANALYSIS 모드 시 "문자→수→형태설정→형태" 설명을 화면에 분배 오버레이(좌측 ①②글자·수 / 우측 ③형태설정 / 중앙 글리프 데이터 콜아웃 GlyphCallouts / 하단 가역결론), AnalysisOverlay는 showMesh=false로 프레임만. 데스크톱은 오버레이·모바일은 RAW DATA 모달(`inspect`) fallback (데이터↔형태 연관), 용량 초과 시 길이 가드. 사운드(`ambientAudio`)·`?` 자동 의문형·분석 토글 (`components/templates/HeptapodEncoderPage.jsx`)

@@ -79,7 +79,13 @@
 
 - **Pin/Sticky**: 히어로 컨테이너 `560vh`, 내부 영상은 `position: sticky; height: 100vh`로 고정. 스크롤 진행도가 `VideoScrubbing`으로 들어가고, 동일 진행도로 카피 비트 opacity를 제어한다.
 - **카피 비트 노출**: 각 비트는 자신의 스크롤 % 구간에서 fade-in → 유지 → fade-out (구간 경계 ±3%에서 크로스). 기존 `FadeTransition` 재활용.
-- **핸드오프(B6→B7)**: 화이트아웃 마지막 프레임(거의 흰 안개) → 라이브 챔버 `fogZoom` creep 시작 톤과 일치하게 크로스페이드 → DOM 인코더로 전환(영상 unmount). 시각적 이음새 없음.
+- **스크럽/디졸브 분리(중요)**: 영상은 트랙 앞 **0→85%** 구간에서 전 구간 스크럽을 끝내 마지막 프레임(whiteout)에 도달하고, **85%→100%**는 영상을 마지막 프레임에 고정한 채 디졸브만 한다. 이렇게 분리하지 않으면 영상 끝부분이 페이드 뒤로 가려져 왕복 시 "건너뛰는" 현상이 생긴다. 구현: 디졸브/카피용 마스터 진행도는 Framer `useScroll`(전 구간 0→1), 영상 스크럽은 `VideoScrubbing` `scrollRange.end = scrollEnd × 0.85`로 캡(이후 progress>1 clamp로 마지막 프레임 고정).
+- **핸드오프(B6→B7)**: 인코더 캔버스는 인트로의 **children(크로스페이드 타깃)**으로 같은 고정 뷰포트에 항상 마운트된다. 85%→100%에서 **영상·오버레이 fade-out / 캔버스 fade-in** 디졸브로 매치컷(양쪽 쿨 시안 안개라 이음새 없음). **언마운트 없음** — 인코더가 항상 마운트되어 스테이지 측정(ResizeObserver) 등 마운트 effect가 정상 동작. SKIP/ENTER는 트랙 끝으로 `scrollTo`해 디졸브 완료.
+- **진입=탈출 대칭(중요)**: 디졸브 opacity(`videoOpacity`/`canvasOpacity`)는 **항상 progress만** 따른다 → 아래로 내릴 때와 위로 올릴 때가 완전히 거울 대칭. 한쪽을 고정하거나 급변시키지 않는다. (이전엔 도킹이 opacity까지 강제해 "진입=디졸브 / 탈출=고정 후 하드컷"이라는 비대칭이 있었음 — 제거.)
+- **도킹 히스테리시스(상호작용 전용)**: 완전 진입 후 미세 스크롤에 상호작용이 끊기는 knife-edge를 막기 위해, **`pointerEvents`에만** 진입(0.995)/해제(0.85) 임계값을 분리 적용한다. 상호작용은 (1.0~0.85) 버퍼만큼 유지되어 미세 스크롤에 끊기지 않으며, **opacity·시각에는 전혀 관여하지 않는다**(토글이 보이지 않음). 디졸브/스크럽이 분리돼 있어 복귀 시 영상이 마지막 프레임부터 역스크럽되어 건너뛰는 구간도 없다.
+- **`scrollRange` 메모이즈 필수**: `VideoScrubbing`의 rAF effect 의존성에 `scrollRange`가 들어있어, 매 렌더 새 객체를 넘기면 docked 토글 re-render마다 effect가 teardown→재시작된다. 그러면 도킹 경계(0.85)를 스크롤로 지날 때 rAF 갭 동안 `currentTime`이 밀렸다 튀는 "영상 갑툭튀"가 발생한다. → `useMemo([videoScrubEnd])`로 객체 동일성을 유지해 rAF 루프를 끊김 없이 유지한다.
+- **per-frame 강제 리플로우 제거**: `VideoScrubbing`이 매 프레임 `offsetTop/offsetHeight`를 읽으면 강제 리플로우가 발생해, 인코더 활성 상태의 역스크럽에서 프레임 드랍·점핑을 유발한다. → 메트릭을 한 번만 측정해 캐시(resize 때만 갱신), per-frame엔 `scrollY`만 읽는다. 컨테이너엔 `overflow-anchor: none`으로 스크롤 앵커링 점핑도 차단.
+- **방향 인지 듀얼 비디오(진입=역방향 100% 동일)**: `<video>`는 forward seek는 디코더 파이프라인을 이어가지만 **backward seek는 flush·재시작**되어 역스크럽만 끊긴다(영상이 전부 all-keyframe이어도 동일). → **역재생 클립**(`HERO_VIDEO_REVERSE_SRC`, frames reversed)을 따로 두고, 아래로 스크롤은 원본을, 위로 스크롤은 역클립을 **각각 forward-seek**한다. `reverse@D·(1−p) = forward@D·p`(동일 프레임)이라 전환이 매끄럽고, 두 클립 모두 forward seek만 하므로 진입/역방향 디코드 비용이 같다. 가시성 스왑은 대상 클립이 해당 프레임에 도달(seek 완료)했을 때만 수행해 플래시를 없앤다. 트레이드오프: 두 클립을 preload하므로 대역폭 약 2배(≈59MB).
 - **오디오 봉합**: B6 도달 시 `ambientAudio.encodeStart`의 boom 톤을 매치컷에 동기화 가능(`04-audio-and-motion.md` §1.1). 배경음악(OST)은 인트로 내내 default-on 유지.
 - **`prefers-reduced-motion`**: 스크럽/핀 생략 → 마지막 안개 정지 프레임 + 카피 순차 노출 후 바로 인코더 노출 (프로젝트 룰 준수).
 - **Skip**: 우상단 `SKIP INTRO →` → 즉시 B7로 점프. URL 공유 진입(`?name=` 쿼리)은 기본 skip 권장 — 재현 우선.

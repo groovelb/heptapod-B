@@ -16,7 +16,9 @@ function fogNoiseSvg(baseFrequency, numOctaves, seed) {
     '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240">',
     '<filter id="n">',
     `<feTurbulence type="fractalNoise" baseFrequency="${baseFrequency}" numOctaves="${numOctaves}" seed="${seed}" stitchTiles="stitch"/>`,
+    // 1차 완전 탈채도 후, 미세 쿨 틴트(R↓·B↑·소량 시안 오프셋)로 그레인을 영상 그레이딩에 정렬
     '<feColorMatrix type="saturate" values="0"/>',
+    '<feColorMatrix type="matrix" values="0.92 0 0 0 0  0 0.97 0 0 0.01  0 0 1.04 0 0.02  0 0 0 1 0"/>',
     '</filter>',
     '<rect width="240" height="240" filter="url(#n)"/>',
     '</svg>',
@@ -190,9 +192,10 @@ function renderLayers(layerBaseSx, isActive, diveKey = 0) {
  * 로고그램 렌더러를 children으로 받아 정방형 무대 위에 올린다.
  *
  * 안개 구현 (CSS 전용 — Three.js GradientOverlay와 무관, 03-visual-direction 기획 결정):
- * 1. custom.chamber.fog(#dfe3e6) 단색 베이스 위에 SVG feTurbulence 노이즈 3장을 겹친다
+ * 색은 히어로 영상 매치컷 끝(whiteout) 실측 그레이딩에 정렬(쿨 시안-화이트 막 + 블루블랙 외곽).
+ * 1. custom.chamber.fog(#cfe2ea) 쿨 시안-화이트 베이스 위에 SVG feTurbulence 노이즈 3장(쿨 틴트)을 겹친다
  * 2. 각 레이어는 blur + 느린 transform drift(주기 24~40s, linear 무한 루프)로 미세하게 살아 움직인다
- * 3. radial-gradient 비네트로 가장자리를 어둡게(fogDeep #c9cfd4) 눌러 서리 유리의 깊이감을 만든다
+ * 3. 중심 글로우(fogHi #e9f2f5) + radial 비네트로 가장자리를 fogDeep(#9fb4bd)→edge(#10161a)로 크러시해 시네마틱 깊이를 만든다
  * 4. prefers-reduced-motion 시 모든 drift가 정지한다 (CSS @media)
  *
  * Props:
@@ -233,16 +236,21 @@ function LogogramChamber({
   const chamberSx = {
     ...driftKeyframes,
     backgroundColor: 'custom.chamber.fog',
-    // 서리 유리 표면 너머의 깊이감 — 중심은 밝게, 가장자리는 fogDeep로 가라앉음
+    // 영상 그레이딩 정렬 — 중심은 쿨 시안-화이트 발광(fogHi), 외곽은
+    // 블루그레이(fogDeep)를 지나 블루블랙(edge)으로 크러시되어 시네마틱 깊이를 만든다.
     '&::after': {
       content: '""',
       position: 'absolute',
       inset: 0,
       pointerEvents: 'none',
-      background:
-        'radial-gradient(ellipse at 50% 45%, rgba(223,227,230,0) 35%, rgba(201,207,212,0.55) 100%)',
-      // 가장자리 미세 비네트 (서리 유리 테두리)
-      boxShadow: 'inset 0 0 64px 8px rgba(201,207,212,0.45)',
+      background: [
+        // 막 중심 글로우 (fogHi #e9f2f5)
+        'radial-gradient(ellipse at 50% 45%, rgba(233,242,245,0.35) 0%, rgba(233,242,245,0) 45%)',
+        // 외곽 크러시 — 투명 → 중간 블루그레이(fogDeep #9fb4bd) → 블루블랙(edge #10161a)
+        'radial-gradient(ellipse at 50% 45%, rgba(159,180,189,0) 35%, rgba(159,180,189,0.45) 72%, rgba(16,22,26,0.8) 100%)',
+      ].join(', '),
+      // 가장자리 크러시 비네트 (블루블랙 edge)
+      boxShadow: 'inset 0 0 72px 10px rgba(16,22,26,0.55)',
       zIndex: 2,
     },
     '@media (prefers-reduced-motion: reduce)': {

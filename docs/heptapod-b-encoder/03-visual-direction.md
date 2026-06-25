@@ -96,7 +96,7 @@
 | Background (paper) | `background.paper` | #fff 계열 | **#131715** | 패널·리드아웃 표면 |
 | Text (primary) | `text.primary` | rgba(0,0,0,0.87) | **#e8ecec** (한색 백) | 순백 금지 — 유리벽 광원 톤 |
 | Text (secondary) | `text.secondary` | rgba(0,0,0,0.6) | **#8a9694** | 안개 회록 |
-| Chamber (커스텀) | — (신규) | — | `custom.chamber.fog` **#dfe3e6**, `custom.chamber.ink` **#1c2226** | 챔버 내부 전용 — 밝은 안개 + 잉크. UI 다크와 분리 |
+| Chamber (커스텀) | — (신규) | — | `custom.chamber.fog` **#cfe2ea**, `fogHi` **#e9f2f5**, `fogDeep` **#9fb4bd**, `edge` **#10161a**, `ink` **#1c2226** | 챔버 내부 전용 — **히어로 영상 매치컷 끝(whiteout) 실측 그레이딩에 정렬**(쿨 시안-화이트 막 + 블루블랙 크러시 외곽). UI 다크와 분리 |
 | Warning/Error | `warning.main` / `error.main` | MUI 기본 | **#e8ecec (고명도 백) + 텍스트 라벨로 구분** | 순수 모노크롬 확정 — 유채색 전면 배제. 경고는 명도 대비·모노스페이스 라벨(`WARNING:`)로 표현 |
 | Divider | `divider` | rgba(0,0,0,0.12) | **rgba(232,236,236,0.08)** | 1px 헤어라인, 거의 사라질 듯한 존재감 |
 
@@ -177,7 +177,7 @@
 | `palette.text.secondary` | rgba(0,0,0,.6) | **#8a9694** | 캡션·라벨 |
 | `palette.warning.main` / `error.main` | MUI 기본 | **#e8ecec** (무채 고명도) | 경고/에러 — 모노크롬 유지 |
 | `palette.divider` | rgba(0,0,0,.12) | **rgba(232,236,236,0.08)** | 헤어라인 |
-| `palette.custom.chamber.*` | — | **fog #dfe3e6 / ink #1c2226 / fogDeep #c9cfd4** | 챔버 전용 (신규 네임스페이스) |
+| `palette.custom.chamber.*` | — | **fog #cfe2ea / fogHi #e9f2f5 / fogDeep #9fb4bd / edge #10161a / ink #1c2226** | 챔버 전용 (신규 네임스페이스) — 영상 whiteout 그레이딩 정렬 |
 | `typography.h1~h3` | Outfit 900 | **Outfit 300~400, ls 0.25em, uppercase** | 헤드라인 |
 | `typography.custom.mono` | — | **'JetBrains Mono', monospace 스택** | 데이터 리드아웃 (신규) |
 | `typography.custom.serif` | — | **'Fraunces', 'Newsreader', Georgia, serif** | 히어로 인트로 영문 헤드라인 (신규, §5.5) |

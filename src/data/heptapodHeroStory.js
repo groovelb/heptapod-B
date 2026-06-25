@@ -13,9 +13,22 @@
  * 영상 타임라인 근거: docs/heptapod-b-encoder/02-ux-flow.md 시나리오 0
  */
 
-/** 최종 히어로 영상 소스 (public 기준 절대경로) */
+/**
+ * 최종 히어로 영상 소스 (public 기준 절대경로).
+ * 스크러빙 전용 올-키프레임(GOP=1, B-frame 제거) 1280p 재인코딩본 —
+ * 임의 위치 seek이 즉시 디코드되어 스크롤 스크럽이 부드럽다.
+ * 원본(스크럽 비최적): ...-hero-v1-source01v2-screenfillv4.mp4
+ */
 export const HERO_VIDEO_SRC =
-  '/heptapod-b-encoder/hero-motion/kling-audio-01-final/kling-audio-01-final-hero-v1-source01v2-screenfillv4.mp4';
+  '/heptapod-b-encoder/hero-motion/kling-audio-01-final/kling-audio-01-final-scrub-1280-allkey.mp4';
+
+/**
+ * 역재생 클립 — 위로 스크롤(역스크럽) 시 forward-seek로 재생해 `<video>`의 backward
+ * seek 비대칭(파이프라인 flush)을 우회한다. 두 클립 모두 forward seek만 하므로
+ * 진입/역방향 퍼포먼스가 100% 동일하다. (frames reversed, 동일 해상도·all-keyframe)
+ */
+export const HERO_VIDEO_REVERSE_SRC =
+  '/heptapod-b-encoder/hero-motion/kling-audio-01-final/kling-audio-01-final-scrub-1280-allkey-reversed.mp4';
 
 /** 영상 길이(초) — ffprobe 실측값 */
 export const HERO_VIDEO_DURATION = 47.08;

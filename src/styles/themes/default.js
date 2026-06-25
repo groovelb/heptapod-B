@@ -102,10 +102,15 @@ const palette = {
 
   // 챔버 전용 커스텀 네임스페이스 (밝은 안개 + 잉크 — UI 다크와 분리)
   custom: {
+    // 챔버 색 — 히어로 영상 매치컷 끝 프레임(whiteout) 실측 그레이딩에 정렬.
+    // 영상이 중성 회색이 아니라 차가운 시안-화이트(#cfe2ea)이며 외곽은
+    // 블루블랙(#0e1013)으로 크러시된다 → 토큰을 쿨/딥으로 재조정.
     chamber: {
-      fog: '#dfe3e6',
-      ink: '#1c2226',
-      fogDeep: '#c9cfd4',
+      fog: '#cfe2ea',      // 막 베이스 — whiteout 평균색(쿨 시안-화이트)
+      fogHi: '#e9f2f5',    // 막 중심 글로우 하이라이트
+      fogDeep: '#9fb4bd',  // 중간조 블루그레이 (screen-fill 톤)
+      edge: '#10161a',     // 외곽 크러시 블루블랙 (#0e1013 매칭)
+      ink: '#1c2226',      // 잉크 — 이미 쿨, 유지
     },
   },
 };
@@ -248,6 +253,13 @@ const typography = {
       fontSize: '0.75rem',     // 12px (11~13px 권장)
       lineHeight: 1.5,
       letterSpacing: '0.05em',
+    },
+    // 히어로 인트로 영문 헤드라인 (신규) — 모던 serif, 영화적·문학적 온도
+    serif: {
+      fontFamily: "'Fraunces', 'Newsreader', Georgia, serif",
+      fontWeight: 300,
+      letterSpacing: '0.02em',
+      lineHeight: 1.1,
     },
   },
 };
