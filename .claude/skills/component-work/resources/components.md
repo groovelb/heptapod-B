@@ -99,7 +99,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 ## 12. Scroll (Interactive) — 스크롤 기반 효과
 
-- VideoScrubbing: 스크롤 기반 비디오 스크러빙. 레이아웃 메트릭 캐시(per-frame 강제 리플로우 제거). `reverseSrc` 주면 **방향 인지 듀얼 비디오** 모드 — 아래로 스크롤은 원본을, 위로 스크롤은 역재생 클립을 각각 forward-seek 해서 `<video>`의 backward-seek 비대칭을 우회(진입/역방향 퍼포먼스 동일). 가시성은 대상 클립이 해당 프레임에 도달했을 때만 스왑(플래시 방지) (`components/scroll/VideoScrubbing.jsx`)
+- VideoScrubbing: 스크롤 기반 비디오 스크러빙(단일 video를 progress에 따라 연속 seek). 레이아웃 메트릭을 한 번만 측정·캐시해 **per-frame 강제 리플로우 제거**(역스크럽 점핑 방지), per-frame엔 scrollY만 읽음 (`components/scroll/VideoScrubbing.jsx`)
 - ScrollScaleContainer: 뷰포트 노출 비율 연동 스케일 컨테이너. Framer Motion useScroll + useTransform (`components/scroll/ScrollScaleContainer.jsx`)
 
 ## 14. Motion (Interactive) — 스토리텔링 모션

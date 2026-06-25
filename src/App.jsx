@@ -1,6 +1,9 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 
 import { defaultTheme as theme } from './styles/themes';
 import HeptapodEncoderPage from './components/templates/HeptapodEncoderPage';
@@ -28,6 +31,29 @@ function hasSharedName() {
 function App() {
   const sharedName = hasSharedName();
 
+  /**
+   * Lenis 스무스 스크롤 — 휠/터치를 감속 보간해 부드럽게 한다. 네이티브 scrollY를 갱신하므로
+   * 기존 스크럽(VideoScrubbing의 window.scrollY)과 Framer useScroll이 그대로 따라온다.
+   * prefers-reduced-motion 시 비활성(접근성).
+   */
+  useEffect(() => {
+    if (
+      typeof window === 'undefined'
+      || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return undefined;
+    }
+    const lenis = new Lenis();
+    let rafId = requestAnimationFrame(function raf(time) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    });
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
+  }, []);
+
   return (
     <ThemeProvider theme={ theme }>
       <CssBaseline />
@@ -39,10 +65,8 @@ function App() {
               sharedName ? (
                 <HeptapodEncoderPage />
               ) : (
-                // [격리 디버그] 캔버스(인코더)를 잠시 비워 비디오 스크러빙만 남김.
-                // 역스크럽 끊김이 인코더 렌더링 탓인지 비디오 자체인지 판별용. 원복 시 아래 children 복구.
                 <HeptapodHeroIntro>
-                  {/* <HeptapodEncoderPage /> */}
+                  <HeptapodEncoderPage />
                 </HeptapodHeroIntro>
               )
             }

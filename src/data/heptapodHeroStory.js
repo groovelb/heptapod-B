@@ -22,14 +22,6 @@
 export const HERO_VIDEO_SRC =
   '/heptapod-b-encoder/hero-motion/kling-audio-01-final/kling-audio-01-final-scrub-1280-allkey.mp4';
 
-/**
- * 역재생 클립 — 위로 스크롤(역스크럽) 시 forward-seek로 재생해 `<video>`의 backward
- * seek 비대칭(파이프라인 flush)을 우회한다. 두 클립 모두 forward seek만 하므로
- * 진입/역방향 퍼포먼스가 100% 동일하다. (frames reversed, 동일 해상도·all-keyframe)
- */
-export const HERO_VIDEO_REVERSE_SRC =
-  '/heptapod-b-encoder/hero-motion/kling-audio-01-final/kling-audio-01-final-scrub-1280-allkey-reversed.mp4';
-
 /** 영상 길이(초) — ffprobe 실측값 */
 export const HERO_VIDEO_DURATION = 47.08;
 

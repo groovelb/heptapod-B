@@ -25,24 +25,26 @@ const FOG_COLOR = '#cfe2ea';
 const TEXT_LIGHT = '#e8ecec';
 
 /**
- * 영상 스크럽이 끝나는 진행도 — 이 지점에서 영상은 마지막 프레임에 도달하고,
- * 이후 구간(이 값→1.0)은 영상을 고정한 채 디졸브만 진행한다. 스크럽과 디졸브를
- * 분리해 영상 끝부분이 페이드 뒤로 가려져 "건너뛰는" 현상을 막는다.
+ * 영상 스크럽이 끝나는 진행도(≈90%) — 이 지점에서 영상은 마지막 프레임(whiteout)에 도달해 고정된다.
+ * 영상엔 opacity 트랜지션을 주지 않는다(정적).
  */
-const VIDEO_SCRUB_FRACTION = 0.85;
-/** 영상→캔버스 디졸브 구간 (진행도) — 영상은 이미 마지막 프레임에 고정된 상태 */
-const VIDEO_FADE = [VIDEO_SCRUB_FRACTION, 0.99];
-const CANVAS_FADE = [VIDEO_SCRUB_FRACTION + 0.01, 1.0];
+const VIDEO_SCRUB_FRACTION = 0.90;
 /**
- * 캔버스 "도킹"(완전 진입) 히스테리시스 — **pointerEvents(상호작용)에만** 적용한다.
- * (opacity는 별도로 항상 progress를 따라 진입/탈출 대칭이다 — 도킹은 시각에 관여하지 않음.)
- * 단일 임계값이면 완전 진입 직후 미세 스크롤에 상호작용이 끊기는 knife-edge가 생긴다.
- * - 진입(DOCK_ENTER): 디졸브가 거의 끝난 0.995에서 캔버스 상호작용 활성
- * - 해제(DOCK_EXIT): 디졸브 구간을 모두 거슬러 올라가 스크럽 구간에 들어설 때(0.85)만
- * → 상호작용은 (1.0~0.85) 버퍼만큼 유지되어 미세 스크롤로 끊기지 않는다(시각 변화 없음).
+ * 연산 분산 — 무거운 작업을 서로 다른 스크롤 구간에 배치해 동시 과부하를 막는다.
+ *  - ~90%: 캔버스 컴포넌트 fade in/out (이때 배경 효과는 정지 → 정적 레이어 합성이라 가벼움)
+ *  - ~99%: UI 트랜지션 (캔버스는 보이지만 효과 비활성)
+ *  - ~100%: 배경 효과(fog 등) 활성화 — 스크롤 끝에서만
+ * 인코더는 fog SVG 필터·blur·fogZoom 무한 애니메이션이 무거우므로, 활성 범위 밖에선 `display:none`
+ * (CSS 애니메이션까지 정지)으로 빼고, fade 중엔 `animationPlayState:paused`로 정지시킨다.
  */
-const DOCK_ENTER = 0.995;
-const DOCK_EXIT = VIDEO_SCRUB_FRACTION;
+const CANVAS_FADE = [0.90, 0.94]; // 캔버스 컴포넌트 opacity 0→1 (≈90%)
+const UI_FADE = [0.97, 0.99]; // UI opacity 1→0 (≈99%)
+const DISPLAY_ENTER = 0.89; // display:block 게이트(캔버스 fade 직전) / EXIT 0.86
+const DISPLAY_EXIT = 0.86;
+const EFFECTS_ENTER = 0.999; // 배경 효과(fog) 가동 — 무조건 스크롤 끝(100%)에서만 / EXIT 0.99
+const EFFECTS_EXIT = 0.99; // 끝에서 조금만 벗어나도 즉시 비활성
+const INTERACT_ENTER = 0.99; // 입력(인코더 TextField 등) 상호작용 활성 — UI가 사라진 직후 / EXIT 0.95
+const INTERACT_EXIT = 0.95; // 타이핑 중 미세 스크롤에 끊기지 않게 히스테리시스
 
 /**
  * 단일 카피 비트 — 진행도(MotionValue) 구간에 맞춰 opacity/translateY 크로스페이드.
@@ -130,9 +132,10 @@ function HeroBeat({ beat, progress, serifFont }) {
  *
  * - 영상 스크럽: 기존 `VideoScrubbing` 재사용 (scrollRange로 sticky 언더슈트 보정)
  * - opacity/디졸브: Framer MotionValue + useTransform (per-frame 리렌더 없음)
- * - 디졸브 opacity: 항상 progress를 따라 진입=탈출 대칭(어느 한쪽도 고정/급변 없음)
- * - 상호작용: 완전 진입(도킹) 시 캔버스 pointerEvents만 히스테리시스(진입 0.995 / 해제
- *   0.85)로 제어 — 미세 스크롤에 튕겨나가지 않게 하되 opacity엔 관여하지 않음(시각 불변)
+ * - 연산 분산(동시 과부하 방지): 무거운 작업을 스크롤 구간별로 나눈다 —
+ *   ~90% 캔버스 컴포넌트 fade in/out(효과는 정지 → 정적 합성) / ~99% UI fade out(캔버스 정적) /
+ *   ~100% 배경 효과(fog) 가동(스크롤 끝). 영상은 트랜지션 없이 마지막 프레임 정지(뒤).
+ * - 성능: 활성 범위 밖에선 캔버스를 display:none으로 빼 CSS 애니메이션까지 정지(스크럽 과부하 0)
  * - 접근성: prefers-reduced-motion 시 정지 안개 + 핵심 카피 + ENTER 오버레이로 대체
  *
  * 데이터: `src/data/heptapodHeroStory.js` / 기획: `docs/heptapod-b-encoder/06-hero-storyline.md`
@@ -153,7 +156,9 @@ function HeptapodHeroIntro({ children, onEnter }) {
     theme.typography?.custom?.mono?.fontFamily || 'monospace';
 
   const containerRef = useRef(null);
-  const dockedRef = useRef(false);
+  const activeRef = useRef(false);
+  const settledRef = useRef(false);
+  const interactRef = useRef(false);
   // 디졸브/카피용 마스터 진행도 — 트랙 전 구간 0→1 (영상 스크럽과 독립).
   // 'start start'(컨테이너 상단=뷰포트 상단) → 'end end'(컨테이너 하단=뷰포트 하단).
   const { scrollYProgress: progress } = useScroll({
@@ -164,7 +169,9 @@ function HeptapodHeroIntro({ children, onEnter }) {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [reducedDismissed, setReducedDismissed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [docked, setDocked] = useState(false);
+  const [canvasActive, setCanvasActive] = useState(false); // display 게이트(렌더 on/off, ≈90%)
+  const [canvasInteractive, setCanvasInteractive] = useState(false); // 입력 상호작용(UI 사라진 뒤, ≈99%)
+  const [canvasSettled, setCanvasSettled] = useState(false); // 배경 효과 가동(스크롤 끝, ≈100%)
 
   /** prefers-reduced-motion 감지 */
   useEffect(() => {
@@ -185,17 +192,36 @@ function HeptapodHeroIntro({ children, onEnter }) {
   }, []);
 
   /**
-   * 캔버스 도킹 토글 — 히스테리시스(진입 0.995 / 해제 0.85)로 완전 진입 후
-   * 미세 스크롤에 상호작용이 끊기지 않게 한다. 임계값을 넘나들 때만 setState(리렌더 최소화).
+   * 진행도 게이트 — 연산 분산을 위해 두 토글을 서로 다른 스크롤 임계값에 둔다(히스테리시스).
+   *  - canvasActive(display, ≈90%): 캔버스 컴포넌트 렌더 on/off. 밖에선 display:none으로 CSS
+   *    애니메이션까지 정지.
+   *  - canvasSettled(배경 효과, ≈100%): 스크롤 끝에서만 fog 등 배경 애니메이션을 running.
+   * 임계값을 넘나들 때만 setState(리렌더 최소화).
    */
   useEffect(() => {
     const apply = (p) => {
-      let next = dockedRef.current;
-      if (!next && p >= DOCK_ENTER) next = true;
-      else if (next && p < DOCK_EXIT) next = false;
-      if (next !== dockedRef.current) {
-        dockedRef.current = next;
-        setDocked(next);
+      let active = activeRef.current;
+      if (!active && p >= DISPLAY_ENTER) active = true;
+      else if (active && p < DISPLAY_EXIT) active = false;
+      if (active !== activeRef.current) {
+        activeRef.current = active;
+        setCanvasActive(active);
+      }
+
+      let interactive = interactRef.current;
+      if (!interactive && p >= INTERACT_ENTER) interactive = true;
+      else if (interactive && p < INTERACT_EXIT) interactive = false;
+      if (interactive !== interactRef.current) {
+        interactRef.current = interactive;
+        setCanvasInteractive(interactive);
+      }
+
+      let settled = settledRef.current;
+      if (!settled && p >= EFFECTS_ENTER) settled = true;
+      else if (settled && p < EFFECTS_EXIT) settled = false;
+      if (settled !== settledRef.current) {
+        settledRef.current = settled;
+        setCanvasSettled(settled);
       }
     };
     apply(progress.get());
@@ -218,7 +244,7 @@ function HeptapodHeroIntro({ children, onEnter }) {
   // 영상 스크럽은 트랙의 앞 VIDEO_SCRUB_FRACTION 구간에서 끝내고, 이후는 마지막
   // 프레임에 고정(VideoScrubbing이 progress>1을 clamp) → 디졸브 구간과 분리.
   const videoScrubEnd = scrollEnd * VIDEO_SCRUB_FRACTION;
-  // scrollRange는 반드시 메모이즈한다. docked 토글로 re-render되어도 객체 동일성이
+  // scrollRange는 반드시 메모이즈한다. canvasActive 토글로 re-render되어도 객체 동일성이
   // 유지되지 않으면 VideoScrubbing의 rAF effect가 teardown→재시작되어, 도킹 경계(0.85)를
   // 스크롤로 지날 때 currentTime이 밀렸다가 튀는("영상 갑툭튀") 갭이 생긴다.
   const scrollRange = useMemo(
@@ -226,9 +252,10 @@ function HeptapodHeroIntro({ children, onEnter }) {
     [videoScrubEnd],
   );
 
-  // 디졸브 — 영상/오버레이 fade-out, 캔버스 fade-in
-  const videoOpacity = useTransform(progress, VIDEO_FADE, [1, 0]);
+  // 캔버스 컴포넌트 fade in/out (≈90%) — 효과가 정지된 정적 레이어라 합성이 가볍다
   const canvasOpacity = useTransform(progress, CANVAS_FADE, [0, 1]);
+  // UI fade out (≈99%) — 캔버스가 보이는 동안(효과 OFF) UI만 빠진다
+  const uiOpacity = useTransform(progress, UI_FADE, [1, 0]);
   // 마스터 타이틀 — B0 직후 페이드 아웃
   const masterTitleOpacity = useTransform(progress, [0, 0.06, 0.1], [1, 1, 0]);
   // 스크롤 힌트 — 초반에만 노출
@@ -340,32 +367,8 @@ function HeptapodHeroIntro({ children, onEnter }) {
           overflow: 'hidden',
         } }
       >
-        {/* 캔버스 레이어 (디졸브로 떠오르는 라이브 인코더) — 뒤, fade-in.
-            opacity는 항상 progress를 따라 진입/탈출 대칭. 상호작용만 docked로 제어. */}
-        <Box
-          component={ motion.div }
-          style={ { opacity: canvasOpacity } }
-          sx={ {
-            position: 'absolute',
-            inset: 0,
-            pointerEvents: docked ? 'auto' : 'none',
-          } }
-        >
-          { children }
-        </Box>
-
-        {/* 히어로 레이어 (영상 + 오버레이 UI) — 앞, fade-out.
-            opacity는 항상 progress를 따라 대칭. 도킹 중엔 이벤트만 차단(시각 영향 없음). */}
-        <Box
-          component={ motion.div }
-          style={ { opacity: videoOpacity } }
-          sx={ {
-            position: 'absolute',
-            inset: 0,
-            pointerEvents: docked ? 'none' : 'auto',
-          } }
-        >
-          {/* L0 — 스크럽 영상 (풀블리드 cover) */}
+        {/* L0 — 스크럽 영상 (뒤, zIndex 0). opacity 트랜지션 없이 정적 — 마지막 프레임에 고정. */}
+        <Box sx={ { position: 'absolute', inset: 0, zIndex: 0 } }>
           <VideoScrubbing
             src={ HERO_VIDEO_SRC }
             containerRef={ containerRef }
@@ -379,7 +382,42 @@ function HeptapodHeroIntro({ children, onEnter }) {
               pointerEvents: 'none',
             } }
           />
+        </Box>
 
+        {/* 캔버스 컴포넌트 레이어 — 중간, zIndex 1. ≈90%에서 scroll-driven opacity로 fade in/out.
+            배경 효과(fog 등)는 canvasSettled(≈100%, 스크롤 끝)에서만 running, 그 외엔 paused →
+            fade 중엔 정적 레이어라 합성이 가볍다. 활성 범위 밖(display:none)에선 CSS 애니메이션까지 정지
+            (마운트 유지 → 오디오/상태 보존). */}
+        <Box
+          component={ motion.div }
+          style={ { opacity: canvasOpacity } }
+          sx={ {
+            position: 'absolute',
+            inset: 0,
+            zIndex: 1,
+            display: canvasActive ? 'block' : 'none',
+            // 입력(인코더 TextField 등) 상호작용은 UI가 사라진 직후(≈99%)부터. 배경 효과(fog)와 분리.
+            pointerEvents: canvasInteractive ? 'auto' : 'none',
+            '& *': {
+              animationPlayState: canvasSettled ? 'running !important' : 'paused !important',
+            },
+          } }
+        >
+          { children }
+        </Box>
+
+        {/* 히어로 UI 레이어 (스크림·카피·타이틀·SKIP) — 위, zIndex 2. ≈99%에서 scroll-driven fade out
+            → 뒤의 (이미 떠오른) 캔버스가 드러남. 캔버스 fade(≈90%)와 시간상 분리되어 동시 과부하 없음. */}
+        <Box
+          component={ motion.div }
+          style={ { opacity: uiOpacity } }
+          sx={ {
+            position: 'absolute',
+            inset: 0,
+            zIndex: 2,
+            pointerEvents: canvasInteractive ? 'none' : 'auto',
+          } }
+        >
           {/* L1 — 카피 가독성용 하단 스크림 (영상 톤 보존, 국소 그라데이션) */}
           <Box
             sx={ {
