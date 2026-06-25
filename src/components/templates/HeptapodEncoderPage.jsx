@@ -614,11 +614,15 @@ function HeptapodEncoderPage() {
     }
   }, [encodedName]);
 
-  // edge: 화면 가장자리를 어둡게 덮는 비네트 색 (가운데가 상대적으로 밝게 뜸).
-  // UI HUD는 어두운 가장자리 위에 떠 있으므로 흰색. 중앙 안개 위 플레이스홀더만 잉크.
+  // edge: 분석 모드 스크림용 어두운 색.
   const ink = theme.palette.custom?.chamber?.ink || '#1c2226';
   const edge = theme.palette.background.default || '#0c100f';
-  const fg = '#ffffff';
+  // L1 외곽 비네트 전용 — 영상 마지막 프레임처럼 가장자리를 블루블랙이 아닌
+  // 쿨 블루슬레이트로 "아주 살짝만" 눌러 균일한 밝은 안개를 유지한다.
+  const vignette = '#33505f';
+  // HUD 전경색(텍스트·보더). 일반 모드는 밝은 안개 위라 어두운 쿨톤, 분석 모드는
+  // 어두운 스크림 위라 흰색. (이전엔 어두운 비네트 전제로 항상 흰색이었음)
+  const fg = analysisActive ? '#ffffff' : '#1c2731';
 
   /** 우상단 status line 테이블 행 데이터 */
   const readoutRows = model
@@ -861,8 +865,8 @@ function HeptapodEncoderPage() {
         </Box>
       ) }
 
-      {/* L1 — 가장자리 어둠 overlay (영화식 비네트). 화면 가장자리를 어둡게
-          덮어 가운데 로고그램이 상대적으로 밝게 떠 보이게 한다 */}
+      {/* L1 — 외곽 비네트 (영상 마지막 프레임 정렬). 블루블랙 크러시가 아니라 쿨 블루슬레이트로
+          가장자리만 아주 살짝 눌러 균일한 밝은 안개를 유지한다(이전보다 훨씬 약하고 좁게). */}
       <Box
         sx={ {
           position: 'absolute',
@@ -870,8 +874,8 @@ function HeptapodEncoderPage() {
           pointerEvents: 'none',
           zIndex: 2,
           background:
-            `radial-gradient(ellipse 80% 76% at 50% 45%, ${alpha(edge, 0)} 14%, ${alpha(edge, 0.4)} 40%, ${alpha(edge, 0.82)} 66%, ${alpha(edge, 1)} 92%)`,
-          boxShadow: `inset 0 0 320px 130px ${alpha(edge, 0.92)}`,
+            `radial-gradient(ellipse 94% 90% at 50% 45%, ${alpha(vignette, 0)} 60%, ${alpha(vignette, 0.08)} 84%, ${alpha(vignette, 0.2)} 100%)`,
+          boxShadow: `inset 0 0 140px 8px ${alpha(vignette, 0.12)}`,
         } }
       />
 

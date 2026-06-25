@@ -193,9 +193,9 @@ function renderLayers(layerBaseSx, isActive, diveKey = 0) {
  *
  * 안개 구현 (CSS 전용 — Three.js GradientOverlay와 무관, 03-visual-direction 기획 결정):
  * 색은 히어로 영상 매치컷 끝(whiteout) 실측 그레이딩에 정렬(쿨 시안-화이트 막 + 블루블랙 외곽).
- * 1. custom.chamber.fog(#cfe2ea) 쿨 시안-화이트 베이스 위에 SVG feTurbulence 노이즈 3장(쿨 틴트)을 겹친다
+ * 1. custom.chamber.fog(#d6e8ed) 밝은 쿨 시안 안개 베이스 위에 SVG feTurbulence 노이즈 3장(쿨 틴트)을 겹친다
  * 2. 각 레이어는 blur + 느린 transform drift(주기 24~40s, linear 무한 루프)로 미세하게 살아 움직인다
- * 3. 중심 글로우(fogHi #e9f2f5) + radial 비네트로 가장자리를 fogDeep(#9fb4bd)→edge(#10161a)로 크러시해 시네마틱 깊이를 만든다
+ * 3. 중심 글로우(fogHi #e6f1f5) + 약한 radial 비네트로 가장자리를 fogDeep(#bcd7e2)대 밝은 쿨 블루그레이로 살짝만 눌러 영상 마지막 프레임의 균일한 안개에 맞춘다(블루블랙 크러시 없음)
  * 4. prefers-reduced-motion 시 모든 drift가 정지한다 (CSS @media)
  *
  * Props:
@@ -236,21 +236,21 @@ function LogogramChamber({
   const chamberSx = {
     ...driftKeyframes,
     backgroundColor: 'custom.chamber.fog',
-    // 영상 그레이딩 정렬 — 중심은 쿨 시안-화이트 발광(fogHi), 외곽은
-    // 블루그레이(fogDeep)를 지나 블루블랙(edge)으로 크러시되어 시네마틱 깊이를 만든다.
+    // 영상 마지막 프레임 정렬 — 거의 균일한 밝은 쿨 시안 안개. 가장자리는 블루블랙 크러시가
+    // 아니라 밝은 쿨 블루그레이로 아주 살짝만 어두워진다(약한 비네트).
     '&::after': {
       content: '""',
       position: 'absolute',
       inset: 0,
       pointerEvents: 'none',
       background: [
-        // 막 중심 글로우 (fogHi #e9f2f5)
-        'radial-gradient(ellipse at 50% 45%, rgba(233,242,245,0.35) 0%, rgba(233,242,245,0) 45%)',
-        // 외곽 크러시 — 투명 → 중간 블루그레이(fogDeep #9fb4bd) → 블루블랙(edge #10161a)
-        'radial-gradient(ellipse at 50% 45%, rgba(159,180,189,0) 35%, rgba(159,180,189,0.45) 72%, rgba(16,22,26,0.8) 100%)',
+        // 막 중심 글로우 (fogHi) — 약하게
+        'radial-gradient(ellipse at 50% 45%, rgba(230,241,245,0.22) 0%, rgba(230,241,245,0) 52%)',
+        // 외곽 — 투명 → 밝은 쿨 블루그레이(fogDeep대)로 살짝만. 블루블랙 없음, 약한 overlay.
+        'radial-gradient(ellipse at 50% 45%, rgba(150,178,196,0) 55%, rgba(150,178,196,0.22) 100%)',
       ].join(', '),
-      // 가장자리 크러시 비네트 (블루블랙 edge)
-      boxShadow: 'inset 0 0 72px 10px rgba(16,22,26,0.55)',
+      // 가장자리 비네트 — 쿨 블루그레이, 약하게(이전 블루블랙 0.55 → 0.16)
+      boxShadow: 'inset 0 0 90px 6px rgba(140,170,188,0.16)',
       zIndex: 2,
     },
     '@media (prefers-reduced-motion: reduce)': {
