@@ -15,12 +15,11 @@
 
 /**
  * 최종 히어로 영상 소스 (public 기준 절대경로).
- * 스크러빙 전용 올-키프레임(GOP=1, B-frame 제거) 1280p 재인코딩본 —
- * 임의 위치 seek이 즉시 디코드되어 스크롤 스크럽이 부드럽다.
- * 원본(스크럽 비최적): ...-hero-v1-source01v2-screenfillv4.mp4
+ * 스테이지 세그먼트 재생 방식 — 오디오(AAC)가 들어있는 원본을 그대로 재생한다.
+ * (예전 스크럽 방식의 무음 all-keyframe본 -scrub-1280-allkey.mp4 은 더 이상 사용 안 함)
  */
 export const HERO_VIDEO_SRC =
-  '/heptapod-b-encoder/hero-motion/kling-audio-01-final/kling-audio-01-final-scrub-1280-allkey.mp4';
+  '/heptapod-b-encoder/hero-motion/kling-audio-01-final/kling-audio-01-final-hero-v1-source01v2-screenfillv4.mp4';
 
 /** 영상 길이(초) — ffprobe 실측값 */
 export const HERO_VIDEO_DURATION = 47.08;
@@ -106,8 +105,8 @@ export const HERO_STORY_BEATS = [
     shot: '10→11',
     scroll: [0.75, 0.87],
     video: [35, 41],
-    headline: null,
-    body: null,
+    headline: 'The Message Completes',
+    body: '그들의 문장이 완성되고, 빛이 차오른다.',
     isEmphasis: false,
   },
   {

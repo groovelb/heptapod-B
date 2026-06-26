@@ -4,15 +4,38 @@ import Typography from '@mui/material/Typography';
 import HeptapodHeroIntro from './HeptapodHeroIntro';
 
 /**
- * 영상 스크러빙 기반 히어로 인트로.
- * 스크롤을 내리면 외계 비행체 진입 영상(Shot 02→11)이 프레임 단위로 스크럽되며
- * 세계관 카피 비트(B0~B6)가 순차 노출되고, 막바지에서 영상이 fade-out·캔버스
- * (children)가 fade-in하는 디졸브 매치컷으로 넘어간다. 위로 다시 스크롤하면 역전된다.
- *
- * 캔버스에서 마우스 휠로 스크롤하면 동작을 확인할 수 있다.
- * children에는 라이브 인코더가 들어가며, 여기서는 안개 캔버스 자리표시자로 대체했다.
- * prefers-reduced-motion 환경에서는 정지 안개 + 핵심 카피 + ENTER 오버레이로 대체된다.
+ * 스테이지 세그먼트 재생 기반 스크롤리텔링 인트로.
+ * 스크롤을 내리면 각 스토리 섹션이 뷰포트 중앙에 들어올 때 영상의 해당 세그먼트가
+ * 소리와 함께 재생되고, 끝 프레임에서 정지해 다음 스테이지를 기다린다(자연 스크롤).
+ * 마지막에 children(라이브 인코더)으로 이어지며, children에는 audioActive가 주입된다.
+ * 여기서는 인코더 대신 안개 캔버스 자리표시자를 사용한다.
  */
+function EncoderPlaceholder() {
+  return (
+    <Box
+      sx={ {
+        width: '100%',
+        height: '100%',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'custom.chamber.fog',
+      } }
+    >
+      <Typography
+        sx={ {
+          fontFamily: 'custom.serif.fontFamily',
+          color: 'custom.chamber.ink',
+          letterSpacing: '0.2em',
+        } }
+      >
+        ENCODER CANVAS
+      </Typography>
+    </Box>
+  );
+}
+
 export default {
   title: 'Template/HeptapodHeroIntro',
   component: HeptapodHeroIntro,
@@ -23,38 +46,15 @@ export default {
   argTypes: {
     children: {
       control: false,
-      description: '디졸브로 떠오를 캔버스(라이브 인코더). 여기서는 자리표시자 사용',
-    },
-    onEnter: {
-      action: 'enter',
-      description: 'SKIP/ENTER 시 호출되는 보조 콜백 (트랙 끝으로 스크롤)',
+      description: '인트로 끝에 이어질 라이브 인코더. audioActive가 주입된다',
     },
   },
 };
 
 export const Default = {
-  render: (args) => (
-    <HeptapodHeroIntro { ...args }>
-      <Box
-        sx={ {
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: 'custom.chamber.fog',
-        } }
-      >
-        <Typography
-          sx={ {
-            fontFamily: 'custom.serif.fontFamily',
-            color: 'custom.chamber.ink',
-            letterSpacing: '0.2em',
-          } }
-        >
-          ENCODER CANVAS
-        </Typography>
-      </Box>
+  render: () => (
+    <HeptapodHeroIntro>
+      <EncoderPlaceholder />
     </HeptapodHeroIntro>
   ),
 };

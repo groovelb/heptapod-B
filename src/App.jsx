@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -6,6 +6,7 @@ import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
 import { defaultTheme as theme } from './styles/themes';
+import { LenisContext } from './utils/lenisContext';
 import HeptapodEncoderPage from './components/templates/HeptapodEncoderPage';
 import HeptapodHeroIntro from './components/templates/HeptapodHeroIntro';
 
@@ -30,11 +31,12 @@ function hasSharedName() {
  */
 function App() {
   const sharedName = hasSharedName();
+  // Lenis 인스턴스를 상태로 보관 → 컨텍스트로 내려 인트로가 스크롤 잠금/해제에 사용.
+  const [lenis, setLenis] = useState(null);
 
   /**
    * Lenis 스무스 스크롤 — 휠/터치를 감속 보간해 부드럽게 한다. 네이티브 scrollY를 갱신하므로
-   * 기존 스크럽(VideoScrubbing의 window.scrollY)과 Framer useScroll이 그대로 따라온다.
-   * prefers-reduced-motion 시 비활성(접근성).
+   * Framer useScroll이 그대로 따라온다. prefers-reduced-motion 시 비활성(접근성).
    */
   useEffect(() => {
     if (
@@ -43,36 +45,46 @@ function App() {
     ) {
       return undefined;
     }
-    const lenis = new Lenis();
+    // 스테이지 세그먼트를 음미할 수 있도록 더 느리게(휠당 이동↓ + 감쇠↑).
+    const instance = new Lenis({
+      lerp: 0.05,
+      wheelMultiplier: 0.65,
+      touchMultiplier: 0.9,
+      smoothWheel: true,
+    });
+    setLenis(instance);
     let rafId = requestAnimationFrame(function raf(time) {
-      lenis.raf(time);
+      instance.raf(time);
       rafId = requestAnimationFrame(raf);
     });
     return () => {
       cancelAnimationFrame(rafId);
-      lenis.destroy();
+      instance.destroy();
+      setLenis(null);
     };
   }, []);
 
   return (
     <ThemeProvider theme={ theme }>
       <CssBaseline />
-      <BrowserRouter>
-        <Routes>
-          <Route
-            index
-            element={
-              sharedName ? (
-                <HeptapodEncoderPage />
-              ) : (
-                <HeptapodHeroIntro>
+      <LenisContext.Provider value={ lenis }>
+        <BrowserRouter>
+          <Routes>
+            <Route
+              index
+              element={
+                sharedName ? (
                   <HeptapodEncoderPage />
-                </HeptapodHeroIntro>
-              )
-            }
-          />
-        </Routes>
-      </BrowserRouter>
+                ) : (
+                  <HeptapodHeroIntro>
+                    <HeptapodEncoderPage />
+                  </HeptapodHeroIntro>
+                )
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </LenisContext.Provider>
     </ThemeProvider>
   );
 }

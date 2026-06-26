@@ -381,7 +381,14 @@ function AnnotatedGlyph({ model, rawData, size, fg, monoSx }) {
  * Example usage:
  * <HeptapodEncoderPage />
  */
-function HeptapodEncoderPage() {
+/**
+ * Heptapod B Encoder 메인 페이지.
+ *
+ * @param {boolean} audioActive - OST(배경음악) 재생 허용 여부. 인트로가 인코더 children으로
+ *   감쌀 때, 인트로 동안(영상 음성 재생) false, 인코더 활성 시 true로 넘겨 사운드를 분리한다.
+ *   [Optional, 기본값: true — 단독 사용 시 기존처럼 default-on]
+ */
+function HeptapodEncoderPage({ audioActive = true }) {
   const theme = useTheme();
   const monoSx = theme.typography.custom?.mono || MONO_FALLBACK;
 
@@ -492,39 +499,39 @@ function HeptapodEncoderPage() {
     };
   }, []);
 
-  /**
-   * Heptapod B 배경음악 — 기본 재생(default on). 마운트 시 즉시 재생 시도하되,
-   * 브라우저 자동재생 정책으로 막히면 첫 사용자 상호작용(클릭/키)에서 1회 보장한다.
-   */
+  /** Heptapod B 배경음악 — 컨트롤러 생성/해제만(1회). 실제 재생/정지는 audioActive가 제어. */
   useEffect(() => {
     const music = createBackgroundMusic(); // 음원·음량은 env(backgroundMusic) 기본값
     musicRef.current = music;
+    return () => {
+      music.dispose();
+      musicRef.current = null;
+    };
+  }, []);
 
-    if (!MUSIC_AUTOPLAY) {
-      return () => {
-        music.dispose();
-        musicRef.current = null;
-      };
+  /**
+   * OST 재생/정지 — audioActive 게이트. 인트로 동안엔 영상 음성을 살리려 OST 정지(false),
+   * 인코더가 활성화되면 재생(true). 자동재생 정책으로 막히면 첫 제스처에서 1회 보장.
+   */
+  useEffect(() => {
+    if (!MUSIC_AUTOPLAY) return undefined;
+    if (!audioActive) {
+      musicRef.current?.pause();
+      return undefined;
     }
-
-    music.play(); // 즉시 시도 (정책상 막힐 수 있음 — 아래 kick에서 보장)
-
-    // 자동재생 차단 대비 — 첫 제스처에서 재생 보장 후 리스너 해제
+    musicRef.current?.play(); // 즉시 시도 (정책상 막힐 수 있음 — kick에서 보장)
     const kick = () => {
-      music.play();
+      musicRef.current?.play();
       window.removeEventListener('pointerdown', kick);
       window.removeEventListener('keydown', kick);
     };
     window.addEventListener('pointerdown', kick);
     window.addEventListener('keydown', kick);
-
     return () => {
       window.removeEventListener('pointerdown', kick);
       window.removeEventListener('keydown', kick);
-      music.dispose();
-      musicRef.current = null;
     };
-  }, []);
+  }, [audioActive]);
 
   /** 배경음악 토글 — 클릭 제스처 안에서 재생 시작(자동재생 정책) */
   const handleToggleMusic = useCallback(() => {
