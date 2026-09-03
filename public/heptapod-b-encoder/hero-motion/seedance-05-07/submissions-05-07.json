@@ -1,0 +1,40 @@
+{
+  "model": "bytedance/seedance-2.0/image-to-video",
+  "submissions": [
+    {
+      "id": "seedance-05-07-direct-ascent-v2",
+      "scene": "entry-direct-to-vertical-ascent",
+      "part": "05-07",
+      "model": "bytedance/seedance-2.0/image-to-video",
+      "request_id": "019f26ac-d957-7701-a21e-2ba9d2b3f89c",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/seedance-05-07/seedance-05-07-direct-ascent-v2.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0aa0bc04/u8ORZdobQ_eyJlfmJG2yZ_video.mp4",
+      "start": "../heptapod-motion-frames/05-07-direct/shot-05-last-from-corrected-01-05.png",
+      "end": "../heptapod-motion-frames/05-07-direct/shot-07-distant-ceiling-reveal-1916x1080.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0aa0bbec/4tRMrxseeem0u3WxV8cCc_shot-05-last-from-corrected-01-05.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0aa0bbec/yAdVEbMTdHW9amgGbbzDg_shot-07-distant-ceiling-reveal-1916x1080.png",
+      "profile": "seedance",
+      "input": {
+        "prompt": "Inside the vessel now, the camera aims straight up as the dark scissor lift carries the exact same four pale-grey-suited researchers vertically upward through a vast sealed matte-black interior shaft; all four stay planted on the platform the whole time. Towering black striated walls completely surround the frame on every side, converging toward a distant pale glowing ceiling that hangs far above and stays remote, emphasizing enormous scale. The world below has fallen away; only the dark ribbed interior fills every edge of the frame from the first second to the last. Camera and lift travel together in one smooth continuous ascent. Desaturated green-grey 35mm grade, faint interior haze catching the pale glow from above, low contrast, silent awe. Audio: soft air-pressure hush, faint lift motor echoing.",
+        "duration": "6",
+        "image_url": "https://v3b.fal.media/files/b/0aa0bbec/4tRMrxseeem0u3WxV8cCc_shot-05-last-from-corrected-01-05.png",
+        "end_image_url": "https://v3b.fal.media/files/b/0aa0bbec/yAdVEbMTdHW9amgGbbzDg_shot-07-distant-ceiling-reveal-1916x1080.png",
+        "resolution": "1080p",
+        "aspect_ratio": "16:9",
+        "generate_audio": true
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0aa0bc04/u8ORZdobQ_eyJlfmJG2yZ_video.mp4",
+          "content_type": "video/mp4",
+          "file_name": "video.mp4",
+          "file_size": 5899514
+        },
+        "seed": 210868403
+      },
+      "submitted_at": "2026-07-03T06:35:36.755Z"
+    }
+  ]
+}

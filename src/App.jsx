@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import GlobalStyles from '@mui/material/GlobalStyles';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
@@ -67,6 +68,17 @@ function App() {
   return (
     <ThemeProvider theme={ theme }>
       <CssBaseline />
+      {/* 스크롤바 전역 숨김 — 동작 여부와 무관하게 항상 안 보이게 */}
+      <GlobalStyles
+        styles={ {
+          'html, body': { scrollbarWidth: 'none', msOverflowStyle: 'none' },
+          'html::-webkit-scrollbar, body::-webkit-scrollbar': {
+            display: 'none',
+            width: 0,
+            height: 0,
+          },
+        } }
+      />
       <LenisContext.Provider value={ lenis }>
         <BrowserRouter>
           <Routes>

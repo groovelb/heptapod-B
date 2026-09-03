@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { useTheme, alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -22,12 +22,12 @@ import {
 } from '../../data/heptapodHeroStory';
 
 /**
- * 활성 트리거 밴드 — 섹션(100vh)이 자연 스크롤로 뷰포트를 가득 채우는 순간(상단 정렬)에 활성.
- * 점프로 재배치하지 않고, 자연 스크롤이 콘텐츠를 화면 중앙에 데려다 놓은 **그 자리에서** 잠근다 →
- * 스크롤 연속성(유저가 직접 컨트롤한다는 단서) 유지 + 카피는 항상 중앙.
- * rootMargin 상단 2% 스트립: 섹션 top이 0~2%에 닿을 때 isIntersecting → 콘텐츠가 거의 정중앙.
+ * 활성 트리거 밴드 — 각 섹션 정중앙에 둔 센티넬(점)이 뷰포트 중앙(±1%)을 지날 때 활성.
+ * 작은 점을 관측하므로 정방향/역방향 모두 깔끔한 false→true 이벤트가 발생(역스크롤 트리거 보장).
+ * (섹션 전체를 관측하면 100vh라 인접 섹션이 늘 겹쳐 역방향 이벤트가 안 잡힘.)
+ * 점프 없이 자연 스크롤이 콘텐츠를 중앙에 데려온 그 자리에서 잠근다 → 카피 항상 중앙 + 스크롤 연속성.
  */
-const ACTIVE_BAND = '0px 0px -98% 0px';
+const ACTIVE_BAND = '-49% 0px -49% 0px';
 
 const INK_COLOR = '#1c2226';
 const TEXT_LIGHT = '#e8ecec';
@@ -74,13 +74,13 @@ const ENC_SETTLE_EXIT = 0.95;
  */
 function HeptapodHeroIntro({ children }) {
   const theme = useTheme();
-  const serifFont =
-    theme.typography?.custom?.serif?.fontFamily ||
-    "'Fraunces', 'Newsreader', Georgia, serif";
+  // 헤드라인(마스터 타이틀 + 스테이지 h2)은 Cinzel로 통일.
+  const headlineFont = "'Cinzel', 'Fraunces', Georgia, serif";
   const monoFont = theme.typography?.custom?.mono?.fontFamily || 'monospace';
 
   const videoRef = useRef(null);
   const sectionRefs = useRef([]);
+  const sentinelRefs = useRef([]); // 각 섹션 정중앙 센티넬(IO 관측 대상 — 정/역 양방향 트리거)
   const handoffRef = useRef(null);
   const activeStageRef = useRef(-1);
   const startedRef = useRef(false); // START 눌렀는지(IO 콜백용)
@@ -102,11 +102,9 @@ function HeptapodHeroIntro({ children }) {
   const [canvasSettled, setCanvasSettled] = useState(false); // 배경 효과(fog) 가동
 
   // 핸드오프 스페이서 진입 진행도 — 0(막 진입) → 1(완전 덮음). **고정 캔버스의 제자리 fade를 구동.**
-  // 캔버스 자체는 fixed라 절대 움직이지 않고, 이 빈 스페이서가 스크롤 거리만 제공한다.
-  const { scrollYProgress: encProgress } = useScroll({
-    target: handoffRef,
-    offset: ['start end', 'start start'],
-  });
+  // Framer useScroll은 Lenis 스무스 스크롤과 동기가 안 될 수 있어, 아래 effect에서 handoff의 실제
+  // 화면 위치(getBoundingClientRect)를 매 스크롤마다 직접 측정해 진행도를 set한다(동기 보장).
+  const encProgress = useMotionValue(0);
   const canvasOpacity = useTransform(encProgress, ENC_FADE, [0, 1]);
 
   /** prefers-reduced-motion 감지 */
@@ -129,7 +127,35 @@ function HeptapodHeroIntro({ children }) {
     return undefined;
   }, [lenis, started, dimmed, reducedMotion]);
 
-  /** 스테이지 세그먼트 재생 — 활성 스테이지의 [start,end]를 play() */
+  /**
+   * 핸드오프 진입 진행도 직접 계산 — handoff의 실제 화면 top을 매 스크롤마다 측정.
+   * top = vh(뷰포트 하단)이면 진행도 0, top = 0(상단)이면 1. Lenis/네이티브 모두 실제 위치라 동기 보장.
+   */
+  useEffect(() => {
+    const compute = () => {
+      const el = handoffRef.current;
+      if (!el) return;
+      const vh = window.innerHeight || 1;
+      const top = el.getBoundingClientRect().top;
+      encProgress.set(Math.min(1, Math.max(0, 1 - top / vh)));
+    };
+    compute();
+    window.addEventListener('resize', compute);
+    if (lenis) {
+      lenis.on('scroll', compute);
+      return () => {
+        lenis.off('scroll', compute);
+        window.removeEventListener('resize', compute);
+      };
+    }
+    window.addEventListener('scroll', compute, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', compute);
+      window.removeEventListener('resize', compute);
+    };
+  }, [lenis, encProgress]);
+
+  /** 스테이지 세그먼트 재생 — 소리와 함께 [start→end] (정방향 전용; 역스크롤은 금지). */
   const playSegment = useCallback(
     (idx) => {
       const v = videoRef.current;
@@ -137,7 +163,7 @@ function HeptapodHeroIntro({ children }) {
       if (!v || reducedMotion || !seg) return;
       activeStageRef.current = idx;
       const [start, end] = seg;
-      // 세그먼트 밖이면 시작점으로 이동(이어지는 정방향은 seek 없이 자연 연속)
+      // 세그먼트 밖이면 시작점으로 이동(이어지는 정방향은 seek 없이 자연 연속).
       if (v.currentTime < start - 0.25 || v.currentTime > end + 0.05) {
         try {
           v.currentTime = start;
@@ -145,8 +171,7 @@ function HeptapodHeroIntro({ children }) {
           /* 메타데이터 로드 전 — 무시 */
         }
       }
-      // START 클릭으로 소리가 활성화돼 있으므로 unmuted 재생(playSegment는 START 이후에만 호출).
-      // seek 직후 play()가 일시 거부되면 그 세그먼트가 무음이 되므로 짧게 재시도(간헐 무음 방지).
+      // START 클릭으로 소리 활성화됨 → unmuted. seek 직후 play() 일시 거부 시 재시도(간헐 무음 방지).
       v.muted = false;
       v.volume = 1;
       const tryPlay = (n) => {
@@ -163,8 +188,8 @@ function HeptapodHeroIntro({ children }) {
   );
 
   /**
-   * 스테이지 트리거 — 그 섹션으로 snap-정렬(카피를 항상 보이게) + 세그먼트 재생 + 잠금(dimmed).
-   * START와 IO가 공유해 트리거 위치를 일관되게 한다. reducedMotion이면 잠금/재생 없이 스크롤만.
+   * 스테이지 트리거 — 자연 스크롤이 콘텐츠를 화면 중앙에 데려다 놓은 그 자리에서 잠금(dimmed) + 재생.
+   * 점프 없음(스크롤 연속성 유지). START만 타이틀→첫 콘텐츠로 잠긴 채 force 스크롤. (역스크롤은 금지)
    */
   const triggerStage = useCallback(
     (idx, doScroll = false) => {
@@ -177,13 +202,32 @@ function HeptapodHeroIntro({ children }) {
       playingRef.current = true;
       setDimmed(true); // 재생과 동시에 즉시 스크롤 잠금(규칙: 재생 중 스크롤 금지)
       playSegment(idx);
-      // 평소(IO 트리거): 자연 스크롤이 이미 콘텐츠를 화면 중앙에 데려다 놓았으므로 **그 자리에서 잠금**
-      // (점프 없음 → 스크롤 연속성/직접 컨트롤 단서 유지). START만 타이틀→첫 콘텐츠 이동이 필요해서
-      // 잠긴 채 force로 **부드럽게** 스크롤(슬라이드 점프가 아니라 연속 이동).
       if (doScroll && el && lenis) lenis.scrollTo(el, { force: true });
     },
     [lenis, playSegment, reducedMotion],
   );
+
+  /**
+   * 역방향 스크롤 금지 — 가장 멀리 도달한 지점 아래로 못 내려가게(한 방향 전진만).
+   * 단, **마지막 스테이지 도달 후엔 클램프 해제** — 핸드오프(캔버스 fade-in)는 자유 스크롤이어야
+   * encProgress가 올라가며 전환되므로, 그 구간은 건드리지 않는다. (재생 중엔 lenis.stop이라 이벤트 없음)
+   */
+  useEffect(() => {
+    if (!lenis || reducedMotion) return undefined;
+    const lastIdx = HERO_STORY_BEATS.length - 1;
+    let maxScroll = lenis.scroll || 0;
+    const onScroll = () => {
+      const s = lenis.scroll;
+      if (s > maxScroll) {
+        maxScroll = s;
+        return;
+      }
+      if (lastStageRef.current >= lastIdx) return; // 마지막 스테이지 이후엔 핸드오프 자유 스크롤
+      if (s < maxScroll - 2) lenis.scrollTo(maxScroll, { immediate: true, force: true });
+    };
+    lenis.on('scroll', onScroll);
+    return () => lenis.off('scroll', onScroll);
+  }, [lenis, reducedMotion]);
 
   /**
    * 스테이지 섹션 IO — 중앙 밴드 진입 시 트리거. START 후 + 재생 중 아님 + 새 스테이지일 때만.
@@ -203,7 +247,7 @@ function HeptapodHeroIntro({ children }) {
       },
       { rootMargin: ACTIVE_BAND, threshold: 0 },
     );
-    sectionRefs.current.forEach((el) => el && obs.observe(el));
+    sentinelRefs.current.forEach((el) => el && obs.observe(el));
     return () => obs.disconnect();
   }, [triggerStage, reducedMotion]);
 
@@ -392,9 +436,10 @@ function HeptapodHeroIntro({ children }) {
           <Typography
             component="p"
             sx={ {
-              fontFamily: serifFont,
-              fontWeight: 300,
+              fontFamily: headlineFont,
+              fontWeight: 700,
               fontSize: 'clamp(22px, 4vw, 44px)',
+              textTransform: 'lowercase',
               letterSpacing: '0.34em',
               color: TEXT_LIGHT,
               textShadow: copyShadow,
@@ -440,31 +485,45 @@ function HeptapodHeroIntro({ children }) {
 
         {/* 스테이지 섹션 — 각 진입 시 세그먼트 재생 */}
         { HERO_STORY_BEATS.map((beat, i) => {
-          const onLight = beat.id === 'B6';
+          const onLight = Boolean(beat.onLight);
           const color = onLight ? INK_COLOR : TEXT_LIGHT;
           return (
             <Box
               key={ beat.id }
-              data-stage={ i }
               ref={ (el) => { sectionRefs.current[i] = el; } }
               sx={ {
+                position: 'relative',
                 minHeight: '100vh',
                 display: 'flex',
                 alignItems: 'center',
                 px: { xs: 3, md: 12 },
               } }
             >
+              {/* 정중앙 센티넬 — 이 점이 뷰포트 중앙을 지날 때 트리거(정/역 양방향, 콘텐츠 중앙). */}
+              <Box
+                data-stage={ i }
+                ref={ (el) => { sentinelRefs.current[i] = el; } }
+                sx={ {
+                  position: 'absolute',
+                  top: '50%',
+                  left: 0,
+                  width: '1px',
+                  height: '1px',
+                  pointerEvents: 'none',
+                } }
+              />
               { (beat.headline || beat.body) && (
                 <Box sx={ { maxWidth: '42ch' } }>
                   { beat.headline && (
                     <Typography
                       component="h2"
                       sx={ {
-                        fontFamily: serifFont,
-                        fontWeight: beat.isEmphasis ? 400 : 300,
+                        fontFamily: headlineFont,
+                        fontWeight: beat.isEmphasis ? 900 : 700,
                         fontStyle: beat.isEmphasis ? 'italic' : 'normal',
                         fontSize: 'clamp(28px, 4vw, 64px)',
                         lineHeight: 1.1,
+                        textTransform: 'lowercase',
                         letterSpacing: '0.02em',
                         color,
                         textShadow: onLight ? 'none' : copyShadow,
@@ -480,7 +539,7 @@ function HeptapodHeroIntro({ children }) {
                       component="p"
                       sx={ {
                         fontWeight: beat.isEmphasis ? 400 : 300,
-                        fontSize: 'clamp(14px, 1.6vw, 19px)',
+                        fontSize: 'clamp(16px, 2.2vw, 26px)',
                         lineHeight: 1.7,
                         color: onLight ? alpha(INK_COLOR, 0.85) : alpha(TEXT_LIGHT, 0.85),
                         textShadow: onLight ? 'none' : copyShadow,
@@ -497,7 +556,7 @@ function HeptapodHeroIntro({ children }) {
         }) }
       </Box>
 
-      {/* 핸드오프 스페이서 — 빈 스크롤 거리만 제공. 마지막 스테이지(B6 whiteout) 다음 이 구간으로
+      {/* 핸드오프 스페이서 — 빈 스크롤 거리만 제공. 마지막 스테이지(화이트아웃 확대) 다음 이 구간으로
           스크롤이 들어오면 위의 고정 캔버스가 제자리에서 fade-in 한다. 캔버스는 움직이지 않음. */}
       <Box ref={ handoffRef } sx={ { position: 'relative', zIndex: 1, minHeight: '120vh' } } />
     </Box>

@@ -1,0 +1,40 @@
+{
+  "model": "bytedance/seedance-2.0/image-to-video",
+  "submissions": [
+    {
+      "id": "seedance-01-02-arrival-v1",
+      "scene": "one-take-front",
+      "part": "01-02",
+      "model": "bytedance/seedance-2.0/image-to-video",
+      "request_id": "019f23e8-be19-7b42-942d-f54fc1cdd031",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/seedance-01-02/seedance-01-02-arrival-v1.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0aa0a9e6/jtFTRmxlLIoqfbx8pchWk_video.mp4",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-boarded-v1.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0aa0a9cb/XMLTQKc6uJ_7ks55GSbA3_start.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0aa0a9d5/-9GIRH5sv2uOXIKMSi9gT_underside-surface-opening-boarded-v1.png",
+      "profile": "seedance",
+      "input": {
+        "prompt": "One continuous world-locked take from the start frame to the boarded-lift end frame, preserving the exact tone, lighting, color grade, exposure, fog density, and black level of the source images. The matte-black ovoid vessel and the low dark lift are already fixed in the foggy field and do NOT move; only the camera moves. Make a fast, heavy camera dolly and push-in forward and slightly upward, from the distant misty field toward the vessel's underside, driven by real camera movement, perspective change, and fog parallax, arriving exactly at the end-frame composition where the same four researchers already stand on the low dark lift behind black rails under the subtle slit. Do not animate the vessel or lift: no translation toward camera, no descent, no drift, no sliding, no rolling, no rising, no rotation, no self-scaling, no wobble, no morphing, no relighting, no new lights. Preserve the horizon, vehicles, equipment, support crew, pale grey suits, black lift hardware, foggy field scale, matte-black ovoid texture, and low-contrast 35mm documentary look. Audio stays minimal: faint wind and a low pressure hush only, synced softly to the camera approach. No cuts, no UFO lighting, no portal, no tractor beam, no new scene, no extra objects, no music, no voices, no dramatic sound effects.",
+        "duration": "4",
+        "image_url": "https://v3b.fal.media/files/b/0aa0a9cb/XMLTQKc6uJ_7ks55GSbA3_start.png",
+        "end_image_url": "https://v3b.fal.media/files/b/0aa0a9d5/-9GIRH5sv2uOXIKMSi9gT_underside-surface-opening-boarded-v1.png",
+        "resolution": "1080p",
+        "aspect_ratio": "16:9",
+        "generate_audio": true
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0aa0a9e6/jtFTRmxlLIoqfbx8pchWk_video.mp4",
+          "content_type": "video/mp4",
+          "file_name": "video.mp4",
+          "file_size": 3977260
+        },
+        "seed": 1594309021
+      },
+      "submitted_at": "2026-07-02T17:42:32.009Z"
+    }
+  ]
+}

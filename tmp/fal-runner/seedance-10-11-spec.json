@@ -1,0 +1,19 @@
+{
+  "profile": "seedance",
+  "duration": "8",
+  "resolution": "1080p",
+  "aspect_ratio": "16:9",
+  "generate_audio": true,
+  "out": "../../public/heptapod-b-encoder/hero-motion/seedance-10-11/submissions-10-11.json",
+  "clips": [
+    {
+      "id": "seedance-10-11-walk-wide-wall-v4",
+      "scene": "first-cautious-walk-from-lift-to-wide-contact-wall",
+      "part": "10-11",
+      "start": "../heptapod-motion-frames/10-11-walk/shot-10-prewalk-landing-wide-wall-1916x1080.png",
+      "end": "../heptapod-motion-frames/10-11-walk/shot-11-walking-to-wide-wall-1916x1080.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/seedance-10-11/seedance-10-11-walk-wide-wall-v4.mp4",
+      "prompt": "One single continuous take with no cut and no skipped movement, inside the same dark chamber facing the wide luminous white fog membrane wall. Exactly four researchers in hooded pale grey protective suits with backpacks stand still on the parked dark scissor lift platform in the middle of the dark tiled floor. For the first two seconds nothing moves except the camera: it glides slowly forward from the raised staging area, descending gently and crossing the floor toward the parked lift, while the four stay standing on the platform. As the camera settles close behind the lift, the four researchers turn to the platform edge and step down onto the floor one at a time, each step clearly visible with grounded weight, then each picks up a dark case. They form a loose line and walk slowly toward the glowing membrane wall, boots deliberate on the dark tiles, all four continuously visible from behind, while the camera follows steadily behind them at eye level and the parked lift passes out of the frame edge naturally behind the camera. The membrane wall stays fixed, a calm constant plane of dense glowing white fog, never sky. Constant desaturated blue-grey 35mm film grade, low contrast, fine grain, thin haze. Audio: low room hush, soft fabric movement, quiet footsteps."
+    }
+  ]
+}

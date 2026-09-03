@@ -1,0 +1,40 @@
+{
+  "model": "bytedance/seedance-2.0/image-to-video",
+  "submissions": [
+    {
+      "id": "seedance-09-10-gravity-reorient-v4",
+      "scene": "gravity-reorientation-from-ceiling-to-forward-threshold",
+      "part": "09-10",
+      "model": "bytedance/seedance-2.0/image-to-video",
+      "request_id": "019f26c3-1aef-7761-aac8-8cfe68f1d76a",
+      "status": "COMPLETED",
+      "output": "../../public/heptapod-b-encoder/hero-motion/seedance-09-10/seedance-09-10-gravity-reorient-v4.mp4",
+      "downloaded": true,
+      "video_url": "https://v3b.fal.media/files/b/0aa0bc97/-ET7EHSKwLCKyVlE1lW3M_video.mp4",
+      "start": "../heptapod-motion-frames/07-09-direct/shot-09-distant-wide-wall-ascent-ceiling-far-1916x1080.png",
+      "end": "../heptapod-motion-frames/09-10-gravity/shot-10-prewalk-landing-wide-wall-1916x1080.png",
+      "start_image_url": "https://v3b.fal.media/files/b/0aa0bc88/2JcgyMMuywlWeiuUajvfG_shot-09-distant-wide-wall-ascent-ceiling-far-1916x1080.png",
+      "end_image_url": "https://v3b.fal.media/files/b/0aa0bc7e/WHV0rQ3g1usvjEcGHkJNT_shot-10-prewalk-landing-wide-wall-1916x1080.png",
+      "profile": "seedance",
+      "input": {
+        "prompt": "One single continuous take inside the same sealed matte-black chamber. Exactly four researchers exist in this scene, hooded pale grey protective suits with backpacks, standing on the one and only dark lift platform, seen from directly behind for the entire clip; no second platform, no second group, no additional figures ever appear anywhere in any frame. The camera stays glued close behind the riders the whole time. At first it looks straight up the vast dark striated shaft at the small glowing white membrane far overhead. The chamber then pivots slowly and smoothly around the group in one calm weighted 90-degree reorientation: the glowing membrane glides gradually from directly overhead to dead ahead, growing into a wide luminous wall of dense white fog, while the striated surfaces settle into a dark tiled floor beneath the lift. The lift touches down gently and rests. Only in the final second, as the camera eases back and down to a slightly high angle, does a dark staging edge with equipment cases enter at the very bottom of the frame from behind the camera. The membrane is always a solid fog-lit wall inside the chamber, never sky and never an opening. Constant desaturated blue-grey 35mm film grade, low contrast, fine grain, thin haze. Audio: soft air-pressure hush and a low gentle settling tone.",
+        "duration": "6",
+        "image_url": "https://v3b.fal.media/files/b/0aa0bc88/2JcgyMMuywlWeiuUajvfG_shot-09-distant-wide-wall-ascent-ceiling-far-1916x1080.png",
+        "end_image_url": "https://v3b.fal.media/files/b/0aa0bc7e/WHV0rQ3g1usvjEcGHkJNT_shot-10-prewalk-landing-wide-wall-1916x1080.png",
+        "resolution": "1080p",
+        "aspect_ratio": "16:9",
+        "generate_audio": true
+      },
+      "result_data": {
+        "video": {
+          "url": "https://v3b.fal.media/files/b/0aa0bc97/-ET7EHSKwLCKyVlE1lW3M_video.mp4",
+          "content_type": "video/mp4",
+          "file_name": "video.mp4",
+          "file_size": 6919369
+        },
+        "seed": 1466280234
+      },
+      "submitted_at": "2026-07-03T07:00:00.683Z"
+    }
+  ]
+}

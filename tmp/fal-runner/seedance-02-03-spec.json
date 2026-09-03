@@ -1,0 +1,19 @@
+{
+  "profile": "seedance",
+  "duration": "8",
+  "resolution": "1080p",
+  "aspect_ratio": "16:9",
+  "generate_audio": true,
+  "out": "../../public/heptapod-b-encoder/hero-motion/seedance-02-03/submissions-02-03.json",
+  "clips": [
+    {
+      "id": "seedance-02-03-slow-lift-hole-v2",
+      "scene": "one-take-front",
+      "part": "02-03",
+      "start": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-v3.png",
+      "end": "../../public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/pure-aperture-lift-entry-v3.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/seedance-02-03/seedance-02-03-slow-lift-hole-v2.mp4",
+      "prompt": "The exact same four researchers in pale grey protective suits with dark boots, gloves, and compact black equipment cases stand steady on a dark industrial scissor lift with black rails; all four remain fully visible on the platform for the entire shot. Above them, a thin dark slit in the huge matte-black ovoid vessel's underside slowly widens into a clean black rounded-rectangle aperture. The lift rises slowly and smoothly toward the opening while the camera stays completely locked on a tripod; any change in framing comes only from the lift's gentle ascent. Around them, a misty grey field under a desaturated green-grey sky, 35mm film grain, low contrast, soft fog and haze, documentary stillness. Audio: low wind, air-pressure hush, faint electric lift motor."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "profile": "seedance",
+  "duration": "6",
+  "resolution": "1080p",
+  "aspect_ratio": "16:9",
+  "generate_audio": true,
+  "out": "../../public/heptapod-b-encoder/hero-motion/seedance-07-09/submissions-07-09.json",
+  "clips": [
+    {
+      "id": "seedance-07-09-ceiling-far-v2",
+      "scene": "vertical-ascent-to-distant-ceiling-contact-still-workers",
+      "part": "07-09",
+      "start": "../heptapod-motion-frames/07-09-direct/shot-07-last-from-01-07-direct.png",
+      "end": "../heptapod-motion-frames/07-09-direct/shot-09-distant-wide-wall-ascent-ceiling-far-1916x1080.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/seedance-07-09/seedance-07-09-ceiling-far-v2.mp4",
+      "prompt": "Continuous upward view inside the sealed matte-black interior: the same four researchers in pale grey suits ride the dark scissor lift steadily higher, all four continuously present and motionless as still passengers. The camera keeps its smooth vertical ascent with the platform, and the pale luminous ceiling far overhead gradually resolves into a wide soft glowing membrane stretched across the top of the shaft — growing only slightly, staying clearly distant, its scale immense. Black striated walls fill every edge of frame around them for the entire shot, glossy ribs catching faint pale light from above through thin haze. Steady, weighted, hypnotic pacing; desaturated blue-grey 35mm film grade, low contrast, fine grain. Audio: low resonant hush of moving air, faint mechanical whir."
+    }
+  ]
+}

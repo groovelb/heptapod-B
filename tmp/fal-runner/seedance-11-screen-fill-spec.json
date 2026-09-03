@@ -1,0 +1,18 @@
+{
+  "profile": "seedance",
+  "duration": "6",
+  "resolution": "1080p",
+  "aspect_ratio": "16:9",
+  "generate_audio": true,
+  "out": "../../public/heptapod-b-encoder/hero-motion/seedance-11-screen-fill/submissions-11-screen-fill.json",
+  "clips": [
+    {
+      "id": "seedance-11-screen-fill-screen-fill-v2",
+      "scene": "final-camera-push-to-screen-only",
+      "part": "11-screen-fill",
+      "start": "../heptapod-motion-frames/11-whiteout/shot-11-walking-to-wide-wall-1916x1080.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/seedance-11-screen-fill/seedance-11-screen-fill-screen-fill-v2.mp4",
+      "prompt": "The same four pale-grey-suited researchers continue their slow, steady walk toward the wide fixed luminous white membrane wall, all four visible and continuous as the camera begins a smooth straight push-in past them along their walking axis. The membrane holds constant, calm brightness the entire time; it grows in frame purely because the camera advances. The researchers drift out past the frame edges as the camera closes the distance, the black striated interior slipping away, until the membrane's soft white surface fills the entire frame edge to edge. The final two seconds hold a clean full-frame luminous white plate with gentle cold blue-grey halation and fine 35mm grain — pure surface, evenly lit, serene. Audio: air-pressure hush swelling faintly, then near silence."
+    }
+  ]
+}

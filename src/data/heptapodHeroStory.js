@@ -46,13 +46,14 @@ export const HERO_HEADLINE_FONT = "'Fraunces', 'Newsreader', Georgia, serif";
  * 카피 비트 목록.
  *
  * @typedef {Object} HeroBeat
- * @property {string} id        - 비트 식별자 (B0~B6)
+ * @property {string} id        - 비트 식별자 (B0~B5)
  * @property {string} shot      - 대응 영상 샷 범위
  * @property {[number, number]} scroll - 스크롤 진행도 노출 구간 [start, end] (0~1)
  * @property {[number, number]} video  - 대응 영상 시간 구간 [start, end] (초)
  * @property {?string} headline - 모던 serif 영문 헤드라인 (null = 무카피)
  * @property {?string} body     - 한글 본문 (null = 무카피)
  * @property {boolean} isEmphasis - 핵심 명제 비트 여부 (타이포 강조)
+ * @property {boolean} [onLight] - 밝은(화이트아웃) 배경 위 다크 텍스트 여부 (기본 false)
  */
 export const HERO_STORY_BEATS = [
   {
@@ -101,22 +102,15 @@ export const HERO_STORY_BEATS = [
     isEmphasis: false,
   },
   {
+    // 마지막 챕터 — 화이트아웃 확대(11 샷)를 한 큐로. 스크롤 내리면 영상 [35→47]을 한 번에 재생.
     id: 'B5',
     shot: '10→11',
-    scroll: [0.75, 0.87],
-    video: [35, 41],
-    headline: 'The Message Completes',
-    body: '그들의 문장이 완성되고, 빛이 차오른다.',
-    isEmphasis: false,
-  },
-  {
-    id: 'B6',
-    shot: '11',
-    scroll: [0.87, 1.0],
-    video: [41, 47],
+    scroll: [0.75, 1.0],
+    video: [35, 47],
     headline: 'Your Turn to Answer',
-    body: '이제, 당신이 답할 차례입니다.',
+    body: '그들의 문장이 완성되고 빛이 차오른다. 이제, 당신이 답할 차례입니다.',
     isEmphasis: false,
+    onLight: false,
   },
 ];
 

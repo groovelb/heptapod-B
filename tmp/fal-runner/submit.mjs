@@ -60,9 +60,24 @@ function resolveModelProfile(profileName, modelId) {
       },
       requiresEndFrame: true,
     },
+    seedance: {
+      model: 'bytedance/seedance-2.0/image-to-video',
+      startField: 'image_url',
+      endField: 'end_image_url',
+      defaultDuration: '4',
+      allowedDurations: new Set(['auto', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']),
+      optionFields: ['resolution', 'aspect_ratio', 'seed', 'generate_audio'],
+      defaults: {
+        resolution: '1080p',
+        aspect_ratio: '16:9',
+        generate_audio: true,
+      },
+      requiresEndFrame: false,
+    },
   };
 
   if (profileName && modelProfiles[profileName]) return modelProfiles[profileName];
+  if (modelId?.includes('seedance')) return modelProfiles.seedance;
   if (modelId?.includes('/veo3.1/fast/')) return modelProfiles['veo-fast'];
   if (modelId?.includes('/veo3.1/')) return modelProfiles.veo;
   if (modelId?.includes('/kling-video/')) return modelProfiles.kling;

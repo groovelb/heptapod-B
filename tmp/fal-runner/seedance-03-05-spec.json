@@ -1,0 +1,19 @@
+{
+  "profile": "seedance",
+  "duration": "5",
+  "resolution": "1080p",
+  "aspect_ratio": "16:9",
+  "generate_audio": true,
+  "out": "../../public/heptapod-b-encoder/hero-motion/seedance-03-05/submissions-03-05.json",
+  "clips": [
+    {
+      "id": "seedance-03-05-direct-lift-up-v2",
+      "scene": "entry-into-darkness-close",
+      "part": "03-05",
+      "start": "../heptapod-motion-frames/kling-02-03-last-frame-for-04.png",
+      "end": "../heptapod-motion-frames/shot-05-entry-into-darkness-1916x1080.png",
+      "output": "../../public/heptapod-b-encoder/hero-motion/seedance-03-05/seedance-03-05-direct-lift-up-v2.mp4",
+      "prompt": "The same four researchers in pale grey protective suits stand calm and steady on the dark scissor lift, all four continuously in frame as the platform rises straight up toward the open black rounded-rectangle aperture in the vessel's matte-black underside. The camera pushes in slowly along the same vertical axis, and as it tightens, the misty exterior field slides out past the frame edges until the featureless pure-black interior of the aperture fills the entire view above and around the lift. The framing change comes purely from the camera's push and the lift's smooth ascent; the vessel itself holds perfectly still. Desaturated blue-grey 35mm film grade, heavy soft haze, crushed but readable blacks, quiet documentary tone. Audio: air-pressure hush, low mechanical hum of the lift."
+    }
+  ]
+}
