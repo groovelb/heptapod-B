@@ -4,11 +4,12 @@ import Typography from '@mui/material/Typography';
 import HeptapodHeroIntro from './HeptapodHeroIntro';
 
 /**
- * 스테이지 세그먼트 재생 기반 스크롤리텔링 인트로.
- * 스크롤을 내리면 각 스토리 섹션이 뷰포트 중앙에 들어올 때 영상의 해당 세그먼트가
- * 소리와 함께 재생되고, 끝 프레임에서 정지해 다음 스테이지를 기다린다(자연 스크롤).
- * 마지막에 children(라이브 인코더)으로 이어지며, children에는 audioActive가 주입된다.
- * 여기서는 인코더 대신 안개 캔버스 자리표시자를 사용한다.
+ * 스크롤 스크러빙 기반 히어로 인트로.
+ * START 를 눌러야 스크롤이 풀리고(클릭 = 사운드 언락), 이후 스크롤 위치가 영상을 양방향으로
+ * 스크럽한다. 비트별 샘플 사운드가 스크롤 위치에 매핑되고, 캡션은 트랙 좌표에 실배치되어
+ * 자연 스크롤로 지나간다. 마지막에 children(라이브 인코더)이 제자리 fade-in 하며,
+ * children 에는 audioActive 가 주입된다. 여기서는 인코더 대신 안개 캔버스 자리표시자를 사용한다.
+ * (Lenis 는 App 이 제공 — 스토리북에서는 네이티브 스크롤로 동작)
  */
 function EncoderPlaceholder() {
   return (

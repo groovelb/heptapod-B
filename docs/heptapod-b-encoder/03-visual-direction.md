@@ -129,9 +129,9 @@
 
 | 요소 | 폰트 | 스펙 | 역할 |
 |------|------|------|------|
-| **Headline (영문 serif)** | `'Fraunces', 'Newsreader', Georgia, serif` | weight 300~400, `clamp(28px, 4vw, 64px)`, letter-spacing 0.01~0.04em, line-height 1.1, 좌측 정렬 또는 중앙, italic은 명제 비트(B3)에만 | 각 비트의 정서적 진입점. 모던 serif의 고대비 획이 "잉크/문자" 모티프와 공명 |
-| **Body (한글)** | Pretendard 300~400 | `clamp(14px, 1.6vw, 19px)`, letter-spacing 0, line-height 1.7, 1~2줄 | 세계관 설명. 얇은 웨이트로 차분하게, headline 아래 작게 |
-| **마스터 타이틀** | 영문 serif (동일 스택) | `HEPTAPOD B`, letter-spacing 0.2~0.3em, B0에서만 노출 | 작품 표제 |
+| **Headline (영문)** | `'Cinzel', 'Fraunces', Georgia, serif` (2026-09 Cinzel 로 교체) | weight 700 / 명제 비트 900 italic, `clamp(36px, 5.6vw, 92px)` (명제 `clamp(40px, 6.4vw, 104px)`, B2 대형 `clamp(44px, 9vw, 128px)`), lowercase, letter-spacing 0.02em, line-height 1.1 | 각 비트의 정서적 진입점. 키네틱 변주는 `08-kinetic-typography-ideation.md` |
+| **Body (한글)** | Pretendard 400 / 강조 500 | `clamp(18px, 2.6vw, 32px)`, letter-spacing 0, line-height 1.7, 1~2줄 | 세계관 설명. headline 아래, 2026-09 한 단계 키우고 weight 한 단계 올림 |
+| **마스터 타이틀** | Cinzel (동일 스택) | `heptapod b`, `clamp(32px, 6vw, 88px)`, letter-spacing 0.34em, 타이틀 셀에서만 노출 | 작품 표제 |
 | **SKIP / 캡션** | 모노스페이스(`custom.mono`) | 11~12px, 0.05em, 저명도 | 시스템 톤 — 본편 UI와의 연결 고리 |
 
 - **위계**: headline(serif) → body(한글) → (옵션) 모노스페이스 메타. serif와 한글의 크기 대비를 분명히(약 2.5~3.5:1).

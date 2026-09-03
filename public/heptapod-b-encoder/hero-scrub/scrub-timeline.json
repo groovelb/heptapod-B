@@ -1,0 +1,56 @@
+{
+  "source": "public/heptapod-b-encoder/hero-motion/kling-audio-01-final/kling-audio-01-final-hero-v1-source01v2-screenfillv4.mp4",
+  "total": 47.081,
+  "clips": [
+    {
+      "id": "B0",
+      "start": 0,
+      "duration": 4,
+      "sourceLufs": -25.68,
+      "outputLufs": -16.02
+    },
+    {
+      "id": "B1",
+      "start": 4,
+      "duration": 8,
+      "sourceLufs": -22.35,
+      "outputLufs": -15.95
+    },
+    {
+      "id": "B2",
+      "start": 12,
+      "duration": 11,
+      "sourceLufs": -26.86,
+      "outputLufs": -16.39
+    },
+    {
+      "id": "B3",
+      "start": 23,
+      "duration": 6,
+      "sourceLufs": -27.59,
+      "outputLufs": -16
+    },
+    {
+      "id": "B4",
+      "start": 29,
+      "duration": 6,
+      "sourceLufs": -22.18,
+      "outputLufs": -15.08
+    },
+    {
+      "id": "B5",
+      "start": 35,
+      "duration": 12.08,
+      "sourceLufs": -26.34,
+      "outputLufs": -16.26
+    }
+  ],
+  "bed": {
+    "sourceStart": 21,
+    "period": 8.5,
+    "length": 10,
+    "sourceLufs": -26.33,
+    "outputLufs": -18.22
+  },
+  "builtAt": "2026-09-03T08:23:02.145Z"
+}

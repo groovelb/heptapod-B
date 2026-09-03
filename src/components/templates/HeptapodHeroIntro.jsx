@@ -7,37 +7,65 @@ import {
   useRef,
   useState,
 } from 'react';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useMotionValueEvent, useTransform } from 'framer-motion';
 import { useTheme, alpha } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 
 import { LenisContext } from '../../utils/lenisContext';
+import VideoScrubbing from '../scroll/VideoScrubbing';
+import ScrubHud from '../scroll/ScrubHud';
+import useScrubSoundEngine from '../scroll/useScrubSoundEngine';
+import SoundFab from '../input/SoundFab';
+import ScrubCaption from '../kinetic-typography/scrub/ScrubCaption';
+import TitleDisperse from '../kinetic-typography/scrub/TitleDisperse';
+import {
+  HERO_SCRUB_TIMELINE,
+  findClipIndex,
+  mapTrackToVideo,
+} from '../../data/heptapodScrubTimeline';
 import {
   HERO_VIDEO_SRC,
+  HERO_VIDEO_SRC_MOBILE,
+  HERO_POSTER_SRC,
+  HERO_AUDIO_BED_SRC,
+  HERO_AUDIO_CLIP_BASE,
+  HERO_HANDOFF_VH,
   HERO_MASTER_TITLE,
+  HERO_START_LABEL,
   HERO_SKIP_LABEL,
+  HERO_HEADLINE_FONT,
   HERO_STORY_BEATS,
 } from '../../data/heptapodHeroStory';
+import { EASE, INK_LIGHT } from '../kinetic-typography/scrub/inkMotion';
+
+const TRACK_ID = 'hero-scrub-track';
+const TEXT_LIGHT = INK_LIGHT;
+const COPY_SHADOW = '0 1px 14px rgba(8,12,11,0.5)';
+
+/** 타이틀이 완전히 흩어지는 스크롤 거리(뷰포트 높이 비율) — 작을수록 민감 */
+const TITLE_DISPERSE_VH = 0.45;
+
+/** 트랙 전체(0~1)가 스크럽 범위. 참조 고정(VideoScrubbing effect 재구독 방지). */
+const SCROLL_RANGE = { start: 0, end: 1 };
+
+/** 영상·포스터 공통 배치 — 고정 레이어 풀블리드 cover (데스크톱·모바일 동일) */
+const MEDIA_FIT = {
+  position: 'absolute',
+  inset: 0,
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+};
 
 /**
- * 활성 트리거 밴드 — 각 섹션 정중앙에 둔 센티넬(점)이 뷰포트 중앙(±1%)을 지날 때 활성.
- * 작은 점을 관측하므로 정방향/역방향 모두 깔끔한 false→true 이벤트가 발생(역스크롤 트리거 보장).
- * (섹션 전체를 관측하면 100vh라 인접 섹션이 늘 겹쳐 역방향 이벤트가 안 잡힘.)
- * 점프 없이 자연 스크롤이 콘텐츠를 중앙에 데려온 그 자리에서 잠근다 → 카피 항상 중앙 + 스크롤 연속성.
- */
-const ACTIVE_BAND = '-49% 0px -49% 0px';
-
-const INK_COLOR = '#1c2226';
-const TEXT_LIGHT = '#e8ecec';
-
-/**
- * 인코더 핸드오프 게이팅 — 인코더 섹션이 뷰포트로 진입하는 진행도(0=막 진입, 1=완전 덮음)에
- * 따라 캔버스 트랜지션을 단계 분산한다(이전 커밋의 캔버스 트랜지션을 자연 스크롤에 이식).
+ * 인코더 핸드오프 게이팅 — 핸드오프 스페이서가 뷰포트로 진입하는 진행도(0=막 진입, 1=완전 덮음)에
+ * 따라 캔버스 트랜지션을 단계 분산한다.
  *  - ENC_FADE: 캔버스 fade-in(opacity 0→1) 구간
  *  - ENC_DISPLAY: display:block 게이트(진입 시작) — 그 전엔 display:none으로 fog 정지(성능)
- *  - ENC_AUDIO: 영상 정지 + OST 시작(인코더가 충분히 덮을 때)
+ *  - ENC_AUDIO: OST 시작(인코더가 충분히 덮을 때). 스크럽 사운드는 완주 시점에 이미 잦아든다
  *  - ENC_INTERACT: 입력(인코더 TextField 등) 상호작용 활성 (히스테리시스)
  *  - ENC_SETTLE: 배경 효과(fog) 가동 — 완전 진입 후에만 (히스테리시스)
  */
@@ -51,20 +79,79 @@ const ENC_INTERACT_EXIT = 0.85;
 const ENC_SETTLE_ENTER = 0.99;
 const ENC_SETTLE_EXIT = 0.95;
 
+/** 2자리 zero-pad */
+const pad = (value) => String(Math.max(0, value)).padStart(2, '0');
+
+/**
+ * BeatCounter (내부)
+ *
+ * 우하단 비트 카운터("01 — 06") + 얇은 진행바. 트랙 안에서 sticky 로 뷰포트 하단에 머문다.
+ * 카운터는 ref.textContent 갱신, 진행바는 MotionValue scaleX 직결 — 리렌더 없음.
+ *
+ * @param {import('framer-motion').MotionValue<number>} progress - 영상 진행도 [Required]
+ * @param {Array<object>} clips - 타임라인 클립 [Required]
+ * @param {string} monoFont - 모노 폰트 스택 [Required]
+ */
+function BeatCounter({ progress, clips, monoFont, titleProgress }) {
+  const hudOpacity = useTransform(titleProgress, [0.35, 0.7], [0, 1], { ease: EASE.in });
+  const counterRef = useRef(null);
+  const total = clips.length;
+  const labelFor = (p) => `${pad(findClipIndex(clips, p) + 1)} — ${pad(total)}`;
+
+  useMotionValueEvent(progress, 'change', (p) => {
+    if (counterRef.current) counterRef.current.textContent = labelFor(p);
+  });
+
+  return (
+    <ScrubHud
+      align="right"
+      bottomPx={ 72 }
+      hasHeroGap={ false }
+      sx={ { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1, pointerEvents: 'none' } }
+    >
+      <Box component={ motion.div } style={ { opacity: hudOpacity } } sx={ { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 } }>
+        <Box
+          component="span"
+          ref={ counterRef }
+          sx={ {
+            fontFamily: monoFont,
+            fontSize: 'clamp(11px, 0.85vw, 13px)',
+            letterSpacing: '0.16em',
+            color: alpha(TEXT_LIGHT, 0.8),
+            textShadow: COPY_SHADOW,
+          } }
+        >
+          { labelFor(progress.get()) }
+        </Box>
+        <Box sx={ { width: { xs: 96, md: 140 }, height: '1px', backgroundColor: alpha(TEXT_LIGHT, 0.25), overflow: 'hidden' } }>
+          <Box
+            component={ motion.div }
+            style={ { scaleX: progress } }
+            sx={ { width: '100%', height: '100%', backgroundColor: TEXT_LIGHT, transformOrigin: 'left center' } }
+          />
+        </Box>
+      </Box>
+    </ScrubHud>
+  );
+}
+
 /**
  * HeptapodHeroIntro 컴포넌트
  *
- * 스테이지 세그먼트 재생 기반 스크롤리텔링 인트로(스크롤 잠금형, 제공자 중심 페이싱).
- * - 영상: 고정(fixed) 풀스크린 배경. 스크럽이 아니라 **세그먼트 단위로 소리와 함께 재생**.
- * - START 버튼: 누르는 즉시(=소리 활성화 제스처) 첫 세그먼트 재생. 그 전엔 스크롤 잠금.
- * - 각 스테이지(100vh 섹션): 중앙 밴드 진입(IO) 시 그 섹션으로 snap-정렬 + 세그먼트 재생 +
- *   **재생 중 스크롤 잠금(lenis.stop)** + 컨텐츠 opacity↓(잠김 메타포). 풀 재생 후(rVFC) 해제 →
- *   다음 스테이지로 스크롤(반복). START·IO가 triggerStage로 동일 처리.
- * - 핸드오프 끝: 고정 캔버스(인코더)가 제자리 fade-in(children에 audioActive 주입 →
- *   인트로=영상 음성 / 인코더=OST 단계 분리).
- * - reducedMotion: 잠금/자동재생 없이 자연 스크롤만.
+ * 스크롤 스크러빙 기반 히어로 인트로 (oneir ScrubSequence 계열 테크닉 이식).
+ * - 영상: 고정(fixed) 풀스크린, **muted 스크럽** — currentTime 이 트랙 스크롤 위치에 결속(양방향).
+ *   Lenis 감쇠 + 비트별 셀 가중치(heptapodHeroStory.cells)로 페이싱을 조절한다.
+ * - START 필수: 누르기 전엔 스크롤 잠금(lenis.stop + html overflow hidden). 클릭이 곧 사운드 언락 제스처.
+ *   누르면 잠금만 풀린다(자동 이동 없음). 타이틀은 스크롤 시작 즉시 글자별 패럴럭스로 흩어진다.
+ * - 사운드: 비트별 샘플 클립 + 베드 루프 + 합성 드론을 Web Audio 로 스크롤 위치에 매핑
+ *   (useScrubSoundEngine — 위치 결속·아이들 게이트·드리프트 보정·완주 무음). 우하단 SoundFab 토글.
+ * - 카피: 트랙 좌표에 실배치된 캡션(애니메이션 없음, A/B/C 변주) + 하단 HUD 카운터.
+ * - 핸드오프: 트랙 뒤 스페이서 진입 진행도로 고정 캔버스(인코더)가 제자리 fade-in.
+ *   children 에 audioActive 주입 → 스크럽 사운드(인트로) / OST(인코더) 단계 분리.
+ * - reducedMotion: 스크럽·Lenis 없이 자연 스크롤(정지 프레임) + START 게이트만 유지.
  *
- * 데이터: `src/data/heptapodHeroStory.js` / 기획: `docs/heptapod-b-encoder/06-hero-storyline.md`
+ * 데이터: `src/data/heptapodHeroStory.js` · 타임라인: `src/data/heptapodScrubTimeline.js`
+ * 기획: `docs/heptapod-b-encoder/07-scroll-scrub-sound-plan.md`
  *
  * Props:
  * @param {React.ReactNode} children - 인트로 끝에 이어질 인코더(라이브) [Required]
@@ -74,38 +161,63 @@ const ENC_SETTLE_EXIT = 0.95;
  */
 function HeptapodHeroIntro({ children }) {
   const theme = useTheme();
-  // 헤드라인(마스터 타이틀 + 스테이지 h2)은 Cinzel로 통일.
-  const headlineFont = "'Cinzel', 'Fraunces', Georgia, serif";
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const monoFont = theme.typography?.custom?.mono?.fontFamily || 'monospace';
-
-  const videoRef = useRef(null);
-  const sectionRefs = useRef([]);
-  const sentinelRefs = useRef([]); // 각 섹션 정중앙 센티넬(IO 관측 대상 — 정/역 양방향 트리거)
-  const handoffRef = useRef(null);
-  const activeStageRef = useRef(-1);
-  const startedRef = useRef(false); // START 눌렀는지(IO 콜백용)
-  const playingRef = useRef(false); // 세그먼트 재생 중(스크롤 잠금)
-  const lastStageRef = useRef(-1); // 마지막 트리거된 스테이지(중복 방지)
-
   const lenis = useContext(LenisContext);
+  const timeline = HERO_SCRUB_TIMELINE;
+
+  const trackRef = useRef(null);
+  const handoffRef = useRef(null);
+  /** SKIP 이 잠금 해제 직후 실행할 스크롤 목표(element). START 는 목표를 두지 않는다 */
+  const pendingScrollRef = useRef(null);
+
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [started, setStarted] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [soundOn, setSoundOn] = useState(true);
+
   const displayRef = useRef(false);
   const audioRef = useRef(false);
   const interactRef = useRef(false);
   const settledRef = useRef(false);
+  const [canvasActive, setCanvasActive] = useState(false);
+  const [audioOn, setAudioOn] = useState(false);
+  const [canvasInteractive, setCanvasInteractive] = useState(false);
+  const [canvasSettled, setCanvasSettled] = useState(false);
 
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [started, setStarted] = useState(false); // START 눌러 시작됨(히어로 스크롤 잠금 해제)
-  const [dimmed, setDimmed] = useState(false); // 세그먼트 재생 중 — 스크롤 잠금 + 컨텐츠 dim
-  const [canvasActive, setCanvasActive] = useState(false); // display 게이트(렌더 on/off)
-  const [audioOn, setAudioOn] = useState(false); // 영상 정지 + OST(audioActive)
-  const [canvasInteractive, setCanvasInteractive] = useState(false); // 입력 상호작용
-  const [canvasSettled, setCanvasSettled] = useState(false); // 배경 효과(fog) 가동
-
-  // 핸드오프 스페이서 진입 진행도 — 0(막 진입) → 1(완전 덮음). **고정 캔버스의 제자리 fade를 구동.**
-  // Framer useScroll은 Lenis 스무스 스크롤과 동기가 안 될 수 있어, 아래 effect에서 handoff의 실제
-  // 화면 위치(getBoundingClientRect)를 매 스크롤마다 직접 측정해 진행도를 set한다(동기 보장).
+  /** 영상 진행도(0~1, 셀 가중치 매핑 후). 캡션·HUD·사운드가 구독 — 리렌더 없음 */
+  const progress = useMotionValue(0);
+  /** 핸드오프 스페이서 진입 진행도 — 고정 캔버스 fade 구동 */
   const encProgress = useMotionValue(0);
   const canvasOpacity = useTransform(encProgress, ENC_FADE, [0, 1]);
+  /** 하단 스크림 — 영상 마지막 12% (화이트아웃) 에서 사라진다 */
+  const scrimOpacity = useTransform(progress, [0.86, 0.97], [1, 0], { ease: EASE.out });
+  /**
+   * 타이틀 흩어짐 진행도 — 스크롤 0 → 뷰포트의 TITLE_DISPERSE_VH 만큼에서 0→1.
+   * 셀 전체(100vh)가 아니라 짧은 거리에 매핑해 손을 대자마자 흩어지기 시작하고 빠르게 끝난다.
+   */
+  const titleProgress = useMotionValue(0);
+  const controlsOpacity = useTransform(titleProgress, [0, 0.25], [1, 0], { ease: EASE.out });
+  /** 트랙 스크롤 진행도(0~1, 셀 가중치 매핑 전) — 캡션 안무 시계(화면 통과 진행도)의 원천 */
+  const trackProgress = useMotionValue(0);
+
+  /**
+   * 스크럽 사운드 엔진 — 클립(B0~B5)은 같은 타임라인에서 잘라낸 샘플이라
+   * 엔진의 fraction × duration 이 곧 영상 시간. 매 렌더 새 참조라 ref 로 최신본을 잡는다.
+   */
+  const sound = useScrubSoundEngine(timeline.clips, {
+    bedSrc: HERO_AUDIO_BED_SRC,
+    clipBasePath: HERO_AUDIO_CLIP_BASE,
+  });
+  const soundRef = useRef(sound);
+  useEffect(() => {
+    soundRef.current = sound;
+  });
+  const handleSoundProgress = useCallback((p) => {
+    soundRef.current.handleProgress(p);
+  }, []);
+  useMotionValueEvent(progress, 'change', handleSoundProgress);
 
   /** prefers-reduced-motion 감지 */
   useEffect(() => {
@@ -117,25 +229,45 @@ function HeptapodHeroIntro({ children }) {
   }, []);
 
   /**
-   * 스크롤 잠금/해제 — 히어로(미시작) 또는 세그먼트 재생 중(dimmed)이면 잠금(lenis.stop),
-   * 그 외엔 해제(lenis.start). 재생 중 스크롤↔플레이백 교란 방지 + 제공자 중심 강제 페이싱.
+   * START 게이트 — 누르기 전엔 스크롤 잠금: Lenis(휠·터치) + html overflow(키보드·네이티브).
+   * 해제 시 대기 중인 스크롤 목표(START=첫 비트, SKIP=핸드오프)로 이동한다.
    */
   useEffect(() => {
-    if (reducedMotion || !lenis) return undefined;
-    if (!started || dimmed) lenis.stop();
-    else lenis.start();
+    const root = document.documentElement;
+    if (!started) {
+      lenis?.stop();
+      const prev = root.style.overflow;
+      root.style.overflow = 'hidden';
+      return () => {
+        root.style.overflow = prev;
+      };
+    }
+    lenis?.start();
+    const target = pendingScrollRef.current;
+    pendingScrollRef.current = null;
+    if (target == null) return undefined;
+    if (lenis) {
+      lenis.scrollTo(target, { duration: 1.6, force: true });
+    } else if (typeof target === 'number') {
+      window.scrollTo({ top: target, behavior: reducedMotion ? 'auto' : 'smooth' });
+    } else {
+      target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+    }
     return undefined;
-  }, [lenis, started, dimmed, reducedMotion]);
+  }, [lenis, started, reducedMotion]);
 
   /**
-   * 핸드오프 진입 진행도 직접 계산 — handoff의 실제 화면 top을 매 스크롤마다 측정.
-   * top = vh(뷰포트 하단)이면 진행도 0, top = 0(상단)이면 1. Lenis/네이티브 모두 실제 위치라 동기 보장.
+   * 핸드오프 진입 진행도 — 스페이서의 실제 화면 top 을 매 스크롤마다 측정.
+   * top = vh(뷰포트 하단)이면 0, top = 0(상단)이면 1. Lenis/네이티브 모두 실제 위치라 동기 보장.
    */
   useEffect(() => {
     const compute = () => {
+      const vh = window.innerHeight || 1;
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      titleProgress.set(Math.min(1, Math.max(0, scrollY / (vh * TITLE_DISPERSE_VH))));
+      trackProgress.set(Math.min(1, Math.max(0, scrollY / (vh * timeline.scrubCells))));
       const el = handoffRef.current;
       if (!el) return;
-      const vh = window.innerHeight || 1;
       const top = el.getBoundingClientRect().top;
       encProgress.set(Math.min(1, Math.max(0, 1 - top / vh)));
     };
@@ -153,108 +285,9 @@ function HeptapodHeroIntro({ children }) {
       window.removeEventListener('scroll', compute);
       window.removeEventListener('resize', compute);
     };
-  }, [lenis, encProgress]);
+  }, [lenis, encProgress, titleProgress, trackProgress, timeline.scrubCells]);
 
-  /** 스테이지 세그먼트 재생 — 소리와 함께 [start→end] (정방향 전용; 역스크롤은 금지). */
-  const playSegment = useCallback(
-    (idx) => {
-      const v = videoRef.current;
-      const seg = HERO_STORY_BEATS[idx]?.video;
-      if (!v || reducedMotion || !seg) return;
-      activeStageRef.current = idx;
-      const [start, end] = seg;
-      // 세그먼트 밖이면 시작점으로 이동(이어지는 정방향은 seek 없이 자연 연속).
-      if (v.currentTime < start - 0.25 || v.currentTime > end + 0.05) {
-        try {
-          v.currentTime = start;
-        } catch {
-          /* 메타데이터 로드 전 — 무시 */
-        }
-      }
-      // START 클릭으로 소리 활성화됨 → unmuted. seek 직후 play() 일시 거부 시 재시도(간헐 무음 방지).
-      v.muted = false;
-      v.volume = 1;
-      const tryPlay = (n) => {
-        const pr = v.play();
-        if (pr && pr.catch) {
-          pr.catch(() => {
-            if (n > 0) setTimeout(() => tryPlay(n - 1), 60);
-          });
-        }
-      };
-      tryPlay(2);
-    },
-    [reducedMotion],
-  );
-
-  /**
-   * 스테이지 트리거 — 자연 스크롤이 콘텐츠를 화면 중앙에 데려다 놓은 그 자리에서 잠금(dimmed) + 재생.
-   * 점프 없음(스크롤 연속성 유지). START만 타이틀→첫 콘텐츠로 잠긴 채 force 스크롤. (역스크롤은 금지)
-   */
-  const triggerStage = useCallback(
-    (idx, doScroll = false) => {
-      const el = sectionRefs.current[idx];
-      lastStageRef.current = idx;
-      if (reducedMotion) {
-        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-      playingRef.current = true;
-      setDimmed(true); // 재생과 동시에 즉시 스크롤 잠금(규칙: 재생 중 스크롤 금지)
-      playSegment(idx);
-      if (doScroll && el && lenis) lenis.scrollTo(el, { force: true });
-    },
-    [lenis, playSegment, reducedMotion],
-  );
-
-  /**
-   * 역방향 스크롤 금지 — 가장 멀리 도달한 지점 아래로 못 내려가게(한 방향 전진만).
-   * 단, **마지막 스테이지 도달 후엔 클램프 해제** — 핸드오프(캔버스 fade-in)는 자유 스크롤이어야
-   * encProgress가 올라가며 전환되므로, 그 구간은 건드리지 않는다. (재생 중엔 lenis.stop이라 이벤트 없음)
-   */
-  useEffect(() => {
-    if (!lenis || reducedMotion) return undefined;
-    const lastIdx = HERO_STORY_BEATS.length - 1;
-    let maxScroll = lenis.scroll || 0;
-    const onScroll = () => {
-      const s = lenis.scroll;
-      if (s > maxScroll) {
-        maxScroll = s;
-        return;
-      }
-      if (lastStageRef.current >= lastIdx) return; // 마지막 스테이지 이후엔 핸드오프 자유 스크롤
-      if (s < maxScroll - 2) lenis.scrollTo(maxScroll, { immediate: true, force: true });
-    };
-    lenis.on('scroll', onScroll);
-    return () => lenis.off('scroll', onScroll);
-  }, [lenis, reducedMotion]);
-
-  /**
-   * 스테이지 섹션 IO — 중앙 밴드 진입 시 트리거. START 후 + 재생 중 아님 + 새 스테이지일 때만.
-   * 트리거 시 재생 잠금(dimmed) → 세그먼트 풀 재생 후 rVFC가 해제. (제공자 중심 강제 페이싱)
-   */
-  useEffect(() => {
-    if (reducedMotion) return undefined;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (!e.isIntersecting) return;
-          const idx = Number(e.target.dataset.stage);
-          if (Number.isNaN(idx)) return;
-          if (!startedRef.current || playingRef.current || idx === lastStageRef.current) return;
-          triggerStage(idx);
-        });
-      },
-      { rootMargin: ACTIVE_BAND, threshold: 0 },
-    );
-    sentinelRefs.current.forEach((el) => el && obs.observe(el));
-    return () => obs.disconnect();
-  }, [triggerStage, reducedMotion]);
-
-  /**
-   * 인코더 핸드오프 게이트 — 진입 진행도(encProgress)로 캔버스 트랜지션을 단계 분산한다.
-   * display(≈0) / 영상정지·OST(≈0.55) / 입력(≈0.92) / fog(≈0.99)를 히스테리시스로 토글(리렌더 최소화).
-   */
+  /** 인코더 핸드오프 게이트 — 히스테리시스로 토글(리렌더 최소화) */
   useEffect(() => {
     const apply = (p) => {
       const gate = (ref, setter, enter, exit) => {
@@ -275,94 +308,86 @@ function HeptapodHeroIntro({ children }) {
     return encProgress.on('change', apply);
   }, [encProgress]);
 
-  /** 인코더가 충분히 덮으면 영상 정지(가려진 채 재생 낭비 방지) */
-  useEffect(() => {
-    const v = videoRef.current;
-    if (v && audioOn) v.pause();
-  }, [audioOn]);
+  /* VideoScrubbing 콜백 — 참조 고정(effect 재구독 방지) */
+  const mapProgress = useCallback((p) => mapTrackToVideo(timeline, p), [timeline]);
+  const handleProgressChange = useCallback((p) => progress.set(p), [progress]);
+  const handleVideoReady = useCallback(() => setVideoReady(true), []);
+  const handleLoadProgress = useCallback(
+    (fraction) => setLoadProgress((prev) => (fraction > prev ? fraction : prev)),
+    [],
+  );
 
-  /** 세그먼트 끝에서 정지 — requestVideoFrameCallback(없으면 rAF)로 프레임 정밀 */
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v || reducedMotion) return undefined;
-    let cancelled = false;
-    let handle = null;
-    const useRvfc = typeof v.requestVideoFrameCallback === 'function';
-    const tick = () => {
-      if (cancelled) return;
-      const seg = HERO_STORY_BEATS[activeStageRef.current]?.video;
-      if (seg && !v.paused && v.currentTime >= seg[1] - 0.02) {
-        v.pause();
-        // 세그먼트 풀 재생 완료 → 스크롤 잠금 해제 + dim 해제(다음 스테이지로 스크롤 가능)
-        if (playingRef.current) {
-          playingRef.current = false;
-          setDimmed(false);
-        }
-      }
-      handle = useRvfc ? v.requestVideoFrameCallback(tick) : requestAnimationFrame(tick);
-    };
-    handle = useRvfc ? v.requestVideoFrameCallback(tick) : requestAnimationFrame(tick);
-    return () => {
-      cancelled = true;
-      if (handle == null) return;
-      if (useRvfc && v.cancelVideoFrameCallback) v.cancelVideoFrameCallback(handle);
-      else cancelAnimationFrame(handle);
-    };
-  }, [reducedMotion]);
-
-  /**
-   * START — 누르자마자 **첫 세그먼트 즉시 재생**(이 클릭이 브라우저 소리 활성화 제스처).
-   * triggerStage(0)이 첫 스테이지로 snap + 재생 + 잠금까지 일괄 처리. 히어로 스크롤 잠금 해제.
-   */
+  /** START — 클릭(=오디오 언락 제스처)에서 엔진 enable + 스크롤 잠금 해제만. 자동 이동 없음(스크롤은 사용자 손에) */
   const handleStart = useCallback(() => {
-    startedRef.current = true;
+    if (soundOn) soundRef.current.enable();
     setStarted(true);
-    triggerStage(0, true);
-  }, [triggerStage]);
+  }, [soundOn]);
 
-  /** SKIP — 잠금 해제 + 핸드오프(인코더)로 이동. 잠긴 상태에서도 확실히 동작하도록 상태 정리. */
+  /** SKIP — 핸드오프(인코더)로 이동. 시작 전이면 잠금 해제와 함께 이동. */
   const handleSkip = useCallback(() => {
-    startedRef.current = true;
-    playingRef.current = false;
-    setStarted(true);
-    setDimmed(false);
-    videoRef.current?.pause();
     const el = handoffRef.current;
-    if (el) {
-      if (lenis) {
-        lenis.start();
-        lenis.scrollTo(el, { force: true });
-      } else {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+    if (!started) {
+      pendingScrollRef.current = el;
+      setStarted(true);
+      return;
     }
-  }, [lenis]);
+    if (!el) return;
+    if (lenis) lenis.scrollTo(el, { duration: 1.2, force: true });
+    else el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [lenis, started]);
 
-  const copyShadow = '0 1px 14px rgba(8,12,11,0.5)';
+  /** 사운드 토글 — 켤 때는 클릭 제스처 안이라 enable 가능 */
+  const toggleSound = useCallback(() => {
+    setSoundOn((on) => {
+      const next = !on;
+      const s = soundRef.current;
+      if (next) {
+        if (!s.isEnabled) s.enable();
+      } else if (s.isEnabled) {
+        s.disable();
+      }
+      return next;
+    });
+  }, []);
+
+  const activeSrc = isMobile ? HERO_VIDEO_SRC_MOBILE : HERO_VIDEO_SRC;
 
   return (
     <Box sx={ { position: 'relative', backgroundColor: 'background.default' } }>
-      {/* 고정 영상 배경 (스크럽 아님 — 세그먼트 재생) */}
-      <Box sx={ { position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden' } }>
+      {/* 고정 영상 레이어 (z0) — muted 스크럽. 트랙(trackRef) 스크롤 진행도 → 셀 가중치 매핑 → currentTime */}
+      <Box sx={ { position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', backgroundColor: 'background.default' } }>
+        <VideoScrubbing
+          src={ activeSrc }
+          containerRef={ trackRef }
+          scrollRange={ SCROLL_RANGE }
+          mapProgress={ mapProgress }
+          onProgressChange={ handleProgressChange }
+          onReady={ handleVideoReady }
+          onLoadProgress={ handleLoadProgress }
+          sx={ MEDIA_FIT }
+        />
+        {/* 포스터 — 브라우저 poster 대신 자체 오버레이(되감기 시 재출현 방지). 준비되면 1회 페이드아웃 */}
         <Box
-          component="video"
-          ref={ videoRef }
-          src={ HERO_VIDEO_SRC }
-          playsInline
-          preload="auto"
+          component="img"
+          src={ HERO_POSTER_SRC }
+          alt=""
+          aria-hidden
           sx={ {
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
+            ...MEDIA_FIT,
+            zIndex: 1,
+            opacity: videoReady ? 0 : 1,
+            transition: 'opacity 500ms linear',
+            pointerEvents: 'none',
           } }
         />
-        {/* 하단 스크림 — 카피 가독성 */}
+        {/* 하단 스크림 — 카피 가독성. 화이트아웃(B5 후반)에서는 안개를 어둡히지 않게 소거 */}
         <Box
+          component={ motion.div }
+          style={ { opacity: scrimOpacity } }
           sx={ {
             position: 'absolute',
             inset: 0,
+            zIndex: 2,
             pointerEvents: 'none',
             background:
               'linear-gradient(to top, rgba(8,12,11,0.6) 0%, rgba(8,12,11,0.18) 30%, rgba(8,12,11,0) 55%)',
@@ -370,9 +395,8 @@ function HeptapodHeroIntro({ children }) {
         />
       </Box>
 
-      {/* 고정 캔버스 레이어 (z2) — 인코더가 영상 마지막 세그먼트 끝 지점에서 **그 자리에서 fade-in**
-          트랜지션. 절대 자연 스크롤로 아래서 올라오지 않는다(position:fixed). 핸드오프 스페이서
-          진행도(encProgress)로 fade/게이팅을 구동. fade 중엔 fog 정지(settled에서만 가동). */}
+      {/* 고정 캔버스 레이어 (z2) — 핸드오프 스페이서 진입 시 인코더가 **그 자리에서 fade-in**.
+          자연 스크롤로 아래서 올라오지 않는다(position:fixed). fade 중엔 fog 정지(settled 에서만 가동). */}
       <Box
         component={ motion.div }
         style={ { opacity: canvasOpacity } }
@@ -392,7 +416,7 @@ function HeptapodHeroIntro({ children }) {
           : children }
       </Box>
 
-      {/* SKIP (고정) */}
+      {/* SKIP (고정) — 인코더가 활성화되면 숨김 */}
       <Button
         onClick={ handleSkip }
         sx={ {
@@ -402,163 +426,158 @@ function HeptapodHeroIntro({ children }) {
           zIndex: 3,
           minWidth: 0,
           fontFamily: monoFont,
-          fontSize: '0.7rem',
+          fontSize: 'clamp(11px, 0.85vw, 13px)',
           letterSpacing: '0.1em',
           color: alpha(TEXT_LIGHT, 0.7),
-          textShadow: copyShadow,
+          textShadow: COPY_SHADOW,
+          display: canvasInteractive ? 'none' : 'inline-flex',
           '&:hover': { color: TEXT_LIGHT, backgroundColor: 'transparent' },
         } }
       >
         { HERO_SKIP_LABEL }
       </Button>
 
-      {/* 스크롤 컨텐츠 (자연 흐름, 영상 위) — 재생 중(dimmed)엔 opacity↓로 "스크롤 잠김" 메타포 */}
-      <Box
-        sx={ {
-          position: 'relative',
-          zIndex: 1,
-          opacity: dimmed ? 0.75 : 1,
-          transition: 'opacity 300ms ease',
-        } }
-      >
-        {/* 타이틀 섹션 — START 버튼(클릭=소리 활성화 + 히어로 스크롤 잠금 해제). 시작 전엔 스크롤 잠김. */}
+      {/* 사운드 토글 — 우하단 고정. 인코더(OST) 단계에선 숨김 */}
+      <SoundFab
+        isEnabled={ soundOn }
+        isLoading={ sound.isLoading }
+        onToggle={ toggleSound }
+        heroSelector={ `#${TRACK_ID}` }
+        sx={ audioOn ? { visibility: 'hidden', pointerEvents: 'none' } : undefined }
+      />
+
+      {/* 스크롤 콘텐츠 (자연 흐름, 영상 위) */}
+      <Box sx={ { position: 'relative', zIndex: 1 } }>
+        {/* 스크럽 트랙 — 타이틀 셀 + 비트 셀(가중치). 이 요소의 스크롤 진행도가 영상을 스크럽한다.
+            display:flow-root — 첫 in-flow 자식(HUD)의 mt:100dvh 가 트랙 밖으로 상쇄되어 콘텐츠 전체가
+            한 화면 아래로 밀리는 것을 막는다(oneir 는 absolute 콘텐츠 레이어라 BFC 가 자동으로 생겼다). */}
         <Box
+          id={ TRACK_ID }
+          ref={ trackRef }
           sx={ {
-            minHeight: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 4,
-            px: 3,
+            position: 'relative',
+            display: 'flow-root',
+            height: `${timeline.scrubCells * 100}vh`,
+            pointerEvents: 'none',
           } }
         >
-          <Typography
-            component="p"
+          {/* 타이틀 — 첫 뷰포트(100vh) 중앙. 정지 구간 없음: 첫 스크롤부터 영상이 스크럽되고 타이틀은 그 위에서 흩어진다. START(클릭=소리 활성화 + 잠금 해제) */}
+          <Box
             sx={ {
-              fontFamily: headlineFont,
-              fontWeight: 700,
-              fontSize: 'clamp(22px, 4vw, 44px)',
-              textTransform: 'lowercase',
-              letterSpacing: '0.34em',
-              color: TEXT_LIGHT,
-              textShadow: copyShadow,
-              m: 0,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100vh',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 4,
+              px: 3,
+              pointerEvents: 'auto',
             } }
           >
-            { HERO_MASTER_TITLE }
-          </Typography>
-          { !started ? (
-            <Button
-              onClick={ handleStart }
-              variant="outlined"
+            {/* 마스터 타이틀 — 셀을 떠날 때 글자마다 다른 패럴럭스 속도로 흐려지며 사라진다 */}
+            <TitleDisperse
+              text={ HERO_MASTER_TITLE }
+              t={ titleProgress }
+              reduced={ reducedMotion }
               sx={ {
-                fontFamily: monoFont,
-                fontSize: '0.8rem',
-                letterSpacing: '0.3em',
+                fontFamily: HERO_HEADLINE_FONT,
+                fontWeight: 700,
+                fontSize: 'clamp(32px, 6vw, 88px)',
+                textTransform: 'lowercase',
+                letterSpacing: '0.34em',
                 color: TEXT_LIGHT,
-                borderColor: alpha(TEXT_LIGHT, 0.5),
-                borderRadius: 0,
-                px: 4,
-                py: 1.25,
-                textShadow: copyShadow,
-                '&:hover': { borderColor: TEXT_LIGHT, backgroundColor: alpha(TEXT_LIGHT, 0.08) },
+                textShadow: COPY_SHADOW,
+                textAlign: 'center',
               } }
+            />
+            <Box
+              component={ motion.div }
+              style={ { opacity: controlsOpacity } }
+              sx={ { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 } }
             >
-              ▶ START
-            </Button>
-          ) : (
-            <Typography
-              component="span"
-              sx={ {
-                fontFamily: monoFont,
-                fontSize: '0.66rem',
-                letterSpacing: '0.4em',
-                color: alpha(TEXT_LIGHT, 0.7),
-                textShadow: copyShadow,
-              } }
-            >
-              SCROLL ↓
-            </Typography>
-          ) }
+              { !started ? (
+                <Button
+                  onClick={ handleStart }
+                  variant="outlined"
+                  sx={ {
+                    fontFamily: monoFont,
+                    fontSize: 'clamp(12px, 1vw, 15px)',
+                    letterSpacing: '0.3em',
+                    color: TEXT_LIGHT,
+                    borderColor: alpha(TEXT_LIGHT, 0.5),
+                    borderRadius: 0,
+                    px: 4,
+                    py: 1.25,
+                    textShadow: COPY_SHADOW,
+                    '&:hover': { borderColor: TEXT_LIGHT, backgroundColor: alpha(TEXT_LIGHT, 0.08) },
+                  } }
+                >
+                  { HERO_START_LABEL }
+                </Button>
+              ) : (
+                <Typography
+                  component="span"
+                  sx={ {
+                    fontFamily: monoFont,
+                    fontSize: 'clamp(10px, 0.8vw, 13px)',
+                    letterSpacing: '0.4em',
+                    color: alpha(TEXT_LIGHT, 0.7),
+                    textShadow: COPY_SHADOW,
+                  } }
+                >
+                  SCROLL ↓
+                </Typography>
+              ) }
+              {/* 영상 로딩바 — 준비되면 사라짐 */}
+              <Box
+                aria-hidden
+                sx={ {
+                  width: 'clamp(120px, 14vw, 200px)',
+                  height: '1px',
+                  backgroundColor: alpha(TEXT_LIGHT, 0.2),
+                  opacity: videoReady ? 0 : 1,
+                  transition: 'opacity 400ms linear',
+                  overflow: 'hidden',
+                } }
+              >
+                <Box
+                  sx={ {
+                    width: `${Math.round(loadProgress * 100)}%`,
+                    height: '100%',
+                    backgroundColor: alpha(TEXT_LIGHT, 0.8),
+                    transition: 'width 200ms linear',
+                  } }
+                />
+              </Box>
+            </Box>
+          </Box>
+
+          {/* 비트 캡션 — 키네틱 변주(beat.kinetic), 트랙 좌표 실배치, 자연 스크롤 */}
+          { timeline.clips.map((clip, i) => (
+            <ScrubCaption
+              key={ clip.id }
+              beat={ HERO_STORY_BEATS[i] }
+              clip={ clip }
+              progress={ progress }
+              trackProgress={ trackProgress }
+              total={ timeline.total }
+              scrubCells={ timeline.scrubCells }
+              reduced={ reducedMotion }
+            />
+          )) }
+
+          {/* HUD — 비트 카운터 + 진행바 (sticky, 타이틀 셀 제외) */}
+          <BeatCounter progress={ progress } clips={ timeline.clips } monoFont={ monoFont } titleProgress={ titleProgress } />
         </Box>
 
-        {/* 스테이지 섹션 — 각 진입 시 세그먼트 재생 */}
-        { HERO_STORY_BEATS.map((beat, i) => {
-          const onLight = Boolean(beat.onLight);
-          const color = onLight ? INK_COLOR : TEXT_LIGHT;
-          return (
-            <Box
-              key={ beat.id }
-              ref={ (el) => { sectionRefs.current[i] = el; } }
-              sx={ {
-                position: 'relative',
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                px: { xs: 3, md: 12 },
-              } }
-            >
-              {/* 정중앙 센티넬 — 이 점이 뷰포트 중앙을 지날 때 트리거(정/역 양방향, 콘텐츠 중앙). */}
-              <Box
-                data-stage={ i }
-                ref={ (el) => { sentinelRefs.current[i] = el; } }
-                sx={ {
-                  position: 'absolute',
-                  top: '50%',
-                  left: 0,
-                  width: '1px',
-                  height: '1px',
-                  pointerEvents: 'none',
-                } }
-              />
-              { (beat.headline || beat.body) && (
-                <Box sx={ { maxWidth: '42ch' } }>
-                  { beat.headline && (
-                    <Typography
-                      component="h2"
-                      sx={ {
-                        fontFamily: headlineFont,
-                        fontWeight: beat.isEmphasis ? 900 : 700,
-                        fontStyle: beat.isEmphasis ? 'italic' : 'normal',
-                        fontSize: 'clamp(28px, 4vw, 64px)',
-                        lineHeight: 1.1,
-                        textTransform: 'lowercase',
-                        letterSpacing: '0.02em',
-                        color,
-                        textShadow: onLight ? 'none' : copyShadow,
-                        m: 0,
-                        mb: 1.5,
-                      } }
-                    >
-                      { beat.headline }
-                    </Typography>
-                  ) }
-                  { beat.body && (
-                    <Typography
-                      component="p"
-                      sx={ {
-                        fontWeight: beat.isEmphasis ? 400 : 300,
-                        fontSize: 'clamp(16px, 2.2vw, 26px)',
-                        lineHeight: 1.7,
-                        color: onLight ? alpha(INK_COLOR, 0.85) : alpha(TEXT_LIGHT, 0.85),
-                        textShadow: onLight ? 'none' : copyShadow,
-                        m: 0,
-                      } }
-                    >
-                      { beat.body }
-                    </Typography>
-                  ) }
-                </Box>
-              ) }
-            </Box>
-          );
-        }) }
+        {/* 핸드오프 스페이서 — 빈 스크롤 거리. 스크럽 완주(마지막 프레임=화이트아웃) 뒤 이 구간이
+            뷰포트로 들어오면 위의 고정 캔버스가 제자리에서 fade-in 한다. */}
+        <Box ref={ handoffRef } sx={ { position: 'relative', minHeight: `${HERO_HANDOFF_VH}vh` } } />
       </Box>
-
-      {/* 핸드오프 스페이서 — 빈 스크롤 거리만 제공. 마지막 스테이지(화이트아웃 확대) 다음 이 구간으로
-          스크롤이 들어오면 위의 고정 캔버스가 제자리에서 fade-in 한다. 캔버스는 움직이지 않음. */}
-      <Box ref={ handoffRef } sx={ { position: 'relative', zIndex: 1, minHeight: '120vh' } } />
     </Box>
   );
 }

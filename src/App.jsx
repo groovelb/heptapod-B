@@ -47,11 +47,15 @@ function App() {
       return undefined;
     }
     // 스테이지 세그먼트를 음미할 수 있도록 더 느리게(휠당 이동↓ + 감쇠↑).
+    // syncTouch: 기본값(false)이면 모바일 터치는 네이티브 스크롤로 통과해 감쇠·배율이 전혀 안 먹는다.
+    // 켜야 터치도 Lenis가 가로채 데스크톱과 같은 페이싱으로 스크럽된다(touchMultiplier·syncTouchLerp 활성).
     const instance = new Lenis({
       lerp: 0.05,
       wheelMultiplier: 0.65,
       touchMultiplier: 0.9,
       smoothWheel: true,
+      syncTouch: true,
+      syncTouchLerp: 0.05, // 플릭 관성 감쇠 — 데스크톱 lerp와 동일하게 맞춤
     });
     setLenis(instance);
     let rafId = requestAnimationFrame(function raf(time) {
