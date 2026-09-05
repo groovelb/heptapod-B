@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import GlobalStyles from '@mui/material/GlobalStyles';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
@@ -10,6 +12,18 @@ import { defaultTheme as theme } from './styles/themes';
 import { LenisContext } from './utils/lenisContext';
 import HeptapodEncoderPage from './components/templates/HeptapodEncoderPage';
 import HeptapodHeroIntro from './components/templates/HeptapodHeroIntro';
+
+const GlyphDetailPage = lazy(() => import('./components/templates/GlyphDetailPage'));
+const ResonanceFieldPage = lazy(() => import('./components/templates/ResonanceFieldPage'));
+const MyArchivePage = lazy(() => import('./components/templates/MyArchivePage'));
+const ArchiveComparePage = lazy(() => import('./components/templates/ArchiveComparePage'));
+const MyResponsesPage = lazy(() => import('./components/templates/MyResponsesPage'));
+
+const RouteFallback = () => (
+  <Box sx={ { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#0a0a0a' } }>
+    <CircularProgress sx={ { color: 'rgba(255,255,255,0.3)' } } />
+  </Box>
+);
 
 /** 공유 URL(?name=)로 진입했는지 — 그렇다면 인트로 없이 인코더만 노출한다 */
 function hasSharedName() {
@@ -30,7 +44,8 @@ function hasSharedName() {
  * 스크롤하면 디졸브가 역전된다(왕복). ?name= 쿼리 진입은 인트로를 생략하고
  * 인코더가 직접 쿼리를 읽어 재현한다 (결정론 공유).
  */
-function App() {
+function AppContent() {
+  const { pathname } = useLocation();
   const sharedName = hasSharedName();
   // Lenis 인스턴스를 상태로 보관 → 컨텍스트로 내려 인트로가 스크롤 잠금/해제에 사용.
   const [lenis, setLenis] = useState(null);
@@ -40,10 +55,9 @@ function App() {
    * Framer useScroll이 그대로 따라온다. prefers-reduced-motion 시 비활성(접근성).
    */
   useEffect(() => {
-    if (
-      typeof window === 'undefined'
-      || window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ) {
+    if (typeof window === 'undefined') return undefined;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      window.scrollTo(0, 0);
       return undefined;
     }
     // 스테이지 세그먼트를 음미할 수 있도록 더 느리게(휠당 이동↓ + 감쇠↑).
@@ -56,7 +70,10 @@ function App() {
       smoothWheel: true,
       syncTouch: true,
       syncTouchLerp: 0.05, // 플릭 관성 감쇠 — 데스크톱 lerp와 동일하게 맞춤
+      // Dialog/Drawer 내부는 네이티브 스크롤, 문서 전체는 기존 Lenis 감쇠 유지.
+      allowNestedScroll: true,
     });
+    instance.scrollTo(0, { immediate: true, force: true });
     setLenis(instance);
     let rafId = requestAnimationFrame(function raf(time) {
       instance.raf(time);
@@ -67,7 +84,7 @@ function App() {
       instance.destroy();
       setLenis(null);
     };
-  }, []);
+  }, [pathname]);
 
   return (
     <ThemeProvider theme={ theme }>
@@ -84,7 +101,6 @@ function App() {
         } }
       />
       <LenisContext.Provider value={ lenis }>
-        <BrowserRouter>
           <Routes>
             <Route
               index
@@ -98,11 +114,19 @@ function App() {
                 )
               }
             />
+            <Route path="/glyph/:id" element={ <Suspense fallback={ <RouteFallback /> }><GlyphDetailPage /></Suspense> } />
+            <Route path="/field/:id" element={ <Suspense fallback={ <RouteFallback /> }><ResonanceFieldPage /></Suspense> } />
+            <Route path="/archive" element={ <Suspense fallback={ <RouteFallback /> }><MyArchivePage /></Suspense> } />
+            <Route path="/compare/:leftId/:rightId?" element={ <Suspense fallback={ <RouteFallback /> }><ArchiveComparePage /></Suspense> } />
+            <Route path="/me" element={ <Suspense fallback={ <RouteFallback /> }><MyResponsesPage /></Suspense> } />
           </Routes>
-        </BrowserRouter>
       </LenisContext.Provider>
     </ThemeProvider>
   );
+}
+
+function App() {
+  return <BrowserRouter><AppContent /></BrowserRouter>;
 }
 
 export default App;

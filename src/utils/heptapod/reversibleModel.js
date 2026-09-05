@@ -11,11 +11,11 @@
  * 등은 N 시드 PRNG로 — 비주얼은 유기적, 복원엔 무관.
  */
 
-import { xmur3, sfc32 } from './encode';
+import { xmur3, sfc32 } from './encode.js';
 import {
   RADII, K, encodeReversible, bucketsToInt, intToTokens, tokensToText,
   encodeClusterCell, decodeClusterCell, ALPHA_CODES, toDisplayChar,
-} from './reversibleCodec';
+} from './reversibleCodec.js';
 
 const TWO_PI = Math.PI * 2;
 /** 가지 유형 — reversibleCodec CL.TYPE 인덱스와 순서 일치 (절대) */
@@ -56,7 +56,7 @@ function slotToClock(ang) {
  */
 export function buildModelReversible(name) {
   const {
-    buckets, interrogative, overflow, n, tokenCount,
+    buckets, interrogative, overflow, n, tokenCount, supported, unsupportedCharacters,
   } = encodeReversible(name);
   const rng = prngFromN(n);
 
@@ -153,8 +153,9 @@ export function buildModelReversible(name) {
       hashHex: (Number(n % 4294967296n) >>> 0).toString(16).padStart(8, '0').toUpperCase(),
       nfdCount: tokenCount,
       clusterCount,
-      reversible: true,
+      reversible: supported && !overflow,
       overflow,
+      unsupportedCharacters,
     },
     ring,
     slots,

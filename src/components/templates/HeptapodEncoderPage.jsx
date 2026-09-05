@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { useTheme, alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -10,6 +11,11 @@ import LogogramChamber from '../motion/LogogramChamber';
 import LogogramRendererCanvas from '../motion/LogogramRendererCanvas';
 import FadeTransition from '../motion/FadeTransition';
 import AnalysisOverlay from '../overlay-feedback/AnalysisOverlay';
+import PublishDialog from '../overlay-feedback/PublishDialog';
+import ResonancePreview from '../data-display/ResonancePreview';
+import { usePublish } from '../../hooks/data/usePublish';
+import { buildArchiveModel } from '../../utils/heptapod/archiveGlyph';
+import { shareArchive } from '../../utils/heptapod/shareArchive';
 import { buildModelReversible, decode, inspect } from '../../utils/heptapod/reversibleModel';
 import { detectRenderTier, subscribeReducedMotion } from '../../utils/heptapod/detectRenderTier';
 import { exportLogogramPng } from '../../utils/heptapod/exportPng';
@@ -60,6 +66,16 @@ function readNameFromUrl() {
   return fromUrl ? fromUrl.trim() : '';
 }
 
+function readEncoderVersionFromUrl() {
+  if (typeof window === 'undefined') return 2;
+  const params = new URLSearchParams(window.location.search);
+  return params.has('name') && params.get('v') !== '2' ? 1 : 2;
+}
+
+function safeArchiveModel(text) {
+  try { return buildArchiveModel(text); } catch { return null; }
+}
+
 /** rad → deg 정규화 (0~359 정수) — 리드아웃 표기용 */
 function toDeg(rad) {
   const d = ((rad % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
@@ -96,7 +112,8 @@ function splitText(text) {
 function TypingPreview({ text, size, ink, monoSx }) {
   const chars = Array.from(text.replace(/[?？]/g, '')).filter((ch) => !/\s/.test(ch));
   const last = chars[chars.length - 1];
-  if (!last) return null;
+  const previewModel = last ? safeArchiveModel(last) : null;
+  if (!previewModel) return null;
   return (
     <Box sx={ { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 } }>
       <Box
@@ -110,7 +127,7 @@ function TypingPreview({ text, size, ink, monoSx }) {
       <Box sx={ { width: size, height: size } }>
         <LogogramRendererCanvas
           key={ `${last}-${chars.length}` } // 키 입력마다 remount → 재형성
-          model={ buildModelReversible(last) }
+          model={ previewModel }
           size={ size }
           inkColor={ alpha(ink, 0.8) }
           isActive
@@ -390,14 +407,19 @@ function AnnotatedGlyph({ model, rawData, size, fg, monoSx }) {
  */
 function HeptapodEncoderPage({ audioActive = true }) {
   const theme = useTheme();
+  const { publish } = usePublish();
   const monoSx = theme.typography.custom?.mono || MONO_FALLBACK;
 
   // name(입력 중) / encodedName(확정) 분리 — ENCODE 실행 시에만 모델 재생성
   const [name, setName] = useState(readNameFromUrl);
   const [encodedName, setEncodedName] = useState(readNameFromUrl);
+  const [encoderVersion, setEncoderVersion] = useState(readEncoderVersionFromUrl);
+  const [inputError, setInputError] = useState('');
+  const [publishedId, setPublishedId] = useState(null);
   const [isAnalysisOn, setIsAnalysisOn] = useState(false);
   const [formedModel, setFormedModel] = useState(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [isPublishOpen, setIsPublishOpen] = useState(false);
   const [renderConfig, setRenderConfig] = useState(() => detectRenderTier());
   const [stageMin, setStageMin] = useState(0);
 
@@ -415,21 +437,21 @@ function HeptapodEncoderPage({ audioActive = true }) {
   // 같은 본체 + 갈고리 유무만 다르다.
   const isInterrogative = /[?？]/.test(encodedName);
 
-  /** 모델 캐시 — 가역 생성기. 같은 이름은 재계산하지 않는다 (결정론) */
+  /** Legacy links preserve their old model; new encodes use the canonical v2 contract. */
   const model = useMemo(
-    () => (encodedName.trim() ? buildModelReversible(encodedName) : null),
-    [encodedName],
+    () => (encodedName.trim() ? (encoderVersion === 1 ? buildModelReversible(encodedName) : safeArchiveModel(encodedName)) : null),
+    [encodedName, encoderVersion],
   );
 
   /** 형태 데이터에서 원본을 복원 (가역 증명). overflow면 복원 불가 */
   const decoded = useMemo(
-    () => (model && !model.meta.overflow ? decode(model) : null),
+    () => (model?.meta.reversible && !model.meta.overflow ? decode(model) : null),
     [model],
   );
 
   /** decode 직전 raw 추적 데이터 (자세히 보기 모달) */
   const [isRawOpen, setIsRawOpen] = useState(false);
-  const rawData = useMemo(() => (model ? inspect(model) : null), [model]);
+  const rawData = useMemo(() => (model?.meta.reversible ? inspect(model) : null), [model]);
 
   // 깊이 내비게이션 (N레벨: 문단↔문장↔단어↔글자). stack = 드릴 경로(확장된 노드 텍스트).
   // [] = 루트 단일 뷰, [..] = 마지막 노드의 자식 격자.
@@ -441,9 +463,9 @@ function HeptapodEncoderPage({ audioActive = true }) {
     () => splitText(currentText).map((txt, i) => ({
       key: `${txt}-${i}`,
       text: txt,
-      model: buildModelReversible(txt),
+      model: safeArchiveModel(txt),
       splittable: splitText(txt).length > 0,
-    })),
+    })).filter((node) => node.model),
     [currentText],
   );
   const canSplitRoot = splitText(rootCore).length > 0;
@@ -572,6 +594,11 @@ function HeptapodEncoderPage({ audioActive = true }) {
     if (!trimmed) {
       return;
     }
+    try { buildArchiveModel(trimmed); }
+    catch (error) { setInputError(error.message); return; }
+    setInputError('');
+    setEncoderVersion(2);
+    setPublishedId(null);
     audioRef.current?.encodeStart();
     triggerRush(); // Z-depth 가속 진입
     setStack([]); // 새 인코딩 시 최상위로
@@ -603,23 +630,21 @@ function HeptapodEncoderPage({ audioActive = true }) {
     }
   }, [model, encodedName, theme]);
 
-  /** COPY LINK — ?name= 쿼리 URL 복사 (URL만으로 동일 로고그램 재현) */
+  /** Sharing first requests explicit publication, then uses only the opaque public ID. */
   const handleCopyLink = useCallback(async () => {
-    if (!encodedName) {
-      return;
-    }
-    const url = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(encodedName)}`;
+    if (!encodedName || encoderVersion === 1) return;
+    if (!publishedId) { setIsPublishOpen(true); return; }
     try {
-      await navigator.clipboard.writeText(url);
-      setIsCopied(true);
+      const result = await shareArchive({ left: { id: publishedId, canonical_name: model.meta.canonicalName, is_interrogative: isInterrogative } });
+      setIsCopied(result === 'copied' || result === 'shared');
       if (copyTimerRef.current) {
         clearTimeout(copyTimerRef.current);
       }
       copyTimerRef.current = setTimeout(() => setIsCopied(false), 1800);
-    } catch {
-      // 클립보드 미지원/거부 — 조용히 무시
+    } catch (error) {
+      setInputError(error.message);
     }
-  }, [encodedName]);
+  }, [encodedName, encoderVersion, publishedId, model, isInterrogative]);
 
   // edge: 분석 모드 스크림용 어두운 색.
   const ink = theme.palette.custom?.chamber?.ink || '#1c2226';
@@ -640,7 +665,8 @@ function HeptapodEncoderPage({ audioActive = true }) {
       ['Weight', `${toDeg(model.ring.weightCenterAngle)}°`],
       ['Mood', isInterrogative ? 'INTERROGATIVE' : 'DECLARATIVE'],
       // 가역 증명 — 형태에서 복원한 원본
-      ['Decode', model.meta.overflow ? '— TOO LONG' : (decoded ? decoded.name : '—')],
+      ['Mode', encoderVersion === 1 ? 'LEGACY' : model.meta.reversible ? 'REVERSIBLE' : 'DETERMINISTIC'],
+      ['Decode', decoded ? decoded.name : '이름으로 재현'],
       ['Tier', String(renderConfig.tier).toUpperCase()],
     ]
     : [];
@@ -1061,6 +1087,7 @@ function HeptapodEncoderPage({ audioActive = true }) {
               {/* RAW DATA 모달 — 데스크톱은 화면 오버레이로 대체, 모바일 전용 fallback */}
               <Button
                 onClick={ () => setIsRawOpen(true) }
+                disabled={ !rawData }
                 variant="text"
                 fullWidth
                 sx={ {
@@ -1081,7 +1108,7 @@ function HeptapodEncoderPage({ audioActive = true }) {
                 <span>자세히 ↗</span>
               </Button>
 
-              {/* 결과 액션 — SAVE / SHARE (결과 있을 때 이 패널에) */}
+              {/* 결과 액션 — SAVE / SHARE / PUBLISH (결과 있을 때 이 패널에) */}
               <Box sx={ { display: 'flex', gap: 1, mt: 0.75 } }>
                 <Button
                   onClick={ handleSavePng }
@@ -1094,13 +1121,40 @@ function HeptapodEncoderPage({ audioActive = true }) {
                 </Button>
                 <Button
                   onClick={ handleCopyLink }
+                  disabled={ encoderVersion === 1 }
                   variant="text"
                   sx={ {
                     ...monoSx, flex: 1, py: 0.6, color: fg, opacity: 0.6, fontSize: '0.58rem', letterSpacing: '0.16em', borderRadius: 0, border: `1px solid ${alpha(fg, 0.2)}`, '&:hover': { opacity: 0.95, borderColor: alpha(fg, 0.5) },
                   } }
                 >
-                  { isCopied ? 'COPIED' : 'SHARE' }
+                  { isCopied ? 'COPIED' : publishedId ? 'SHARE' : '공개·공유' }
                 </Button>
+              </Box>
+              <Button
+                onClick={ encoderVersion === 1 ? handleEncode : () => setIsPublishOpen(true) }
+                variant="text"
+                fullWidth
+                sx={ {
+                  ...monoSx, mt: 0.75, py: 0.6, color: fg, opacity: 0.7, fontSize: '0.58rem', letterSpacing: '0.18em', borderRadius: 0, border: `1px solid ${alpha(fg, 0.28)}`, '&:hover': { opacity: 0.95, backgroundColor: alpha(fg, 0.06), borderColor: alpha(fg, 0.5) },
+                } }
+              >
+                {encoderVersion === 1 ? 'v2로 다시 만들기' : 'PUBLISH'}
+              </Button>
+              <Button
+                component={ RouterLink }
+                to="/archive"
+                variant="text"
+                fullWidth
+                sx={ {
+                  ...monoSx, mt: 0.5, py: 0.4, color: fg, opacity: 0.4, fontSize: '0.52rem', letterSpacing: '0.2em', borderRadius: 0, textDecoration: 'none', '&:hover': { opacity: 0.75, backgroundColor: 'transparent' },
+                } }
+              >
+                ARCHIVE →
+              </Button>
+
+              {/* Resonance 미리보기 — 다른 이름과의 공명 확인 (로컬 계산) */}
+              <Box sx={ { mt: 1 } }>
+                <ResonancePreview primaryName={ encodedName } primaryModel={ model } fg={ fg } />
               </Box>
             </Box>
           </FadeTransition>
@@ -1134,6 +1188,8 @@ function HeptapodEncoderPage({ audioActive = true }) {
           onChange={ (event) => setName(event.target.value) }
           onKeyDown={ handleKeyDown }
           placeholder="이름 입력 후 Enter"
+          error={ !!inputError }
+          helperText={ inputError }
           fullWidth
           variant="standard"
           slotProps={ {
@@ -1165,9 +1221,24 @@ function HeptapodEncoderPage({ audioActive = true }) {
             ...monoSx, color: fg, opacity: 0.42, letterSpacing: '0.2em', textAlign: 'center', mt: 2.5, mb: 0, fontSize: '0.6rem',
           } }
         >
-          REVERSIBLE ENCODING — THE FORM DECODES BACK TO THE NAME.
+          {encoderVersion === 1 ? 'LEGACY RESPONSE — 기존 공유 표식을 재현합니다.' : model?.meta.reversible ? 'REVERSIBLE ENCODING — 정규화한 이름을 형태에서 복원합니다.' : 'DETERMINISTIC ENCODING — 같은 이름은 같은 표식으로 남습니다.'}
         </Typography>
       </Box>
+
+      {/* Publish 다이얼로그 — 공개 아카이브 게시 확인 */}
+      <PublishDialog
+        key={ `${encodedName}:${encoderVersion}` }
+        open={ isPublishOpen }
+        onClose={ () => setIsPublishOpen(false) }
+        glyphName={ encodedName }
+        model={ model }
+        onPublish={ async ({ consented }) => {
+          if (!model || !encodedName || encoderVersion !== 2) throw new Error('먼저 v2 표식을 만들어 주세요.');
+          const result = await publish({ displayName: encodedName, contextTags: [], consented });
+          setPublishedId(result.glyphId);
+          return result;
+        } }
+      />
 
       {/* decode 직전 raw 데이터 모달 — 버킷 → N → 토큰 → 이름 전 과정 */}
       <Dialog

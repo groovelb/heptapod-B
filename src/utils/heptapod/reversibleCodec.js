@@ -88,7 +88,7 @@ export function capacityBits() {
 }
 
 /**
- * 이름 → 토큰 인덱스 배열 (NFD 분해, 알파벳 밖 문자는 제외). '?'는 분리.
+ * 이름 → 토큰 인덱스 배열. 미지원 문자를 함께 반환해 손실을 숨기지 않는다.
  *
  * @param {string} name - 입력 이름
  * @returns {{ tokens: number[], interrogative: boolean }} 토큰과 의문 플래그
@@ -97,11 +97,13 @@ export function textToTokens(name) {
   const raw = (name || '').normalize('NFD');
   const interrogative = /[?？]/.test(raw);
   const tokens = [];
+  const unsupportedCharacters = [];
   for (const ch of raw.replace(/[?？]/g, '')) {
     const idx = CODE_TO_IDX.get(ch.codePointAt(0));
     if (idx !== undefined) tokens.push(idx);
+    else unsupportedCharacters.push(ch);
   }
-  return { tokens, interrogative };
+  return { tokens, interrogative, unsupportedCharacters, supported: unsupportedCharacters.length === 0 };
 }
 
 /**
@@ -229,10 +231,10 @@ export function encodeClusterCell({ type, spikeIdx, slot, dir }) {
  * }} 인코딩 결과
  */
 export function encodeReversible(name) {
-  const { tokens, interrogative } = textToTokens(name);
+  const { tokens, interrogative, unsupportedCharacters, supported } = textToTokens(name);
   const n = tokensToInt(tokens);
   const { buckets, overflow } = intToBuckets(n);
-  return { buckets, interrogative, overflow, n, tokenCount: tokens.length };
+  return { buckets, interrogative, overflow, n, tokenCount: tokens.length, unsupportedCharacters, supported };
 }
 
 export { ALPHA_CODES, CL, FIXED_ORDER };

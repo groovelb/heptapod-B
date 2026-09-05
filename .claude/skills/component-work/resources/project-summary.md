@@ -2,18 +2,24 @@
 
 ## 프로젝트 개요
 
-**Starter Kit Basic**은 React + MUI + Storybook 환경을 디자이너에게 마치 디자인 툴처럼 사용할 수 있도록 도와주는 개발 환경입니다.
+이 저장소는 React + MUI + Storybook 기반의 디자인 개발 환경이며, 현재 핵심 제품은 영화 *Arrival*의 헵타포드 B를 모티프로 한 **Heptapod B — The Response Archive**다.
+
+기존의 개인 이름 인코더를 확장해 사용자가 자신의 이름 로고그램을 공개하고, **Heptapod B로 변환된 뒤 드러나는 형태의 공명**을 탐색하는 비선형 언어맵을 만든다. 이름은 표식의 출처와 표시 이름이지 연결 계산의 입력이 아니다. 제품은 실제 번역기나 영화의 공식 언어 체계를 주장하지 않으며, “번역이 아니라 결정론적 인코딩”이라는 기존 원칙을 유지한다.
 
 ## 핵심 목적
 
-1. **UI 컴포넌트 체계적 관리** - 재사용 가능한 컴포넌트를 Storybook으로 문서화
-2. **디자인 톤 일관성 유지** - 색상, 타이포그래피, 스타일을 중앙에서 관리
-3. **로직과 UI 분리** - 제품의 비즈니스 로직과 UI 디자인 작업을 명확히 분리
+1. **개인 응답 생성** - 이름을 결정론적 로고그램으로 인코딩한다. 손실 없는 복원이 검증된 입력만 가역 모드로 표시하고, 그 외 지원 이름은 이름 전체로 재현하는 결정론 모드로 표현한다.
+2. **공동 아카이브 구축** - 사용자가 명시적으로 공개한 Response를 Supabase에 저장하고 동일 이름은 하나의 Glyph로 통합한다.
+3. **설명 가능한 언어맵** - 변환된 링 윤곽·개구부·가지 구조·필압/먹 분포에서 실제 공통점을 찾고, 양쪽 표식의 관측 부위를 직접 표시한다. 전체 형태와 일부 구조의 공명을 구분한다.
+4. **비선형 세계관 체험** - 시간순 SNS 피드가 아니라 선택한 Glyph 주변의 관계가 동시에 드러나는 Resonance Field를 제공한다.
+5. **디자인 시스템 유지** - UI 컴포넌트를 재사용 가능한 단위로 분리하고 Storybook에서 상태별로 문서화한다.
 
 ## 대상 사용자
 
-- **디자이너**: Storybook을 통해 컴포넌트를 시각적으로 탐색하고 테스트
-- **개발자**: 체계적인 컴포넌트 구조와 스타일 가이드를 활용하여 개발
+- **주요 사용자**: 영화 *Arrival* 팬, 자기 이름의 시각화를 만들고 공유하려는 사용자, 제너레이티브 아트 관심층
+- **탐색 사용자**: 공유 링크 또는 언어맵에서 다른 이름이 어떤 표식으로 변환되어 공명하는지 탐색하는 방문자
+- **디자이너**: Storybook에서 publish·auth·map·detail 상태를 실제 DB 없이 검토하는 작업자
+- **개발자**: 컴포넌트·관계 알고리즘·Supabase 데이터 경계를 분리해 구현하는 작업자
 
 ## 기술 스택
 
@@ -21,6 +27,127 @@
 - MUI 7.x (Material UI)
 - Vite 7.x
 - Storybook 10.x
+- React Router 7.x
+- Framer Motion 12.x / Lenis 1.x / Three.js 0.182.x
+- Supabase Auth / PostgreSQL / Edge Functions — **로컬 구현·검증 범위는 아래 스냅샷 참조. 운영 적용은 별도**
+
+### 구현 스냅샷 · 2026-09-05
+
+실제 동작 기준은 `docs/heptapod-b-encoder/15-resonance-implementation-plan.md`와 `16-resonance-implementation.md`다. 아래의 bookmark/report/태그 확장은 장기 계획이며 이번 사용자 플로우에 포함되지 않는다.
+
+- `/archive` 공개 카드 → `/glyph/:id` 주요 연결 → `/field/:id` 근거·중심 이동 → `/compare/:leftId/:rightId?` 두 이름 비교 → 공개 동의 후 UUID 공유.
+- `/me`는 공개 갤러리와 분리된 본인 기여 관리. 익명 소유자 세션에서 공개 가능하며 Google 연결로 동일 소유자를 유지한다.
+- 관계 알고리즘 v3는 저장된 실제 `model_data`만 비교한다. FORM(전체 형태/일부 구조)과 실제 본체가 같은 VARIANT만 지원한다. 문자 공유·포함·태그를 연결 근거로 쓰지 않는다. 개발 환경은 프론트 공개 snapshot 최대 200개, API는 최근 공개/기존 이웃 최대 300개 후보이며 전체 아카이브의 완전 탐색을 주장하지 않는다. API 교체 시에도 같은 v3 계약을 요구한다.
+- 기존 저장 모델과 기여는 새 migration에서 보존한다. 서버 재생성·동의·트랜잭션·소유자 전용 철회를 구현했고 직접 Glyph 쓰기 권한은 차단한다.
+- 공유 PNG/OG 함수 구현. 리치 미리보기는 HTML 지원 custom domain 설정 후 활성화하며 기본 Supabase 도메인은 일반 앱 링크로 폴백한다.
+
+## 제품 세계관과 용어
+
+> 그들은 문장을 한 번에 보았다. 우리는 이름을 하나씩 남겼다. 아카이브는 흩어진 응답을 하나의 발화로 연결한다.
+
+| 용어 | 제품에서의 역할 |
+|---|---|
+| **The Signal** | 현재 히어로 인트로. 그들이 먼저 말을 건네는 진입 서사 |
+| **Your Response** | 이름 입력과 로고그램 형성·분석 체험 |
+| **Response** | 사용자가 아카이브에 공개한 이름 로고그램 |
+| **Archive** | 공개 Glyph와 사용자 기여가 보존되는 공동 공간 |
+| **Resonance** | 서로 다른 이름이 Heptapod B 형태가 된 뒤 드러나는 구조적 공명 |
+| **Resonance Field** | 중심 Glyph의 직접 관계 지도. 모바일 최대 6개, 데스크톱 최대 12개, 목록 최대 24개 |
+| **Observer** | 인코딩·공개·탐색하는 사용자 |
+| **Contour Lineage** | 과거 저장 분류. 현재 Canvas의 실제 기하와 일치하지 않는 type 메타이므로 v3 연결·주 화면에서는 미사용 |
+
+세계관 분류는 영화의 공식 언어학이 아니라 프로젝트 내부의 관측 체계다. 이름의 실제 의미를 시스템이 자동으로 안다고 표현하지 않는다.
+
+## 목표 사용자 경험
+
+```text
+The Signal
+→ Your Response
+→ PUBLISH TO ARCHIVE
+→ 인증·공개 동의
+→ Glyph 저장·관계 계산
+→ Resonance Field
+→ 관계 근거 열람
+→ 다른 Response 탐색
+```
+
+### 현재 라우트와 후속 표면
+
+| 경로 / 표면 | 역할 | 주요 UI 책임 |
+|---|---|---|
+| `/` | 인트로 + 인코더 | 현재 체험 유지, publish 진입점 추가 |
+| PublishDialog | 동의·공개 | 동의 후 익명 인증 또는 기존 세션 재사용, 오류 시 결과 유지 |
+| `/archive` | 공개 아카이브 | 최근 공개 표식 최대 200개, 카드에서 연결 탐색 |
+| `/field/:id` | Resonance Field | 중심 이동, 관계 필터, 근거, 모바일 기본 목록 |
+| `/glyph/:id` | 공개 Glyph 상세 | UUID 공유, lineage, 주요 연결 3개, 직접 이름 비교 |
+| `/compare/:leftId/:rightId?` | 두 이름 비교 | 공개 쌍 또는 로컬 입력 비교, 증거 강조, 이미지·링크 공유 |
+| `/me` | 내가 남긴 응답 | 본인 contribution 철회, 익명 계정 Google 연결 |
+| `/story`, bookmark/report UI | 후속 계획 | 이번 구현·완료 범위에 포함하지 않음 |
+
+## 관계 모델 요약
+
+현재 알고리즘 계약은 `src/utils/heptapod/relateGlyphs.js`와 테스트, 실제 화면 계약은 `16-resonance-implementation.md`를 사용한다. `02-ux-flow.md`의 최초 설계와 차이는 해당 문서 상단에 명시한다.
+
+| 관계 | 규칙 | UI 표현 원칙 |
+|---|---|---|
+| `SAME` | canonical name·의문형·encoder version fingerprint 동일 | 연결선을 만들지 않고 하나의 Glyph로 병합 |
+| `FORM / whole-form` | 위상을 포함한 링·실각도 가지·필압/먹 분포·개구부의 엄격한 전체 기준 통과 | 전체 형태의 공명. 관측 부위 선택 및 양쪽 번호 표시 |
+| `FORM / shared-motif` | 특정 가지 또는 개구부+먹 분포의 구체적 일치 | 일부 구조의 공명. 전체 표식이 닮았다고 표현하지 않음 |
+| `VARIANT` | 저장된 본체 기하와 렌더 seed가 같고 실제 질문 갈고리만 다름 | 질문의 변주. 이름 동일성만으로 추정하지 않음 |
+
+- 한 연결은 여러 형태 관측을 가질 수 있다. `evidence.observations`가 목록·지도 필터·비교 주석·공유 이유의 공통 원천이다.
+- 관계는 점수만 표시하지 않고 실제 근거와 양쪽 모델의 관측 좌표를 제공한다. v2 문자 기반 관계는 주 탐색에 재사용하지 않는다.
+- 이름의 뜻과 교차 문자 음역을 AI로 추정하지 않는다.
+- 기준 미달 이름을 지도 밀도를 위해 강제 연결하지 않는다.
+- 지도는 한 번에 전체 그래프를 렌더하지 않고 중심 Glyph의 1-hop 최대 6개(모바일)/12개(데스크톱)만 보여준다. 관계가 적으면 빈자리를 가짜 이름으로 채우지 않는다.
+
+## 데이터·인증 경계
+
+- 비회원도 인코딩·분석·PNG 저장·공개 Glyph/관계 읽기를 할 수 있다.
+- 인증은 publish, bookmark, report, unpublish에서만 요구한다.
+- publish 동의 전 이름·모델·태그는 DB에 저장하지 않는다.
+- 같은 canonical name과 encoder version은 하나의 `Glyph`로 통합하고, 사용자 소유는 `GlyphContribution`으로 분리한다.
+- 주요 영속 엔티티는 `Profile`, `Glyph`, `GlyphContribution`, `GlyphRelation`, `Bookmark`, `Report`다.
+- 공개 Glyph/관계는 누구나 읽고, profile·contribution·bookmark·report 변경은 소유자에게만 허용한다.
+- 모델 검증과 관계 쓰기는 서버 경계에서만 수행한다. service role 키는 프론트엔드에 두지 않는다.
+- DB 상태 변경은 Supabase migration으로만 관리하고, 데이터 훅은 Storybook mock을 위해 `{ client }` 주입을 지원한다.
+- 로고그램 PNG는 기본 저장 대상이 아니다. `LogogramModel`과 `encoderVersion`으로 재렌더하고, 필요 시에만 Storage를 추가한다.
+
+## Encoder v2 선행 조건
+
+v2 구현은 다음 계약을 적용한다. legacy `?name=` 재현과 기존 DB 모델은 보존한다.
+
+- canonicalization: NFC, trim, 연속 공백 축약, locale-neutral case fold, `?` 분리
+- 공개 식별자: 현재 32비트 seed가 아닌 SHA-256 기반 fingerprint
+- 지원 문자와 최대 길이를 명시하고 미지원 문자를 조용히 제거하지 않기
+- 코덱 미지원·용량 초과는 이름 전체를 seed로 한 결정론 모드로 표현하고 비가역임을 명시
+- `encoderVersion`과 `relationAlgorithmVersion`을 저장해 과거 결과와 관계를 재현
+
+## 컴포넌트 작업 영향
+
+### 기존 컴포넌트 우선 재활용
+
+- `HeptapodHeroIntro`, `LogogramChamber`, `LogogramRenderer*`, `AnalysisOverlay`, `DataReadout`
+- MUI `TextField`, `Button`, `Switch`, `Dialog`
+- `TagInput`, `FilterBar`, `CustomCard`, `FullPageContainer`, `FadeTransition`, `ScrambleText`
+
+### 목표 수정
+
+- `HeptapodEncoderPage`: publish CTA, 인증 후 draft 복귀, 공개/관계 계산 상태 추가
+- `TagInput`: 자유 입력 대신 허용된 context tag를 최대 3개 선택하는 모드
+- `FilterBar`: 관계 종류 필터를 외부 옵션으로 주입
+- `LogogramRenderer*`: map node에서 사용할 정적·저비용 렌더 모드
+
+### 목표 신규 컴포넌트
+
+- `PublishDialog`: 공개 데이터·태그·삭제 규칙 확인
+- `LoginForm`, `SignUpForm`, `AuthGuard`: 인증 UI spec 승인 후 생성
+- `ResonanceMap`, `GlyphNode`: 1-hop 그래프와 로고그램 노드
+- `RelationInspector`: 관계 유형·점수·근거 설명
+- `ResonanceList`: 모바일·reduced-motion·스크린리더용 동등한 목록
+- `GlyphDetailPage`, `ResonanceFieldPage`, `MyArchivePage`: 라우트 수준 템플릿
+
+신규 컴포넌트는 UI 상태를 props로 받고 Supabase를 직접 호출하지 않는다. 데이터 조회·mutation·관계 점수 계산은 hook/logic/server 계층에 둔다.
 
 ## Heptapod B Encoder Hero Motion
 
@@ -96,5 +223,15 @@
 ### 4. 작업 분리 원칙
 
 - **UI 레이어**: 순수 프레젠테이션 컴포넌트 (로직 없음)
-- **로직 레이어**: 비즈니스 로직, 상태 관리, API 호출
-- Storybook에서는 UI 레이어만 다룸
+- **로직 레이어**: canonicalization, encoder version, feature 추출, 관계 점수와 사용자용 근거 생성
+- **데이터 레이어**: Supabase client와 client 주입 가능한 data hook, 인증·로딩·에러 정규화
+- **서버 레이어**: publish 모델 검증, 관계 쓰기·재계산, moderation과 service role 격리
+- Storybook에서는 UI 레이어를 mock data/client로 검토하며 실제 Supabase 연결을 전제로 하지 않음
+
+### 5. 공개 데이터와 접근성
+
+- 이름과 로고그램이 공개된다는 동의를 publish 직전에 명시적으로 받는다.
+- 공개 링크는 이름을 URL query에 넣지 않고 opaque public ID를 사용한다.
+- 인기 지표로 Glyph 크기를 결정하지 않는다. 현재 중심과 관계 맥락만 위계를 만든다.
+- `prefers-reduced-motion`에서는 지도 응집·이동을 생략하고 정적 배치와 관계 목록을 제공한다.
+- 키보드 포커스와 스크린리더 사용자는 그래프와 동일한 노드·관계·근거를 목록으로 탐색할 수 있어야 한다.
