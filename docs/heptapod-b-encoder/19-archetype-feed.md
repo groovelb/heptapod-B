@@ -69,3 +69,10 @@ Artifact sharding + 읽기 전용 공유 경로 조사. 유효 동시성 4(root 
 - 변경 JS/JSX 범위 ESLint·`git diff --check`·앱 빌드·Storybook 빌드 통과.
 - 기존 큰 청크·baseline-browser-mapping·Storybook @mui/icons-material 경고와 히어로 ScrambleCaption의 렌더 중 state 갱신 경고는 남아 있다. `check-agent-rules` 스크립트는 저장소에 없다.
 - 브라우저/Playwright를 실행하지 않았다. 메모리 DOM의 노드·상태·스크롤 호출 보존 검증이며 실제 픽셀/포커스/스크롤 체감 확인은 별도 요청 대상이다. 실제 공개·DB 쓰기·배포·commit은 수행하지 않았다.
+
+
+## Narrative v2 콘텐츠 확장 · 2026-09-07
+
+기존 24개 유형명·meaning-v1 키·분류 계약을 유지하고 narrativeVersion만 2로 올렸다. 카탈로그는 한 줄 reading 외에 story, traits[3], moments[2], tension, question, motto, distinction, relations[2]를 제공한다. relations는 편집용 상대 유형 키와 서사이며 공명/궁합 점수가 아니다. 피드·단일 공유는 reading을 사용하고 기존 상세·분석 설명은 story를 사용한다. 추가 화면 영역은 만들지 않았다.
+
+한영 전체 원고는 [서사 사전](24-archetype-narrative-dictionary.md), 60쌍의 차이와 이전 문구는 [편집 검토](25-archetype-narrative-review.md), 검사 결과는 [실행 기록](23-archetype-storytelling-plan.md)에 있다.

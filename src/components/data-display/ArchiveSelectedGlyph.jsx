@@ -39,7 +39,7 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
       <Box sx={ { pt: { xs: 0, md: 5 } } }>
         <Typography sx={ { fontSize: 11, letterSpacing: '0.16em' } }>{ t('archiveDepthExplorer.selectedGlyph') }</Typography>
         <Typography component="h2" sx={ { ...headingSx, mt: 1 } }>{ localize(type?.title || interpretation?.title) || t('glyphMeaningSummary.thisMeaningCannotBeReadYet') }</Typography>
-        { !analysis && type && <Typography sx={ { mt: 2, fontSize: 14, lineHeight: 1.85 } }>{ localize(type.reading) }</Typography> }
+        { !analysis && type && <Typography sx={ { mt: 2, fontSize: 14, lineHeight: 1.85 } }>{ localize(type.story) }</Typography> }
         <Button data-selected-analysis-toggle aria-pressed={ analysis } aria-expanded={ analysis } aria-controls={ analysisId }
           onClick={ () => setAnalysis((open) => !open) }
           sx={ { color: 'inherit', minHeight: 44, mt: 2, px: 0, borderBottom: '1px solid', borderRadius: 0, textTransform: 'none' } }>

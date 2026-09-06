@@ -39,7 +39,7 @@ export default function GlyphMeaningSummary({ interpretation, compact = false, v
       </Box> }
       <Box data-reading-detail aria-live="polite" aria-atomic="true" data-lenis-prevent
         sx={ { height: 280, overflowY: 'auto', overscrollBehavior: 'contain', pr: 0.5, pt: 1 } }>
-        { archetype && <Typography data-archetype-narrative sx={ { fontSize: 14, lineHeight: 1.85, mb: 2 } }>{ localize(archetype.reading) }</Typography> }
+        { archetype && <Typography data-archetype-narrative sx={ { fontSize: 14, lineHeight: 1.85, mb: 2 } }>{ localize(archetype.story) }</Typography> }
         { invalid ? <Typography sx={ { fontSize: 14, lineHeight: 1.8 } }>{ t('glyphMeaningSummary.thereIsNotEnoughFormDataTo') }</Typography>
           : selected ? <>
             <Typography sx={ { fontSize: 11, mb: 0.75 } }>{ t(selected.meaningId === interpretation.baseMeaning ? 'meaningReading.base' : 'meaningReading.modifier') }</Typography>

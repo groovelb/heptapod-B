@@ -35,6 +35,10 @@ try {
   const { default: Glyph } = await server.ssrLoadModule('/src/components/data-display/ArchiveGlyph.jsx');
   const { default: FamilySymbol } = await server.ssrLoadModule('/src/components/data-display/ArchiveFamilySymbol.jsx');
   const { default: Feed } = await server.ssrLoadModule('/src/components/data-display/ArchiveArchetypeFeed.jsx');
+  const { default: Selected } = await server.ssrLoadModule('/src/components/data-display/ArchiveSelectedGlyph.jsx');
+  const { default: LocaleProvider } = await server.ssrLoadModule('/src/i18n/LocaleProvider.jsx');
+  const { localizeMessage } = await server.ssrLoadModule('/src/i18n/messages.js');
+  const escaped = (text) => renderToStaticMarkup(createElement('span', null, text)).slice(6, -7);
   const render = (Component, props) => renderToStaticMarkup(createElement(ThemeProvider, { theme }, createElement(Component, props)));
   // Explicit synthetic fixtures cover the full catalog, not claims about public names.
   for (const archetype of Object.values(ARCHETYPE_CATALOG)) {
@@ -46,14 +50,25 @@ try {
     const membershipHtml = render(ClusterLink, { interpretation: interpretGlyphMeaning(model) });
     check(() => assert.ok(membershipHtml.includes(archetype.title)));
     check(() => assert.ok(membershipHtml.includes(`group=${encodeURIComponent(archetype.id)}`)));
-    for (const content of [feedHtml, readingHtml]) {
+    for (const [content, narrative] of [[feedHtml, archetype.reading], [readingHtml, archetype.story]]) {
       check(() => assert.ok(content.includes(archetype.title)));
-      check(() => assert.ok(content.includes(archetype.reading)));
+      check(() => assert.ok(content.includes(narrative)));
     }
     check(() => assert.equal((feedHtml.match(/data-archive-member=/g) || []).length, 1));
     check(() => assert.equal((feedHtml.match(/data-archetype-section=/g) || []).length, 1));
     check(() => assert.ok(feedHtml.includes(`data-archetype-symbol="${archetype.id}"`)));
     check(() => assert.doesNotMatch(feedHtml, /role="tab"|data-archive-facets/));
+    for (const locale of ['ko', 'en']) {
+      for (const [Component, props] of [
+        [Selected, { glyph: row, interpretation: interpretGlyphMeaning(model) }],
+        [Summary, { interpretation: interpretGlyphMeaning(model), variant: 'reading' }],
+      ]) {
+        const html = renderToStaticMarkup(createElement(LocaleProvider, { initialMode: locale, syncDocument: false },
+          createElement(ThemeProvider, { theme }, createElement(Component, props))));
+        check(() => assert.ok(html.includes(escaped(localizeMessage(archetype.story, locale))), `${archetype.id}: ${locale} full story`));
+        check(() => assert.ok(html.includes(escaped(localizeMessage(archetype.title, locale))), `${archetype.id}: ${locale} title`));
+      }
+    }
   }
   check(() => assert.doesNotMatch(render(ClusterLink, { interpretation: { status: 'partial' } }), /href=/));
   const emptyFeedHtml = render(Feed, { feed: buildArchiveArchetypeFeed([], groupArchiveMeanings([])) });

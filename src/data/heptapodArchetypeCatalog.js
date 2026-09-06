@@ -4,12 +4,15 @@ import {
 } from './heptapodMeaningCatalog.js';
 
 /** Authored interpretations of exact measured keys, not encoder reachability. */
-export const ARCHETYPE_NARRATIVE_VERSION = 1;
+export const ARCHETYPE_NARRATIVE_VERSION = 2;
 const COMBINATIONS = Object.freeze([
   [], ['simultaneity'], ['openness'], ['trace'],
   ['simultaneity', 'openness'], ['simultaneity', 'trace'], ['openness', 'trace'],
   ['simultaneity', 'openness', 'trace'],
 ].map((ids) => Object.freeze(ids)));
+
+// Editorial counterparts only; these do not imply compatibility or measured affinity.
+const NEIGHBOR_COMBINATIONS = [1, 0, 0, 0, 1, 1, 2, 4];
 
 export const ARCHETYPE_CATALOG = Object.freeze(Object.fromEntries(
   MEANING_BASE_IDS.flatMap((familyId, familyIndex) => COMBINATIONS.map((modifierIds, index) => {
@@ -20,6 +23,17 @@ export const ARCHETYPE_CATALOG = Object.freeze(Object.fromEntries(
       id: meaningKey, meaningKey, meaningVersion: MEANING_VERSION,
       narrativeVersion: ARCHETYPE_NARRATIVE_VERSION, familyId, modifierIds,
       title: t(`${prefix}.title`), reading: t(`${prefix}.reading`),
+      story: t(`${prefix}.story`),
+      traits: Object.freeze([0, 1, 2].map((part) => t(`${prefix}.traits.${part}`))),
+      moments: Object.freeze([0, 1].map((part) => t(`${prefix}.moments.${part}`))),
+      tension: t(`${prefix}.tension`), question: t(`${prefix}.question`),
+      motto: t(`${prefix}.motto`), distinction: t(`${prefix}.distinction`),
+      relations: Object.freeze([
+        `meaning-v${MEANING_VERSION}:${MEANING_BASE_IDS[(familyIndex + 1) % MEANING_BASE_IDS.length]}:${combination}`,
+        `meaning-v${MEANING_VERSION}:${familyId}:${COMBINATIONS[NEIGHBOR_COMBINATIONS[index]].join('+') || 'none'}`,
+      ].map((targetMeaningKey, part) => Object.freeze({
+        targetMeaningKey, reading: t(`${prefix}.relations.${part}`),
+      }))),
       order: familyIndex * COMBINATIONS.length + index,
     })];
   })),

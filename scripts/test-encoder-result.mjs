@@ -140,7 +140,7 @@ try {
   check(() => assert.match(reading().textContent, /Archive의 공통 언어/));
   check(() => assert.equal(reading().querySelector('h2').textContent, louiseType.title));
   check(() => assert.equal(reading().dataset.readingArchetype, louiseType.id));
-  check(() => assert.equal(reading().querySelector('[data-archetype-narrative]').textContent, louiseType.reading));
+  check(() => assert.equal(reading().querySelector('[data-archetype-narrative]').textContent, louiseType.story));
   check(() => assert.doesNotMatch(reading().textContent, /NFD|정수 →|위치값|radix/));
   check(() => assert.equal(document.querySelector('[data-glyph-observations]'), null));
   const detailHeight = getComputedStyle(detail()).height;
