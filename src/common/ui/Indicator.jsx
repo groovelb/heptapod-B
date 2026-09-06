@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { forwardRef, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -70,6 +71,7 @@ const Indicator = forwardRef(function Indicator({
   sx,
   ...props
 }, ref) {
+  const { t } = useI18n();
   /**
    * 크기별 치수 정의
    */
@@ -149,7 +151,7 @@ const Indicator = forwardRef(function Indicator({
       <Box
         ref={ref}
         role="status"
-        aria-label={`${current + 1} of ${total}`}
+        aria-label={t('indicator.of', { p0: current + 1, p1: total })}
         sx={{
           display: 'inline-flex',
           alignItems: 'baseline',
@@ -212,7 +214,7 @@ const Indicator = forwardRef(function Indicator({
         aria-valuenow={current + 1}
         aria-valuemin={1}
         aria-valuemax={total}
-        aria-label={`Progress: ${current + 1} of ${total}`}
+        aria-label={t('indicator.progressOf', { p0: current + 1, p1: total })}
         sx={{
           position: 'relative',
           width: '100%',
@@ -267,7 +269,7 @@ const Indicator = forwardRef(function Indicator({
     <Box
       ref={ref}
       role="tablist"
-      aria-label="Slide indicators"
+      aria-label={ t('indicator.slideIndicators') }
       tabIndex={onKeyNavigate ? 0 : undefined}
       onKeyDown={handleKeyDown}
       sx={{
@@ -290,7 +292,7 @@ const Indicator = forwardRef(function Indicator({
               key={index}
               role="tab"
               aria-selected={isActive}
-              aria-label={`Go to slide ${index + 1}`}
+              aria-label={t('indicator.goToSlide', { p0: index + 1 })}
               tabIndex={isInteractive ? 0 : -1}
               onClick={onClick ? () => onClick(index) : undefined}
               sx={{
@@ -319,7 +321,7 @@ const Indicator = forwardRef(function Indicator({
               key={index}
               role="tab"
               aria-selected={isActive}
-              aria-label={`Go to slide ${index + 1}`}
+              aria-label={t('indicator.goToSlide', { p0: index + 1 })}
               tabIndex={isInteractive ? 0 : -1}
               onClick={onClick ? () => onClick(index) : undefined}
               sx={{
@@ -353,7 +355,7 @@ const Indicator = forwardRef(function Indicator({
               key={index}
               role="tab"
               aria-selected={isActive}
-              aria-label={`Go to slide ${index + 1}`}
+              aria-label={t('indicator.goToSlide', { p0: index + 1 })}
               tabIndex={isInteractive ? 0 : -1}
               onClick={onClick ? () => onClick(index) : undefined}
               sx={{

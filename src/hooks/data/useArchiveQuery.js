@@ -1,3 +1,4 @@
+import { sourceText as t } from '../../i18n/messages.js';
 import { useCallback, useEffect, useState } from 'react';
 
 /** Abort supported requests and ignore late responses after navigation/unmount. */
@@ -13,7 +14,7 @@ export function useArchiveQuery(query, { enabled = true, initialData = null } = 
         if (!controller.signal.aborted) setState({ query, revision, data, loading: false, error: null });
       },
       (error) => {
-        if (!controller.signal.aborted) setState({ query, revision, data: initialData, loading: false, error: error.message || '요청에 실패했습니다.' });
+        if (!controller.signal.aborted) setState({ query, revision, data: initialData, loading: false, error: error.message || t('useArchiveMutation.theRequestFailed') });
       },
     );
     return () => controller.abort();

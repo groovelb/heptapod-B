@@ -51,7 +51,9 @@ SAME은 선이 아니라 동일 표식 안내다. ECHO/CONTAINS/CONTEXT, 외부 
           → 공개 쌍 /compare/:leftId/:rightId 공유
               → 방문자가 다시 자기 이름을 대입
 
-내가 남긴 응답 /me → 본인 기여 철회 / 익명 계정 Google 연결
+이름 생성 → 명시적 동의·익명 등록 → 공개 페이지 주소 보관·복사·공유
+  → /glyph/:id로 로그인 없이 재방문
+기존 /me 주소 → /archive (공개 아카이브)
 ```
 
 공유 후 방문자의 ‘내 이름도 변환하면 이런 부분이 나타날까?’가 다음 비교를 여는 구조다. 공유 설명은 비교 화면의 실제 관측 문장을 사용한다. 별도의 바이럴 성과·전환율을 측정한 것은 아니다. 관계가 없는 비교도 저장·공유할 수 있고, 연결이 있다고 꾸미지 않는다.
@@ -140,11 +142,11 @@ API 모드에서 404/네트워크 실패 또는 구형 관계 버전을 받으�
 
 ## 4. 설정과 운영 전 확인
 
-운영 DB, Auth dashboard, 함수 배포, DNS, OAuth provider는 이번 작업에서 변경하지 않았다. 로컬 `supabase/config.toml`에는 익명 로그인·manual linking 및 함수별 `verify_jwt=false`를 반영했다. 쓰기 함수는 내부에서 token을 검증하므로 검증을 생략한 공개 쓰기 API가 아니다.
+2026-09-06 운영 프로젝트 `jkeghathfojadnyrlxve`에 verified publication 마이그레이션과 `archive-publish`, `archive-unpublish`, `archive-relations`를 반영하고 익명 로그인을 활성화했다. Google·manual linking은 비활성 상태다. 함수별 `verify_jwt=false`를 사용하되 쓰기 함수 내부에서 token을 검증한다. 프론트는 Vercel `heptapod-b` 프로젝트의 https://heptapod-b.vercel.app 으로 배포한다. GitHub main 자동 배포, production/preview Supabase 환경변수와 `vercel.json` SPA rewrite를 설정했다. 배포 후 외부 URL 직접 진입을 HTTP로 검증한다. 상세 결과는 [실행 계획과 결과](supabase-release-execution-plan.md)를 참조한다.
 
 1. 운영 migration 이력을 먼저 조회한다. **기존 `20260904130000_cleanup_bad_data.sql`에는 DELETE가 있다.** 모든 미적용 migration을 확인 없이 한꺼번에 실행하지 않는다. 새 migration 자체는 과거 모델·기여를 삭제하지 않는다.
 2. DB 새 migration → 새 함수들 → 새 클라이언트를 조율해 적용한다. 구형 클라이언트의 직접 publish는 권한 차단 후 실패하므로 전환 구간을 관리한다. 통합 스테이징에서 동시 공개/철회를 검증한다.
-3. 익명 Auth와 manual linking 활성화, Google OAuth 제공자 및 실제 사이트 `/me` redirect 허용. 기존 Google 계정에 연결하려는 충돌 UX·세션 유실 복구는 별도 확인.
+3. 익명 Auth를 사용하며 소셜 로그인·manual linking을 요구하지 않는다. 공개 페이지 링크를 직접 보관하도록 안내하고 세션 소유권과 공개 열람을 구분한다. 세션이 없어져도 공개 중인 링크의 열람은 가능하지만 관리 권한은 복구되지 않는다.
 4. 익명 계정 무한 재생성 방지를 위한 Auth CAPTCHA/IP 제한, 공개 관계 요청 rate limit, 운영 신고/모더레이션, 모델 JSON 다운로드 상한을 런칭 전에 검토한다. 소유자당 20회 제한만으로 전체 남용을 막는 것은 아니다.
 5. 클라이언트는 `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. service role은 서버의 플랫폼 환경에만 둔다.
 6. 리치 공유는 `ARCHIVE_SITE_URL`, `ARCHIVE_SHARE_URL`, 클라이언트 `VITE_ARCHIVE_SHARE_URL`을 동일한 **HTML 지원 custom domain/proxy** 기준으로 구성한다. 기본 Supabase 도메인은 HTML을 text/plain으로 바꾸므로 리치 OG 배포 완료로 간주하지 않는다. [공식 Routing 문서](https://supabase.com/docs/guides/functions/http-methods), [공식 Limits 소스](https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/functions/limits.mdx).

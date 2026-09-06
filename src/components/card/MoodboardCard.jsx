@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useState, useEffect, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -56,6 +57,7 @@ export function MoodboardCard({
   sx,
   ...props
 }) {
+  const { locale, t } = useI18n();
   // ============================================
   // 상태 관리
   // ============================================
@@ -104,7 +106,7 @@ export function MoodboardCard({
    */
   const transitionImages = items.map((item) => ({
     src: item.thumbnail || item.src?.medium || item.src,
-    alt: item.title || 'Moodboard image',
+    alt: item.title || t('common.moodboardImage'),
   }));
 
   /**
@@ -113,7 +115,7 @@ export function MoodboardCard({
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(locale, {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -143,9 +145,7 @@ export function MoodboardCard({
           }}
         >
           <CollectionsIcon sx={{ fontSize: 48, mb: 1 }} />
-          <Typography variant="caption" color="inherit">
-            No images yet
-          </Typography>
+          <Typography variant="caption" color="inherit">{ t('moodboardCard.noImagesYet') }</Typography>
         </Box>
       );
     }
@@ -198,7 +198,7 @@ export function MoodboardCard({
                 <Box
                   component="img"
                   src={image.thumbnail || image.src?.medium}
-                  alt={image.title || `Image ${index + 1}`}
+                  alt={image.title || t('moodboardCard.image', { p0: index + 1 })}
                   sx={{
                     position: 'absolute',
                     inset: 0,
@@ -301,7 +301,7 @@ export function MoodboardCard({
             fontSize: '0.7rem',
           }}
         >
-          {itemCount} {itemCount === 1 ? 'item' : 'items'}
+          {t('common.itemCount', { p0: itemCount })}
         </Typography>
       </Box>
     </>
@@ -373,8 +373,7 @@ export function MoodboardCard({
             color: 'text.disabled',
             fontSize: '0.75rem',
           }}
-        >
-          Created {formatDate(createdAt)}
+        >{ t('moodboardCard.created') }{formatDate(createdAt)}
         </Typography>
       )}
     </CustomCard>

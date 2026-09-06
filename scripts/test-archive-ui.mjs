@@ -32,10 +32,11 @@ try {
   const componentPaths = [
     'data-display/GlyphNode', 'data-display/ResonanceList', 'data-display/ResonanceMap',
     'data-display/GlyphPairComparison', 'data-display/ResonancePreview', 'overlay-feedback/RelationInspector',
+    'data-display/ArchiveClusterExplorer', 'overlay-feedback/GlyphObservationOverlay',
   ];
   const pagePaths = [
     'templates/MyArchivePage', 'templates/GlyphDetailPage', 'templates/ResonanceFieldPage',
-    'templates/ArchiveComparePage', 'templates/MyResponsesPage', 'overlay-feedback/PublishDialog',
+    'templates/ArchiveComparePage', 'overlay-feedback/PublishDialog',
   ];
   for (const path of [...componentPaths, ...pagePaths]) modules[path.split('/')[1]] = await server.ssrLoadModule(`/src/components/${path}.stories.jsx`);
   const markup = (tree) => renderToStaticMarkup(createElement(ThemeProvider, { theme }, tree));
@@ -85,6 +86,28 @@ try {
   check(() => assert.equal((renderPair({ onExplore() {}, leftGlyph: { ...leftGlyph, is_local: true }, rightGlyph: { ...rightGlyph, id: 'local-secondary' } }).match(/이 표식에서 탐색/g) || []).length, 0));
   check(() => assert.match(render('ResonancePreview'), /비교하기/));
   render('RelationInspector'); // Portal content is intentionally absent from SSR.
+  check(() => assert.match(render('ArchiveClusterExplorer'), /공통 형태 군집/));
+  check(() => assert.match(render('ArchiveClusterExplorer'), /현재 군집 미소속/));
+  check(() => assert.match(render('ArchiveClusterExplorer'), /표식 중복 소속/));
+  check(() => assert.match(render('ArchiveClusterExplorer', modules.ArchiveClusterExplorer.Selected.args), /①은 이 군집이 공유하는 가지/));
+  check(() => assert.match(render('ArchiveClusterExplorer', modules.ArchiveClusterExplorer.Selected.args), /aria-pressed="true"/));
+  check(() => assert.match(render('ArchiveClusterExplorer', { selectedId: 'ungrouped' }), /새로운 표식이 쌓이면/));
+  check(() => assert.match(render('ArchiveClusterExplorer', modules.ArchiveClusterExplorer.Empty.args), /군집을 찾지 못했어요/));
+  check(() => assert.match(render('ArchiveClusterExplorer', modules.ArchiveClusterExplorer.Loading.args), /갤러리는 계속 볼 수/));
+  check(() => assert.match(render('ArchiveClusterExplorer', modules.ArchiveClusterExplorer.Error.args), /role="alert"/));
+  check(() => assert.doesNotMatch(render('ArchiveClusterExplorer'), /NaN|undefined|철자|글자 공유/));
+  check(() => assert.match(render('GlyphObservationOverlay'), /data-kind="branch"/));
+  check(() => assert.match(render('GlyphObservationOverlay'), /data-observation-index="1"/));
+  check(() => assert.doesNotMatch(render('GlyphObservationOverlay'), /NaN/));
+  check(() => assert.equal(render('GlyphObservationOverlay', { anchors: [] }), ''));
+  const clusteredSource = await readFile(new URL('../src/components/templates/MyArchivePage.jsx', import.meta.url), 'utf8');
+  const depthSource = await readFile(new URL('../src/components/data-display/ArchiveDepthExplorer.jsx', import.meta.url), 'utf8');
+  const glyphSurfaceSource = await readFile(new URL('../src/components/data-display/ArchiveGlyph.jsx', import.meta.url), 'utf8');
+  check(() => assert.doesNotMatch(clusteredSource, /ArchiveClusterExplorer|ArchiveMeaningExplorer|useArchiveClusters|clusterProvider|Drawer|observing|navigate\('\/me'\)/));
+  check(() => assert.match(clusteredSource, /<ArchiveDepthExplorer/));
+  check(() => assert.match(glyphSurfaceSource, /<LogogramRendererCanvas/));
+  check(() => assert.match(depthSource, /<ArchiveArchetypeFeed/));
+  check(() => assert.match(depthSource, /buildArchiveArchetypeFeed\(scope\.glyphs, meanings\)/));
 
   // Page hooks intentionally render their initial loading state during SSR.
   // Their fully resolved states are provided by the same in-memory client below.
@@ -99,7 +122,6 @@ try {
     const html = markup(tree);
     check(() => assert.doesNotMatch(html, /NaN|undefined의/));
     if (name === 'ArchiveComparePage') check(() => assert.match(html, /공개된 표식을 불러오는 중/));
-    if (name === 'MyResponsesPage') check(() => assert.match(html, /응답을 불러오는 중/));
   }
 
   const client = createArchiveStoryClient();
@@ -161,7 +183,7 @@ try {
   check(() => assert.equal(successResult.glyphId, ARCHIVE_STORY_IDS.left));
   await assert.rejects(() => modules.PublishDialog.FailureFlow.args.onPublish({ consented: true }), /저장을 완료하지 못했습니다/); checks += 1;
   check(() => assert.equal(networkCalls, 0));
-  console.log(`Archive UI: ${checks} checks passed; 12 story modules loaded; no browser or network. Canvas pixels, focus and IME need separately authorized browser checks.`);
+  console.log(`Archive UI: ${checks} checks passed; ${Object.keys(modules).length} story modules loaded; no browser or network. Canvas pixels, focus and IME need separately authorized browser checks.`);
 } finally {
   await server.close();
   globalThis.fetch = originalFetch;

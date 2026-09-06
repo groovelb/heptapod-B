@@ -1,3 +1,4 @@
+import { sourceText as t } from '../../i18n/messages.js';
 /** Extract only measured morphology from the stored render model. */
 import { TAU, normalizeAngle, sampleProfile, waveAt, pressureAt, loadAt, dryAt, visiblePeaks } from './morphology.js';
 
@@ -45,7 +46,7 @@ function validModel(model) {
 }
 
 export function extractGlyphFeatures(model) {
-  if (!validModel(model)) throw new TypeError('표식의 저장된 형태 데이터를 읽을 수 없습니다.');
+  if (!validModel(model)) throw new TypeError(t('extractGlyphFeatures.theGlyphSStoredFormDataCould'));
   const harmonics = model.harmonics.map((h) => ({ k: h.k, amp: h.amp, phase: normalizeAngle(h.phase) }));
   const gap = model.gap ? { ang: normalizeAngle(model.gap.ang), half: model.gap.half } : null;
   return {
@@ -70,4 +71,5 @@ export function extractGlyphFeatures(model) {
     contourLineage: deriveContourLineage(model),
   };
 }
-export { slotOfAngle, quadrantOf, deriveContourLineage };
+// Public guard for display surfaces: do not send malformed models to Canvas.
+export { slotOfAngle, quadrantOf, deriveContourLineage, validModel as isRenderableGlyphModel };

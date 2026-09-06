@@ -1,0 +1,69 @@
+import { useId, useMemo } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import { useI18n } from '../../i18n/useI18n.js';
+import { getArchiveArchetypeSymbol } from '../../data/archiveArchetypeSymbols.js';
+import ArchiveGlyph from './ArchiveGlyph';
+import ArchiveFeedIndex from '../in-page-navigation/ArchiveFeedIndex';
+
+const EMPTY = [];
+
+const SERIF = "'Cinzel', 'Noto Serif KR', Georgia, serif";
+const gridSx = {
+  display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))' },
+  columnGap: { xs: 2, md: 6 }, rowGap: { xs: 4, md: 6 }, alignItems: 'start',
+};
+
+function Members({ glyphs, onSelect }) {
+  return <Box sx={ gridSx }>{ glyphs.map((glyph) => (
+    <Box key={ glyph.id } data-archive-member={ glyph.id } sx={ { minWidth: 0 } }>
+      <ArchiveGlyph glyph={ glyph } showName onSelect={ onSelect } />
+    </Box>
+  )) }</Box>;
+}
+
+/** Authored type headings introduce real members, never an extra navigation
+ * layer. The feed projection owns exact membership and stable dialog order.
+ */
+export default function ArchiveArchetypeFeed({ feed, onSelect, sx }) {
+  const { localize, t } = useI18n();
+  const sections = feed?.sections || EMPTY;
+  const untypedGlyphs = feed?.untypedGlyphs || EMPTY;
+  const prefix = useId();
+  const items = useMemo(() => [
+    ...sections.map(({ id, archetype, glyphs }, index) => ({ id, targetId: `${prefix}-type-${index}`, label: localize(archetype.title), count: glyphs.length })),
+    ...(untypedGlyphs.length ? [{ id: 'untyped', targetId: `${prefix}-untyped`, label: t('archiveIndex.other'), count: untypedGlyphs.length }] : []),
+  ], [sections, untypedGlyphs, prefix, localize, t]);
+  return <Box data-archetype-feed="true" sx={ { maxWidth: 1440, mx: 'auto', pt: { xs: 4, md: 7 }, pb: { xs: 6, md: 10 },
+    display: 'grid', gridTemplateColumns: items.length ? '44px minmax(0, 1fr)' : '1fr',
+    gap: { xs: 1.5, sm: 3, md: 5 }, alignItems: 'start', ...sx } }>
+    <ArchiveFeedIndex items={ items } />
+    <Box sx={ { minWidth: 0 } }>
+    { sections.map(({ id, archetype, glyphs }, index) => {
+      const symbol = getArchiveArchetypeSymbol(archetype.meaningKey);
+      const title = localize(archetype.title);
+      return <Box component="section" key={ id } id={ items[index].targetId } tabIndex={ -1 } aria-label={ title } data-archetype-section={ archetype.meaningKey }
+        sx={ { scrollMarginTop: 'calc(128px + env(safe-area-inset-top, 0px))', '&:focus': { outline: 'none' }, '& + section': { mt: { xs: 9, md: 14 } } } }>
+        <Box component="header" sx={ {
+          display: 'flex', alignItems: 'center', gap: { xs: 2, md: 3 }, mb: { xs: 2, md: 3 },
+          maxWidth: 760, mx: 'auto',
+        } }>
+          { symbol && <Box role="img" aria-label={ t('archiveArchetypeFeed.authoredSymbol', { title }) }
+            data-archetype-symbol={ archetype.meaningKey }
+            sx={ { width: { xs: 88, sm: 112, md: 140 }, flexShrink: 0 } }>
+            <ArchiveGlyph glyph={ { model_data: symbol.model } } maxSize={ 140 } />
+          </Box> }
+          <Box sx={ { minWidth: 0 } }>
+            <Typography component="h2" sx={ { m: 0, fontFamily: SERIF, fontWeight: 400, fontSize: { xs: 19, sm: 23, md: 27 }, lineHeight: 1.6, overflowWrap: 'anywhere' } }>{ title }</Typography>
+            <Typography sx={ { mt: 1, fontSize: { xs: 12, md: 14 }, lineHeight: 1.9, overflowWrap: 'anywhere' } }>{ localize(archetype.reading) }</Typography>
+          </Box>
+        </Box>
+        <Members glyphs={ glyphs } onSelect={ onSelect } />
+      </Box>;
+    }) }
+    { untypedGlyphs.length > 0 && <Box id={ `${prefix}-untyped` } tabIndex={ -1 } aria-label={ t('archiveIndex.other') } sx={ { mt: sections.length ? { xs: 9, md: 14 } : 0, scrollMarginTop: 128, '&:focus': { outline: 'none' } } }>
+      <Members glyphs={ untypedGlyphs } onSelect={ onSelect } />
+    </Box> }
+    </Box>
+  </Box>;
+}

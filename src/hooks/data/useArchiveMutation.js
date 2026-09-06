@@ -1,3 +1,4 @@
+import { sourceText as t } from '../../i18n/messages.js';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export function useArchiveMutation(operation) {
@@ -14,7 +15,7 @@ export function useArchiveMutation(operation) {
     setLoading(true);
     setError(null);
     const request = Promise.resolve().then(() => operation(...args)).catch((err) => {
-      if (mounted.current) setError(err.message || '요청에 실패했습니다.');
+      if (mounted.current) setError(err.message || t('useArchiveMutation.theRequestFailed'));
       throw err;
     }).finally(() => {
       running.current = null;

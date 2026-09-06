@@ -1,3 +1,5 @@
+import { useI18n } from '../../i18n/useI18n.js';
+import { sourceText as t } from '../../i18n/messages.js';
 import { useState } from 'react';
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -9,12 +11,12 @@ import ResonanceList from './ResonanceList';
 import { getMorphologyObservations, isMorphologyRelation, morphologyRelationLabel } from '../../utils/heptapod/resonanceView';
 
 const LINES = {
-  branch: { dash: undefined, label: '가지 구조' },
-  opening: { dash: '8 5', label: '개구부' },
-  ink: { dash: '2 4', label: '잉크 분포' },
-  ring: { dash: '10 3 2 3', label: '링 윤곽' },
-  question: { dash: '4 3 4 7', label: '질문의 변주' },
-  variant: { dash: '4 3 4 7', label: '질문의 변주' },
+  branch: { dash: undefined, label: t('glyphPairComparison.branchStructure') },
+  opening: { dash: '8 5', label: t('glyphPairComparison.opening') },
+  ink: { dash: '2 4', label: t('glyphPairComparison.inkDistribution') },
+  ring: { dash: '10 3 2 3', label: t('glyphPairComparison.ringContour') },
+  question: { dash: '4 3 4 7', label: t('glyphPairComparison.questionVariant') },
+  variant: { dash: '4 3 4 7', label: t('glyphPairComparison.questionVariant') },
 };
 const morphologyOf = (neighbor) => (neighbor.relations?.length ? neighbor.relations : [neighbor])
   .filter(isMorphologyRelation);
@@ -24,7 +26,7 @@ function observationOf(neighbor) {
   const variant = relations.find((relation) => relation.relationType === 'VARIANT');
   const observation = getMorphologyObservations(form || variant)[0];
   return { kind: observation?.kind || (variant ? 'variant' : 'ring'),
-    reason: observation?.reason || variant?.reasons?.[0] || '관측된 형태를 살펴보세요.',
+    reason: observation?.reason || variant?.reasons?.[0] || t('resonanceMap.exploreTheObservedForms'),
     label: morphologyRelationLabel(form || variant) };
 }
 
@@ -40,6 +42,7 @@ function observationOf(neighbor) {
  * @param {object} sx - 추가 MUI sx
  */
 export default function ResonanceMap({ centerModel, centerName, relations = [], onNodeSelect, onInspect, width = 480, height = 480, sx = {} }) {
+  const { localize, t } = useI18n();
   const theme = useTheme();
   const ink = theme.palette.custom?.chamber?.ink || theme.palette.text.primary;
   const fog = theme.palette.custom?.chamber?.fog || theme.palette.background.paper;
@@ -63,14 +66,14 @@ export default function ResonanceMap({ centerModel, centerName, relations = [], 
   return (
     <Box sx={ { width, maxWidth: '100%', bgcolor: fog, color: ink, ...sx } }>
       <Box sx={ { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, px: 1.5, py: 1 } }>
-        <Typography variant="body2">{ showList ? `${neighbors.length}개의 표식` : '표식을 선택해 공명하는 부위를 확인하세요.' }</Typography>
-        <Button onClick={ () => setShowList((current) => !current) } aria-pressed={ showList } sx={ { ...actionSx, flexShrink: 0 } }>{ showList ? '지도로 보기' : '목록으로 보기' }</Button>
+        <Typography variant="body2">{ showList ? t('resonanceMap.glyphs', { p0: neighbors.length }) : t('resonanceMap.selectAGlyphToInspectItsResonating') }</Typography>
+        <Button onClick={ () => setShowList((current) => !current) } aria-pressed={ showList } sx={ { ...actionSx, flexShrink: 0 } }>{ showList ? t('resonanceMap.mapView') : t('resonanceMap.listView') }</Button>
       </Box>
       { showList ? (
         <ResonanceList centerName={ centerName } relations={ neighbors } onInspect={ inspect } onNodeSelect={ onNodeSelect } />
       ) : (
         <>
-          <Box role="group" aria-label={ `${centerName} 표식의 형태 공명 지도` } sx={ { position: 'relative', width: '100%', aspectRatio: `${width} / ${height}`, minHeight: 320 } }>
+          <Box role="group" aria-label={ t('resonanceMap.formResonanceMapForSGlyph', { p0: centerName }) } sx={ { position: 'relative', width: '100%', aspectRatio: `${width} / ${height}`, minHeight: 320 } }>
             <Box component="svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" sx={ { position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' } }>
               { positions.map((position, index) => (
                 <line key={ visible[index].id } x1="50" y1="50" x2={ position.x } y2={ position.y }
@@ -88,28 +91,28 @@ export default function ResonanceMap({ centerModel, centerName, relations = [], 
             )) }
             <Box sx={ { position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' } }>
               <GlyphNode model={ centerModel } label={ centerName } size={ compact ? 80 : 96 } sx={ { bgcolor: fog } } />
-              <Typography variant="caption" sx={ { display: 'block', color: alpha(ink, 0.8) } }>지금 살펴보는 표식</Typography>
+              <Typography variant="caption" sx={ { display: 'block', color: alpha(ink, 0.8) } }>{ t('resonanceMap.currentGlyph') }</Typography>
             </Box>
           </Box>
           <Box aria-live="polite" sx={ { px: 2, pb: 2, borderTop: '1px solid', borderColor: alpha(ink, 0.15), pt: 1.5 } }>
             { selected ? (
               <>
                 <Typography variant="caption" sx={ { display: 'block', mb: 0.5 } }>{ selectedObservation.label }</Typography>
-                <Typography variant="body2" sx={ { lineHeight: 1.6 } }>{ selected.name } · { selectedObservation.reason }</Typography>
+                <Typography variant="body2" sx={ { lineHeight: 1.6 } }>{ selected.name } · { localize(selectedObservation.reason) }</Typography>
                 <Box sx={ { display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 } }>
-                  { onInspect && <Button variant="outlined" sx={ actionSx } onClick={ () => onInspect(selected) }>공명 부위 보기</Button> }
-                  { onNodeSelect && <Button sx={ actionSx } onClick={ () => onNodeSelect(selected.id) }>이 표식에서 탐색</Button> }
+                  { onInspect && <Button variant="outlined" sx={ actionSx } onClick={ () => onInspect(selected) }>{ t('resonanceList.viewResonatingFeatures') }</Button> }
+                  { onNodeSelect && <Button sx={ actionSx } onClick={ () => onNodeSelect(selected.id) }>{ t('glyphPairComparison.exploreFromThisGlyph') }</Button> }
                 </Box>
               </>
-            ) : <Typography variant="body2">{ visible.length ? `${visible.length}개의 표식을 지도에 표시했어요. 전체 공명은 목록에서 볼 수 있어요.` : '현재 살펴본 표식들에서는 설명할 수 있는 형태 공명을 찾지 못했어요.' }</Typography> }
+            ) : <Typography variant="body2">{ visible.length ? t('resonanceMap.showingGlyphsOnTheMapAllResonances', { p0: visible.length }) : t('resonanceList.noExplainableResonanceInFormWasFound') }</Typography> }
           </Box>
-          { legendKinds.length > 0 && <Box aria-label="관측 부위별 선 무늬" sx={ { px: 2, pb: 2, display: 'flex', flexWrap: 'wrap', gap: 2 } }>
+          { legendKinds.length > 0 && <Box aria-label={ t('resonanceMap.linePatternsByObservedFeature') } sx={ { px: 2, pb: 2, display: 'flex', flexWrap: 'wrap', gap: 2 } }>
             { legendKinds.map((kind) => <Box key={ kind } sx={ { display: 'flex', alignItems: 'center', gap: 0.75 } }>
               <Box component="svg" width="36" height="12" aria-hidden="true"><line x1="0" y1="6" x2="36" y2="6" stroke={ ink } strokeDasharray={ LINES[kind]?.dash } /></Box>
-              <Typography variant="caption">{ LINES[kind]?.label }</Typography>
+              <Typography variant="caption">{ localize(LINES[kind]?.label) }</Typography>
             </Box>) }
           </Box> }
-          <Typography variant="caption" sx={ { display: 'block', px: 2, pb: 2, color: alpha(ink, 0.8), lineHeight: 1.7 } }>선 무늬는 먼저 관측한 부위를 나타내요. 표식 사이의 거리는 유사도나 공명의 강도를 뜻하지 않아요.</Typography>
+          <Typography variant="caption" sx={ { display: 'block', px: 2, pb: 2, color: alpha(ink, 0.8), lineHeight: 1.7 } }>{ t('resonanceMap.linePatternsIndicateTheFirstObservedFeature') }</Typography>
         </>
       ) }
     </Box>

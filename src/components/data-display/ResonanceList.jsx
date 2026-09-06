@@ -1,3 +1,5 @@
+import { useI18n } from '../../i18n/useI18n.js';
+import { sourceText as t } from '../../i18n/messages.js';
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -8,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import GlyphNode from './GlyphNode';
 import { getMorphologyObservations, isMorphologyRelation, morphologyRelationLabel } from '../../utils/heptapod/resonanceView';
 
-const KINDS = { branch: '가지 구조', opening: '개구부', ink: '잉크 분포', ring: '링 윤곽', question: '질문 갈고리' };
+const KINDS = { branch: t('glyphPairComparison.branchStructure'), opening: t('glyphPairComparison.opening'), ink: t('glyphPairComparison.inkDistribution'), ring: t('glyphPairComparison.ringContour'), question: t('resonanceList.questionHook') };
 const morphologyOf = (neighbor) => (neighbor.relations?.length ? neighbor.relations : [neighbor])
   .filter(isMorphologyRelation);
 
@@ -26,34 +28,35 @@ const morphologyOf = (neighbor) => (neighbor.relations?.length ? neighbor.relati
  */
 export default function ResonanceList({
   centerName, relations = [], onNodeSelect, onInspect, loading = false,
-  error, onRetry, emptyMessage = '현재 살펴본 표식들에서는 설명할 수 있는 형태 공명을 찾지 못했어요.', sx = {},
+  error, onRetry, emptyMessage = t('resonanceList.noExplainableResonanceInFormWasFound'), sx = {},
 }) {
+  const { localize, t } = useI18n();
   const theme = useTheme();
   const ink = theme.palette.custom?.chamber?.ink || theme.palette.text.primary;
   const fog = theme.palette.custom?.chamber?.fog || theme.palette.background.paper;
   const actionSx = { color: ink, borderColor: alpha(ink, 0.35), minHeight: 44, fontSize: '0.8rem' };
   const visible = relations.filter((neighbor) => morphologyOf(neighbor).length > 0);
   const errorMessage = typeof error === 'string' ? error : error?.message;
-  const needsServerUpdate = errorMessage === '형태 공명 서버를 업데이트한 뒤 다시 시도해 주세요.';
+  const needsServerUpdate = localize(errorMessage) === t('resonanceList.updateTheFormResonanceServerAndTry');
   return (
     <Box sx={ { color: ink, bgcolor: fog, border: '1px solid', borderColor: alpha(ink, 0.2), ...sx } }>
       <Box sx={ { px: 2, py: 2, borderBottom: '1px solid', borderColor: alpha(ink, 0.16) } }>
-        <Typography component="h2" sx={ { fontSize: '1rem', fontWeight: 500 } }>{ centerName }의 표식과 공명하는 형태</Typography>
-        { !loading && !error && <Typography variant="body2" sx={ { mt: 0.5, color: alpha(ink, 0.8) } }>{ visible.length }개의 표식 · 닮은 부위를 살펴보고 탐색을 이어가세요.</Typography> }
+        <Typography component="h2" sx={ { fontSize: '1rem', fontWeight: 500 } }>{ centerName }{ t('resonanceList.sGlyphResonatingForms') }</Typography>
+        { !loading && !error && <Typography variant="body2" sx={ { mt: 0.5, color: alpha(ink, 0.8) } }>{ visible.length }{ t('resonanceList.glyphsInspectSimilarFeaturesAndKeepExploring') }</Typography> }
       </Box>
       { loading ? (
         <Box role="status" sx={ { p: 3, display: 'flex', alignItems: 'center', gap: 1.5 } }>
-          <CircularProgress size={ 18 } color="inherit" /> <Typography variant="body2">변환된 표식의 형태를 비교하고 있어요.</Typography>
+          <CircularProgress size={ 18 } color="inherit" /> <Typography variant="body2">{ t('resonanceList.comparingTheFormsOfEncodedGlyphs') }</Typography>
         </Box>
       ) : error ? (
         <Box role="alert" sx={ { p: 3 } }>
-          <Typography variant="body2">{ needsServerUpdate ? errorMessage : '형태 관측을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.' }</Typography>
-          { onRetry && <Button onClick={ onRetry } sx={ { ...actionSx, mt: 1 } }>다시 시도</Button> }
+          <Typography variant="body2">{ needsServerUpdate ? localize(errorMessage) : t('resonanceList.formObservationsCouldNotBeLoadedTry') }</Typography>
+          { onRetry && <Button onClick={ onRetry } sx={ { ...actionSx, mt: 1 } }>{ t('archiveClusterExplorer.tryAgain') }</Button> }
         </Box>
       ) : visible.length === 0 ? (
-        <Typography role="status" variant="body2" sx={ { p: 3, lineHeight: 1.7 } }>{ emptyMessage }</Typography>
+        <Typography role="status" variant="body2" sx={ { p: 3, lineHeight: 1.7 } }>{ localize(emptyMessage) }</Typography>
       ) : (
-        <List disablePadding aria-label={ `${centerName}의 표식과 형태가 공명하는 표식` }>
+        <List disablePadding aria-label={ t('resonanceList.glyphsResonatingWithSForm', { p0: centerName }) }>
           { visible.map((neighbor) => {
             const evidence = morphologyOf(neighbor);
             const form = evidence.find((item) => item.relationType === 'FORM');
@@ -61,7 +64,7 @@ export default function ResonanceList({
             const level = form ? form.evidence?.level || form.components?.level : 'variant';
             const levelLabel = morphologyRelationLabel(form || evidence[0]);
             const labels = [...new Set(observations.map((item) => KINDS[item.kind]).filter(Boolean))];
-            const reason = observations[0]?.reason || evidence.find((item) => item.relationType === 'VARIANT')?.reasons?.[0];
+            const reason = localize(observations[0]?.reason) || localize(evidence.find((item) => item.relationType === 'VARIANT')?.reasons?.[0]);
             return (
               <ListItem key={ neighbor.id } disableGutters data-resonance-level={ level } sx={ {
                 display: 'block', p: 2, borderBottom: '1px solid', borderColor: alpha(ink, 0.12), '&:last-child': { borderBottom: 0 },
@@ -70,13 +73,13 @@ export default function ResonanceList({
                   <GlyphNode model={ neighbor.model } size={ 56 } />
                   <Box sx={ { flex: 1, minWidth: 0 } }>
                     <Typography sx={ { fontFamily: "'Cinzel', 'Noto Serif KR', Georgia, serif", overflowWrap: 'anywhere' } }>{ neighbor.name }</Typography>
-                    <Typography variant="caption" sx={ { display: 'block', mt: 0.5, color: alpha(ink, 0.8) } }>{ [levelLabel, ...labels].join(' · ') }</Typography>
-                    <Typography variant="body2" sx={ { mt: 0.75, lineHeight: 1.6 } }>{ reason || '기록된 형태 관측을 확인해 보세요.' }</Typography>
+                    <Typography variant="caption" sx={ { display: 'block', mt: 0.5, color: alpha(ink, 0.8) } }>{ localize([levelLabel, ...labels].join(' · ')) }</Typography>
+                    <Typography variant="body2" sx={ { mt: 0.75, lineHeight: 1.6 } }>{ reason || t('resonanceList.exploreTheRecordedFormObservations') }</Typography>
                   </Box>
                 </Box>
                 <Box sx={ { display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1.25 } }>
-                  { onInspect && <Button variant="outlined" onClick={ () => onInspect(neighbor) } aria-label={ `${neighbor.name} 표식과 공명하는 부위 보기` } sx={ actionSx }>공명 부위 보기{ observations.length > 1 ? ` · ${observations.length}곳` : '' }</Button> }
-                  { onNodeSelect && <Button onClick={ () => onNodeSelect(neighbor.id) } aria-label={ `${neighbor.name}의 표식에서 탐색` } sx={ actionSx }>이 표식에서 탐색</Button> }
+                  { onInspect && <Button variant="outlined" onClick={ () => onInspect(neighbor) } aria-label={ t('resonanceList.viewResonatingFeaturesOfSGlyph', { p0: neighbor.name }) } sx={ actionSx }>{ t('resonanceList.viewResonatingFeatures') }{ observations.length > 1 ? t('resonanceList.points', { p0: observations.length }) : '' }</Button> }
+                  { onNodeSelect && <Button onClick={ () => onNodeSelect(neighbor.id) } aria-label={ t('resonanceList.exploreFromSGlyph', { p0: neighbor.name }) } sx={ actionSx }>{ t('glyphPairComparison.exploreFromThisGlyph') }</Button> }
                 </Box>
               </ListItem>
             );

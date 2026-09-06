@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -65,14 +66,15 @@ export function FilterBar({
   resultCount,
   sx,
 }) {
+  const { t } = useI18n();
   const [showFilters, setShowFilters] = useState(false);
   const [sortAnchorEl, setSortAnchorEl] = useState(null);
 
   const sortOptions = [
-    { id: 'newest', label: 'Newest First' },
-    { id: 'oldest', label: 'Oldest First' },
-    { id: 'name-asc', label: 'Name (A-Z)' },
-    { id: 'name-desc', label: 'Name (Z-A)' },
+    { id: 'newest', label: t('filterBar.newestFirst') },
+    { id: 'oldest', label: t('filterBar.oldestFirst') },
+    { id: 'name-asc', label: t('filterBar.nameAZ') },
+    { id: 'name-desc', label: t('filterBar.nameZA') },
   ];
 
   const hasActiveFilters = selectedTags.length > 0 || searchValue.length > 0;
@@ -134,7 +136,7 @@ export function FilterBar({
         <SearchBar
           value={searchValue}
           onChange={onSearchChange}
-          placeholder="Search references..."
+          placeholder={ t('filterBar.searchReferences') }
           hasFilter
           isFilterActive={showFilters}
           onFilterToggle={() => setShowFilters(!showFilters)}
@@ -155,7 +157,7 @@ export function FilterBar({
                 color: 'text.secondary',
               }}
             >
-              {sortOptions.find((opt) => opt.id === sortBy)?.label || 'Sort'}
+              {sortOptions.find((opt) => opt.id === sortBy)?.label || t('filterBar.sort')}
             </Button>
             <Menu
               anchorEl={sortAnchorEl}
@@ -234,18 +236,14 @@ export function FilterBar({
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <FilterListIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                Filter by Tags
-              </Typography>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{ t('filterBar.filterByTags') }</Typography>
             </Box>
             {hasActiveFilters && onClearFilters && (
               <Button
                 size="small"
                 onClick={handleClearAll}
                 sx={{ textTransform: 'none', color: 'text.secondary' }}
-              >
-                Clear all
-              </Button>
+              >{ t('filterBar.clearAll') }</Button>
             )}
           </Box>
 
@@ -330,7 +328,7 @@ export function FilterBar({
           {/* 결과 수 */}
           {resultCount !== undefined && (
             <Typography variant="body2" color="text.secondary">
-              {resultCount} {resultCount === 1 ? 'result' : 'results'}
+              { t('common.resultCount', { p0: resultCount }) }
             </Typography>
           )}
         </Box>

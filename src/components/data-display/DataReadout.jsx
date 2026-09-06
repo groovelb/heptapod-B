@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import ScrambleText from '../kinetic-typography/ScrambleText';
@@ -30,6 +31,7 @@ function toDegrees(rad) {
  * @param {boolean} reducedMotion - 스크램블 전환 비활성 여부 [Required]
  */
 function ReadoutRow({ label, value, monoSx, reducedMotion }) {
+  const { localize } = useI18n();
   return (
     <Box
       sx={ {
@@ -51,7 +53,7 @@ function ReadoutRow({ label, value, monoSx, reducedMotion }) {
           whiteSpace: 'nowrap',
         } }
       >
-        { label }
+        { localize(label) }
       </Box>
       <ScrambleText
         text={ String(value) }
@@ -96,6 +98,7 @@ function DataReadout({
   isCollapsed = false,
   sx = {},
 }) {
+  const { t } = useI18n();
   const theme = useTheme();
   const monoSx = theme.typography?.custom?.mono || MONO_FALLBACK;
   const reducedMotion = !!renderConfig.reducedMotion;
@@ -132,16 +135,14 @@ function DataReadout({
           borderBottom: '1px solid',
           borderColor: 'divider',
         } }
-      >
-        READOUT
-      </Box>
+      >{ t('dataReadout.readout') }</Box>
 
-      <ReadoutRow label="Seed Hash" value={ meta.hashHex } monoSx={ monoSx } reducedMotion={ reducedMotion } />
-      <ReadoutRow label="NFD Units" value={ meta.nfdCount } monoSx={ monoSx } reducedMotion={ reducedMotion } />
-      <ReadoutRow label="Active Segments" value={ activeSegments } monoSx={ monoSx } reducedMotion={ reducedMotion } />
-      <ReadoutRow label="Weight Center" value={ `${weightDeg}°` } monoSx={ monoSx } reducedMotion={ reducedMotion } />
+      <ReadoutRow label={ t('dataReadout.seedHash') } value={ meta.hashHex } monoSx={ monoSx } reducedMotion={ reducedMotion } />
+      <ReadoutRow label={ t('dataReadout.nfdUnits') } value={ meta.nfdCount } monoSx={ monoSx } reducedMotion={ reducedMotion } />
+      <ReadoutRow label={ t('dataReadout.activeSegments') } value={ activeSegments } monoSx={ monoSx } reducedMotion={ reducedMotion } />
+      <ReadoutRow label={ t('dataReadout.weightCenter') } value={ `${weightDeg}°` } monoSx={ monoSx } reducedMotion={ reducedMotion } />
       { tier && (
-        <ReadoutRow label="Render Tier" value={ String(tier).toUpperCase() } monoSx={ monoSx } reducedMotion={ reducedMotion } />
+        <ReadoutRow label={ t('dataReadout.renderTier') } value={ String(tier).toUpperCase() } monoSx={ monoSx } reducedMotion={ reducedMotion } />
       ) }
 
       {/* 12슬롯 상태 — ■ 활성 / □ 비활성 (접힘 시 생략) */}
@@ -156,9 +157,7 @@ function DataReadout({
               display: 'block',
               mb: 0.75,
             } }
-          >
-            Slot States
-          </Box>
+          >{ t('dataReadout.slotStates') }</Box>
           <Box
             sx={ {
               display: 'grid',
@@ -173,7 +172,7 @@ function DataReadout({
                 <Box
                   key={ i }
                   component="span"
-                  title={ `slot ${i}: ${active ? 'active' : 'inactive'}` }
+                  title={ t('dataReadout.slot', { p0: i, p1: active ? 'active' : 'inactive' }) }
                   sx={ {
                     ...monoSx,
                     textAlign: 'center',
@@ -201,9 +200,7 @@ function DataReadout({
               display: 'block',
               mb: 0.5,
             } }
-          >
-            Type Codes
-          </Box>
+          >{ t('dataReadout.typeCodes') }</Box>
           <Box
             component="span"
             sx={ {

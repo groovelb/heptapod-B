@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { forwardRef, useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -54,6 +55,7 @@ const CarouselContainer = forwardRef(function CarouselContainer({
   sx,
   ...props
 }, ref) {
+  const { t } = useI18n();
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down('sm'));
   const isSm = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -267,7 +269,7 @@ const CarouselContainer = forwardRef(function CarouselContainer({
           <IconButton
             onClick={handlePrev}
             disabled={isPrevDisabled}
-            aria-label="Previous slide"
+            aria-label={ t('carouselContainer.previousSlide') }
             sx={{
               ...getNavButtonStyles(isPrevDisabled),
               left: navOffset,
@@ -279,7 +281,7 @@ const CarouselContainer = forwardRef(function CarouselContainer({
           <IconButton
             onClick={handleNext}
             disabled={isNextDisabled}
-            aria-label="Next slide"
+            aria-label={ t('carouselContainer.nextSlide') }
             sx={{
               ...getNavButtonStyles(isNextDisabled),
               right: navOffset,

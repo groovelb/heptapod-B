@@ -1,5 +1,7 @@
+import AppGNB from '../navigation/AppGNB';
+import { useI18n } from '../../i18n/useI18n.js';
 import { useMemo, useRef, useState } from 'react';
-import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import { Link as RouterLink, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -12,15 +14,26 @@ import { buildArchiveModel, ARCHIVE_ENCODER_VERSION } from '../../utils/heptapod
 import { normalizeName } from '../../utils/heptapod/normalizeName';
 import { relateGlyphs } from '../../utils/heptapod/relateGlyphs';
 import { glyphLabel, getMorphologyObservations, isMorphologyRelation } from '../../utils/heptapod/resonanceView';
-import { exportPairCard, shareArchive } from '../../utils/heptapod/shareArchive';
+import { exportPairCard, shareArchive, parseArchiveMeaningSearch } from '../../utils/heptapod/shareArchive';
+import { compareGlyphMeanings } from '../../utils/heptapod/interpretGlyphMeaning';
 import GlyphNode from '../data-display/GlyphNode';
 import GlyphPairComparison from '../data-display/GlyphPairComparison';
 import PublishDialog from '../overlay-feedback/PublishDialog';
 
 /** Public pair links and private, local comparisons use the same rendered models. */
 export default function ArchiveComparePage({ client }) {
+  const { locale, localize, t } = useI18n();
   const { leftId, rightId } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { unsupportedVersion } = parseArchiveMeaningSearch(searchParams.toString());
+  const readingView = unsupportedVersion || searchParams.get('reading') === 'precision' ? 'precision' : 'meaning';
+  const changeReading = (reading) => setSearchParams((previous) => {
+    const next = new URLSearchParams(previous);
+    next.set('reading', reading);
+    if (!unsupportedVersion) next.set('mv', '1');
+    return next;
+  }, { replace: true });
   const leftState = useGlyph(leftId, { client });
   const rightState = useGlyph(rightId || null, { client });
   const { publish } = usePublish({ client });
@@ -45,10 +58,12 @@ export default function ArchiveComparePage({ client }) {
   const comparison = useMemo(() => {
     if (!left || !right) return { relations: [], error: '' };
     try { return { relations: relateGlyphs(left, right).filter(isMorphologyRelation), error: '' }; }
-    catch { return { relations: [], error: '이 표식의 형태 데이터를 읽을 수 없어 비교를 완료하지 못했습니다.' }; }
-  }, [left, right]);
+    catch { return { relations: [], error: t('archiveComparePage.thisGlyphSFormDataCouldNot') }; }
+  }, [left, right, t]);
+  const meaningComparison = useMemo(() => left && right ? compareGlyphMeanings(left.model_data, right.model_data) : null, [left, right]);
   const shareReason = comparison.relations.flatMap(getMorphologyObservations)[0]?.reason
     || comparison.relations.find((relation) => relation.relationType === 'VARIANT')?.reasons?.[0];
+  const selectedShareReason = readingView === 'meaning' ? localize(meaningComparison?.reason) : shareReason;
   const runAction = async (action) => {
     if (sharing) return;
     setSharing(true);
@@ -56,9 +71,9 @@ export default function ArchiveComparePage({ client }) {
     setNotice('');
     try {
       const result = await action();
-      if (result === 'copied') setNotice('공개 링크를 복사했습니다.');
-      else if (result === 'shared') setNotice('공유 창으로 전달했습니다.');
-    } catch (error) { setActionError(error.message || '다시 시도해 주세요.'); }
+      if (result === 'copied') setNotice(t('archiveComparePage.publicLinkCopied'));
+      else if (result === 'shared') setNotice(t('archiveComparePage.openedTheShareDialog'));
+    } catch (error) { setActionError(error.message || t('archiveComparePage.tryAgain')); }
     finally { setSharing(false); }
   };
   const compareLocal = (event) => {
@@ -68,51 +83,55 @@ export default function ArchiveComparePage({ client }) {
       buildArchiveModel(draft);
       setLocalName(draft.trim());
       setInputError('');
-      setNotice('이름을 변환한 표식을 이 기기에서 비교했습니다. 아직 공개하지 않았습니다.');
+      setNotice(t('archiveComparePage.yourEncodedNameWasComparedOnThis'));
     } catch (error) { setInputError(error.message); }
   };
   const loading = leftState.loading || (!!rightId && rightState.loading);
   const unavailable = leftState.error || (rightId && rightState.error) || (!loading && (!left || (!!rightId && !rightState.glyph)));
   return (
     <Box component="main" sx={ { minHeight: '100vh', bgcolor: 'custom.chamber.fog', color: 'custom.chamber.ink', px: { xs: 2, md: 5 }, py: 3 } }>
-      <Box component="nav" aria-label="비교 화면 탐색" sx={ { display: 'flex', justifyContent: 'space-between', mb: 4, '& .MuiButton-root': { color: 'inherit', minHeight: 44 } } }>
-        <Button component={ RouterLink } to={ `/glyph/${leftId}` }>← 표식으로</Button>
-        <Button component={ RouterLink } to="/archive">아카이브</Button>
+      <AppGNB />
+      <Box component="nav" aria-label={ t('archiveComparePage.comparisonNavigation') } sx={ { display: 'flex', justifyContent: 'space-between', mb: 4, '& .MuiButton-root': { color: 'inherit', minHeight: 44 } } }>
+        <Button component={ RouterLink } to={ `/glyph/${leftId}` }>{ t('archiveComparePage.backToGlyph') }</Button>
+        <Button component={ RouterLink } to="/archive">{ t('archiveComparePage.archive') }</Button>
       </Box>
       <Box sx={ { maxWidth: 1060, mx: 'auto' } }>
-        <Typography component="h1" variant="h4" sx={ { fontFamily: '"Cinzel", "Noto Serif KR", serif', mb: 1 } }>두 표식 사이에서</Typography>
-        <Typography sx={ { mb: 3 } }>이름이 변환된 Heptapod B 표식의 닮은 부위를 나란히 살펴봅니다.</Typography>
-        {loading ? <Box role="status" sx={ { py: 8, textAlign: 'center' } }><CircularProgress color="inherit" /><Typography>공개된 표식을 불러오는 중…</Typography></Box> : unavailable ? (
-          <Alert severity="info">공개되지 않았거나 불러올 수 없는 표식입니다. <Button onClick={ () => { leftState.refetch?.(); rightState.refetch?.(); } }>다시 시도</Button></Alert>
+        <Typography component="h1" variant="h4" sx={ { fontFamily: '"Cinzel", "Noto Serif KR", serif', mb: 1 } }>{ t('archiveComparePage.betweenTwoGlyphs') }</Typography>
+        <Typography sx={ { mb: 3 } }>{ t('archiveComparePage.exploreStructuresWithSharedMeaningsAndFeatures') }</Typography>
+        {loading ? <Box role="status" sx={ { py: 8, textAlign: 'center' } }><CircularProgress color="inherit" /><Typography>{ t('archiveComparePage.loadingPublicGlyphs') }</Typography></Box> : unavailable ? (
+          <Alert severity="info">{ t('archiveComparePage.thisGlyphIsPrivateOrCouldNot') }<Button onClick={ () => { leftState.refetch?.(); rightState.refetch?.(); } }>{ t('archiveClusterExplorer.tryAgain') }</Button></Alert>
         ) : (
           <>
-            {comparison.error && <Alert severity="error" sx={ { mb: 2 } }>{comparison.error}</Alert>}
-            {right && !comparison.error ? (
+            {comparison.error && <Alert severity="error" sx={ { mb: 2 } }>{localize(comparison.error)}</Alert>}
+            {unsupportedVersion && <Alert severity="info" sx={ { mb: 2 } }>{ t('archiveComparePage.theMeaningRulesInThisLinkAre') }</Alert>}
+            {right ? (
               <GlyphPairComparison leftGlyph={ left } rightGlyph={ right } relations={ comparison.relations }
+                meaningComparison={ unsupportedVersion ? undefined : meaningComparison } view={ readingView } initialView={ readingView } onViewChange={ changeReading }
                 onExplore={ (id) => id !== 'local' && navigate(`/field/${id}`) }
-                onShare={ !localGlyph ? () => runAction(() => shareArchive({ left, right, reason: shareReason })) : undefined }
+                onShare={ !localGlyph ? (selection = {}) => runAction(() => shareArchive({ left, right, reason: selection.reason || selectedShareReason },
+                  { locale, reading: selection.reading || readingView, meaningVersion: 1 })) : undefined }
                 sharing={ sharing } />
             ) : !right && <Box sx={ { display: 'flex', justifyContent: 'center', py: 2 } }><GlyphNode model={ left.model_data } size={ 240 } label={ glyphLabel(left) } /></Box>}
             {right && !comparison.error && <Box sx={ { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2, my: 2 } }>
-              <Button disabled={ sharing } onClick={ () => runAction(() => exportPairCard(left, right, shareReason)) } sx={ { color: 'inherit', minHeight: 44 } }>표식 비교 이미지 저장</Button>
-              {localGlyph && <Button onClick={ () => setPublishOpen(true) } sx={ { color: 'inherit', minHeight: 44, borderBottom: '1px solid' } }>내 응답을 공개하고 링크 만들기</Button>}
-              {localGlyph && rightId && <Button onClick={ () => { setLocalName(''); setNotice(''); } } sx={ { color: 'inherit', minHeight: 44 } }>공유받은 비교로 돌아가기</Button>}
+              <Button disabled={ sharing } onClick={ () => runAction(() => exportPairCard(left, right, selectedShareReason, { reading: readingView, meaningVersion: 1, locale })) } sx={ { color: 'inherit', minHeight: 44 } }>{ t('archiveComparePage.saveComparisonImage') }</Button>
+              {localGlyph && <Button onClick={ () => setPublishOpen(true) } sx={ { color: 'inherit', minHeight: 44, borderBottom: '1px solid' } }>{ t('archiveComparePage.publishMyResponseAndCreateALink') }</Button>}
+              {localGlyph && rightId && <Button onClick={ () => { setLocalName(''); setNotice(''); } } sx={ { color: 'inherit', minHeight: 44 } }>{ t('archiveComparePage.returnToTheSharedComparison') }</Button>}
             </Box>}
             <Box component="form" onSubmit={ compareLocal } sx={ { mt: 5, py: 3, borderTop: '1px solid', borderColor: 'custom.chamber.ink', maxWidth: 620, mx: 'auto' } }>
-              <Typography component="h2" variant="h6" sx={ { mb: 1 } }>당신의 이름은 어떤 표식과 공명할까요?</Typography>
-              <Typography sx={ { mb: 2 } }>이름을 Heptapod B 표식으로 변환해 형태를 비교합니다. 공개하기 전에는 이 기기에서만 확인합니다.</Typography>
+              <Typography component="h2" variant="h6" sx={ { mb: 1 } }>{ t('archiveComparePage.whichGlyphsWillResonateWithYourName') }</Typography>
+              <Typography sx={ { mb: 2 } }>{ t('archiveComparePage.encodeYourNameAsAHeptapodB') }</Typography>
               <Box sx={ { display: 'flex', gap: 1, alignItems: 'start' } }>
-                <TextField label="표식으로 변환할 이름" value={ draft } onChange={ (event) => setDraft(event.target.value) } error={ !!inputError } helperText={ inputError } fullWidth
+                <TextField label={ t('archiveComparePage.nameToEncode') } value={ draft } onChange={ (event) => setDraft(event.target.value) } error={ !!inputError } helperText={ localize(inputError) } fullWidth
                   onCompositionStart={ () => { composing.current = true; } } onCompositionEnd={ () => { composing.current = false; } }
                   onKeyDown={ (event) => { if (event.key === 'Enter' && (composing.current || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229)) event.preventDefault(); } }
                   sx={ { '& .MuiInputBase-root, & .MuiInputLabel-root': { color: 'custom.chamber.ink' }, '& .MuiOutlinedInput-notchedOutline': { borderColor: 'custom.chamber.ink' } } } />
-                <Button type="submit" disabled={ !draft.trim() } sx={ { color: 'inherit', minHeight: 56, whiteSpace: 'nowrap' } }>변환해 비교하기</Button>
+                <Button type="submit" disabled={ !draft.trim() } sx={ { color: 'inherit', minHeight: 56, whiteSpace: 'nowrap' } }>{ t('archiveComparePage.encodeAndCompare') }</Button>
               </Box>
             </Box>
           </>
         )}
-        {notice && <Typography role="status" sx={ { mt: 2, textAlign: 'center' } }>{notice}</Typography>}
-        {actionError && <Alert severity="error" sx={ { mt: 2 } }>{actionError}</Alert>}
+        {notice && <Typography role="status" sx={ { mt: 2, textAlign: 'center' } }>{localize(notice)}</Typography>}
+        {actionError && <Alert severity="error" sx={ { mt: 2 } }>{localize(actionError)}</Alert>}
       </Box>
       <PublishDialog key={ `${leftId}:${localName}` } open={ publishOpen } onClose={ () => setPublishOpen(false) } glyphName={ localName }
         model={ localGlyph?.model_data } onPublish={ ({ consented }) => publish({ displayName: localName, consented }) }

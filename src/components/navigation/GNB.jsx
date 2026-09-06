@@ -1,4 +1,5 @@
-import { useState, forwardRef, createContext, useContext } from 'react';
+import { useI18n } from '../../i18n/useI18n.js';
+import { useState, useEffect, useId, forwardRef, createContext, useContext } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
@@ -6,6 +7,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import LanguageSwitcher from './LanguageSwitcher';
+import { LenisContext } from '../../utils/lenisContext';
 
 /**
  * GNB Context
@@ -36,8 +39,12 @@ export const useGNB = () => useContext(GNBContext);
  * @param {number} height - 헤더 높이 (px) [Optional, 기본값: 64]
  * @param {number} drawerWidth - 드로어 너비 (px) [Optional, 기본값: 280]
  * @param {boolean} hasBorder - 헤더 하단 보더 [Optional, 기본값: true]
+ * @param {boolean} isFixed - 뷰포트 상단 고정 (사용처에서 본문 높이 확보) [Optional, 기본값: false]
+ * @param {string} resetKey - 경로 변경 시 열린 Drawer 초기화 [Optional]
+ * @param {object} drawerSx - Drawer 배경·전경 스타일 [Optional]
  * @param {boolean} isSticky - 헤더 고정 [Optional, 기본값: true]
  * @param {boolean} isTransparent - 헤더 투명 배경 [Optional, 기본값: false]
+ * @param {boolean} showLanguageSwitcher - 언어 선택 표시 [Optional, 기본값: true]
  * @param {object} sx - 추가 스타일 [Optional]
  *
  * Example usage:
@@ -59,21 +66,46 @@ const GNB = forwardRef(function GNB({
   hasBorder = true,
   isSticky = true,
   isTransparent = false,
+  showLanguageSwitcher = true,
+  isFixed = false,
+  resetKey = 'default',
+  drawerSx,
   sx,
   ...props
 }, ref) {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { t } = useI18n();
+  const [drawerState, setDrawerState] = useState({ key: resetKey, open: false });
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down(breakpoint));
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const drawerId = useId();
+  const lenis = useContext(LenisContext);
+  const isDrawerOpen = isMobile && drawerState.key === resetKey && drawerState.open;
+  // Forget the old route's open state, including when Back/Forward reuses its key.
+  if (drawerState.key !== resetKey) setDrawerState({ key: resetKey, open: false });
 
-  const toggleDrawer = () => setIsDrawerOpen((prev) => !prev);
-  const closeDrawer = () => setIsDrawerOpen(false);
+  const toggleDrawer = () => setDrawerState((prev) => ({ key: resetKey, open: !prev.open }));
+  const closeDrawer = () => setDrawerState((prev) => ({ ...prev, open: false }));
+
+  useEffect(() => {
+    const query = window.matchMedia(theme.breakpoints.down(breakpoint).replace('@media ', ''));
+    const closeOnDesktop = (event) => { if (!event.matches) setDrawerState((prev) => ({ ...prev, open: false })); };
+    query.addEventListener('change', closeOnDesktop);
+    return () => query.removeEventListener('change', closeOnDesktop);
+  }, [theme, breakpoint]);
+
+  useEffect(() => {
+    if (!isDrawerOpen || !lenis) return undefined;
+    const wasStopped = lenis.isStopped;
+    lenis.stop();
+    return () => { if (!wasStopped) lenis.start(); };
+  }, [isDrawerOpen, lenis]);
 
   /**
    * 헤더 스타일
    */
   const headerStyles = {
-    position: isSticky ? 'sticky' : 'relative',
+    position: isFixed ? 'fixed' : isSticky ? 'sticky' : 'relative',
     top: 0,
     left: 0,
     right: 0,
@@ -99,16 +131,18 @@ const GNB = forwardRef(function GNB({
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        width: drawerWidth,
+        width: '100%',
       }}
     >
       {/* Drawer Header */}
       <Box
+        onClick={(event) => { if (event.target.closest('a')) closeDrawer(); }}
         sx={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          height,
+          minHeight: height,
+          pt: 'env(safe-area-inset-top, 0px)',
           px: 2,
           borderBottom: '1px solid',
           borderColor: 'divider',
@@ -119,7 +153,8 @@ const GNB = forwardRef(function GNB({
         <IconButton
           onClick={closeDrawer}
           size="small"
-          aria-label="Close menu"
+          sx={{ color: 'inherit', width: 44, height: 44, borderRadius: 0 }}
+          aria-label={ t('gNB.closeMenu') }
         >
           <CloseIcon />
         </IconButton>
@@ -158,25 +193,27 @@ const GNB = forwardRef(function GNB({
       {/* Header */}
       <Box ref={ref} component="header" sx={headerStyles} {...props}>
         {/* Left: Logo */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
           {logo}
         </Box>
 
         {/* Right: Navigation */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0, md: 2 }, flexShrink: 0 }}>
+          {!isMobile && navContent}
+          {showLanguageSwitcher && <LanguageSwitcher />}
           {/* Persistent (always visible) */}
           {persistent}
-
-          {/* Desktop: Show navContent */}
-          {!isMobile && navContent}
 
           {/* Mobile: Hamburger menu */}
           {isMobile && navContent && (
             <IconButton
               onClick={toggleDrawer}
               size="medium"
-              aria-label="Open menu"
+              aria-label={ t('gNB.openMenu') }
               aria-expanded={isDrawerOpen}
+              aria-controls={isDrawerOpen ? drawerId : undefined}
+              aria-haspopup="dialog"
+              sx={{ color: 'inherit', width: 44, height: 44, borderRadius: 0 }}
             >
               <MenuIcon />
             </IconButton>
@@ -189,10 +226,15 @@ const GNB = forwardRef(function GNB({
         anchor="right"
         open={isDrawerOpen}
         onClose={closeDrawer}
+        transitionDuration={reducedMotion ? 0 : undefined}
+        slotProps={{ paper: { id: drawerId, role: 'dialog', 'aria-modal': true, 'aria-label': t('gNB.openMenu'), 'data-lenis-prevent': true } }}
         sx={{
           '& .MuiDrawer-paper': {
-            width: drawerWidth,
+            width: `min(${drawerWidth}px, 100vw)`,
             boxSizing: 'border-box',
+            borderRadius: 0,
+            backgroundImage: 'none',
+            ...drawerSx,
           },
         }}
       >

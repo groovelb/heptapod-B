@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -35,6 +36,7 @@ export function SoundFab({
   heroSelector = '#immersive',
   sx,
 }) {
+  const { t } = useI18n();
   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const [inHero, setInHero] = useState(true);
 
@@ -55,7 +57,7 @@ export function SoundFab({
       onClick={onToggle}
       disabled={isLoading}
       aria-pressed={isEnabled}
-      aria-label={isEnabled ? 'Mute sound' : 'Enable sound'}
+      aria-label={isEnabled ? t('soundFab.muteSound') : t('soundFab.enableSound')}
       aria-hidden={!inHero}
       sx={{
         position: 'fixed',

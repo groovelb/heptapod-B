@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useMemo, useEffect, useRef } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -239,6 +240,7 @@ function uniqueEdges(tris) {
  * @param {object} model - LogogramModel (encode → buildModel 산출물) [Required]
  * @param {number} size - SVG 정방형 한 변 (px) — 렌더러와 동일 값 [Optional, 기본값: 480]
  * @param {boolean} isVisible - 표시 여부. true 전환 시 라이브 스캔 재생 [Optional, 기본값: true]
+ * @param {boolean} showReadout - 계측 수치·캡션. 의미 판독과 병용 시 false, 시각 효과는 유지 [Optional, 기본값: true]
  *
  * Example usage:
  * <Box sx={{ position: 'relative', display: 'inline-flex' }}>
@@ -247,8 +249,9 @@ function uniqueEdges(tris) {
  * </Box>
  */
 function AnalysisOverlay({
-  model, size = 480, isVisible = true, showMesh = true, showFrame = true, onScan,
+  model, size = 480, isVisible = true, showMesh = true, showFrame = true, showReadout = true, onScan,
 }) {
+  const { t } = useI18n();
   const theme = useTheme();
   const ink = theme.palette.custom?.chamber?.ink || '#1c2226';
   const monoFont = theme.typography.custom?.mono?.fontFamily
@@ -378,7 +381,7 @@ function AnalysisOverlay({
         height={ size }
         viewBox={ `0 0 ${size} ${size}` }
         role="img"
-        aria-label={ `Heptapod B analysis overlay: ${model.meta.name}` }
+        aria-label={ t('analysisOverlay.heptapodBAnalysisOverlay', { p0: model.meta.name }) }
       >
         {/* 좌표계 스캐폴드 (12세그먼트 격자 + 측정 링 + 각도 눈금) — showFrame일 때만 */}
         { showFrame && (
@@ -470,13 +473,13 @@ function AnalysisOverlay({
               dominantBaseline="middle"
               style={ { fontFamily: monoFont, fontSize: labelPx, letterSpacing: '0.05em' } }
             >
-              { `WC ${geometry.weightCenter.deg}°` }
+              { t('analysisOverlay.wc', { p0: geometry.weightCenter.deg }) }
             </text>
           </>
         ) }
 
         {/* 계측 readout (좌하단) — 라이브 장비 출력 (showMesh일 때만) */}
-        { showMesh && (
+        { showMesh && showReadout && (
           <text
             x={ size * 0.04 }
             y={ size * 0.95 }
@@ -484,20 +487,18 @@ function AnalysisOverlay({
             fillOpacity={ 0.85 }
             style={ { fontFamily: monoFont, fontSize: labelPx, letterSpacing: '0.08em' } }
           >
-            { `VERTICES ${geometry.verts.length}  ·  EDGES ${geometry.edges.length}  ·  SEG 12` }
+            { t('analysisOverlay.verticesEdgesSeg12', { p0: geometry.verts.length, p1: geometry.edges.length }) }
           </text>
         ) }
 
         {/* 세계관 캡션 (좌하단 하단) */}
-        <text
+        { showReadout && <text
           x={ size * 0.04 }
           y={ size * 0.985 }
           fill={ ink }
           fillOpacity={ 0.4 }
           style={ { fontFamily: monoFont, fontSize: Math.max(6, size * 0.0145), letterSpacing: '0.12em' } }
-        >
-          STRUCTURAL DECOMPOSITION — 12 SEGMENTS (DESIGNED, NOT DISCOVERED)
-        </text>
+        >{ t('analysisOverlay.structuralDecomposition12SegmentsDesignedNotDiscovered') }</text> }
       </svg>
     </Box>
   );

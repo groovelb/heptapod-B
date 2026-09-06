@@ -1,54 +1,21 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { BrowserRouter, useLocation } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import GlobalStyles from '@mui/material/GlobalStyles';
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
 import { defaultTheme as theme } from './styles/themes';
 import { LenisContext } from './utils/lenisContext';
-import HeptapodEncoderPage from './components/templates/HeptapodEncoderPage';
-import HeptapodHeroIntro from './components/templates/HeptapodHeroIntro';
+import AppRoutes from './routes/AppRoutes';
 import LocaleProvider from './i18n/LocaleProvider';
 
-const GlyphDetailPage = lazy(() => import('./components/templates/GlyphDetailPage'));
-const ResonanceFieldPage = lazy(() => import('./components/templates/ResonanceFieldPage'));
-const MyArchivePage = lazy(() => import('./components/templates/MyArchivePage'));
-const ArchiveComparePage = lazy(() => import('./components/templates/ArchiveComparePage'));
-const MyResponsesPage = lazy(() => import('./components/templates/MyResponsesPage'));
-
-const RouteFallback = () => (
-  <Box sx={ { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#0a0a0a' } }>
-    <CircularProgress sx={ { color: 'rgba(255,255,255,0.3)' } } />
-  </Box>
-);
-
-/** 공유 표식 또는 아카이브의 만들기 액션은 인트로 없이 인코더로 진입한다. */
-function hasSharedName() {
-  if (typeof window === 'undefined') return false;
-  const params = new URLSearchParams(window.location.search);
-  return Boolean(params.get('name')) || params.get('create') === '1';
-}
-
-/**
- * App 컴포넌트
- *
- * Heptapod B Encoder 앱 진입점.
- * ThemeProvider(모노크롬 다크 테마) + CssBaseline 위에 라우터를 올린다.
- *
- * 기본 라우트는 히어로 인트로(560vh 스크럽 트랙)를 노출하고, 스크럽이 끝나는
- * 지점에서 영상을 fade-out / 인코더 캔버스를 fade-in하는 **디졸브 매치컷**으로
- * 넘긴다. 인코더는 인트로의 children(크로스페이드 타깃)으로 항상 마운트되어 있어
- * 스테이지 측정(ResizeObserver) 등 마운트 effect가 정상 동작한다. 위로 다시
- * 스크롤하면 디졸브가 역전된다(왕복). ?name= 쿼리 진입은 인트로를 생략하고
- * 인코더가 직접 쿼리를 읽어 재현한다 (결정론 공유).
+/** Shared providers and the route-dependent scroll lifetime.
+ * Landing and Canvas mount independently through AppRoutes.
  */
 function AppContent() {
   const { pathname } = useLocation();
-  const sharedName = hasSharedName();
   // Lenis 인스턴스를 상태로 보관 → 컨텍스트로 내려 인트로가 스크롤 잠금/해제에 사용.
   const [lenis, setLenis] = useState(null);
 
@@ -71,7 +38,7 @@ function AppContent() {
       touchMultiplier: 0.9,
       smoothWheel: true,
       syncTouch: true,
-      syncTouchLerp: 0.05, // 플릭 관성 감쇠 — 데스크톱 lerp와 동일하게 맞춤
+      syncTouchLerp: 0.075, // 플릭 관성 감쇠 — 데스크톱보다 약간 높게(모바일 플릭 관성 유지)
       // Dialog/Drawer 내부는 네이티브 스크롤, 문서 전체는 기존 Lenis 감쇠 유지.
       allowNestedScroll: true,
     });
@@ -103,25 +70,7 @@ function AppContent() {
         } }
       />
       <LenisContext.Provider value={ lenis }>
-          <Routes>
-            <Route
-              index
-              element={
-                sharedName ? (
-                  <HeptapodEncoderPage />
-                ) : (
-                  <HeptapodHeroIntro>
-                    <HeptapodEncoderPage />
-                  </HeptapodHeroIntro>
-                )
-              }
-            />
-            <Route path="/glyph/:id" element={ <Suspense fallback={ <RouteFallback /> }><GlyphDetailPage /></Suspense> } />
-            <Route path="/field/:id" element={ <Suspense fallback={ <RouteFallback /> }><ResonanceFieldPage /></Suspense> } />
-            <Route path="/archive" element={ <Suspense fallback={ <RouteFallback /> }><MyArchivePage /></Suspense> } />
-            <Route path="/compare/:leftId/:rightId?" element={ <Suspense fallback={ <RouteFallback /> }><ArchiveComparePage /></Suspense> } />
-            <Route path="/me" element={ <Suspense fallback={ <RouteFallback /> }><MyResponsesPage /></Suspense> } />
-          </Routes>
+        <AppRoutes />
       </LenisContext.Provider>
     </ThemeProvider>
   );

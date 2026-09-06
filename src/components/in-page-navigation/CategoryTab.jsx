@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -14,6 +15,7 @@ import Box from '@mui/material/Box';
  * @param {object} sx - 추가 스타일 [Optional]
  */
 export function CategoryTab({ categories = [], selected, onChange, sx }) {
+  const { t } = useI18n();
   return (
     <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, ...sx }}>
       <Tabs
@@ -21,7 +23,7 @@ export function CategoryTab({ categories = [], selected, onChange, sx }) {
         onChange={(e, newValue) => onChange(newValue)}
         variant="scrollable"
         scrollButtons="auto"
-        aria-label="category tabs"
+        aria-label={ t('categoryTab.categoryTabs') }
         sx={{
           '& .MuiTab-root': {
             textTransform: 'none',

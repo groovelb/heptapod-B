@@ -3,9 +3,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
+import { APP_PATHS, legacyCanvasLocation } from '../src/routes/paths.js';
 
 const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
-const gallery = readFileSync(new URL('../src/components/templates/MyArchivePage.jsx', import.meta.url), 'utf8');
+const gallery = readFileSync(new URL('../src/components/data-display/ArchiveGlyph.jsx', import.meta.url), 'utf8');
+const archive = readFileSync(new URL('../src/components/templates/MyArchivePage.jsx', import.meta.url), 'utf8');
+const depth = readFileSync(new URL('../src/components/data-display/ArchiveDepthExplorer.jsx', import.meta.url), 'utf8');
 const renderer = readFileSync(new URL('../src/components/motion/LogogramRendererCanvas.jsx', import.meta.url), 'utf8');
 const effect = app.match(/useEffect\(\(\) => \{([\s\S]*?)\n  \}, \[pathname\]\);/)?.[1];
 
@@ -31,7 +34,7 @@ function mount(pathname, reduced = false) {
 }
 
 test('Lenis runs on archive/detail/field/compare as well as the landing route', () => {
-  for (const path of ['/', '/archive', '/glyph/test', '/field/test', '/compare/a/b', '/me']) {
+  for (const path of ['/', '/canvas', '/archive', '/glyph/test', '/field/test', '/compare/a/b', '/me']) {
     const mounted = mount(path);
     assert.equal(mounted.instances.length, 1, path);
     const instance = mounted.instances[0];
@@ -70,11 +73,29 @@ test('reduced motion keeps native scrolling and does not start a Lenis RAF', () 
 });
 
 test('archive cards keep viewport-triggered formation rather than static thumbnails', () => {
+  assert.match(archive, /<ArchiveDepthExplorer/);
+  assert.match(depth, /<ArchiveGlyph/);
   assert.match(gallery, /import LogogramRendererCanvas from/);
   assert.match(gallery, /<LogogramRendererCanvas model=\{ glyph\.model_data \} size=\{ canvasSize \} isActive=\{ visible \} \/>/);
   assert.match(gallery, /entry\.isIntersecting.*setVisible\(true\)/);
   assert.match(gallery, /visible && hasModel && canvasSize > 0/);
   assert.doesNotMatch(gallery, /<GlyphNode/);
+});
+
+test('depth transitions respect reduced motion and keep query navigation on existing Lenis', () => {
+  assert.match(depth, /useReducedMotion/);
+  assert.match(depth, /reducedMotion \? STILL_VARIANTS : DEPTH_VARIANTS/);
+  assert.match(archive, /useArchiveScroll\(scopePath, ready && !interpreting && !meaningError\)/);
+  assert.doesNotMatch(archive, /new Lenis|lenis\.stop\(|lenis\.destroy\(/);
+  assert.match(gallery, /io\.disconnect\(\); ro\.disconnect\(\)/);
+});
+
+test('participation entry bypasses the intro without changing ordinary or name-share entry', () => {
+  for (const [search, expected] of [['?create=1', true], ['?name=Louise', true], ['', false], ['?name=', false], ['?create=0', false]]) {
+    assert.equal(Boolean(legacyCanvasLocation({ search })), expected);
+  }
+  assert.equal(legacyCanvasLocation({ search: '?create=1' }).pathname, APP_PATHS.canvas);
+  assert.match(archive, /navigate\(APP_PATHS.canvas\)/);
 });
 
 test('reused renderer retains formation, offscreen/background pause and reduced-motion bypass', () => {

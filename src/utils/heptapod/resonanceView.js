@@ -1,3 +1,4 @@
+import { sourceText as t } from '../../i18n/messages.js';
 /** Stable, distinct public neighbors shared by list, graph and detail views. */
 const PRIORITY = { FORM: 0, VARIANT: 1 };
 const OBSERVATION_KINDS = new Set(['branch', 'opening', 'ink', 'ring', 'question']);
@@ -24,9 +25,9 @@ export function isMorphologyRelation(relation) {
 }
 
 export function morphologyRelationLabel(relation) {
-  if (relation?.relationType === 'VARIANT') return '질문의 변주';
+  if (relation?.relationType === 'VARIANT') return t('glyphPairComparison.questionVariant');
   return (relation?.evidence?.level ?? relation?.components?.level) === 'whole-form'
-    ? '전체 형태의 공명' : '일부 구조의 공명';
+    ? t('resonanceView.wholeFormResonance') : t('resonanceView.localStructureResonance');
 }
 
 export function glyphLabel(glyph) {

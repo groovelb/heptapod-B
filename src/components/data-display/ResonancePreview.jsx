@@ -1,4 +1,6 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useId, useMemo, useRef, useState } from 'react';
+import { Link as RouterLink, useInRouterContext } from 'react-router-dom';
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -9,6 +11,9 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import GlyphPairComparison from './GlyphPairComparison';
+import GlyphMeaningSummary from './GlyphMeaningSummary';
+import { interpretGlyphMeaning, compareGlyphMeanings } from '../../utils/heptapod/interpretGlyphMeaning';
+import { archiveMeaningPath } from '../../utils/heptapod/shareArchive';
 import { normalizeName } from '../../utils/heptapod/normalizeName';
 import { buildArchiveModel } from '../../utils/heptapod/archiveGlyph';
 import { relateGlyphs } from '../../utils/heptapod/relateGlyphs';
@@ -30,6 +35,8 @@ function localGlyph(name, model, id) {
  * @param {string} fg - 선택 전경색 (기본 챔버 ink 토큰)
  */
 export default function ResonancePreview({ primaryName, primaryModel, fg }) {
+  const { localize, t } = useI18n();
+  const hasRouter = useInRouterContext();
   const theme = useTheme();
   const ink = fg || theme.palette.custom?.chamber?.ink || theme.palette.text.primary;
   const fog = theme.palette.custom?.chamber?.fog || theme.palette.background.paper;
@@ -39,6 +46,8 @@ export default function ResonancePreview({ primaryName, primaryModel, fg }) {
   const [isOpen, setIsOpen] = useState(false);
   const [compareName, setCompareName] = useState('');
   const [submittedName, setSubmittedName] = useState('');
+  const primaryMeaning = useMemo(() => primaryModel ? interpretGlyphMeaning(primaryModel) : null, [primaryModel]);
+  const meaningPath = primaryMeaning?.meaningKey ? archiveMeaningPath({ groupId: primaryMeaning.meaningKey }) : null;
   const result = useMemo(() => {
     if (!submittedName) return null;
     try {
@@ -46,11 +55,11 @@ export default function ResonancePreview({ primaryName, primaryModel, fg }) {
       const rightModel = buildArchiveModel(submittedName);
       const leftGlyph = localGlyph(primaryName, leftModel, 'local-primary');
       const rightGlyph = localGlyph(submittedName, rightModel, 'local-comparison');
-      return { leftGlyph, rightGlyph, relations: relateGlyphs(leftGlyph, rightGlyph) };
+      return { leftGlyph, rightGlyph, relations: relateGlyphs(leftGlyph, rightGlyph), meaningComparison: compareGlyphMeanings(leftModel, rightModel) };
     } catch (error) {
-      return { error: error.message || '이 이름을 비교할 수 없어요. 입력을 확인해 주세요.' };
+      return { error: error.message || t('resonancePreview.thisNameCouldNotBeComparedCheck') };
     }
-  }, [primaryName, primaryModel, submittedName]);
+  }, [primaryName, primaryModel, submittedName, t]);
   const buttonSx = { minHeight: 44, color: ink, borderColor: alpha(ink, 0.35), fontSize: '0.8rem' };
   const close = () => {
     setIsOpen(false);
@@ -61,16 +70,19 @@ export default function ResonancePreview({ primaryName, primaryModel, fg }) {
 
   return (
     <>
-      <Button variant="outlined" fullWidth onClick={ () => setIsOpen(true) } sx={ buttonSx }>다른 이름과 비교하기</Button>
+      { primaryMeaning && <GlyphMeaningSummary interpretation={ primaryMeaning } compact fg={ ink } sx={ { mb: 1 } } /> }
+      { meaningPath && <Button component={ hasRouter ? RouterLink : 'a' } { ...(hasRouter ? { to: meaningPath } : { href: meaningPath }) } fullWidth sx={ buttonSx }>{ t('resonancePreview.glyphsWithTheSameMeaning') }</Button> }
+      <Button variant="outlined" fullWidth onClick={ () => setIsOpen(true) } sx={ buttonSx }>{ t('resonancePreview.compareAnotherName') }</Button>
       <Dialog open={ isOpen } onClose={ close } fullScreen={ fullScreen } fullWidth maxWidth="md" aria-labelledby={ titleId }
         slotProps={ { paper: { sx: { bgcolor: fog, color: ink, backgroundImage: 'none' } } } }
       >
         <DialogTitle id={ titleId } sx={ { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 } }>
-          <Typography component="span" sx={ { fontSize: '1.1rem', fontWeight: 500 } }>이름과 이름 사이</Typography>
-          <Button onClick={ close } aria-label="이름 비교 닫기" sx={ buttonSx }>닫기</Button>
+          <Typography component="span" sx={ { fontSize: '1.1rem', fontWeight: 500 } }>{ t('resonancePreview.betweenNames') }</Typography>
+          <Button onClick={ close } aria-label={ t('resonancePreview.closeNameComparison') } sx={ buttonSx }>{ t('archiveClusterExplorer.close') }</Button>
         </DialogTitle>
         <DialogContent>
-          <Typography variant="body2" sx={ { mb: 2, lineHeight: 1.7 } }>다른 이름도 Heptapod B로 변환하면 { primaryName }의 표식과 닮은 부분이 나타날까요?</Typography>
+          { primaryMeaning && <GlyphMeaningSummary interpretation={ primaryMeaning } fg={ ink } sx={ { mb: 3 } } /> }
+          <Typography variant="body2" sx={ { mb: 2, lineHeight: 1.7 } }>{ t('resonancePreview.encodeAnotherNameInHeptapodBTo') }{ primaryName }{ t('resonancePreview.sGlyph') }</Typography>
           <Box component="form"
             onKeyDown={ (event) => {
               if (event.key === 'Enter' && (composingRef.current || event.nativeEvent.isComposing || event.keyCode === 229)) event.preventDefault();
@@ -80,9 +92,9 @@ export default function ResonancePreview({ primaryName, primaryModel, fg }) {
               if (!composingRef.current) setSubmittedName(compareName.trim());
             } }
           >
-        <TextField autoFocus label="비교할 이름" value={ compareName } fullWidth size="small" variant="outlined"
+        <TextField autoFocus label={ t('resonancePreview.nameToCompare') } value={ compareName } fullWidth size="small" variant="outlined"
           onChange={ (event) => { setCompareName(event.target.value); setSubmittedName(''); } }
-          error={ Boolean(result?.error) } helperText={ result?.error || '입력한 이름은 이 기기에서만 비교해요.' }
+          error={ Boolean(result?.error) } helperText={ localize(result?.error) || t('resonancePreview.namesAreComparedOnlyOnThisDevice') }
           slotProps={ {
             htmlInput: {
               autoComplete: 'off', maxLength: 128,
@@ -98,10 +110,11 @@ export default function ResonancePreview({ primaryName, primaryModel, fg }) {
             '& .MuiInputLabel-root.Mui-focused': { color: ink },
           } }
         />
-        <Button type="submit" variant="outlined" disabled={ !compareName.trim() } sx={ { ...buttonSx, mt: 1.5 } }>비교하기</Button>
+        <Button type="submit" variant="outlined" disabled={ !compareName.trim() } sx={ { ...buttonSx, mt: 1.5 } }>{ t('resonancePreview.compare') }</Button>
           </Box>
           <Box aria-live="polite">
-            { result && !result.error && <GlyphPairComparison leftGlyph={ result.leftGlyph } rightGlyph={ result.rightGlyph } relations={ result.relations } sx={ { px: 0, pb: 0, pt: 3 } } /> }
+            { result && !result.error && <GlyphPairComparison key={ `${primaryName}:${submittedName}` } leftGlyph={ result.leftGlyph } rightGlyph={ result.rightGlyph } relations={ result.relations }
+              meaningComparison={ result.meaningComparison } initialView="meaning" sx={ { px: 0, pb: 0, pt: 3 } } /> }
           </Box>
         </DialogContent>
       </Dialog>

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { groupResonanceRows, glyphLabel } from '../src/utils/heptapod/resonanceView.js';
-import { archiveSharePath, archiveShareUrl, shareArchive } from '../src/utils/heptapod/shareArchive.js';
+import { archiveSharePath, archiveShareUrl, archiveSocialLinks, shareArchive } from '../src/utils/heptapod/shareArchive.js';
 import { prepareArchiveGlyph } from '../src/utils/heptapod/archiveGlyph.js';
 import { relateGlyphs, RELATION_ALGORITHM_VERSION } from '../src/utils/heptapod/relateGlyphs.js';
 
@@ -168,4 +168,25 @@ test('share failure uses awaited clipboard fallback; clipboard failure stays fai
   assert.equal(copied, `${origin}/glyph/${leftId}`);
   await assert.rejects(shareArchive({ left }, { ...options, navigator: {} }));
   await assert.rejects(shareArchive({ left }, { ...options, navigator: { clipboard: { writeText: async () => { throw new Error('denied'); } } } }), /denied/);
+});
+
+test('social destinations receive the public URL and encoded authored text', () => {
+  const links = archiveSocialLinks({ left: { ...left, canonical_name: '민준 & Louise' }, reason: 'A & B?' }, options);
+  assert.deepEqual(links.map((link) => link.id), ['x', 'threads', 'facebook']);
+  const [x, threads, facebook] = links.map((link) => new URL(link.href));
+  assert.equal(x.searchParams.get('url'), `${origin}/glyph/${leftId}`);
+  assert.match(x.searchParams.get('text'), /민준 & Louise/);
+  assert.match(threads.searchParams.get('text'), /A & B\?/);
+  assert.ok(threads.searchParams.get('text').endsWith(`${origin}/glyph/${leftId}`));
+  assert.equal(facebook.searchParams.get('u'), `${origin}/glyph/${leftId}`);
+  assert.throws(() => archiveSocialLinks({ left: { ...left, is_public: false } }, options));
+});
+
+test('social app sharing never silently becomes clipboard copying', async () => {
+  let copies = 0;
+  const navigator = { clipboard: { writeText: async () => { copies += 1; } } };
+  await assert.rejects(shareArchive({ left }, { ...options, navigator, copyFallback: false }));
+  navigator.share = async () => { throw new Error('native failure'); };
+  await assert.rejects(shareArchive({ left }, { ...options, navigator, copyFallback: false }), /native failure/);
+  assert.equal(copies, 0);
 });

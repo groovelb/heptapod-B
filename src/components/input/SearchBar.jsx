@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
@@ -43,7 +44,7 @@ import TuneIcon from '@mui/icons-material/Tune';
  */
 export function SearchBar({
   value = '',
-  placeholder = 'Search...',
+  placeholder,
   onChange,
   onSearch,
   onClear,
@@ -55,6 +56,7 @@ export function SearchBar({
   isFullWidth = false,
   sx,
 }) {
+  const { t } = useI18n();
   const [isFocused, setIsFocused] = useState(false);
 
   /**
@@ -170,7 +172,7 @@ export function SearchBar({
           ml: 0.5,
           color: isFocused ? 'primary.main' : 'text.secondary',
         }}
-        aria-label="search"
+        aria-label={ t('searchBar.search') }
       >
         <SearchIcon fontSize={currentSize.iconSize} />
       </IconButton>
@@ -182,7 +184,7 @@ export function SearchBar({
         onKeyDown={handleKeyDown}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t('common.searchPlaceholder')}
         sx={{
           flex: 1,
           fontSize: currentSize.fontSize,
@@ -210,7 +212,7 @@ export function SearchBar({
               color: 'text.primary',
             },
           }}
-          aria-label="clear search"
+          aria-label={ t('searchBar.clearSearch') }
         >
           <ClearIcon fontSize={currentSize.iconSize} />
         </IconButton>
@@ -229,7 +231,7 @@ export function SearchBar({
               backgroundColor: isFilterActive ? 'primary.light' : 'action.hover',
             },
           }}
-          aria-label="toggle filter"
+          aria-label={ t('searchBar.toggleFilters') }
           aria-pressed={isFilterActive}
         >
           <TuneIcon fontSize={currentSize.iconSize} />

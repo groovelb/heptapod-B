@@ -12,6 +12,12 @@ export default {
   title: 'Component/10. Navigation/GNB',
   component: GNB,
   tags: ['autodocs'],
+  argTypes: {
+    isFixed: { control: 'boolean', description: '뷰포트 상단 fixed 고정. 본문 간격은 사용처에서 확보' },
+    resetKey: { control: 'text', description: '값이 바뀌면 Drawer 닫기' },
+    drawerSx: { control: 'object', description: 'Drawer 스타일' },
+    showLanguageSwitcher: { control: 'boolean', description: '시스템·한국어·영어 언어 선택 표시' },
+  },
   parameters: {
     layout: 'fullscreen',
   },
@@ -324,4 +330,3 @@ export const Props = {
     </PageContainer>
   ),
 };
-

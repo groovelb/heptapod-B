@@ -37,6 +37,11 @@ export default {
     },
   },
   argTypes: {
+    mediaRef: { control: false, description: '사용자 제스처에서 재시도할 video 요소 ref' },
+    playbackRequestedRef: { control: false, description: '커밋 전에 스크럽 seek를 차단하는 재생 요청 ref' },
+    onPlaybackStateChange: { action: 'playback-state', description: 'loading / ready / waiting / playing / error' },
+    playToEnd: { control: 'boolean', description: '스크럽을 멈추고 끝까지 자동 재생' },
+    onEnded: { action: 'ended', description: '영상 완주' },
     src: {
       control: 'text',
       description: '비디오 소스 경로',

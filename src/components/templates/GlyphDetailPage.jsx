@@ -1,5 +1,7 @@
+import AppGNB from '../navigation/AppGNB';
+import { useI18n } from '../../i18n/useI18n.js';
 import { useCallback, useRef, useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -14,8 +16,13 @@ import { useGlyphRelations } from '../../hooks/data/useGlyphRelations';
 import LogogramRendererCanvas from '../motion/LogogramRendererCanvas';
 import ResonanceList from '../data-display/ResonanceList';
 import RelationInspector from '../overlay-feedback/RelationInspector';
+import GlyphMeaningSummary from '../data-display/GlyphMeaningSummary';
+import GlyphClusterLink from '../data-display/GlyphClusterLink';
+import GlyphObservationOverlay from '../overlay-feedback/GlyphObservationOverlay';
+import { interpretGlyphMeaning } from '../../utils/heptapod/interpretGlyphMeaning';
+import { isRenderableGlyphModel } from '../../utils/heptapod/extractGlyphFeatures';
 import { groupResonanceRows, glyphLabel } from '../../utils/heptapod/resonanceView';
-import { shareArchive } from '../../utils/heptapod/shareArchive';
+import { shareArchive, parseArchiveMeaningSearch } from '../../utils/heptapod/shareArchive';
 import { createAmbientAudio } from '../../utils/heptapod/ambientAudio';
 import { createBackgroundMusic } from '../../utils/heptapod/backgroundMusic';
 
@@ -24,7 +31,7 @@ const MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
 const INK = '#1c2226';
 const MUSIC_AUTOPLAY = import.meta.env.VITE_MUSIC_AUTOPLAY !== 'false';
 
-const ResponsiveLogogram = ({ model, maxSize = 360, onFormationComplete }) => {
+const ResponsiveLogogram = ({ model, maxSize = 360, onFormationComplete, anchors = [] }) => {
   const containerRef = useRef(null);
   const [size, setSize] = useState(0);
 
@@ -41,12 +48,15 @@ const ResponsiveLogogram = ({ model, maxSize = 360, onFormationComplete }) => {
   return (
     <Box ref={ containerRef } sx={ { width: '100%', maxWidth: 420, display: 'flex', justifyContent: 'center', py: 3 } }>
       { size > 0 && (
+        <Box sx={ { position: 'relative', width: size, height: size } }>
         <LogogramRendererCanvas
           model={ model }
           size={ size }
           isActive={ true }
           onFormationComplete={ onFormationComplete }
         />
+        <GlyphObservationOverlay model={ model } anchors={ anchors } />
+        </Box>
       ) }
     </Box>
   );
@@ -61,14 +71,22 @@ const ResponsiveLogogram = ({ model, maxSize = 360, onFormationComplete }) => {
  * <Route path="/glyph/:id" element={<GlyphDetailPage />} />
  */
 const GlyphDetailPage = ({ client }) => {
+  const { locale, localize, t } = useI18n();
   const { id } = useParams();
   const navigate = useNavigate();
+  const { search } = useLocation();
+  const { unsupportedVersion } = useMemo(() => parseArchiveMeaningSearch(search), [search]);
   const { glyph, loading, error, refetch } = useGlyph(id, { client });
   const { relations, loading: relLoading, error: relError, refetch: retryRelations, sampleSize, mappingStatus } = useGlyphRelations(id, { client });
   const [inspectedId, setInspectedId] = useState(null);
   const [shareNotice, setShareNotice] = useState('');
   const [shareError, setShareError] = useState('');
   const [sharing, setSharing] = useState(false);
+  const [meaningSelection, setMeaningSelection] = useState(null);
+  const interpretation = useMemo(() => glyph?.model_data ? interpretGlyphMeaning(glyph.model_data) : null, [glyph?.model_data]);
+  const canRenderModel = useMemo(() => isRenderableGlyphModel(glyph?.model_data), [glyph?.model_data]);
+  const selectedMeaningObservation = !unsupportedVersion && meaningSelection?.glyphId === glyph?.id
+    ? interpretation?.observations.find((item) => item.id === meaningSelection.observationId) : null;
   const neighbors = useMemo(() => groupResonanceRows(relations), [relations]);
   const inspected = neighbors.find((neighbor) => neighbor.id === inspectedId);
   const audioRef = useRef(null);
@@ -126,8 +144,11 @@ const GlyphDetailPage = ({ client }) => {
   const handleShare = async () => {
     setSharing(true); setShareError(''); setShareNotice('');
     try {
-      const result = await shareArchive({ left: glyph });
-      if (result === 'copied') setShareNotice('공유 링크를 복사했습니다.');
+      const hasMeaning = !unsupportedVersion && interpretation?.meaningIds.length > 0;
+      const result = await shareArchive({ left: glyph, interpretation: hasMeaning ? interpretation : undefined,
+        reason: hasMeaning ? t('glyphDetailPage.archiveInterpretationV1', { p0: localize(interpretation.title), p1: localize(interpretation.reading) }) : undefined },
+        hasMeaning ? { locale, reading: 'meaning', meaningVersion: interpretation.meaningVersion } : { locale });
+      if (result === 'copied') setShareNotice(t('glyphDetailPage.shareLinkCopied'));
     } catch (err) { setShareError(err.message); }
     finally { setSharing(false); }
   };
@@ -135,6 +156,7 @@ const GlyphDetailPage = ({ client }) => {
   if (loading) {
     return (
       <Box sx={ { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'custom.chamber.fog' } }>
+        <AppGNB overlay />
         <CircularProgress sx={ { color: 'rgba(28,34,38,0.25)' } } />
       </Box>
     );
@@ -143,51 +165,36 @@ const GlyphDetailPage = ({ client }) => {
   if (error || !glyph) {
     return (
       <Box sx={ { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', bgcolor: 'custom.chamber.fog', color: INK, gap: 2 } }>
-        <Typography variant="h5" sx={ { fontFamily: SERIF_ALL, letterSpacing: '0.1em' } }>
-          SIGNAL NOT FOUND
-        </Typography>
+        <AppGNB overlay />
+        <Typography variant="h5" sx={ { fontFamily: SERIF_ALL, letterSpacing: '0.1em' } }>{ t('glyphDetailPage.signalNotFound') }</Typography>
         <Typography variant="body2" sx={ { color: 'rgba(28,34,38,0.45)' } }>
-          {error ? '응답을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.' : '이 응답은 존재하지 않거나 공개되지 않았습니다.'}
+          {error ? t('glyphDetailPage.theResponseCouldNotBeLoadedTry') : t('glyphDetailPage.thisResponseDoesNotExistOrIs')}
         </Typography>
-        {error && <Button onClick={ refetch }>다시 시도</Button>}
-        <Button component={ RouterLink } to="/" sx={ { color: 'rgba(28,34,38,0.5)', mt: 2 } }>
-          돌아가기
-        </Button>
+        {error && <Button onClick={ refetch }>{ t('archiveClusterExplorer.tryAgain') }</Button>}
+        <Button component={ RouterLink } to="/" sx={ { color: 'rgba(28,34,38,0.5)', mt: 2 } }>{ t('glyphDetailPage.goBack') }</Button>
       </Box>
     );
   }
 
   const model = glyph.model_data;
   const morphologySummary = Array.isArray(model?.clusters)
-    ? `가지 ${model.clusters.length}곳 · ${model.gap?.half > 0 ? '열린 링' : '닫힌 링'}`
-    : '형태 데이터 미확인';
+    ? t('glyphDetailPage.branches', { p0: model.clusters.length, p1: model.gap?.half > 0 ? t('glyphDetailPage.openRing') : t('glyphDetailPage.closedRing') })
+    : t('glyphDetailPage.formDataUnconfirmed');
 
   return (
     <Box sx={ { minHeight: '100vh', bgcolor: 'custom.chamber.fog', color: INK, px: { xs: 2, sm: 4, md: 6 }, py: { xs: 4, sm: 6 } } }>
+      <AppGNB soundOn={ isMusicOn } onToggleSound={ handleToggleMusic } />
       <Box sx={ { display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4, borderBottom: '1px solid rgba(28,34,38,0.1)', pb: 2 } }>
-        <IconButton onClick={ () => navigate('/archive') } aria-label="공개 아카이브로" sx={ { color: 'rgba(28,34,38,0.7)' } }>
+        <IconButton onClick={ () => navigate('/archive') } aria-label={ t('glyphDetailPage.goToPublicArchive') } sx={ { color: 'rgba(28,34,38,0.7)' } }>
           <ArrowBackIcon />
         </IconButton>
-        <Button
-          onClick={ handleToggleMusic }
-          variant="text"
-          sx={ {
-            fontFamily: MONO, fontSize: '0.52rem', letterSpacing: '0.22em',
-            py: 0.4, px: 1, minWidth: 0, color: INK,
-            opacity: isMusicOn ? 0.85 : 0.45,
-            borderRadius: 0,
-            border: `1px solid rgba(28,34,38,${isMusicOn ? 0.4 : 0.18})`,
-            '&:hover': { opacity: 0.95, bgcolor: 'rgba(28,34,38,0.06)', borderColor: 'rgba(28,34,38,0.55)' },
-          } }
-        >
-          { isMusicOn ? '❚❚ OST' : '► OST' }
-        </Button>
       </Box>
 
       <Box sx={ { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, mb: 6 } }>
-        {model && Object.keys(model).length > 0 && (
-          <ResponsiveLogogram model={ model } maxSize={ 360 } onFormationComplete={ handleFormationComplete } />
+        {canRenderModel && (
+          <ResponsiveLogogram model={ model } maxSize={ 360 } onFormationComplete={ handleFormationComplete } anchors={ selectedMeaningObservation?.anchors } />
         )}
+        {!canRenderModel && <Typography role="status">{ t('glyphDetailPage.theGlyphCouldNotBeDrawnBecause') }</Typography>}
         <Typography
           variant="h4"
           sx={ {
@@ -202,20 +209,27 @@ const GlyphDetailPage = ({ client }) => {
         </Typography>
       </Box>
 
+      {!unsupportedVersion && <GlyphClusterLink interpretation={ interpretation } sx={ { maxWidth: 640, mx: 'auto', mb: 3 } } />}
+
+      { unsupportedVersion ? <Alert severity="info" sx={ { maxWidth: 640, mx: 'auto', mb: 4 } }>{ t('glyphDetailPage.theMeaningRulesInThisLinkAre') }</Alert>
+        : interpretation && <GlyphMeaningSummary interpretation={ interpretation } variant="reading" selectedObservationId={ selectedMeaningObservation?.id }
+          onSelectObservation={ (observation) => setMeaningSelection(observation ? { glyphId: glyph.id, observationId: observation.id } : null) }
+          sx={ { maxWidth: 640, mx: 'auto', mb: 5 } } /> }
+
       <Box sx={ { maxWidth: 480, mx: 'auto', mb: 6, border: '1px solid rgba(28,34,38,0.12)', borderRadius: 1, p: 2.5 } }>
         <Box sx={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 } }>
           {[
-            ['FINGERPRINT', glyph.fingerprint ? `${glyph.fingerprint.slice(0, 16)}…` : '미기록'],
-            ['ENCODER', `v${glyph.encoder_version}`],
-            ['형태 관측', morphologySummary],
-            ['CONTRIBUTORS', glyph.contribution_count ?? '미확인'],
+            [t('glyphDetailPage.fingerprint'), glyph.fingerprint ? `${glyph.fingerprint.slice(0, 16)}…` : t('glyphDetailPage.notRecorded')],
+            [t('glyphDetailPage.encoder'), `v${glyph.encoder_version}`],
+            [t('glyphMeaningSummary.formObservation'), morphologySummary],
+            [t('glyphDetailPage.contributors'), glyph.contribution_count ?? t('glyphDetailPage.unconfirmed')],
           ].map(([label, value]) => (
             <Box key={ label } sx={ { py: 0.75 } }>
               <Typography variant="caption" sx={ { color: 'rgba(28,34,38,0.35)', fontFamily: MONO, fontSize: '0.65rem', letterSpacing: '0.1em' } }>
-                {label}
+                {localize(label)}
               </Typography>
               <Typography variant="body2" sx={ { fontFamily: MONO, fontSize: '0.8rem', color: 'rgba(28,34,38,0.7)' } }>
-                {value}
+                {localize(value)}
               </Typography>
             </Box>
           ))}
@@ -223,13 +237,13 @@ const GlyphDetailPage = ({ client }) => {
       </Box>
 
       <Box sx={ { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 1, mb: 2 } }>
-        <Button component={ RouterLink } to={ `/compare/${id}` } sx={ { color: INK } }>내 이름을 표식으로 변환해 비교하기</Button>
-        <IconButton onClick={ handleShare } disabled={ sharing } sx={ { color: 'rgba(28,34,38,0.7)', border: '1px solid rgba(28,34,38,0.12)' } } aria-label="공개 표식 공유">
+        <Button component={ RouterLink } to={ `/compare/${id}` } sx={ { color: INK } }>{ t('glyphDetailPage.encodeMyNameAndCompare') }</Button>
+        <IconButton onClick={ handleShare } disabled={ sharing } sx={ { color: 'rgba(28,34,38,0.7)', border: '1px solid rgba(28,34,38,0.12)' } } aria-label={ t('glyphDetailPage.sharePublicGlyph') }>
           <ShareIcon />
         </IconButton>
       </Box>
-      {shareNotice && <Alert severity="success" sx={ { maxWidth: 560, mx: 'auto', mb: 2 } }>{shareNotice}</Alert>}
-      {shareError && <Alert severity="error" sx={ { maxWidth: 560, mx: 'auto', mb: 2 } }>{shareError}</Alert>}
+      {shareNotice && <Alert severity="success" sx={ { maxWidth: 560, mx: 'auto', mb: 2 } }>{localize(shareNotice)}</Alert>}
+      {shareError && <Alert severity="error" sx={ { maxWidth: 560, mx: 'auto', mb: 2 } }>{localize(shareError)}</Alert>}
 
       {neighbors.length > 0 && (
         <Box sx={ { textAlign: 'center', mb: 4 } }>
@@ -245,9 +259,7 @@ const GlyphDetailPage = ({ client }) => {
               borderRadius: 0,
               '&:hover': { borderColor: 'rgba(28,34,38,0.5)' },
             } }
-          >
-            형태 공명 지도 탐색 →
-          </Button>
+          >{ t('glyphDetailPage.exploreTheFormResonanceMap') }</Button>
         </Box>
       )}
 
@@ -255,12 +267,9 @@ const GlyphDetailPage = ({ client }) => {
         <Typography
           variant="overline"
           sx={ { fontFamily: MONO, fontSize: '0.65rem', color: 'rgba(28,34,38,0.35)', letterSpacing: '0.15em', mb: 2, display: 'block' } }
-        >
-          이 표식에서 발견한 공명 {relLoading && '…'}
+        >{ t('glyphDetailPage.resonanceFoundInThisGlyph') }{relLoading && '…'}
         </Typography>
-        {!relLoading && !relError && <Typography variant="body2" sx={ { mb: 2, opacity: 0.7 } }>
-          현재 비교한 공개 표식 {sampleSize || 0}개 기준입니다.{mappingStatus === 'partial-sample' && ' 일부 표식은 모델을 읽을 수 없어 제외했습니다.'} 실제 모델의 가지, 개구부, 잉크와 링에서 닮은 부위를 찾습니다.
-        </Typography>}
+        {!relLoading && !relError && <Typography variant="body2" sx={ { mb: 2, opacity: 0.7 } }>{ t('glyphDetailPage.basedOn') }{sampleSize || 0}{ t('glyphDetailPage.publicGlyphsCompared') }{mappingStatus === 'partial-sample' && t('glyphDetailPage.someGlyphsWereExcludedBecauseTheirModels')}{ t('glyphDetailPage.similarFeaturesAreFoundInActualBranches') }</Typography>}
         <ResonanceList
           centerName={ glyphLabel(glyph) }
           relations={ neighbors.slice(0, 3) }
@@ -270,7 +279,7 @@ const GlyphDetailPage = ({ client }) => {
           error={ relError }
           onRetry={ retryRelations }
         />
-        {!relLoading && !relError && neighbors.length === 0 && <Button component={ RouterLink } to={ `/compare/${id}` } sx={ { color: INK, mt: 2 } }>내 이름을 변환한 표식과 비교해 보세요</Button>}
+        {!relLoading && !relError && neighbors.length === 0 && <Button component={ RouterLink } to={ `/compare/${id}` } sx={ { color: INK, mt: 2 } }>{ t('glyphDetailPage.compareWithAGlyphOfYourName') }</Button>}
       </Box>
       <RelationInspector open={ !!inspected } relation={ inspected ? { ...inspected, leftGlyph: glyph, nameA: glyphLabel(glyph), nameB: inspected.name } : null }
         onClose={ () => setInspectedId(null) } onExplore={ handleNodeSelect }

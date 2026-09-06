@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useState, useCallback, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -55,6 +56,7 @@ export function FileDropzone({
   variant = 'default',
   sx,
 }) {
+  const { localize, t } = useI18n();
   const [isDragActive, setIsDragActive] = useState(false);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
@@ -198,7 +200,7 @@ export function FileDropzone({
           <Box
             component="img"
             src={previewUrl}
-            alt="Preview"
+            alt={ t('fileDropzone.preview') }
             sx={{
               width: '100%',
               height: '100%',
@@ -220,8 +222,7 @@ export function FileDropzone({
               bgcolor: 'rgba(0, 0, 0, 0.7)',
             }}
           >
-            <Typography variant="body2" sx={{ color: 'white', mb: 2 }}>
-              Uploading... {uploadProgress}%
+            <Typography variant="body2" sx={{ color: 'white', mb: 2 }}>{ t('fileDropzone.uploading') }{uploadProgress}%
             </Typography>
             <LinearProgress
               variant="determinate"
@@ -249,9 +250,7 @@ export function FileDropzone({
             }}
           >
             <CheckCircleIcon fontSize="small" />
-            <Typography variant="caption" sx={{ fontWeight: 600 }}>
-              Uploaded
-            </Typography>
+            <Typography variant="caption" sx={{ fontWeight: 600 }}>{ t('fileDropzone.uploaded') }</Typography>
           </Box>
         )}
 
@@ -377,20 +376,18 @@ export function FileDropzone({
               color: isDragActive ? 'primary.main' : 'text.primary',
             }}
           >
-            {isDragActive ? 'Drop your file here' : 'Drag & drop or click to upload'}
+            {isDragActive ? t('fileDropzone.dropYourFileHere') : t('fileDropzone.dragAndDropOrClickToUpload')}
           </Typography>
         )}
         {variant === 'default' && (
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-            Supports images and videos up to {Math.round(maxSize / (1024 * 1024))}MB
-          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>{ t('fileDropzone.supportsImagesAndVideosUpTo') }{Math.round(maxSize / (1024 * 1024))}{ t('fileDropzone.mb') }</Typography>
         )}
       </Box>
 
       {/* 에러 메시지 */}
       {error && (
         <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-          {error}
+          {localize(error)}
         </Typography>
       )}
     </Box>

@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useState, useCallback, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -27,6 +28,7 @@ import Typography from '@mui/material/Typography';
  * @param {string} chipColor - 칩 색상 테마 [Optional, 기본값: 'default']
  * @param {string} label - 필드 레이블 [Optional]
  * @param {boolean} isDisabled - 비활성화 상태 [Optional, 기본값: false]
+ * @param {string[]|null} allowedTags - 허용 태그 목록. null이면 자유 입력 모드 [Optional, 기본값: null]
  * @param {object} sx - 추가 스타일 [Optional]
  *
  * Example usage:
@@ -36,11 +38,19 @@ import Typography from '@mui/material/Typography';
  *   placeholder="Add style keywords..."
  *   maxTags={5}
  * />
+ *
+ * Allowlist mode:
+ * <TagInput
+ *   tags={selectedTags}
+ *   onChange={setSelectedTags}
+ *   allowedTags={['기억', '감각', '의도']}
+ *   maxTags={3}
+ * />
  */
 export function TagInput({
   tags = [],
   onChange,
-  placeholder = 'Add tags...',
+  placeholder,
   maxTags = 10,
   suggestions = [],
   variant = 'outlined',
@@ -48,8 +58,11 @@ export function TagInput({
   chipColor = 'default',
   label,
   isDisabled = false,
+  allowedTags = null,
   sx,
 }) {
+  const { t } = useI18n();
+  const isAllowlistMode = Array.isArray(allowedTags);
   const [inputValue, setInputValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -74,12 +87,13 @@ export function TagInput({
       if (!trimmed) return;
       if (tags.length >= maxTags) return;
       if (tags.includes(trimmed)) return;
+      if (isAllowlistMode && !allowedTags.some((t) => t.toLowerCase() === trimmed)) return;
 
       onChange([...tags, trimmed]);
       setInputValue('');
       setShowSuggestions(false);
     },
-    [tags, maxTags, onChange]
+    [tags, maxTags, onChange, isAllowlistMode, allowedTags]
   );
 
   /**
@@ -122,7 +136,11 @@ export function TagInput({
         parts.forEach((part) => addTag(part));
       } else {
         setInputValue(value);
-        setShowSuggestions(value.length > 0 && suggestions.length > 0);
+        setShowSuggestions(
+          isAllowlistMode
+            ? tags.length < maxTags
+            : value.length > 0 && suggestions.length > 0
+        );
       }
     },
     [addTag, suggestions]
@@ -138,9 +156,10 @@ export function TagInput({
   }, [isDisabled]);
 
   /**
-   * 필터링된 제안 목록
+   * 필터링된 제안 목록 (allowlist 모드에서는 허용 태그에서 필터)
    */
-  const filteredSuggestions = suggestions.filter(
+  const suggestionSource = isAllowlistMode ? allowedTags : suggestions;
+  const filteredSuggestions = suggestionSource.filter(
     (suggestion) =>
       suggestion.toLowerCase().includes(inputValue.toLowerCase()) &&
       !tags.includes(suggestion.toLowerCase())
@@ -232,14 +251,18 @@ export function TagInput({
             onKeyDown={handleKeyDown}
             onFocus={() => {
               setIsFocused(true);
-              setShowSuggestions(inputValue.length > 0 && suggestions.length > 0);
+              setShowSuggestions(
+                isAllowlistMode
+                  ? tags.length < maxTags
+                  : inputValue.length > 0 && suggestions.length > 0
+              );
             }}
             onBlur={() => {
               setIsFocused(false);
               // 딜레이를 두어 제안 클릭이 가능하도록
               setTimeout(() => setShowSuggestions(false), 200);
             }}
-            placeholder={tags.length === 0 ? placeholder : ''}
+            placeholder={tags.length === 0 ? (placeholder ?? t('common.tagPlaceholder')) : ''}
             disabled={isDisabled}
             sx={{
               flex: 1,
@@ -271,7 +294,7 @@ export function TagInput({
           }}
         >
           <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
-            Suggestions
+            { isAllowlistMode ? t('tagInput.select') : t('tagInput.suggestions') }
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
             {filteredSuggestions.slice(0, 8).map((suggestion) => (

@@ -47,13 +47,22 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - Table: MUI Table 컴포넌트 [MUI]
 - DataReadout: Heptapod B 로고그램 분석 패널. 모노스페이스 연구 장비 톤, 시드 해시·NFD·12슬롯 상태 표기, ScrambleText 값 전환 (`components/data-display/DataReadout.jsx`)
 - GlyphNode: 저장 모델의 실제 입자 기하를 재사용하는 정적 Canvas 표식, 키보드 선택·긴 이름 접근성 (`components/data-display/GlyphNode.jsx`)
+- ArchiveGlyph: 입력 모델의 뷰포트 진입 Canvas 형성. 실제 구성원 샘플/이름 있는 버튼/확대 및 비조작 계열 상징의 표시 표면을 재사용. optional anchors를 실제 Canvas와 같은 크기에 겹치며 형성을 다시 시작하지 않음. 손상 모델 가드·Observer 해제·감소 모션 유지 (`components/data-display/ArchiveGlyph.jsx`)
+- ArchiveFamilySymbol: 도래/수용/상호성의 방향성을 각각 하나의 저작된 링 패턴으로 표시. 동일 외곽·질감에서 가지 방향만 차별화하며 추가 의미 없음 검증. 개인 이름/평균 표식이 아니고 공개 정체성·소속·개수에 포함하지 않음. ArchiveGlyph 생성 효과 재사용 (`components/data-display/ArchiveFamilySymbol.jsx`)
+- ArchiveDepthExplorer: 계열 상징 → 유형별 피드 → 개인 확대. 메타 탭·분포·중간 유형 포털 없이 기존 범위의 공개 구성원을 ArchiveArchetypeFeed로 전달. 개인 Dialog는 scopeKey 목록을 보존하고 피드 순서 전후 이동·Escape·공유·접힌 판독 제공. 기존 group/AND/status 범위와 partial 표식 유지 (`components/data-display/ArchiveDepthExplorer.jsx`)
+- ArchiveArchetypeFeed: 실제 구성원이 있는 정확한 유형만 저작 상징·제목·짧은 서사와 함께 세로 배열. 실제 표식 모바일 2열/데스크톱 3열, untyped는 유형을 강제하지 않고 뒤에 유지. API·라우팅·분류 계산 없이 projection DTO 소비 (`components/data-display/ArchiveArchetypeFeed.jsx`)
 - ResonanceList: 이웃 ID별 복수 근거 목록, 설명/중심 이동 분리, loading/error/empty 구분 (`components/data-display/ResonanceList.jsx`)
 - ResonanceMap: 선택한 중심의 1-hop 관측 지도, 모바일6/데스크톱12, 항상 목록 전환 가능 (`components/data-display/ResonanceMap.jsx`)
-- GlyphPairComparison: 실제 두 모델의 형태 공명 비교. 관측 부위 선택 시 양쪽 가지/개구부/잉크/링에 대응 번호 표시, 전체 형태와 일부 구조 공명 구분. 질문 갈고리 유무 비교, v3 관측만 노출 (`components/data-display/GlyphPairComparison.jsx`)
-- ResonancePreview: 인코더 측면 진입 버튼과 로컬 이름 비교 Dialog. 입력은 서버에 보내지 않음 (`components/data-display/ResonancePreview.jsx`)
+- ArchiveClusterExplorer: 공개 표본의 중첩 형태 군집 선택·미소속 범위·구성원 비교. 전체 형상/같은 가지/열린 틈+먹 패턴 분리, 군집 전용 근거로 GlyphPairComparison 재사용. 순수 표시·provider와 분리 (`components/data-display/ArchiveClusterExplorer.jsx`)
+- ArchiveMeaningExplorer: 기본 의미 단일 선택·추가 의미 AND·복합 의미 exact·부분/미확인 필터. 공개 그룹 구성원 두 개 선택 비교·필터 공유. `filterMeaningGlyphs`로 갤러리와 동일 소속 판정. 정밀 공명과 분리한 순수 표시 (`components/data-display/ArchiveMeaningExplorer.jsx`)
+- GlyphMeaningSummary: 실제 모델의 의미·관측 근거. summary/compact 유지, reading은 공통 유형명·서사와 기존 의미 정의·개별 방향/틈/먹 위치를 고정 높이로 읽음. 인코더·개인 확대·공유 상세가 카탈로그/buildMeaningReading을 재사용. partial/invalid 유형 강제 없음. 실제 anchors·fg·선택 해제 유지 (`components/data-display/GlyphMeaningSummary.jsx`)
+- GlyphClusterLink: 실제 해석의 정확한 소속 군집명과 해당 Archive 그룹 링크. 공유 상세·내 표식·등록 완료 팝업에서 재사용. compact/비라우터 Storybook 지원, 불완전 판독에는 임의의 군집 링크를 만들지 않음 (`components/data-display/GlyphClusterLink.jsx`)
+- GlyphPairComparison: 두 모델의 정밀 공명 비교와 optional meaningComparison 기반 의미 읽기를 분리. controlled view·보기별 공유, 실제 anchors 표시. 의미 번호는 각 표식의 독립 관측이며 정밀 대응점/점수가 아님. 기존 props만 전달하면 v3 정밀 비교 유지 (`components/data-display/GlyphPairComparison.jsx`)
+- ResonancePreview: 표시 모델의 의미 요약·의미군 탐색 링크와 로컬 비교 Dialog. 상세와 동일 판독기, 의미/정밀 분리. 입력은 서버에 보내지 않음. 컴포넌트·스토리는 보존하되 현재 인코더 기본 패널에서는 제외 (`components/data-display/ResonancePreview.jsx`)
 
 ## 6. In-page Navigation — 페이지 내 탐색
 
+- ArchiveFeedIndex: 44px 왼쪽 sticky 원형 앵커 인덱스. 작은 원 크기=상대 구성원 분량, 채움=현재 위치, 하단 숫자=현재/전체 구간. 유형명·개수는 hover/focus/터치 길게 누르기 툴팁에만 표시. {id,targetId,label,count} items와 sx 소비. 44px 클릭 영역·Lenis/네이티브 이동·모션 감소 즉시 이동·대상 포커스·자체 스크롤·구간 감지/resize/RAF 해제. 필터/라우트/모델 변경 없음 (`components/in-page-navigation/ArchiveFeedIndex.jsx`)
 - CategoryTab: 카테고리 탭 (`components/in-page-navigation/CategoryTab.jsx`)
 - Tabs: MUI Tabs 컴포넌트 [MUI]
 
@@ -83,22 +92,27 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 ## 9. Overlay & Feedback — 맥락적 정보 표시
 
+- HeroAffordance: 랜딩 하단의 로딩·스크롤·자동 재생·버퍼링·재시도 안내. 스크롤 구간 안내 상시 표시, 자동 재생·로딩 시 해당 안내로 교체(동시 표시 없음), 모바일 위로 밀기·모션 감소·한영 locale·화이트아웃 명도 전환, 생성 모드 진입 시 제거 (`components/overlay-feedback/HeroAffordance.jsx`)
+
 - Dialog: MUI Dialog 컴포넌트 [MUI]
-- PublishDialog: 명시적 공개 동의·익명 소유권 안내, pending/success/error. optional intent='share'/completion='stay'/onShare로 공개 후 사용자 클릭 공유와 결과 화면 유지 지원. 공유 실패는 완료 상태에서 재시도하며 재게시하지 않음. 기본 기존 Archive 완료 흐름 유지 (`components/overlay-feedback/PublishDialog.jsx`)
+- PublishDialog: 명시적 공개 동의·익명 소유권 안내, pending/success/error. 완료 후 공개 URL·군집명/이동·보관 안내·페이지 열기·독립 복사 제공. 소셜 공유는 X·Threads·Facebook 선택 및 지원 기기의 다른 앱 공유, 자동 복사 폴백 없음. publishedResult로 완료 화면 재진입, onCopy/interpretation/canShareWithApps 주입. 복사 실패 시 수동 선택 안내, 공유 취소·실패에도 완료 유지 (`components/overlay-feedback/PublishDialog.jsx`)
 - RelationInspector: 선택한 두 표식의 형태 관측 Drawer. leftGlyph/neighborGlyph가 있으면 GlyphPairComparison으로 실제 대응 부위 표시, 크게 비교/중심 이동 (`components/overlay-feedback/RelationInspector.jsx`)
-- AnalysisOverlay: Heptapod B 울프럼 포렌식 화면 재현. 모델에서 특징점(빨강 vertex, 클러스터 주변 조밀) 추출 + 경량 Delaunay(Bowyer–Watson, 의존성0) 삼각망(초록 mesh) + 12세그먼트 점선 격자·측정 링·무게중심, 라이브 스캔 애니메이션 + 계측 readout. 분석 모드 한정 계측색(초록/빨강) 허용, 그 외 모노크롬. 렌더러와 좌표계 일치 (`components/overlay-feedback/AnalysisOverlay.jsx`)
+- GlyphObservationOverlay: 실제 렌더러 좌표의 부위별 번호·원·호 표시. fg 지원, 가까운 번호는 리더 선으로 분리하되 관측 좌표는 유지. Archive의 생성 애니메이션과 GlyphPairComparison에서 같은 표시부 재사용 (`components/overlay-feedback/GlyphObservationOverlay.jsx`)
+- AnalysisOverlay: Heptapod B 울프럼 포렌식 화면 재현. 모델에서 특징점(빨강 vertex, 클러스터 주변 조밀) 추출 + 경량 Delaunay(Bowyer–Watson, 의존성0) 삼각망(초록 mesh) + 12세그먼트 점선 격자·측정 링·무게중심, 라이브 스캔 애니메이션 + 계측 readout. 분석 모드 한정 계측색(초록/빨강) 허용, 그 외 모노크롬. showReadout=false는 수치/기술 캡션만 숨기고 초록 mesh·빨강 vertex·스캔과 onScan은 유지. 의미 설명/관측 강조와 병용 (`components/overlay-feedback/AnalysisOverlay.jsx`)
 
 ## 10. Navigation (Global) — 페이지 간 이동
 
-- LanguageSwitcher: 시스템 설정/한국어/영어 선택. OS 언어 초기화·선택 저장·기존 입력 보존, GNB와 앱 상단에서 공유 (`components/navigation/LanguageSwitcher.jsx`)
+- LanguageSwitcher: 지구본 아이콘으로 여는 시스템 설정/한국어/영어 메뉴. 모노크롬·직각·헤어라인·모노 타이포와 선택 체크 표시. OS 언어 초기화·선택 저장·기존 입력 보존, GNB와 앱 상단에서 공유 (`components/navigation/LanguageSwitcher.jsx`)
 
-- GNB: 반응형 글로벌 네비게이션 바. 데스크탑 메뉴 / 모바일 Drawer (`components/navigation/GNB.jsx`)
+- AppGNB: Story·Create·Archive 공통 fixed GNB. 모바일 64px·데스크톱 80px + 안전 영역, md 미만 전체 화면 Drawer·40–72px 메뉴 타이포, 활성 경로·언어·페이지별 사운드·SKIP. Canvas 세션 및 Archive URL/스크롤 복원 연동. 헤더는 투명하고 overlay로 본문 간격 제어, tone 배경은 Drawer에 적용하고 dark overlay 헤더에만 그라데이션 사용 (`components/navigation/AppGNB.jsx`)
+- GNB: isFixed·resetKey·drawerSx로 앱 헤더 재사용, Drawer 경로/화면폭 변경 닫기 및 Lenis 잠금 복원. 기본 언어 전환 표시(showLanguageSwitcher), 반응형 글로벌 네비게이션 바. 데스크탑 메뉴 / 모바일 Drawer (`components/navigation/GNB.jsx`)
 - NavMenu: 네비게이션 메뉴 (`components/navigation/NavMenu.jsx`)
 - SlidingHighlightMenu: 슬라이딩 하이라이트 메뉴. hover 시 layoutId 기반 인디케이터 이동, background/underline, horizontal/vertical (`components/navigation/SlidingHighlightMenu.jsx`)
 
 ## 11. KineticTypography (Interactive) — 텍스트 애니메이션 효과
 
 - RandomRevealText: 랜덤 순서 blur 리빌 타이포그래피. Fisher-Yates 셔플 기반 (`components/kinetic-typography/RandomRevealText.jsx`)
+- TypeCaption: 마지막 씬의 blur 등장·타자 효과. `exitProgress` 지정 시 본문을 유지하다 글자별 랜덤 blur/opacity로 퇴장한다. InkLetters의 선택적 퇴장 MotionValue를 공유하며, ScrubCaption·CaptionFrame의 sticky 모드로 중앙 고정 (`components/kinetic-typography/scrub/TypeCaption.jsx`)
 - ScrambleText: 텍스트 스크램블 전환 효과. requestAnimationFrame 기반 (`components/kinetic-typography/ScrambleText.jsx`)
 - ScrollRevealText: 스크롤 진행에 따른 텍스트 순차 리빌 (`components/kinetic-typography/ScrollRevealText.jsx`)
 
@@ -108,7 +122,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 ## 12. Scroll (Interactive) — 스크롤 기반 효과
 
-- VideoScrubbing: 스크롤 기반 비디오 스크러빙(단일 video를 progress에 따라 연속 seek). 레이아웃 메트릭을 한 번만 측정·캐시해 **per-frame 강제 리플로우 제거**(역스크럽 점핑 방지), per-frame엔 scrollY만 읽음 (`components/scroll/VideoScrubbing.jsx`)
+- VideoScrubbing: 스크롤 기반 비디오 스크러빙(단일 video를 progress에 따라 연속 seek). 레이아웃 메트릭을 한 번만 측정·캐시해 **per-frame 강제 리플로우 제거**(역스크럽 점핑 방지), per-frame엔 scrollY만 읽음. `onPlaybackStateChange`로 loading/ready/waiting/playing/error 전달, `mediaRef`로 실제 재생 위치를 복원해 재시도, 자동 재생 진입 시 현재 프레임에서 연속 재생 (`components/scroll/VideoScrubbing.jsx`)
 - ScrollScaleContainer: 뷰포트 노출 비율 연동 스케일 컨테이너. Framer Motion useScroll + useTransform (`components/scroll/ScrollScaleContainer.jsx`)
 
 ## 14. Motion (Interactive) — 스토리텔링 모션
@@ -130,13 +144,13 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 ## Common (유틸리티)
 
+- AppRoutes / EncoderRoutes / paths: 라우트 등록·랜딩 완료/Canvas 쿼리 어댑터·공통 경로 계약. `/` 실제 영상 종료 후 `/canvas` replace, Canvas의 Archive 클릭은 `/archive` push. 기존 이름·생성 쿼리 호환, 이름/버전 변경 시에만 입력 세션 재마운트. App의 provider·Lenis 수명과 분리 (`routes/`)
 - Indicator: 범용 인디케이터 (`common/ui/Indicator.jsx`)
 - Placeholder: 스토리 예제용 FPO 플레이스홀더 시스템. Box/Image/Media/Text/Line/Paragraph/Card 서브컴포넌트 (`common/ui/Placeholder.jsx`)
 - FilterBar: 필터 바 (`components/templates/FilterBar.jsx`)
-- MyArchivePage: `/archive` 공개 갤러리. 뷰포트 진입 시 기존 Canvas 표식 형성 효과, 분석 hover·명시적 연결 탐색 CTA. 앱 전역 Lenis 유지 (`components/templates/MyArchivePage.jsx`)
-- GlyphDetailPage: `/glyph/:id` 저장 표식·상위 연결3개·근거·직접 비교·UUID 공유 (`components/templates/GlyphDetailPage.jsx`)
+- MyArchivePage: `/archive` 기본 상징 → 유형별 실제 구성원 피드. 선택 UUID·공유·뒤로 가기 및 기존 group/AND/status 범위 유지. 신규 meta URL/탭 정렬 제거. 단일 공개 표식 공유 문구는 공통 유형 카탈로그 사용. 관측 Drawer·내 응답·미판독 메뉴 복원 없음. meaningProvider·Canvas 형성·전역 Lenis·공용 AppGNB 유지 (`components/templates/MyArchivePage.jsx`)
+- GlyphDetailPage: `/glyph/:id`에 실제 소속 군집명·군집 이동 링크, 의미 판독·근거 선택과 상위 정밀 연결3개 표시. 버전이 명시된 UUID 의미 공유 (`components/templates/GlyphDetailPage.jsx`)
 - ResonanceFieldPage: `/field/:id` 가지/개구부/잉크/링/질문 변주 필터·현재 공개 표본·실제 관측 부위 선택·중심 이동, 모바일 기본 목록 (`components/templates/ResonanceFieldPage.jsx`)
-- ArchiveComparePage: `/compare/:leftId/:rightId?` 공개 쌍 및 비공개 로컬 입력 비교, 이미지 저장·동의 후 링크 공유 (`components/templates/ArchiveComparePage.jsx`)
-- MyResponsesPage: `/me` 본인 활성 Contribution 조회/철회, 익명 소유자를 유지한 Google 연결 (`components/templates/MyResponsesPage.jsx`)
-- HeptapodHeroIntro: Heptapod B Encoder 스테이지 세그먼트 재생 기반 스크롤리텔링 인트로. **고정(fixed) 풀스크린 영상**(오디오 원본)을 스크럽이 아니라 **세그먼트 단위로 소리와 함께 재생**한다. 세계관 카피(B0~B6, 영문 serif + 한글)는 일반 흐름(자연 스크롤)으로 흘러가며, 각 섹션의 뷰포트 중앙 진입(IntersectionObserver)이 활성 스테이지를 결정 → 해당 세그먼트 `play()`, 끝 프레임에서 정지 후 대기(위로 스크롤 시 되감기). 섹션 높이는 세그먼트 길이에 비례. 영상 unmuted(첫 제스처에서 unmute), 인코더 진입 시 영상 정지 + children에 `audioActive` 주입(인트로=영상 음성 / 인코더=OST 분리). 인코더는 children으로 받아 near면 display·inView면 audioActive. SKIP은 인코더로 scrollIntoView. `App.jsx`가 `<HeptapodHeroIntro><HeptapodEncoderPage/></HeptapodHeroIntro>`로 합성(공유 URL `?name=`은 인트로 생략, Lenis 스무스 스크롤 감속). 데이터는 `data/heptapodHeroStory.js` (`HERO_STORY_BEATS[i].video=[start,end]`) (`components/templates/HeptapodHeroIntro.jsx`)
-- HeptapodEncoderPage: 기존 풀스크린 챔버·중앙 표식·우상단 오버레이 유지. 덩어리 수·가닥 수·무게중심·링 상태를 고정 네 줄(32px×4)로 표시하며 ANALYSIS 전환으로 행·제목·액션 위치를 바꾸지 않음. 우측 진입은 ANALYSIS / Publish and share / Archive만 제공. 모바일 상세 RAW DATA는 별도 버튼 없이 ANALYSIS에서 열고 닫으면 분석도 해제. SAVE·하단 의미 설명·의미군 링크·이름 비교는 제거. 문자 분해·타이핑 프리뷰·IME/검증·Canvas/Chamber·audioActive/음악 유지. 미공개는 동의·공개 후 새 Share 클릭으로 공유하며 공개 완료 뒤 같은 버튼은 재게시 없이 Share로 동작. 기존 v1 URL은 명시적 v2 재생성 후 공개. optional client/initialName으로 무네트워크 스토리 지원 (`components/templates/HeptapodEncoderPage.jsx`)
+- ArchiveComparePage: `/compare/:leftId/:rightId?` 공개/로컬 입력의 의미·정밀 비교. URL reading으로 보기와 공유·PNG 문구 일치, 미지원 의미 버전 차단, 공개 동의 유지 (`components/templates/ArchiveComparePage.jsx`)
+- HeptapodHeroIntro: `/`의 독립 영상 인트로. 준비 후 START로 스크롤 잠금을 해제하고 양방향 스크럽·비트 캡션·스크럽 사운드, 42초 지점부터 현재 프레임의 연속 재생을 유지한다. 실제 ended 후 마지막 캡션 퇴장·안개 전환을 마치면 onComplete를 한 번 호출하며 부모 라우트가 `/canvas`로 이동한다. children 인코더·audioActive 주입은 제거. SKIP·오류·모션 감소에서도 실제 완주가 필수이고 HeroAffordance가 각 재생 상태를 안내한다. 언마운트 시 영상·사운드·스크롤 구독 해제 (`components/templates/HeptapodHeroIntro.jsx`)
+- HeptapodEncoderPage: `/canvas`의 독립 생성 화면. 기존 풀스크린 챔버·중앙 표식·우상단 오버레이 유지. 덩어리 수·가닥 수·무게중심·링 상태를 고정 네 줄(32px×4)로 표시하며 ANALYSIS 전환으로 행·제목·액션 위치를 바꾸지 않음. 우측 기능 라벨은 분석하기 / Heptapod 등록 및 공유 / Heptapod 아카이빙으로 제공. ANALYSIS는 초록 삼각망·빨간 정점·순차 스캔·비프를 유지하며 의미 기반 설명과 실제 anchor 강조를 병용. 데스크톱 좌측 레일/모바일 Dialog는 같은 공통 어휘·정의·개별 배치를 읽음. 의미 선택은 스캔/Canvas를 재시작하지 않으며 모바일 닫기는 분석도 해제. SAVE·하단 의미 설명·의미군 링크·이름 비교는 제거. 문자 분해·타이핑 프리뷰·IME/검증·Canvas/Chamber·audioActive/음악 유지. 미공개는 동의·공개 후 새 Share 클릭으로 공유하며 공개 완료 뒤 같은 버튼은 재게시 없이 Share로 동작. 기존 v1 URL은 명시적 v2 재생성 후 공개. optional client/initialName/initialEncoderVersion으로 무네트워크 스토리 지원. 라우트에서 URL 진입값을 주입하고 랜딩 영상 수명과 분리 (`components/templates/HeptapodEncoderPage.jsx`)

@@ -1,0 +1,55 @@
+{
+  "version": "5",
+  "specifiers": {
+    "npm:@electric-sql/pglite@0.3.14": "0.3.14"
+  },
+  "npm": {
+    "@electric-sql/pglite@0.3.14": {
+      "integrity": "sha512-3DB258dhqdsArOI1fIt7cb9RpUOgcDg5hXWVgVHAeqVQ/qxtFy605QKs4gx6mFq3jWsSPqDN8TgSEsqC3OfV9Q=="
+    }
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@chromatic-com/storybook@^4.1.3",
+        "npm:@emotion/is-prop-valid@^1.4.0",
+        "npm:@emotion/react@^11.14.0",
+        "npm:@emotion/styled@^11.14.1",
+        "npm:@eslint/js@^9.39.1",
+        "npm:@fontsource-variable/material-symbols-outlined@^5.2.30",
+        "npm:@mui/icons-material@^7.3.5",
+        "npm:@mui/lab@7.0.1-beta.20",
+        "npm:@mui/material@^7.3.5",
+        "npm:@storybook/addon-a11y@^10.1.0",
+        "npm:@storybook/addon-docs@^10.1.0",
+        "npm:@storybook/addon-onboarding@^10.1.0",
+        "npm:@storybook/addon-vitest@^10.1.0",
+        "npm:@storybook/react-vite@^10.1.0",
+        "npm:@supabase/supabase-js@^2.115.0",
+        "npm:@types/react-dom@^19.2.3",
+        "npm:@types/react@^19.2.5",
+        "npm:@vitejs/plugin-react@^5.1.1",
+        "npm:@vitest/browser-playwright@^4.0.14",
+        "npm:@vitest/coverage-v8@^4.0.14",
+        "npm:eslint-plugin-react-hooks@^7.0.1",
+        "npm:eslint-plugin-react-refresh@~0.4.24",
+        "npm:eslint-plugin-storybook@^10.1.0",
+        "npm:eslint@^9.39.1",
+        "npm:framer-motion@^12.31.1",
+        "npm:globals@^16.5.0",
+        "npm:happy-dom@^20.14.0",
+        "npm:lenis@^1.3.24",
+        "npm:pixelarticons@^1.8.1",
+        "npm:playwright@^1.57.0",
+        "npm:prop-types@^15.8.1",
+        "npm:react-dom@^19.2.0",
+        "npm:react-router-dom@^7.10.0",
+        "npm:react@^19.2.0",
+        "npm:storybook@^10.1.0",
+        "npm:three@0.182",
+        "npm:vite@^7.2.4",
+        "npm:vitest@^4.0.14"
+      ]
+    }
+  }
+}

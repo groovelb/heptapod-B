@@ -1,3 +1,4 @@
+import { sourceText as t } from '../../i18n/messages.js';
 /** v3 graph: transformed visual morphology only. Raw names are not inputs. */
 import { extractGlyphFeatures } from './extractGlyphFeatures.js';
 import { scoreFormRelation } from './scoreFormRelation.js';
@@ -15,7 +16,7 @@ function hooksEqual(a, b) {
  * encoder labels, cached feature vectors, semantic similarity, or name merging. */
 export function relateGlyphs(a, b) {
   if (a?.id != null && a.id === b?.id) return [];
-  if (!a?.model_data || !b?.model_data) throw new TypeError('관계를 비교할 저장 표식이 필요합니다.');
+  if (!a?.model_data || !b?.model_data) throw new TypeError(t('relateGlyphs.storedGlyphsAreRequiredToCompareRelations'));
   const featuresA = extractGlyphFeatures(a.model_data);
   const featuresB = extractGlyphFeatures(b.model_data);
   const relation = (relationType, score, components, basis) => ({
@@ -32,7 +33,7 @@ export function relateGlyphs(a, b) {
     const anchor = (hook, other) => ({ ang: normalizeAngle((hook || other).ang) });
     const observations = [{
       kind: 'question',
-      reason: '링과 가지 본체는 같고, 의문형 갈고리만 다릅니다.',
+      reason: t('relateGlyphs.theRingAndBranchBodiesMatchOnly'),
       similarity: 1,
       anchorA: anchor(hookA, hookB), anchorB: anchor(hookB, hookA),
       hookPresentA: Boolean(hookA), hookPresentB: Boolean(hookB),

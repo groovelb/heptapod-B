@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useEffect, useMemo, useRef } from 'react';
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -19,6 +20,7 @@ const geometryCache = new WeakMap();
  * @param {object} sx - 추가 MUI sx
  */
 export default function GlyphNode({ model, size = 64, label = '', isSelected = false, onClick, sx = {} }) {
+  const { t } = useI18n();
   const canvasRef = useRef(null);
   const theme = useTheme();
   const ink = theme.palette.custom?.chamber?.ink || theme.palette.text.primary;
@@ -43,7 +45,7 @@ export default function GlyphNode({ model, size = 64, label = '', isSelected = f
     paintStatic(ctx, particles, makeSprites(ink));
   }, [particles, resolvedSize, ink]);
 
-  const accessibleName = `${label || model?.meta?.name || '이름'}의 표식${particles ? '' : ' · 표시할 데이터 없음'}`;
+  const accessibleName = t('glyphNode.sGlyph', { p0: label || model?.meta?.name || t('glyphNode.name'), p1: particles ? '' : t('glyphNode.noDisplayData') });
   return (
     <Box component={ onClick ? 'button' : 'div' } type={ onClick ? 'button' : undefined }
       onClick={ onClick } aria-label={ onClick ? accessibleName : undefined }
@@ -64,7 +66,7 @@ export default function GlyphNode({ model, size = 64, label = '', isSelected = f
         />
       ) : (
         <Box role="img" aria-label={ accessibleName } sx={ { width: resolvedSize, height: resolvedSize, display: 'grid', placeItems: 'center' } }>
-          <Typography variant="caption">표식 없음</Typography>
+          <Typography variant="caption">{ t('glyphNode.noGlyph') }</Typography>
         </Box>
       ) }
       { label && (

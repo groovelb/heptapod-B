@@ -1,3 +1,4 @@
+import { sourceText as t } from '../../i18n/messages.js';
 /**
  * Heptapod B Encoder — 가역 형태 모델 (병행 모드)
  *
@@ -45,7 +46,7 @@ function slotToClock(ang) {
   // 0=3시(+x) 시계방향. 12시 = -90°. 시계 숫자로 환산
   const deg = (((ang * 180) / Math.PI) % 360 + 360) % 360;
   const hour = (((Math.round(deg / 30) + 3) % 12) + 12) % 12;
-  return `${hour === 0 ? 12 : hour}시`;
+  return t('reversibleModel.oClock', { p0: hour === 0 ? 12 : hour });
 }
 
 /**
@@ -244,16 +245,16 @@ export function inspect(model) {
   // 데이터 채널 — 각 버킷이 "만드는 형태(visual)"와 "화면 위치(where)"를 함께
   const fixed = [
     {
-      field: 'harm1·2·3', value: `${buckets.harm1}·${buckets.harm2}·${buckets.harm3}`, radix: RADII.harm1, visual: '링 굴곡 (k1/k2/k3 물결)', where: '원이 일그러진 정도',
+      field: 'harm1·2·3', value: `${buckets.harm1}·${buckets.harm2}·${buckets.harm3}`, radix: RADII.harm1, visual: t('reversibleModel.ringCurvatureK1K2K3Waves'), where: t('reversibleModel.ringDistortion'),
     },
     {
-      field: 'gapState', value: buckets.gapState, radix: RADII.gapState, visual: buckets.gapState === 0 ? '닫힌 링' : '링 개구부', where: buckets.gapState === 0 ? '끊김 없음' : `${slotToClock(((buckets.gapState - 1) / 16) * TWO_PI)} 방향 끊김`,
+      field: 'gapState', value: buckets.gapState, radix: RADII.gapState, visual: buckets.gapState === 0 ? t('glyphDetailPage.closedRing') : t('reversibleModel.ringOpening'), where: buckets.gapState === 0 ? t('heptapodEncoderPage.noGap') : t('reversibleModel.gapToward', { p0: slotToClock(((buckets.gapState - 1) / 16) * TWO_PI) }),
     },
     {
-      field: 'strand', value: buckets.strand, radix: RADII.strand, visual: `멀티 스트랜드 ${3 + buckets.strand}가닥`, where: '붓의 평행 결',
+      field: 'strand', value: buckets.strand, radix: RADII.strand, visual: t('reversibleModel.multiStrandStrands', { p0: 3 + buckets.strand }), where: t('reversibleModel.parallelBrushStrokes'),
     },
     {
-      field: 'weightSlot', value: buckets.weightSlot, radix: RADII.weightSlot, visual: '잉크 무게중심', where: `${slotToClock((buckets.weightSlot / 24) * TWO_PI)} 쪽이 두껍게 고임`,
+      field: 'weightSlot', value: buckets.weightSlot, radix: RADII.weightSlot, visual: t('reversibleModel.inkWeightCenter'), where: t('reversibleModel.heavierInkToward', { p0: slotToClock((buckets.weightSlot / 24) * TWO_PI) }),
     },
   ];
 
@@ -267,8 +268,8 @@ export function inspect(model) {
       spikeN: d.spikeN,
       slot: d.slot,
       dir: d.dir === 1 ? 'out' : 'in',
-      visual: `${c.type} 덩어리 · 가시 ${d.spikeN}`,
-      where: `${slotToClock(c.ang)} ${d.dir === 1 ? '바깥' : '안쪽'} 폭발`,
+      visual: t('reversibleModel.clusterSpikes', { p0: c.type, p1: d.spikeN }),
+      where: t('reversibleModel.burst', { p0: slotToClock(c.ang), p1: d.dir === 1 ? t('clusterArchiveGlyphs.outward') : t('clusterArchiveGlyphs.inward') }),
     };
   });
 

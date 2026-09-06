@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useEffect, useMemo, useRef } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -43,6 +44,7 @@ function LogogramRendererCanvas({
   timeScale = 1,
   onFormationComplete,
 }) {
+  const { t } = useI18n();
   const theme = useTheme();
   const canvasRef = useRef(null);
   const completeRef = useRef(onFormationComplete);
@@ -214,7 +216,7 @@ function LogogramRendererCanvas({
       <canvas
         ref={ canvasRef }
         role="img"
-        aria-label={ `Heptapod B logogram: ${model.meta.name}` }
+        aria-label={ t('logogramRendererCanvas.heptapodBLogogram', { p0: model.meta.name }) }
         style={ { width: size, height: size, display: 'block' } }
       />
     </Box>

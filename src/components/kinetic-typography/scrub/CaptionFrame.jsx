@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import { motion } from 'framer-motion';
 import { PLACEMENT } from './captionStyles';
 
 /**
@@ -14,10 +15,25 @@ import { PLACEMENT } from './captionStyles';
  * @param {number} captionAt - 비트 안의 시점 0~1 [Optional, 기본값: 0.5]
  * @param {number} anchorY - 뷰포트 높이 비율 [Optional, 기본값: 0.5]
  * @param {React.ReactNode} children - 캡션 내용 [Required]
+ * @param {boolean} sticky - 전체 인트로 영역 안에서 뷰포트 중앙 고정 [Optional]
+ * @param {object} style - sticky 레이어의 MotionValue 스타일 [Optional]
  */
-function CaptionFrame({ clip, scrubCells, placement = 'left', captionAt = 0.5, anchorY = 0.5, children }) {
+function CaptionFrame({ clip, scrubCells, placement = 'left', captionAt = 0.5, anchorY = 0.5, children, sticky = false, style }) {
   const place = PLACEMENT[placement] || PLACEMENT.left;
   const topPercent = ((clip.cellStart + clip.cells * captionAt + anchorY) / scrubCells) * 100;
+  if (sticky) {
+    return (
+      <Box component={ motion.div } data-sticky-caption={ clip.id } style={ style } sx={ { position: 'absolute', inset: 0, zIndex: 3, pointerEvents: 'none' } }>
+        <Box sx={ {
+          position: 'sticky', top: 0, height: '100vh', '@supports (height: 1dvh)': { height: '100dvh' },
+          display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+          width: '100%', px: { xs: 3, md: 6 }, textAlign: 'center',
+        } }>
+          { children }
+        </Box>
+      </Box>
+    );
+  }
   return (
     <Box
       sx={ {

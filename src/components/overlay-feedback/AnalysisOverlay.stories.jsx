@@ -37,6 +37,10 @@ export default {
       control: 'boolean',
       description: '표시 여부 (전환 시 opacity + 미세 scale 페이드)',
     },
+    showMesh: { control: 'boolean', description: '초록 삼각망·빨간 정점과 스캔 효과' },
+    showFrame: { control: 'boolean', description: '외곽 좌표계와 눈금' },
+    showReadout: { control: 'boolean', description: '수치·기술 캡션만 표시. false여도 라인·정점·스캔은 유지' },
+    onScan: { action: 'scan', description: '스캔 사운드 동기화. 감소 모션에서는 호출하지 않음' },
     name: {
       control: 'text',
       description: '(스토리 전용) 로고그램으로 인코딩할 이름 — 같은 이름은 항상 같은 구조',
@@ -62,6 +66,9 @@ export const Default = {
     name: '김민준',
     size: 420,
     isVisible: true,
+    showMesh: true,
+    showFrame: true,
+    showReadout: true,
   },
   render: (args) => (
     <Box sx={ { p: 6, backgroundColor: 'background.default', display: 'flex', justifyContent: 'center' } }>
@@ -80,12 +87,18 @@ export const Default = {
             model={ modelOf(args.name) }
             size={ args.size }
             isVisible={ args.isVisible }
+            showMesh={ args.showMesh }
+            showFrame={ args.showFrame }
+            showReadout={ args.showReadout }
+            onScan={ args.onScan }
           />
         </Box>
       </Box>
     </Box>
   ),
 };
+
+export const VisualAnalysis = { ...Default, args: { ...Default.args, showFrame: false, showReadout: false } };
 
 /**
  * 토글로 오버레이를 페이드 인/아웃하는 데모 — 렌더러와 동일 좌표계 중첩.

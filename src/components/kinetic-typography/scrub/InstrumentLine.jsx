@@ -1,3 +1,4 @@
+import { useI18n } from '../../../i18n/useI18n.js';
 import { useRef } from 'react';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
@@ -23,6 +24,7 @@ const SLOTS = 12;
  * @param {boolean} onLight
  */
 function InstrumentLine({ progress, f, total, beat, mode = 'seed', reduced = false, onLight = false }) {
+  const { t } = useI18n();
   const theme = useTheme();
   const monoFont = theme.typography?.custom?.mono?.fontFamily || 'monospace';
   const ref = useRef(null);
@@ -33,9 +35,9 @@ function InstrumentLine({ progress, f, total, beat, mode = 'seed', reduced = fal
     if (mode === 'slots') {
       const filled = Math.round(Math.max(0, Math.min(1, fv)) * SLOTS);
       const slots = '●'.repeat(filled) + '○'.repeat(SLOTS - filled);
-      return `SHOT ${beat.shot} · ${tc} · ${slots}${filled === SLOTS ? ' · your turn' : ''}`;
+      return t('hero.instrumentSlots', { shot: beat.shot, time: tc, slots, turn: filled === SLOTS ? t('hero.yourTurn') : '' });
     }
-    return `SHOT ${beat.shot} · ${tc} · seed —— · slots ${'○'.repeat(SLOTS)}`;
+    return t('hero.instrumentSeed', { shot: beat.shot, time: tc, slots: '○'.repeat(SLOTS) });
   };
 
   useMotionValueEvent(progress, 'change', (p) => {

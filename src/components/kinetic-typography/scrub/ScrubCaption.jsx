@@ -1,5 +1,7 @@
+import { useEffect, useMemo } from 'react';
+import { useI18n } from '../../../i18n/useI18n.js';
 import Box from '@mui/material/Box';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue } from 'framer-motion';
 import CaptionFrame from './CaptionFrame';
 import SeamCaption from './SeamCaption';
 import RingCaption from './RingCaption';
@@ -60,11 +62,16 @@ const KINETIC = {
  * @param {number} total - 영상 길이(초) [Required]
  * @param {number} scrubCells - 트랙 셀 수 [Required]
  * @param {boolean} reduced - prefers-reduced-motion [Optional]
+ * @param {boolean} sticky - 마지막 캡션 중앙 고정, 자동 재생 중에도 등장 진행 [Optional]
+ * @param {boolean} autoplay - 마지막 영상 자동 재생 중 여부 [Optional]
+ * @param {import('framer-motion').MotionValue<number>} exitProgress - 마지막 캡션 퇴장 진행도 [Optional]
  *
  * Example usage:
  * <ScrubCaption beat={ beat } clip={ clip } progress={ progress } trackProgress={ trackProgress } total={ 47.08 } scrubCells={ 6.9 } />
  */
-function ScrubCaption({ beat, clip, progress, trackProgress, total, scrubCells, reduced = false }) {
+function ScrubCaption({ beat: sourceBeat, clip, progress, trackProgress, total, scrubCells, reduced = false, sticky = false, autoplay = false, exitProgress }) {
+  const { localize } = useI18n();
+  const beat = useMemo(() => ({ ...sourceBeat, headline: localize(sourceBeat.headline), body: localize(sourceBeat.body) }), [sourceBeat, localize]);
   const captionAt = beat.captionAt ?? 0.5;
   const anchorY = beat.anchorY ?? 0.5;
   // 캡션 중심이 anchorY 를 지나는 트랙 좌표(셀). 1 뷰포트 = 1 셀이므로 화면 진입은 (1 − anchorY) 셀 전, 이탈은 anchorY 셀 후.
@@ -74,6 +81,11 @@ function ScrubCaption({ beat, clip, progress, trackProgress, total, scrubCells, 
     [(sCenter - (1 - anchorY)) / scrubCells, (sCenter + anchorY) / scrubCells],
     [0, 1],
   );
+  const videoF = useTransform(progress, [clip.startNorm, clip.endNorm], [0, 1]);
+  const autoplayGate = useMotionValue(autoplay ? 1 : 0);
+  useEffect(() => { autoplayGate.set(autoplay ? 1 : 0); }, [autoplay, autoplayGate]);
+  const finalF = useTransform([g, videoF, autoplayGate], ([scroll, video, playing]) => playing ? video : scroll);
+  const visibility = useTransform(finalF, (v) => v > 0 ? 'visible' : 'hidden');
   const Variant = KINETIC[beat.kinetic] || StaticCaption;
   if (!beat.headline && !beat.body) return null;
   return (
@@ -83,8 +95,10 @@ function ScrubCaption({ beat, clip, progress, trackProgress, total, scrubCells, 
       placement={ beat.placement }
       captionAt={ captionAt }
       anchorY={ anchorY }
+      sticky={ sticky }
+      style={ sticky ? { visibility } : undefined }
     >
-      <Variant f={ g } progress={ progress } total={ total } beat={ beat } clip={ clip } reduced={ reduced } />
+      <Variant f={ sticky ? finalF : g } progress={ progress } total={ total } beat={ beat } clip={ clip } reduced={ reduced } exitProgress={ exitProgress } />
     </CaptionFrame>
   );
 }

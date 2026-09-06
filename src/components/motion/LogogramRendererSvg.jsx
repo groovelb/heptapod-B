@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useEffect, useId, useMemo, useRef } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -481,6 +482,7 @@ function LogogramRendererSvg({
   isAnimated = false,
   onRenderComplete,
 }) {
+  const { t } = useI18n();
   const theme = useTheme();
   const uid = useId().replace(/:/g, '');
   const clipRef = useRef(null);
@@ -540,7 +542,7 @@ function LogogramRendererSvg({
         height={ size }
         viewBox={ `0 0 ${size} ${size}` }
         role="img"
-        aria-label={ `Heptapod B logogram: ${model.meta.name}` }
+        aria-label={ t('logogramRendererCanvas.heptapodBLogogram', { p0: model.meta.name }) }
       >
         <defs>
           {/* T2 잉크 번짐 — 층별로 다른 강도의 turbulence 변위 */}

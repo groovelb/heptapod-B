@@ -15,6 +15,11 @@ import useMediaQuery from '@mui/material/useMediaQuery';
  * @param {string} poster - 영상 로드 전 표시할 포스터 이미지 URL(첫 프레임) [Optional]
  * @param {function} onReady - 영상이 재생 가능(첫 프레임 확보)해지면 호출 [Optional]
  * @param {function} onLoadProgress - 버퍼 진행도 콜백 (fraction: 0-1) [Optional]
+ * @param {boolean} playToEnd - true이면 스크럽 중단, 현재 위치에서 끝까지 자동 재생 [Optional, 기본값: false]
+ * @param {function} onEnded - 비디오가 끝까지 재생 완료 시 호출 [Optional]
+ * @param {React.RefObject} mediaRef - 재시도 등 사용자 제스처에서 사용할 video 요소 ref [Optional]
+ * @param {function} onPlaybackStateChange - loading/ready/waiting/playing/error 상태 [Optional]
+ * @param {React.RefObject<boolean>} playbackRequestedRef - React 커밋 전에도 스크럽 seek를 차단하는 재생 요청 ref [Optional]
  */
 const VideoScrubbing = ({
   src,
@@ -26,9 +31,15 @@ const VideoScrubbing = ({
   poster = '',
   onReady,
   onLoadProgress,
+  playToEnd = false,
+  onEnded,
+  mediaRef,
+  onPlaybackStateChange,
+  playbackRequestedRef,
   ...props
 }) => {
-  const videoRef = useRef(null);
+  const internalVideoRef = useRef(null);
+  const videoRef = mediaRef ?? internalVideoRef;
   const sourceRef = useRef(src);
   const layoutRef = useRef({ top: 0, height: 0 });
   const rafRef = useRef(0);
@@ -36,27 +47,13 @@ const VideoScrubbing = ({
   // seek 게이팅 — 한 번에 하나의 seek만 진행하고, 최신 목표는 pending에 쌓아 따라잡는다
   const seekingRef = useRef(false);
   const pendingTimeRef = useRef(null);
+  const playingRef = useRef(false);
+  // 실제 재생/seek 완료 위치만 저장한다. 재시도·소스 재로드에서도 앞 구간을 건너뛰지 않는다.
+  const resumeTimeRef = useRef(0);
+  const restoringRef = useRef(false);
   const [isInView, setIsInView] = useState(false);
 
   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
-
-  // Initialize video to frame 0 on load
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const handleLoadedData = () => {
-      video.currentTime = 0;
-    };
-
-    video.addEventListener('loadeddata', handleLoadedData);
-
-    if (video.readyState >= 2) {
-      video.currentTime = 0;
-    }
-
-    return () => video.removeEventListener('loadeddata', handleLoadedData);
-  }, []);
 
   /**
    * iOS 대응 (iOS Chrome은 WebKit이라 Safari와 동일 제약).
@@ -82,11 +79,11 @@ const VideoScrubbing = ({
 
     let primed = false;
     const prime = () => {
-      if (primed) return;
+      if (primed || playingRef.current || playbackRequestedRef?.current) return;
       primed = true;
       const p = video.play();
       if (p && typeof p.then === 'function') {
-        p.then(() => video.pause()).catch(() => {});
+        p.then(() => { if (!playingRef.current && !playbackRequestedRef?.current) video.pause(); }).catch(() => {});
       } else {
         try {
           video.pause();
@@ -101,7 +98,7 @@ const VideoScrubbing = ({
     const detach = () => events.forEach((e) => window.removeEventListener(e, prime));
     events.forEach((e) => window.addEventListener(e, prime));
     return detach;
-  }, []);
+  }, [videoRef, playbackRequestedRef]);
 
   // 로드 진행도/준비 상태 보고 — 히어로 로딩 오버레이(포스터 + 로딩바)가 소비한다
   useEffect(() => {
@@ -118,9 +115,32 @@ const VideoScrubbing = ({
     };
     const reportReady = () => {
       onReady?.();
+      if (!playingRef.current) onPlaybackStateChange?.('ready');
       reportProgress();
     };
+    const reportLoading = () => {
+      restoringRef.current = resumeTimeRef.current > 0;
+      onPlaybackStateChange?.('loading');
+    };
+    const reportWaiting = () => { if (playingRef.current) onPlaybackStateChange?.('waiting'); };
+    const reportPlaying = () => { if (playingRef.current) onPlaybackStateChange?.('playing'); };
+    const reportError = () => onPlaybackStateChange?.('error');
+    const reportMetadata = () => {
+      if (resumeTimeRef.current > 0 && Number.isFinite(video.duration)) {
+        restoringRef.current = true;
+        video.currentTime = Math.min(resumeTimeRef.current, Math.max(0, video.duration - 0.05));
+      }
+    };
+    const reportPause = () => {
+      if (playingRef.current && !video.ended && video.readyState >= 2) onPlaybackStateChange?.('error');
+    };
 
+    video.addEventListener('loadstart', reportLoading);
+    video.addEventListener('loadedmetadata', reportMetadata);
+    video.addEventListener('waiting', reportWaiting);
+    video.addEventListener('playing', reportPlaying);
+    video.addEventListener('pause', reportPause);
+    video.addEventListener('error', reportError, true);
     video.addEventListener('progress', reportProgress);
     video.addEventListener('loadeddata', reportProgress);
     video.addEventListener('canplay', reportReady);
@@ -128,11 +148,17 @@ const VideoScrubbing = ({
     if (video.readyState >= 3) reportReady();
 
     return () => {
+      video.removeEventListener('loadstart', reportLoading);
+      video.removeEventListener('loadedmetadata', reportMetadata);
+      video.removeEventListener('waiting', reportWaiting);
+      video.removeEventListener('playing', reportPlaying);
+      video.removeEventListener('pause', reportPause);
+      video.removeEventListener('error', reportError, true);
       video.removeEventListener('progress', reportProgress);
       video.removeEventListener('loadeddata', reportProgress);
       video.removeEventListener('canplay', reportReady);
     };
-  }, [onReady, onLoadProgress]);
+  }, [onReady, onLoadProgress, onPlaybackStateChange, videoRef]);
 
   // 브라우저가 src를 바꾸어도 동일 <video> 인스턴스에서 재생이 꼬이지 않게 강제 리로드
   useEffect(() => {
@@ -142,9 +168,8 @@ const VideoScrubbing = ({
     if (!video) return undefined;
     video.pause();
     video.load();
-    video.currentTime = 0;
     return undefined;
-  }, [src]);
+  }, [src, videoRef]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -159,7 +184,7 @@ const VideoScrubbing = ({
 
     observer.observe(video);
     return () => observer.disconnect();
-  }, []);
+  }, [videoRef]);
 
   /**
    * seek 게이팅의 완결부 — seek가 끝나면(seeked) 그 사이 쌓인 최신 목표로 한 번 더 따라간다.
@@ -171,6 +196,10 @@ const VideoScrubbing = ({
     if (!video) return undefined;
     const onSeeked = () => {
       seekingRef.current = false;
+      restoringRef.current = false;
+      resumeTimeRef.current = video.currentTime;
+      if (video.duration) onProgressChange?.(video.currentTime / video.duration);
+      if (playingRef.current || playbackRequestedRef?.current) return;
       const target = pendingTimeRef.current;
       if (target == null || !video.duration) return;
       if (Math.abs(video.currentTime - target) > 0.033) {
@@ -180,7 +209,56 @@ const VideoScrubbing = ({
     };
     video.addEventListener('seeked', onSeeked);
     return () => video.removeEventListener('seeked', onSeeked);
-  }, []);
+  }, [videoRef, onProgressChange, playbackRequestedRef]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    let cancelled = false;
+    const play = () => {
+      if (cancelled || video.seeking || restoringRef.current) return;
+      video.play().catch(() => { if (!cancelled) onPlaybackStateChange?.('error'); });
+    };
+    if (playToEnd) {
+      playingRef.current = true;
+      pendingTimeRef.current = null;
+      seekingRef.current = false;
+      onPlaybackStateChange?.('waiting');
+      // 고정 타임코드로 seek하지 않는다. 진행 중인 seek가 끝나면 그 프레임에서 이어 재생한다.
+      if (video.seeking || restoringRef.current) video.addEventListener('seeked', play, { once: true });
+      else play();
+    } else {
+      playingRef.current = false;
+      if (!video.paused) video.pause();
+      if (!video.error && video.readyState >= 3) onPlaybackStateChange?.('ready');
+    }
+    return () => { cancelled = true; video.removeEventListener('seeked', play); };
+  }, [playToEnd, src, onPlaybackStateChange, videoRef]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !onEnded) return undefined;
+    const handler = () => {
+      if (!playingRef.current || !video.ended || video.seeking || restoringRef.current || !Number.isFinite(video.duration) || video.currentTime < video.duration - 0.05) return;
+      onProgressChange?.(1);
+      onEnded();
+    };
+    video.addEventListener('ended', handler);
+    return () => video.removeEventListener('ended', handler);
+  }, [onEnded, onProgressChange, videoRef]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !playToEnd) return undefined;
+    const handler = () => {
+      if (video.duration && !video.seeking && !restoringRef.current) {
+        resumeTimeRef.current = video.currentTime;
+        onProgressChange?.(video.currentTime / video.duration);
+      }
+    };
+    video.addEventListener('timeupdate', handler);
+    return () => video.removeEventListener('timeupdate', handler);
+  }, [playToEnd, onProgressChange, videoRef]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -192,7 +270,7 @@ const VideoScrubbing = ({
         cancelAnimationFrame(rafRef.current);
         rafRef.current = 0;
       }
-      if (prefersReducedMotion) {
+      if (prefersReducedMotion && !playingRef.current) {
         video.pause();
       }
       return;
@@ -207,6 +285,7 @@ const VideoScrubbing = ({
       if (!currentVideo || !isInView || prefersReducedMotion) {
         return;
       }
+      if (playingRef.current || playbackRequestedRef?.current) return;
 
       let progress = 0;
       const { top, height } = layoutRef.current;
@@ -222,10 +301,6 @@ const VideoScrubbing = ({
 
       if (mapProgress) {
         progress = Math.max(0, Math.min(1, mapProgress(progress)));
-      }
-
-      if (onProgressChange) {
-        onProgressChange(progress);
       }
 
       if (currentVideo.duration) {
@@ -281,7 +356,7 @@ const VideoScrubbing = ({
         rafRef.current = 0;
       }
     };
-  }, [containerRef, isInView, prefersReducedMotion, scrollRange, mapProgress, onProgressChange]);
+  }, [containerRef, isInView, prefersReducedMotion, scrollRange, mapProgress, onProgressChange, videoRef, playbackRequestedRef]);
 
   return (
     <Box
@@ -298,7 +373,7 @@ const VideoScrubbing = ({
         muted
         playsInline
         poster={poster || undefined}
-        preload={prefersReducedMotion ? 'metadata' : 'auto'}
+        preload="auto"
         sx={{
           width: '100%',
           height: 'auto',

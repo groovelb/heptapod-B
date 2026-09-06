@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useId } from 'react';
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -19,6 +20,7 @@ import { isMorphologyRelation } from '../../utils/heptapod/resonanceView';
  * @param {function} onCompare - 비교할 이웃 ID
  */
 export default function RelationInspector({ relation, open, onClose, onExplore, onCompare }) {
+  const { t } = useI18n();
   const titleId = useId();
   const theme = useTheme();
   const ink = theme.palette.custom?.chamber?.ink || theme.palette.text.primary;
@@ -37,20 +39,20 @@ export default function RelationInspector({ relation, open, onClose, onExplore, 
     } }>
       <Box sx={ { p: { xs: 2.5, sm: 3 }, display: 'flex', flexDirection: 'column', minHeight: '100%', boxSizing: 'border-box' } }>
         <Box sx={ { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 2 } }>
-          <Typography component="h2" id={ titleId } sx={ { fontSize: '1.1rem', fontWeight: 500 } }>표식에서 발견한 공명</Typography>
-          <IconButton onClick={ onClose } aria-label="형태 관측 닫기" sx={ { color: ink, minWidth: 44, minHeight: 44 } }><CloseIcon /></IconButton>
+          <Typography component="h2" id={ titleId } sx={ { fontSize: '1.1rem', fontWeight: 500 } }>{ t('relationInspector.resonanceFoundInGlyphs') }</Typography>
+          <IconButton onClick={ onClose } aria-label={ t('relationInspector.closeFormObservations') } sx={ { color: ink, minWidth: 44, minHeight: 44 } }><CloseIcon /></IconButton>
         </Box>
         <Typography variant="body2" sx={ { mb: 2, overflowWrap: 'anywhere' } }>{ relation.nameA } · { neighborName }</Typography>
         { canCompare ? <GlyphPairComparison leftGlyph={ relation.leftGlyph } rightGlyph={ relation.neighborGlyph } relations={ evidence } sx={ { p: 0 } } /> : (
           <>
             { relation.model && <GlyphNode model={ relation.model } size={ 132 } label={ neighborName } sx={ { alignSelf: 'center', mb: 2 } } /> }
             { evidence.map((item, index) => <RelationEvidence key={ `${item.relationType}-${index}` } relation={ item } />) }
-            { evidence.length === 0 && <Typography variant="body2">확인할 수 있는 형태 관측이 아직 없습니다.</Typography> }
+            { evidence.length === 0 && <Typography variant="body2">{ t('relationInspector.noFormObservationsAreAvailableYet') }</Typography> }
           </>
         ) }
         <Box sx={ { mt: 'auto', pt: 3, display: 'flex', flexDirection: 'column', gap: 1 } }>
-          { onCompare && relation.id && <Button variant="outlined" onClick={ () => onCompare(relation.id) } sx={ actionSx }>두 표식 크게 비교하기</Button> }
-          { onExplore && relation.id && <Button onClick={ () => onExplore(relation.id) } sx={ actionSx }>이 표식에서 탐색</Button> }
+          { onCompare && relation.id && <Button variant="outlined" onClick={ () => onCompare(relation.id) } sx={ actionSx }>{ t('relationInspector.compareBothGlyphsUpClose') }</Button> }
+          { onExplore && relation.id && <Button onClick={ () => onExplore(relation.id) } sx={ actionSx }>{ t('glyphPairComparison.exploreFromThisGlyph') }</Button> }
         </Box>
       </Box>
     </Drawer>

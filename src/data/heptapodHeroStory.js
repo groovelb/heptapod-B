@@ -1,3 +1,4 @@
+import { sourceText as t } from '../i18n/messages.js';
 /**
  * Heptapod B Encoder — 히어로 인트로 스토리 데이터 (상수)
  *
@@ -32,6 +33,9 @@ export const HERO_AUDIO_CLIP_BASE = '/heptapod-b-encoder/audio/clips';
 /** 영상 길이(초) — ffprobe 실측값 */
 export const HERO_VIDEO_DURATION = 47.08;
 
+/** 오토플레이 시작 시각(초) — 스크럽은 여기까지만, 이후 핸드오프에서 실시간 재생 */
+export const HERO_AUTOPLAY_FROM = 42;
+
 /**
  * 타이틀 셀 수 (100vh 단위) — 이 거리만큼 영상이 첫 프레임에 고정된다.
  * 0 = 정지 구간 없음: 첫 스크롤부터 영상이 스크럽되고, 타이틀은 그 위에서 흩어진다(타이틀 소실도 스크럽의 일부).
@@ -43,11 +47,11 @@ export const HERO_TITLE_CELLS = 0;
 export const HERO_HANDOFF_VH = 120;
 
 /** 마스터 타이틀 (타이틀 셀) */
-export const HERO_MASTER_TITLE = 'HEPTAPOD B';
+export const HERO_MASTER_TITLE = t('heptapodHeroStory.heptapodB');
 
 /** START / SKIP 컨트롤 라벨 */
-export const HERO_START_LABEL = '▶ START';
-export const HERO_SKIP_LABEL = 'SKIP INTRO →';
+export const HERO_START_LABEL = t('hero.start');
+export const HERO_SKIP_LABEL = t('heptapodHeroStory.skipIntro');
 
 /**
  * 헤드라인 폰트 스택 — Cinzel (index.html 에서 로드). 보조 serif 폴백.
@@ -78,8 +82,8 @@ export const HERO_STORY_BEATS = [
     shot: '02',
     video: [0, 4],
     cells: 0.8,
-    headline: 'They Arrived',
-    body: '그들은 도착했고, 먼저 말을 건넸다.',
+    headline: t('heptapodHeroStory.theyArrived'),
+    body: t('heptapodHeroStory.theyArrivedAndSpokeFirst'),
     isEmphasis: false,
     kinetic: 'seam',
     placement: 'left',
@@ -91,8 +95,8 @@ export const HERO_STORY_BEATS = [
     shot: '02→03',
     video: [4, 12],
     cells: 1.25, // 느린 리프트 대기 — 읽기 적합
-    headline: 'A Sentence, All at Once',
-    body: '그들의 문장은 한 번에 그려진다. 시작도 끝도 없이, 하나의 원으로.',
+    headline: t('heptapodHeroStory.aSentenceAllAtOnce'),
+    body: t('heptapodHeroStory.theirSentencesAppearAllAtOnceNo'),
     isEmphasis: false,
     kinetic: 'ring',
     placement: 'right',
@@ -103,8 +107,8 @@ export const HERO_STORY_BEATS = [
     shot: '03→07',
     video: [12, 23],
     cells: 1.0,
-    headline: 'No Before, No After',
-    body: '먼저와 나중이\n같은 순간에 존재한다.', // '\n' = 거울 대칭 위/아래 줄
+    headline: t('heptapodHeroStory.noBeforeNoAfter'),
+    body: t('heptapodHeroStory.beforeAndAfterExistInTheSame'), // '\n' = 거울 대칭 위/아래 줄
     isEmphasis: false,
     kinetic: 'mirror',
     placement: 'center',
@@ -116,8 +120,8 @@ export const HERO_STORY_BEATS = [
     shot: '07→09',
     video: [23, 29],
     cells: 1.25, // 억제된 상승 — 명제 비트, 읽기 최적
-    headline: 'Not Translation, but Encoding',
-    body: '당신의 이름은 소리로 옮겨지지 않는다. 다만 하나의 사고로 응축된다.',
+    headline: t('heptapodHeroStory.notTranslationButEncoding'),
+    body: t('heptapodHeroStory.yourNameIsNotCarriedIntoSound'),
     isEmphasis: true,
     kinetic: 'scramble',
     placement: 'center',
@@ -128,8 +132,8 @@ export const HERO_STORY_BEATS = [
     shot: '09→10',
     video: [29, 35],
     cells: 0.9, // 중력 전환 — 비주얼 우선
-    headline: 'Perspective Inverts',
-    body: '벽이 바닥이 되는 곳에서, 관점이 뒤집힌다.',
+    headline: t('heptapodHeroStory.perspectiveInverts'),
+    body: t('heptapodHeroStory.whereWallsBecomeFloorsPerspectiveTurns'),
     isEmphasis: false,
     kinetic: 'flipReflow', // 세로 기둥 → 글자별 90° 뒤집힘 → 문장 자리로 재배치 (rotate = 덩어리 회전 구버전)
     placement: 'center',
@@ -142,8 +146,8 @@ export const HERO_STORY_BEATS = [
     shot: '10→11',
     video: [35, 47.08],
     cells: 1.2,
-    headline: 'Your Turn to Answer',
-    body: '그들의 문장이 완성되고 빛이 차오른다.\n이제, 당신이 답할 차례입니다.', // '\n' 뒤 문장이 타자된다
+    headline: t('heptapodHeroStory.yourTurnToAnswer'),
+    body: t('heptapodHeroStory.theirSentenceIsCompleteLightFillsThe'), // '\n' 뒤 문장이 타자된다
     isEmphasis: false,
     onLight: false,
     kinetic: 'type',

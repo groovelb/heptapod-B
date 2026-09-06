@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -50,6 +51,7 @@ export function ImageCard({
   sx,
   ...props
 }) {
+  const { t } = useI18n();
   /**
    * 액션 버튼 오버레이
    * - Hover 시에만 표시 (opacity 트랜지션)
@@ -92,7 +94,7 @@ export function ImageCard({
     <CustomCard
       layout="vertical"
       mediaSrc={src}
-      mediaAlt={title || 'Image asset'}
+      mediaAlt={title || t('common.imageAsset')}
       mediaRatio="auto"
       contentPadding={hasContent ? 'sm' : 'none'}
       overlaySlot={hideActions ? customOverlay : ActionButtons}

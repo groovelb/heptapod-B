@@ -1,3 +1,4 @@
+import { sourceText as t } from '../../i18n/messages.js';
 /**
  * Heptapod B Encoder — Name Validation (v2)
  *
@@ -67,7 +68,7 @@ export function validateName(raw) {
   if (canonicalName.length === 0) {
     return {
       valid: false,
-      error: { code: 'EMPTY', message: '이름을 입력해 주세요.' },
+      error: { code: 'EMPTY', message: t('validateName.enterAName') },
       canonical,
     };
   }
@@ -78,7 +79,7 @@ export function validateName(raw) {
       valid: false,
       error: {
         code: 'TOO_LONG',
-        message: `이름은 ${MAX_GRAPHEMES}자 이하여야 합니다.`,
+        message: t('validateName.namesMustBeCharactersOrFewer', { p0: MAX_GRAPHEMES }),
       },
       canonical,
     };
@@ -90,7 +91,7 @@ export function validateName(raw) {
       valid: false,
       error: {
         code: 'TOO_LONG',
-        message: `이름이 너무 깁니다 (${MAX_BYTES}바이트 초과).`,
+        message: t('validateName.theNameIsTooLongOverBytes', { p0: MAX_BYTES }),
       },
       canonical,
     };
@@ -103,7 +104,7 @@ export function validateName(raw) {
         valid: false,
         error: {
           code: 'UNSUPPORTED_CHAR',
-          message: `지원하지 않는 문자가 포함되어 있습니다: "${ch}"`,
+          message: t('validateName.unsupportedCharacter', { p0: ch }),
         },
         canonical,
       };

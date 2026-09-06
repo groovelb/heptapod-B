@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { APP_PATHS } from '../../routes/paths';
 import { useTheme, alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -7,18 +8,22 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import LanguageSwitcher from '../navigation/LanguageSwitcher';
+import AppGNB from '../navigation/AppGNB';
 import { useI18n } from '../../i18n/useI18n.js';
 
 import LogogramChamber from '../motion/LogogramChamber';
 import LogogramRendererCanvas from '../motion/LogogramRendererCanvas';
 import FadeTransition from '../motion/FadeTransition';
 import AnalysisOverlay from '../overlay-feedback/AnalysisOverlay';
+import GlyphObservationOverlay from '../overlay-feedback/GlyphObservationOverlay';
+import GlyphMeaningSummary from '../data-display/GlyphMeaningSummary';
+import GlyphClusterLink from '../data-display/GlyphClusterLink';
+import { interpretGlyphMeaning } from '../../utils/heptapod/interpretGlyphMeaning';
 import PublishDialog from '../overlay-feedback/PublishDialog';
 import { usePublish } from '../../hooks/data/usePublish';
 import { buildArchiveModel } from '../../utils/heptapod/archiveGlyph';
 import { shareArchive } from '../../utils/heptapod/shareArchive';
-import { buildModelReversible, inspect } from '../../utils/heptapod/reversibleModel';
+import { buildModelReversible } from '../../utils/heptapod/reversibleModel';
 import { detectRenderTier, subscribeReducedMotion } from '../../utils/heptapod/detectRenderTier';
 import { createAmbientAudio } from '../../utils/heptapod/ambientAudio';
 import { createBackgroundMusic } from '../../utils/heptapod/backgroundMusic';
@@ -219,161 +224,6 @@ function ChildGrid({
   );
 }
 
-/** 미니멀 단계 행 — 박스 대신 상단 수평 분할선으로만 구분 */
-function StepRow({ n, title, fg, monoSx, children, first }) {
-  return (
-    <Box sx={ { py: 1.25, borderTop: first ? 'none' : `1px solid ${alpha(fg, 0.15)}` } }>
-      <Box sx={ {
-        ...monoSx, fontSize: '0.54rem', color: fg, opacity: 0.5, letterSpacing: '0.14em', mb: 0.6, textTransform: 'uppercase',
-      } }
-      >
-        { `${n} · ${title}` }
-      </Box>
-      { children }
-    </Box>
-  );
-}
-
-/** 흐름도 단계 카드 — 번호 + 제목 + 내용 (모달 fallback용) */
-function StepCard({ n, title, fg, monoSx, children }) {
-  return (
-    <Box sx={ { flex: 1, minWidth: 0, border: `1px solid ${alpha(fg, 0.16)}`, p: 1.5 } }>
-      <Box sx={ { display: 'flex', alignItems: 'baseline', gap: 1, mb: 1 } }>
-        <Box sx={ { ...monoSx, fontSize: '1.1rem', color: fg, opacity: 0.9 } }>{ n }</Box>
-        <Box sx={ { ...monoSx, fontSize: '0.66rem', color: fg, opacity: 0.7, letterSpacing: '0.04em' } }>{ title }</Box>
-      </Box>
-      { children }
-    </Box>
-  );
-}
-
-/** 단계 카드 내부 보조 설명 */
-function StepNote({ fg, monoSx, children }) {
-  return (
-    <Box sx={ { ...monoSx, fontSize: '0.55rem', color: fg, opacity: 0.45, letterSpacing: '0.03em', mt: 1, lineHeight: 1.6 } }>
-      { children }
-    </Box>
-  );
-}
-
-/** 단계 사이 흐름 화살표 (가로/세로 반응형) */
-function FlowArrow({ fg }) {
-  return (
-    <Box sx={ {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: fg,
-      opacity: 0.35,
-      fontSize: '1.1rem',
-      transform: { xs: 'rotate(90deg)', md: 'none' },
-      px: { md: 0.5 },
-    } }
-    >
-      →
-    </Box>
-  );
-}
-
-/**
- * 주석 글리프 — 실제 로고그램(고스트 렌더) 위에 데이터 라벨을 얹어
- * "이 부분이 이 값"으로 시각 분석한다. 계측색(초록 mesh선·빨강 vertex) 한정.
- *
- * @param {object} props - { model, rawData, size, fg, monoSx }
- * @returns {JSX.Element} 분석 다이어그램
- */
-function GlyphCallouts({ model, rawData, size, glyphSize, fg, monoSx }) {
-  const { localize, t } = useI18n();
-  const GREEN = '#3ad16b';
-  const RED = '#e0432e';
-  const monoFont = monoSx.fontFamily;
-  const cx = size / 2;
-  const cy = size / 2;
-  const r = glyphSize * 0.3; // 실제 글리프 링 반경(R0/720 × glyphSize)과 일치
-  const labelR = Math.min(size * 0.46, r + size * 0.17);
-  const fs = Math.max(9, size * 0.026);
-  const pt = (rad, ang) => [cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad];
-  const wcA = model.ring.weightCenterAngle;
-
-  return (
-    <svg
-      width={ size }
-      height={ size }
-      viewBox={ `0 0 ${size} ${size}` }
-      style={ {
-        position: 'absolute', inset: 0, overflow: 'visible', pointerEvents: 'none',
-      } }
-    >
-      <circle cx={ cx } cy={ cy } r={ r } fill="none" stroke={ fg } strokeOpacity={ 0.16 } strokeDasharray="1 5" />
-
-      {/* 무게중심 */}
-      { (() => {
-        const [ix, iy] = pt(r * 0.55, wcA);
-        const [ox, oy] = pt(r * 1.04, wcA);
-        const [lx, ly] = pt(labelR, wcA);
-        const anchor = Math.cos(wcA) >= 0 ? 'start' : 'end';
-        return (
-          <g>
-            <line x1={ ix } y1={ iy } x2={ ox } y2={ oy } stroke={ fg } strokeOpacity={ 0.5 } strokeWidth={ 1.2 } />
-            <text x={ lx } y={ ly } fill={ fg } fillOpacity={ 0.7 } textAnchor={ anchor } dominantBaseline="middle" style={ { fontFamily: monoFont, fontSize: fs } }>
-              { t('heptapodEncoderPage.weightCenter', { p0: localize(rawData.fixed[3].where) }) }
-            </text>
-          </g>
-        );
-      })() }
-
-      {/* gap (개구부) */}
-      { model.gap && (() => {
-        const [mx, my] = pt(r, model.gap.ang);
-        const [lx, ly] = pt(labelR, model.gap.ang);
-        const anchor = Math.cos(model.gap.ang) >= 0 ? 'start' : 'end';
-        return (
-          <g>
-            <circle cx={ mx } cy={ my } r={ 4 } fill="none" stroke={ fg } strokeOpacity={ 0.5 } />
-            <text x={ lx } y={ ly } fill={ fg } fillOpacity={ 0.6 } textAnchor={ anchor } dominantBaseline="middle" style={ { fontFamily: monoFont, fontSize: fs } }>{ t('heptapodEncoderPage.gap') }</text>
-          </g>
-        );
-      })() }
-
-      {/* 클러스터 콜아웃 (★ 데이터↔형태 연관) */}
-      { model.clusters.map((c, i) => {
-        const [mx, my] = pt(r, c.ang);
-        const [lx, ly] = pt(labelR, c.ang);
-        const anchor = Math.cos(c.ang) >= 0 ? 'start' : 'end';
-        const cell = rawData.clusterCells[i];
-        return (
-          <g key={ `cl-${i}` }>
-            <line x1={ mx } y1={ my } x2={ lx } y2={ ly } stroke={ GREEN } strokeOpacity={ 0.5 } strokeWidth={ 0.7 } />
-            <circle cx={ mx } cy={ my } r={ 3.4 } fill={ RED } />
-            <text x={ lx + (anchor === 'start' ? 5 : -5) } y={ ly - fs * 0.5 } fill={ GREEN } fillOpacity={ 0.95 } textAnchor={ anchor } dominantBaseline="middle" style={ { fontFamily: monoFont, fontSize: fs } }>
-              { t('heptapodEncoderPage.clusterC', { p0: i, p1: cell.cell }) }
-            </text>
-            <text x={ lx + (anchor === 'start' ? 5 : -5) } y={ ly + fs * 0.6 } fill={ fg } fillOpacity={ 0.6 } textAnchor={ anchor } dominantBaseline="middle" style={ { fontFamily: monoFont, fontSize: fs * 0.85 } }>
-              { t('heptapodEncoderPage.spikes', { p0: localize(c.type), p1: cell.spikeN, p2: localize(cell.dir) }) }
-            </text>
-          </g>
-        );
-      }) }
-    </svg>
-  );
-}
-
-/** 모달용 — 글리프(고스트 렌더) + 콜아웃 (모달 보존) */
-function AnnotatedGlyph({ model, rawData, size, fg, monoSx }) {
-  const glyphSize = Math.round(size * 0.6);
-  return (
-    <Box sx={ { position: 'relative', width: size, height: size, mx: 'auto', my: 1 } }>
-      <Box sx={ {
-        position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-      } }
-      >
-        <LogogramRendererCanvas model={ model } size={ glyphSize } inkColor={ alpha(fg, 0.6) } isActive />
-      </Box>
-      <GlyphCallouts model={ model } rawData={ rawData } size={ size } glyphSize={ glyphSize } fg={ fg } monoSx={ monoSx } />
-    </Box>
-  );
-}
-
 /**
  * HeptapodEncoderPage 컴포넌트
  *
@@ -388,9 +238,9 @@ function AnnotatedGlyph({ model, rawData, size, fg, monoSx }) {
  *    대형 underline 입력(중앙 하단), 분석·공개·공유 액션(우상단)
  *
  * 동작 흐름은 이전과 동일: URL 재현 → ENCODE 확정 시 모델 재생성 →
- * 형성 중 ANALYSIS 비활성 → INTERROGATIVE 분리 시드 → 동의 후 공개·공유.
+ * 형성 중 ANALYSIS 비활성 → 의미와 실제 부위 읽기 → 동의 후 공개·공유.
  *
- * Props: audioActive, client(선택적 공개 transport), initialName(선택적 초기 v2 이름).
+ * Props: audioActive, client(선택적 공개 transport), initialName, initialEncoderVersion(라우트의 재현 버전), session(라우트가 보관하는 메모리 상태).
  *
  * Example usage:
  * <HeptapodEncoderPage />
@@ -402,24 +252,26 @@ function AnnotatedGlyph({ model, rawData, size, fg, monoSx }) {
  *   감쌀 때, 인트로 동안(영상 음성 재생) false, 인코더 활성 시 true로 넘겨 사운드를 분리한다.
  *   [Optional, 기본값: true — 단독 사용 시 기존처럼 default-on]
  */
-function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
+function HeptapodEncoderPage({ audioActive = true, client, initialName, initialEncoderVersion, session }) {
   const { locale, localize, t } = useI18n();
   const theme = useTheme();
   const isMobileAnalysis = useMediaQuery(theme.breakpoints.down('md'));
+  const readingDialogId = useId();
   const { publish } = usePublish({ client });
   const monoSx = theme.typography.custom?.mono || MONO_FALLBACK;
 
   // name(입력 중) / encodedName(확정) 분리 — ENCODE 실행 시에만 모델 재생성
-  const [name, setName] = useState(() => initialName ?? readNameFromUrl());
-  const [encodedName, setEncodedName] = useState(() => initialName ?? readNameFromUrl());
-  const [encoderVersion, setEncoderVersion] = useState(() => initialName !== undefined ? 2 : readEncoderVersionFromUrl());
-  const [inputError, setInputError] = useState('');
-  const [published, setPublished] = useState(null);
+  const [name, setName] = useState(() => session?.snapshot?.name ?? initialName ?? readNameFromUrl());
+  const [encodedName, setEncodedName] = useState(() => session?.snapshot?.encodedName ?? initialName ?? readNameFromUrl());
+  const [encoderVersion, setEncoderVersion] = useState(() => session?.snapshot?.encoderVersion ?? (initialEncoderVersion === 1 || initialEncoderVersion === 2
+    ? initialEncoderVersion : initialName !== undefined ? 2 : readEncoderVersionFromUrl()));
+  const [inputError, setInputError] = useState(() => session?.snapshot?.inputError ?? '');
+  const [published, setPublished] = useState(() => session?.snapshot?.published ?? null);
   const [publishIntent, setPublishIntent] = useState(null);
   const [shareStatus, setShareStatus] = useState('');
   const [shareError, setShareError] = useState('');
   const [sharing, setSharing] = useState(false);
-  const [isAnalysisOn, setIsAnalysisOn] = useState(false);
+  const [isAnalysisOn, setIsAnalysisOn] = useState(() => session?.snapshot?.isAnalysisOn ?? false);
   const [formedModel, setFormedModel] = useState(null);
   const [renderConfig, setRenderConfig] = useState(() => detectRenderTier());
   const [stageMin, setStageMin] = useState(0);
@@ -429,7 +281,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
   const composingRef = useRef(false);
   const audioRef = useRef(null);
   const musicRef = useRef(null);
-  const [isMusicOn, setIsMusicOn] = useState(MUSIC_AUTOPLAY); // 기본 재생 여부는 env로
+  const [isMusicOn, setIsMusicOn] = useState(() => session?.snapshot?.isMusicOn ?? MUSIC_AUTOPLAY); // 기본 재생 여부는 env로
   // 배경 안개 Z-dive 트리거 — 값이 바뀔 때마다 챔버가 "안개 속으로 파고드는"
   // 가속 진입 애니메이션을 1회 재생한다 (글리프 아님 — 배경 전용).
   const [diveKey, setDiveKey] = useState(0);
@@ -440,22 +292,23 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
     [encodedName, encoderVersion],
   );
 
-  /** decode 직전 raw 추적 데이터 (자세히 보기 모달) */
-  const [isRawOpen, setIsRawOpen] = useState(false);
-  const rawData = useMemo(() => (model?.meta.reversible ? inspect(model) : null), [model]);
+  const interpretation = useMemo(() => interpretGlyphMeaning(model), [model]);
+  const [selectedMeaningId, setSelectedMeaningId] = useState(() => session?.snapshot?.selectedMeaningId ?? null);
+  const selectedObservation = interpretation.observations.find((item) => item.id === selectedMeaningId);
+  const selectedAnchors = selectedObservation?.anchors || [];
   const handleToggleAnalysis = () => {
-    const next = !isAnalysisOn;
-    setIsAnalysisOn(next);
-    if (isMobileAnalysis && rawData) setIsRawOpen(next);
+    setStack([]);
+    setIsAnalysisOn((value) => !value);
   };
-  const handleCloseRaw = () => {
-    setIsRawOpen(false);
-    if (isMobileAnalysis) setIsAnalysisOn(false);
-  };
+  const handleCloseAnalysis = () => setIsAnalysisOn(false);
 
   // 깊이 내비게이션 (N레벨: 문단↔문장↔단어↔글자). stack = 드릴 경로(확장된 노드 텍스트).
   // [] = 루트 단일 뷰, [..] = 마지막 노드의 자식 격자.
-  const [stack, setStack] = useState([]);
+  const [stack, setStack] = useState(() => session?.snapshot?.stack ?? []);
+  useEffect(() => {
+    if (session) session.snapshot = { name, encodedName, encoderVersion, inputError, published, isAnalysisOn, selectedMeaningId, stack, isMusicOn };
+  }, [session, name, encodedName, encoderVersion, inputError, published, isAnalysisOn, selectedMeaningId, stack, isMusicOn]);
+
   const rootCore = encodedName.replace(/[?？]/g, '').trim();
   const currentText = stack.length ? stack[stack.length - 1] : rootCore;
   /** 현재 노드의 자식 로고그램들 (한 단계 하위 단위) */
@@ -477,6 +330,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
   const reducedMotion = !!renderConfig.reducedMotion;
   const TierRenderer = RENDERER_BY_TIER[renderConfig.tier] || LogogramRendererCanvas;
   const rendererSize = Math.max(200, Math.round(stageMin * FULLSCREEN_FILL));
+  const mobileGlyphSize = Math.min(320, Math.max(200, stageMin - 48));
 
   // 형성 중 여부 — 렌더 시점 파생값 (모델 교체 즉시 반영)
   const isForming = !!model && !reducedMotion && formedModel !== model;
@@ -605,7 +459,8 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
     setEncoderVersion(2);
     setPublished(null);
     setStack([]);
-    setIsRawOpen(false);
+    setIsAnalysisOn(false);
+    setSelectedMeaningId(null);
     audioRef.current?.encodeStart();
     if (!reducedMotion) setDiveKey((key) => key + 1);
     setEncodedName(trimmed);
@@ -619,7 +474,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
   }, [handleEncode]);
 
   // Called on a fresh user click, including the post-publication Share button.
-  const handleShare = useCallback(async (result = published) => {
+  const handleShare = useCallback(async (result = published, shareOptions = {}) => {
     if (!model || encoderVersion !== 2 || sharePending.current) return null;
     if (!result?.glyphId) { setPublishIntent('share'); return null; }
     sharePending.current = true;
@@ -629,7 +484,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
     try {
       const status = await shareArchive({ left: {
         id: result.glyphId, canonical_name: model.meta.canonicalName, is_interrogative: Boolean(model.questionHook),
-      } }, { locale });
+      }, interpretation }, { ...shareOptions, locale });
       setShareStatus(status);
       return status;
     } catch (error) {
@@ -639,7 +494,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
       sharePending.current = false;
       setSharing(false);
     }
-  }, [model, encoderVersion, published, locale, t]);
+  }, [model, interpretation, encoderVersion, published, locale, t]);
 
   // edge: 분석 모드 스크림용 어두운 색.
   const ink = theme.palette.custom?.chamber?.ink || '#1c2226';
@@ -652,7 +507,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
   const fg = analysisActive ? '#ffffff' : '#1c2731';
 
   // 관측 가능한 형태 네 항목만 표시한다. ANALYSIS는 주석만 켜고 이 패널은 바꾸지 않는다.
-  // 개별 클러스터 설명은 기존 콜아웃·좌측 분석·RAW DATA에서 확인한다.
+  // 의미 설명은 별도의 분석 레일에서 읽으며 요약/버튼 위치를 바꾸지 않는다.
   const metadataRows = model
     ? [
       [t('heptapodEncoderPage.clusters'), t('heptapodEncoderPage.count', { p0: model.clusters.length })],
@@ -690,24 +545,25 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
           {/* 확정 인코딩 — 루트 단일 (클릭 시 분해) */}
           { model && stageMin > 0 && atRoot && (
             <Box
-              role={ canSplitRoot ? 'button' : 'img' }
-              tabIndex={ canSplitRoot ? 0 : undefined }
+              role={ canSplitRoot && !analysisActive ? 'button' : 'img' }
+              tabIndex={ canSplitRoot && !analysisActive ? 0 : undefined }
               aria-label={ t('encoderResult.glyphForName', { name: encodedName }) }
               onKeyDown={ (event) => {
-                if (canSplitRoot && (event.key === 'Enter' || event.key === ' ')) {
+                if (canSplitRoot && !analysisActive && (event.key === 'Enter' || event.key === ' ')) {
                   event.preventDefault();
                   setStack([rootCore]);
                   audioRef.current?.encodeStart();
                   triggerRush();
                 }
               } }
-              onClick={ canSplitRoot ? () => { setStack([rootCore]); audioRef.current?.encodeStart(); triggerRush(); } : undefined }
+              onClick={ canSplitRoot && !analysisActive ? () => { setStack([rootCore]); audioRef.current?.encodeStart(); triggerRush(); } : undefined }
               sx={ {
                 position: 'relative',
                 display: 'inline-flex',
                 lineHeight: 0,
-                cursor: canSplitRoot ? 'pointer' : 'default',
-                pointerEvents: canSplitRoot ? 'auto' : 'none',
+                cursor: canSplitRoot && !analysisActive ? 'pointer' : 'default',
+                pointerEvents: canSplitRoot && !analysisActive ? 'auto' : 'none',
+                filter: analysisActive ? 'brightness(0) invert(1)' : 'none',
               } }
             >
               <TierRenderer
@@ -748,7 +604,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
       </LogogramChamber>
 
       {/* L0.5 — 분석 스크림. 문자(안개+로고그램)와 분석 라인 사이를 어둡게 덮어
-          mesh·vertex가 또렷이 떠 보이게 한다 (분석 모드에서만 페이드인) */}
+          선택한 의미의 실제 관측 부위가 떠 보이게 한다 (분석 모드에서만 페이드인) */}
       <Box
         sx={ {
           position: 'absolute',
@@ -765,130 +621,24 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
         } }
       />
 
-      {/* 분석 라인 레이어 — 스크림 위, 로고그램과 정확히 정렬(중앙) */}
-      { model && stageMin > 0 && (
-        <Box
-          sx={ {
-            position: 'absolute',
-            inset: 0,
-            zIndex: 2,
-            pointerEvents: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          } }
-        >
+      {/* 초록 삼각망·정점·스캔은 유지하고, 선택한 의미의 실제 부위를 위에 겹친다. */}
+      { analysisActive && !isMobileAnalysis && <>
+        <Box data-encoder-meaning-anchors sx={ { position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none', display: 'grid', placeItems: 'center' } }>
           <Box sx={ { position: 'relative', width: rendererSize, height: rendererSize } }>
-            {/* 울프럼 mesh(vertex+초록선) + 실제 데이터 콜아웃. 좌표계 스캐폴드는 끔.
-                onScan: vertex 등장 타이밍에 맞춰 스캔 비프 "띡 띡" 재생 */}
-            <AnalysisOverlay
-              model={ model }
-              size={ rendererSize }
-              isVisible={ analysisActive }
-              showFrame={ false }
-              onScan={ (info) => audioRef.current?.scanBeeps(info.count, info) }
-            />
-            {/* 실제 데이터 콜아웃 — 클러스터/무게중심/끊김을 버킷값으로 (스크림 동기 페이드) */}
-            { rawData && !rawData.overflow && (
-              <Box
-                sx={ {
-                  position: 'absolute',
-                  inset: 0,
-                  opacity: analysisActive ? 1 : 0,
-                  transition: theme.transitions.create('opacity', { duration: 700, easing: theme.transitions.easing.easeInOut }),
-                  '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
-                } }
-              >
-                <GlyphCallouts model={ model } rawData={ rawData } size={ rendererSize } glyphSize={ rendererSize } fg={ fg } monoSx={ monoSx } />
-              </Box>
-            ) }
+            <AnalysisOverlay model={ model } size={ rendererSize } isVisible={ analysisActive }
+              showFrame={ false } showReadout={ false }
+              onScan={ (info) => audioRef.current?.scanBeeps(info.count, info) } />
+            <GlyphObservationOverlay model={ model } anchors={ selectedAnchors } fg={ fg } />
           </Box>
         </Box>
-      ) }
-
-      {/* 분석 설명 — 좌측 레일 (문자 → 정수 → 형태 파라미터). 수평 분할선만 */}
-      { rawData && (
-        <Box
-          sx={ {
-            position: 'absolute',
-            left: { xs: 16, md: 36 },
-            top: { xs: 92, md: 112 },
-            zIndex: 3,
-            width: { xs: 168, md: 232 },
-            display: { xs: 'none', md: 'block' },
-            pointerEvents: 'none',
-            opacity: analysisActive ? 1 : 0,
-            transition: theme.transitions.create('opacity', { duration: 700, easing: theme.transitions.easing.easeInOut }),
-          } }
-        >
-          {/* ① 문자 단위 분할 */}
-          <StepRow n="1" title={ t('heptapodEncoderPage.splitIntoCharacterUnitsNfd') } fg={ fg } monoSx={ monoSx } first>
-            <Box sx={ { display: 'flex', flexWrap: 'wrap', gap: 0.5 } }>
-              { rawData.tokens.map((t, i) => (
-                <Box key={ i } sx={ { textAlign: 'center' } }>
-                  <Box sx={ { ...monoSx, fontSize: '0.85rem', color: fg, opacity: 0.95 } }>{ t.char }</Box>
-                  <Box sx={ { ...monoSx, fontSize: '0.5rem', color: fg, opacity: 0.5 } }>{ t.idx }</Box>
-                </Box>
-              )) }
-            </Box>
-          </StepRow>
-
-          {/* ② 위치값 진법 합산 */}
-          <StepRow n="2" title={ t('heptapodEncoderPage.combinePositionalValues') } fg={ fg } monoSx={ monoSx }>
-            <Box sx={ { ...monoSx, fontSize: '0.52rem', color: fg, opacity: 0.55, lineHeight: 1.7, mb: 0.4 } }>
-              { t('heptapodEncoderPage.nCharacterCode1', { p0: rawData.radixK }) }
-            </Box>
-            { rawData.tokens.length <= 4 && (
-              <Box sx={ { ...monoSx, fontSize: '0.5rem', color: fg, opacity: 0.4, lineHeight: 1.7, mb: 0.4, wordBreak: 'break-all' } }>
-                { `= ${rawData.nExpr}` }
-              </Box>
-            ) }
-            <Box sx={ { ...monoSx, fontSize: '0.78rem', color: fg, opacity: 0.95, wordBreak: 'break-all' } }>{ `= ${rawData.n}` }</Box>
-            <Box sx={ { ...monoSx, fontSize: '0.5rem', color: fg, opacity: 0.4, mt: 0.3 } }>{ t('heptapodEncoderPage.baseLosslessRecovery', { p0: rawData.radixK }) }</Box>
-          </StepRow>
-
-          {/* ③ 정수 → 형태 파라미터 */}
-          <StepRow n="3" title={ t('heptapodEncoderPage.integerFormParameters') } fg={ fg } monoSx={ monoSx }>
-            <Box sx={ { ...monoSx, fontSize: '0.52rem', color: fg, opacity: 0.55, lineHeight: 1.7, mb: 0.5 } }>
-              { t('heptapodEncoderPage.divideNIntoDigitsEachDigitBecomes') }
-            </Box>
-            { [
-              t('heptapodEncoderPage.weightCenter3', { p0: rawData.fixed[3].value }),
-              ...rawData.clusterCells.map((c) => t('heptapodEncoderPage.clusterCSpikes', { p0: c.index, p1: c.cell, p2: c.spikeN })),
-              t('heptapodEncoderPage.ringCurvature', { p0: rawData.fixed[0].value }),
-            ].map((line, i) => (
-              <Box key={ i } sx={ { ...monoSx, fontSize: '0.54rem', color: fg, opacity: 0.8, lineHeight: 1.75 } }>{ line }</Box>
-            )) }
-            <Box sx={ { ...monoSx, fontSize: '0.5rem', color: '#3ad16b', opacity: 0.8, mt: 0.5 } }>
-              { t('heptapodEncoderPage.seeTheRightPanelAndCentralImage') }
-            </Box>
-          </StepRow>
+        <Box data-encoder-meaning-rail data-lenis-prevent sx={ {
+          position: 'absolute', left: 36, top: 'calc(184px + env(safe-area-inset-top, 0px))', bottom: 172, zIndex: 3,
+          width: 'clamp(220px, 21vw, 280px)', overflowY: 'auto', overscrollBehavior: 'contain', pr: 1,
+        } }>
+          <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fg={ fg }
+            selectedObservationId={ selectedMeaningId } onSelectObservation={ (observation) => setSelectedMeaningId(observation?.id || null) } />
         </Box>
-      ) }
-
-      {/* 분석 설명 — 하단 가역 결론. analysisActive에서만 */}
-      { rawData && (
-        <Box
-          sx={ {
-            position: 'absolute',
-            left: '50%',
-            bottom: { xs: 150, md: 168 },
-            transform: 'translateX(-50%)',
-            zIndex: 3,
-            pointerEvents: 'none',
-            textAlign: 'center',
-            opacity: analysisActive ? 1 : 0,
-            transition: theme.transitions.create('opacity', { duration: 700, easing: theme.transitions.easing.easeInOut }),
-          } }
-        >
-          <Typography component="p" sx={ { ...monoSx, color: fg, opacity: 0.4, fontSize: '0.56rem', letterSpacing: '0.18em', m: 0, mb: 0.5 } }>
-            { t('heptapodEncoderPage.charactersNumberForm') }
-          </Typography>
-          <Typography component="p" sx={ { ...monoSx, color: fg, opacity: 0.85, fontSize: '0.66rem', letterSpacing: '0.04em', m: 0 } }>
-            { t('heptapodEncoderPage.readTheFormInReverseToRecover', { p0: rawData.name }) }
-          </Typography>
-        </Box>
-      ) }
+      </> }
 
       {/* L1 — 외곽 비네트 (영상 마지막 프레임 정렬). 블루블랙 크러시가 아니라 쿨 블루슬레이트로
           가장자리만 아주 살짝 눌러 균일한 밝은 안개를 유지한다(이전보다 훨씬 약하고 좁게). */}
@@ -904,11 +654,11 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
         } }
       />
 
-      <LanguageSwitcher sx={ { position: 'absolute', top: { xs: 12, md: 20 }, right: { xs: 12, md: 28 }, zIndex: 4, color: fg } } />
+      <AppGNB overlay tone={ analysisActive ? 'dark' : 'light' } soundOn={ isMusicOn } onToggleSound={ handleToggleMusic } />
 
       {/* L2 — 플로팅 컨트롤 (전부 잉크 톤) */}
       {/* 좌상단: 타이틀 */}
-      <Box sx={ { position: 'absolute', top: { xs: 20, md: 32 }, left: { xs: 20, md: 36 }, zIndex: 3 } }>
+      <Box sx={ { position: 'absolute', top: { xs: 'calc(76px + env(safe-area-inset-top, 0px))', md: 'calc(100px + env(safe-area-inset-top, 0px))' }, left: { xs: 20, md: 36 }, zIndex: 3 } }>
         <Typography
           component="span"
           sx={ { ...monoSx, color: fg, opacity: 0.55, letterSpacing: '0.4em', textTransform: 'uppercase', display: { xs: 'none', md: 'block' }, mb: 1, fontSize: '0.6rem' } }
@@ -929,29 +679,6 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
         >
           { t('heptapodEncoderPage.heptapodB') }
         </Typography>
-        {/* 타이틀곡 'Heptapod B' 재생 토글 — 타이틀에 묶어 의미·위치 정렬 */}
-        <Button
-          onClick={ handleToggleMusic }
-          aria-pressed={ isMusicOn }
-          variant="text"
-          startIcon={ <span style={ { fontSize: '0.7rem' } }>{ isMusicOn ? '❚❚' : '►' }</span> }
-          sx={ {
-            ...monoSx,
-            mt: 1,
-            py: 0.4,
-            px: 1,
-            minWidth: 0,
-            color: fg,
-            opacity: isMusicOn ? 0.85 : 0.45,
-            fontSize: '0.52rem',
-            letterSpacing: '0.22em',
-            borderRadius: 0,
-            border: `1px solid ${alpha(fg, isMusicOn ? 0.4 : 0.18)}`,
-            '&:hover': { opacity: 0.95, backgroundColor: alpha(fg, 0.06), borderColor: alpha(fg, 0.55) },
-          } }
-        >
-          { isMusicOn ? t('heptapodEncoderPage.playingOst') : t('heptapodEncoderPage.playOst') }
-        </Button>
       </Box>
 
       {/* 깊이 내비 — 상단 중앙, 화살표 하나 (← 한 단계 위로) */}
@@ -962,7 +689,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
           onClick={ () => setStack((s) => s.slice(0, -1)) }
           sx={ {
             position: 'absolute',
-            top: { xs: 16, md: 24 },
+            top: { xs: 'calc(112px + env(safe-area-inset-top, 0px))', md: 'calc(100px + env(safe-area-inset-top, 0px))' },
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 4,
@@ -987,7 +714,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
         <Box
           sx={ {
             position: 'absolute',
-            top: { xs: 24, md: 36 },
+            top: { xs: 'calc(112px + env(safe-area-inset-top, 0px))', md: 'calc(112px + env(safe-area-inset-top, 0px))' },
             display: { xs: 'none', md: 'block' },
             left: '50%',
             transform: 'translateX(-50%)',
@@ -1011,7 +738,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
           data-encoder-overlay
           sx={ {
             position: 'absolute',
-            top: { xs: 84, md: 84 },
+            top: { xs: 'calc(120px + env(safe-area-inset-top, 0px))', md: 'calc(100px + env(safe-area-inset-top, 0px))' },
             right: { xs: 16, md: 36 },
             zIndex: 3,
             m: 0,
@@ -1066,6 +793,8 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
                 )) }
               </Box>
 
+              {encoderVersion === 2 && <GlyphClusterLink interpretation={ interpretation } compact sx={ { mt: 1, color: fg } } />}
+
               {/* status 하단 — 분석 오버레이 토글 버튼 */}
               <Button
                 data-encoder-analysis
@@ -1099,18 +828,24 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
                   disabled={ hasDraft || sharing }
                   variant="text" fullWidth
                   sx={ {
-                    ...monoSx, py: 0.6, color: fg, opacity: 0.7, fontSize: '0.58rem', letterSpacing: '0.18em', borderRadius: 0, border: `1px solid ${alpha(fg, 0.28)}`, '&:hover': { opacity: 0.95, backgroundColor: alpha(fg, 0.06), borderColor: alpha(fg, 0.5) },
+                    ...monoSx, py: 0.6, color: fg, opacity: 0.7, fontSize: '0.58rem', letterSpacing: '0.04em', lineHeight: 1.5, wordBreak: 'keep-all', borderRadius: 0, border: `1px solid ${alpha(fg, 0.28)}`, '&:hover': { opacity: 0.95, backgroundColor: alpha(fg, 0.06), borderColor: alpha(fg, 0.5) },
                   } }
                 >
                   { t(encoderVersion === 1 ? 'encoderResult.recreate' : sharing ? 'encoderResult.sharing' : published ? 'encoderResult.share' : 'heptapodEncoderPage.publishAndShare') }
                 </Button>
+                {published?.glyphId && (
+                  <Button data-encoder-public-link onClick={ () => setPublishIntent('share') } disabled={ sharing }
+                    variant="text" fullWidth sx={ { ...monoSx, minHeight: 44, color: fg, fontSize: '0.58rem', borderRadius: 0 } }>
+                    {t('publishDialog.myGlyphLink')}
+                  </Button>
+                )}
               </Box>
               <Box role="status" aria-live="polite" sx={ { ...monoSx, color: fg, fontSize: '0.6rem', mt: shareStatus || shareError ? 1 : 0 } }>
                 { shareError ? localize(shareError) : shareStatus ? t(`encoderResult.${shareStatus}`) : '' }
               </Box>
               <Button
                 component={ RouterLink }
-                to="/archive"
+                to={ APP_PATHS.archive }
                 variant="text"
                 fullWidth
                 sx={ {
@@ -1196,7 +931,8 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
       {/* Publish 다이얼로그 — 공개 아카이브 게시 확인 */}
       <PublishDialog key={ `${encodedName}:${encoderVersion}` } open={ !!publishIntent }
         intent={ publishIntent || 'publish' } completion="stay" onClose={ () => setPublishIntent(null) }
-        glyphName={ encodedName } model={ model } onShare={ handleShare }
+        publishedResult={ published }
+        glyphName={ encodedName } model={ model } interpretation={ interpretation } onShare={ handleShare }
         onPublish={ async ({ consented }) => {
           if (!model || !encodedName || encoderVersion !== 2) throw new Error(t('heptapodEncoderPage.createAV2GlyphFirst'));
           if (published?.glyphId) return published;
@@ -1204,115 +940,28 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName }) {
           setPublished(result);
           return result;
         } } />
-      {/* 모바일 ANALYSIS의 상세 보기 — 별도 RAW DATA 버튼 없이 같은 분석 진입 사용 */}
-      <Dialog
-        open={ isRawOpen }
-        onClose={ handleCloseRaw }
-        maxWidth="md"
-        fullWidth
-        slotProps={ {
-          paper: {
-            sx: {
-              backgroundColor: 'rgba(12,16,15,0.97)',
-              backgroundImage: 'none',
-              border: `1px solid ${alpha('#ffffff', 0.18)}`,
-              borderRadius: 0,
-              boxShadow: 'none',
-              color: '#ffffff',
-              maxWidth: 880,
-            },
-          },
-        } }
-      >
-        { rawData && (
-          <Box sx={ { p: { xs: 2.5, sm: 4 } } }>
-            {/* 헤더 */}
-            <Box sx={ { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mb: 0.5 } }>
-              <Typography component="span" sx={ { ...monoSx, color: '#ffffff', opacity: 0.95, letterSpacing: '0.16em', fontSize: '0.92rem' } }>
-                { t('heptapodEncoderPage.howBecameThisForm', { p0: rawData.name }) }
-              </Typography>
-              <Box
-                component="button"
-                onClick={ handleCloseRaw }
-                sx={ { ...monoSx, background: 'none', border: 'none', cursor: 'pointer', color: '#ffffff', opacity: 0.6, fontSize: '0.7rem', '&:hover': { opacity: 1 } } }
-              >
-                { t('heptapodEncoderPage.close') }
-              </Box>
-            </Box>
-            <Typography component="p" sx={ { ...monoSx, color: '#ffffff', opacity: 0.4, fontSize: '0.6rem', letterSpacing: '0.06em', mt: 0, mb: 2.5 } }>
-              { t('heptapodEncoderPage.charactersNumbersFormSettingsDrawingFourSteps') }
-            </Typography>
-
-            {/* 1~3단계: 가로 흐름 (글자 → 숫자 → 설정) */}
-            <Box sx={ { display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'stretch', gap: 1.5, mb: 1.5 } }>
-              {/* STEP 1 — 문자 단위 분할 */}
-              <StepCard n="1" title={ t('heptapodEncoderPage.splitIntoCharacterUnitsNfd') } fg={ '#ffffff' } monoSx={ monoSx }>
-                <Box sx={ { display: 'flex', flexWrap: 'wrap', gap: 0.75 } }>
-                  { rawData.tokens.map((t, i) => (
-                    <Box key={ i } sx={ { border: `1px solid ${alpha('#ffffff', 0.3)}`, px: 1, py: 0.5, textAlign: 'center' } }>
-                      <Box sx={ { ...monoSx, fontSize: '1rem', color: '#ffffff', opacity: 0.95 } }>{ t.char }</Box>
-                      <Box sx={ { ...monoSx, fontSize: '0.55rem', color: '#ffffff', opacity: 0.5 } }>{ t.idx }</Box>
-                    </Box>
-                  )) }
-                </Box>
-                <StepNote fg={ '#ffffff' } monoSx={ monoSx }>{ t('heptapodEncoderPage.uniqueCodesAssignedToCharacters', { p0: rawData.radixK }) }</StepNote>
-              </StepCard>
-
-              <FlowArrow fg={ '#ffffff' } />
-
-              {/* STEP 2 — 위치값 진법 합산 */}
-              <StepCard n="2" title={ t('heptapodEncoderPage.combinePositionalValues') } fg={ '#ffffff' } monoSx={ monoSx }>
-                <Box sx={ { ...monoSx, fontSize: '0.7rem', color: '#ffffff', opacity: 0.6, mb: 0.4 } }>{ t('heptapodEncoderPage.nCode1', { p0: rawData.radixK }) }</Box>
-                { rawData.tokens.length <= 4 && (
-                  <Box sx={ { ...monoSx, fontSize: '0.6rem', color: '#ffffff', opacity: 0.45, mb: 0.4, wordBreak: 'break-all' } }>{ `= ${rawData.nExpr}` }</Box>
-                ) }
-                <Box sx={ { ...monoSx, fontSize: '1rem', color: '#ffffff', opacity: 0.95, wordBreak: 'break-all' } }>{ `= ${rawData.n}` }</Box>
-                <StepNote fg={ '#ffffff' } monoSx={ monoSx }>{ t('heptapodEncoderPage.bitsLosslessRecovery', { p0: rawData.bitLength }) }</StepNote>
-              </StepCard>
-
-              <FlowArrow fg={ '#ffffff' } />
-
-              {/* STEP 3 — 정수 → 형태 파라미터 */}
-              <StepCard n="3" title={ t('heptapodEncoderPage.integerFormParameters') } fg={ '#ffffff' } monoSx={ monoSx }>
-                <Box sx={ { ...monoSx, fontSize: '0.55rem', color: '#ffffff', opacity: 0.5, mb: 0.5, lineHeight: 1.6 } }>
-                  { t('heptapodEncoderPage.divideNIntoDigitsEachDigitBecomes2') }
-                </Box>
-                { [
-                  t('heptapodEncoderPage.weightCenter4', { p0: rawData.fixed[3].value, p1: localize(rawData.fixed[3].where) }),
-                  ...rawData.clusterCells.map((c) => t('heptapodEncoderPage.clusterCSpikes2', { p0: c.index, p1: c.cell, p2: c.spikeN, p3: localize(c.where.replace(' 폭발', '')) })),
-                  t('heptapodEncoderPage.ringCurvature2', { p0: rawData.fixed[0].value }),
-                ].map((line, i) => (
-                  <Box key={ i } sx={ { ...monoSx, fontSize: '0.6rem', color: '#ffffff', opacity: 0.8, lineHeight: 1.8 } }>
-                    { `· ${line}` }
-                  </Box>
-                )) }
-              </StepCard>
-            </Box>
-
-            {/* STEP 4 — 형태로 그린다 (실제 글리프 + 주석) */}
-            <Box sx={ { borderTop: `1px solid ${alpha('#ffffff', 0.2)}`, pt: 2, mt: 1 } }>
-              <Typography component="span" sx={ { ...monoSx, color: '#ffffff', opacity: 0.55, letterSpacing: '0.1em', fontSize: '0.66rem', display: 'block', mb: 0.5 } }>
-                { t('heptapodEncoderPage.4DrawTheFormWhereTheSettings') }
-              </Typography>
-              { !rawData.overflow ? (
-                <AnnotatedGlyph model={ model } rawData={ rawData } size={ 360 } fg={ '#ffffff' } monoSx={ monoSx } />
-              ) : (
-                <Typography component="p" sx={ { ...monoSx, color: '#ffffff', opacity: 0.7, fontSize: '0.66rem', textAlign: 'center', py: 4 } }>
-                  { t('heptapodEncoderPage.theTextExceedsTheFormSCapacity') }
-                </Typography>
-              ) }
-            </Box>
-
-            {/* 가역 결론 */}
-            <Box sx={ { mt: 1.5, pt: 1.5, borderTop: `1px solid ${alpha('#ffffff', 0.2)}`, textAlign: 'center' } }>
-              <Typography component="p" sx={ { ...monoSx, color: '#ffffff', opacity: 0.9, fontSize: '0.7rem', letterSpacing: '0.04em', m: 0 } }>
-                { rawData.overflow
-                  ? t('heptapodEncoderPage.thisFormCannotBeReversed')
-                  : t('heptapodEncoderPage.readTheFormInReverseToRecover', { p0: rawData.name }) }
-              </Typography>
-            </Box>
+      {/* 모바일에서도 동일한 판독/선택 상태. 코덱·가역성에 관계없이 실제 모델을 읽는다. */}
+      <Dialog open={ analysisActive && isMobileAnalysis } onClose={ handleCloseAnalysis }
+        fullScreen aria-labelledby={ readingDialogId } data-lenis-prevent
+        transitionDuration={ reducedMotion ? 0 : theme.transitions.duration.shortest }
+        slotProps={ { paper: { sx: { bgcolor: 'background.default', backgroundImage: 'none', color: 'common.white' } } } }>
+        <Box sx={ { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, px: 3, py: 1 } }>
+          <Typography id={ readingDialogId } component="h2" sx={ { fontSize: 16, fontWeight: 400, overflowWrap: 'anywhere' } }>
+            { t('meaningReading.dialogTitle', { name: encodedName }) }
+          </Typography>
+          <Button onClick={ handleCloseAnalysis } sx={ { color: 'inherit', minWidth: 44, minHeight: 44, flexShrink: 0 } }>{ t('heptapodEncoderPage.close') }</Button>
+        </Box>
+        <Box sx={ { px: 3, pb: 4, overflowY: 'auto', overscrollBehavior: 'contain' } }>
+          <Box data-encoder-mobile-glyph sx={ { position: 'relative', width: mobileGlyphSize, height: mobileGlyphSize, mx: 'auto' } }>
+            <LogogramRendererCanvas model={ model } size={ mobileGlyphSize } inkColor={ theme.palette.common.white } isActive />
+            <AnalysisOverlay model={ model } size={ mobileGlyphSize } isVisible={ analysisActive }
+              showFrame={ false } showReadout={ false }
+              onScan={ (info) => audioRef.current?.scanBeeps(info.count, info) } />
+            <GlyphObservationOverlay model={ model } anchors={ selectedAnchors } fg={ theme.palette.common.white } />
           </Box>
-        ) }
+          <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fg={ theme.palette.common.white } sx={ { maxWidth: 540, mx: 'auto' } }
+            selectedObservationId={ selectedMeaningId } onSelectObservation={ (observation) => setSelectedMeaningId(observation?.id || null) } />
+        </Box>
       </Dialog>
     </Box>
   );

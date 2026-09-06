@@ -53,8 +53,15 @@ try {
       const row = await scalar(`SELECT has_table_privilege($1,'public.glyphs','INSERT') AS ins,
         has_table_privilege($1,'public.glyphs','UPDATE') AS upd,
         has_table_privilege($1,'public.glyph_contributions','INSERT') AS contrib,
-        has_function_privilege($1,'public.archive_publish_verified(uuid,jsonb,text,text[],boolean)','EXECUTE') AS rpc`, [role]);
-      assert.deepEqual(row, { ins: false, upd: false, contrib: false, rpc: false });
+        has_function_privilege($1,'public.archive_publish_verified(uuid,jsonb,text,text[],boolean)','EXECUTE') AS rpc,
+        has_function_privilege($1,'public.archive_unpublish_verified(uuid,uuid)','EXECUTE') AS withdraw`, [role]);
+      assert.deepEqual(row, { ins: false, upd: false, contrib: false, rpc: false, withdraw: false });
+      await db.exec(`SET ROLE ${role}`);
+      try {
+        await assert.rejects(() => publish(ownerA), /permission denied/);
+        await assert.rejects(() => withdraw(ownerA, legacyId), /permission denied/);
+        await assert.rejects(() => db.query('UPDATE glyphs SET is_public=false WHERE id=$1', [legacyId]), /permission denied/);
+      } finally { await db.exec('RESET ROLE'); }
     }
   });
   await test('missing consent and owner fail atomically', async () => {
@@ -96,6 +103,19 @@ try {
     await db.exec(`SET ROLE authenticated; SELECT set_config('request.jwt.claim.sub','${ownerB}',false)`);
     try {
       assert.equal((await scalar('SELECT count(*)::int AS n FROM glyph_contributions WHERE user_id=$1', [ownerA])).n, 0);
+    } finally { await db.exec('RESET ROLE'); }
+    await db.exec(`SET ROLE authenticated; SELECT set_config('request.jwt.claim.sub','${ownerA}',false)`);
+    try {
+      assert.ok((await scalar('SELECT count(*)::int AS n FROM glyph_contributions WHERE user_id=$1', [ownerA])).n > 0);
+    } finally { await db.exec('RESET ROLE'); }
+  });
+  await test('public readers see public glyphs but no contribution identities or hidden glyphs', async () => {
+    await db.query('UPDATE glyphs SET is_public=false WHERE id=$1', [legacyId]);
+    await db.exec('SET ROLE anon');
+    try {
+      assert.equal((await scalar('SELECT count(*)::int AS n FROM glyphs WHERE id=$1', [published.glyphId])).n, 1);
+      assert.equal((await scalar('SELECT count(*)::int AS n FROM glyphs WHERE id=$1', [legacyId])).n, 0);
+      await assert.rejects(() => db.query('SELECT * FROM glyph_contributions'), /permission denied/);
     } finally { await db.exec('RESET ROLE'); }
   });
   await test('moderation-hidden response cannot be made public by an owner retry', async () => {

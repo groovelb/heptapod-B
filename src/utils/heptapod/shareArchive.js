@@ -2,6 +2,7 @@ import { createTranslator, sourceText as t } from '../../i18n/messages.js';
 import { generateParticles, makeSprites, paintStatic, SIZE0 } from './logogramParticles.js';
 import { glyphLabel } from './resonanceView.js';
 import { MEANING_VERSION, MEANING_BASE_IDS, MEANING_MODIFIER_IDS } from '../../data/heptapodMeaningCatalog.js';
+import { getGlyphArchetype } from '../../data/heptapodArchetypeCatalog.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MEANING_STATUSES = ['all', 'partial', 'invalid'];
@@ -138,26 +139,66 @@ export function archiveShareUrl(leftId, rightId, options = {}) {
   return new URL(path, origin).href;
 }
 
-export async function shareArchive({ left, right, reason }, options = {}) {
+/** Single public response copy. Names stay literal; only authored copy is localized.
+ * This does not change URLs, encode models, or alter pair/OG contracts.
+ */
+export function glyphArchetypeShareCopy(glyph, interpretation, locale = 'ko') {
+  if (!UUID.test(glyph?.id || '') || glyph?.is_public === false) return null;
+  const archetype = getGlyphArchetype(interpretation);
+  if (!archetype) return null;
+  const { t, localize } = createTranslator(locale);
+  return {
+    title: t('archetypeShare.title', { name: glyphLabel(glyph), type: localize(archetype.title) }),
+    text: localize(archetype.reading),
+  };
+}
+
+/** Copy is an explicit action and never opens a native share sheet. */
+export async function copyArchiveLink(url, options = {}) {
+  const { t } = createTranslator(options.locale || 'ko');
+  const nav = options.navigator || globalThis.navigator;
+  if (!nav?.clipboard?.writeText) throw new Error(t('shareArchive.linksCannotBeCopiedOnThisDevice'));
+  await nav.clipboard.writeText(url);
+  return 'copied';
+}
+
+export function archiveShareData({ left, right, reason, interpretation }, options = {}) {
   const { t, localize } = createTranslator(options.locale || 'ko');
   if (left?.is_public === false || right?.is_public === false) throw new Error(t('shareArchive.onlyPublicGlyphsCanBeSharedBy'));
   const url = archiveShareUrl(left.id, right?.id, options);
   const isMeaning = shareReading(options);
-  const title = isMeaning
+  const archetypeCopy = !right ? glyphArchetypeShareCopy(left, interpretation, options.locale || 'ko') : null;
+  const title = archetypeCopy?.title || (isMeaning
     ? t('shareArchive.meaningReadFromForm', { p0: [left, right].filter(Boolean).map(glyphLabel).join(' · ') })
-    : right ? t('shareArchive.compareTwoNames', { p0: glyphLabel(left), p1: glyphLabel(right) }) : t('share.glyphTitle', { p0: glyphLabel(left) });
+    : right ? t('shareArchive.compareTwoNames', { p0: glyphLabel(left), p1: glyphLabel(right) }) : t('share.glyphTitle', { p0: glyphLabel(left) }));
+  return { title, text: archetypeCopy?.text || localize(reason) || (isMeaning ? t('shareArchive.readTheGlyphSFormThroughThis') : t('shareArchive.willYourNameConnectToo')), url };
+}
+
+/** Opens a compose screen only; choosing a network never posts on the user's behalf. */
+export function archiveSocialLinks(input, options = {}) {
+  const { title, text, url } = archiveShareData(input, options);
+  const caption = [title, text].filter(Boolean).join('\n');
+  return [
+    { id: 'x', label: 'X', href: `https://twitter.com/intent/tweet?${new URLSearchParams({ text: caption, url })}` },
+    { id: 'threads', label: 'Threads', href: `https://www.threads.com/intent/post?${new URLSearchParams({ text: `${caption}\n${url}` })}` },
+    { id: 'facebook', label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?${new URLSearchParams({ u: url })}` },
+  ];
+}
+
+export async function shareArchive(input, options = {}) {
+  const payload = archiveShareData(input, options);
   const nav = options.navigator || globalThis.navigator;
   if (nav?.share) {
     try {
-      await nav.share({ title, text: localize(reason) || (isMeaning ? t('shareArchive.readTheGlyphSFormThroughThis') : t('shareArchive.willYourNameConnectToo')), url });
+      await nav.share(payload);
       return 'shared';
     } catch (error) {
       if (error.name === 'AbortError') return 'cancelled';
+      if (options.copyFallback === false) throw error;
     }
   }
-  if (!nav?.clipboard?.writeText) throw new Error(t('shareArchive.linksCannotBeCopiedOnThisDevice'));
-  await nav.clipboard.writeText(url);
-  return 'copied';
+  if (options.copyFallback === false) throw new Error(createTranslator(options.locale || 'ko').t('publishDialog.appsUnavailable'));
+  return copyArchiveLink(payload.url, { ...options, navigator: nav });
 }
 
 /** Same final particles as the display renderer; no inferred or synthetic glyphs. */

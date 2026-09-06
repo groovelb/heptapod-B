@@ -2,6 +2,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
 import { defaultTheme } from '../src/styles/themes';
+import LocaleProvider from '../src/i18n/LocaleProvider';
 
 // Google Fonts 로드 (Material Symbols + 기본 폰트)
 const googleFonts = [
@@ -22,6 +23,15 @@ googleFonts.forEach((font) => {
 
 /** @type { import('@storybook/react-vite').Preview } */
 const preview = {
+  initialGlobals: { locale: 'ko' },
+  globalTypes: {
+    locale: {
+      description: 'Preview language',
+      toolbar: { icon: 'globe', dynamicTitle: true, items: [
+        { value: 'ko', title: '한국어' }, { value: 'en', title: 'English' }, { value: 'system', title: 'System' },
+      ] },
+    },
+  },
   parameters: {
     controls: {
       matchers: {
@@ -62,13 +72,15 @@ const preview = {
     },
   },
   decorators: [
-    (Story) => (
+    (Story, context) => (
+      <LocaleProvider key={ context.globals.locale } initialMode={ context.globals.locale }>
       <ThemeProvider theme={defaultTheme}>
         <CssBaseline />
         <div style={{ width: '100%', paddingTop: '40px' }}>
           <Story />
         </div>
       </ThemeProvider>
+      </LocaleProvider>
     ),
   ],
 };

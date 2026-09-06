@@ -1,3 +1,4 @@
+import { sourceText as t } from '../i18n/messages.js';
 import { assertComparableGlyph } from '../utils/heptapod/assertComparableGlyph.js';
 import { extractGlyphFeatures } from '../utils/heptapod/extractGlyphFeatures.js';
 import { relateGlyphs, RELATION_ALGORITHM_VERSION } from '../utils/heptapod/relateGlyphs.js';
@@ -10,13 +11,13 @@ import { groupResonanceRows } from '../utils/heptapod/resonanceView.js';
  */
 
 export function assertArchiveRequestActive(signal) {
-  if (signal?.aborted) throw Object.assign(new Error('관계 조회를 취소했습니다.'), { name: 'AbortError' });
+  if (signal?.aborted) throw Object.assign(new Error(t('archiveRelations.relationRequestCancelled')), { name: 'AbortError' });
 }
 
 /** Explicit injection wins; Storybook clients preserve their injected API behavior. */
 export function resolveArchiveRelationsMode({ mode, hasInjectedClient = false, env = import.meta.env || {} } = {}) {
   const selected = mode ?? (hasInjectedClient ? 'api' : env.VITE_ARCHIVE_RELATIONS_MODE || (env.DEV ? 'local' : 'api'));
-  if (!['local', 'api'].includes(selected)) throw new Error('관계 연결 설정은 local 또는 api여야 합니다.');
+  if (!['local', 'api'].includes(selected)) throw new Error(t('archiveRelations.theRelationConnectionModeMustBeLocal'));
   return selected;
 }
 
@@ -28,7 +29,7 @@ export function createApiRelationProvider({ invoke }) {
       const result = await invoke(glyphId, signal);
       assertArchiveRequestActive(signal);
       if (!Number.isFinite(result?.algorithmVersion) || result.algorithmVersion < RELATION_ALGORITHM_VERSION) {
-        throw new Error('형태 공명 서버를 업데이트한 뒤 다시 시도해 주세요.');
+        throw new Error(t('resonanceList.updateTheFormResonanceServerAndTry'));
       }
       return { ...result, computationMode: 'api' };
     },
@@ -47,12 +48,12 @@ export function createLocalRelationProvider({ readCenter, loadSnapshot, yieldWor
       assertArchiveRequestActive(signal);
       const center = await readCenter(glyphId, signal);
       assertArchiveRequestActive(signal);
-      if (!center || center.is_public !== true) throw new Error('공개된 표식을 찾을 수 없습니다.');
+      if (!center || center.is_public !== true) throw new Error(t('archiveRelations.thePublicGlyphCouldNotBeFound'));
       try { assertComparableGlyph(center); extractGlyphFeatures(center.model_data); }
-      catch { throw new Error('이 표식의 형상 데이터를 확인하지 못했습니다.'); }
+      catch { throw new Error(t('archiveRelations.thisGlyphSFormDataCouldNot')); }
       const snapshot = await loadSnapshot(signal);
       assertArchiveRequestActive(signal);
-      if (!snapshot || !Array.isArray(snapshot.rows)) throw new Error('비교할 공개 표식을 불러오지 못했습니다.');
+      if (!snapshot || !Array.isArray(snapshot.rows)) throw new Error(t('archiveRelations.publicGlyphsForComparisonCouldNotBe'));
       const candidates = [...new Map(snapshot.rows.filter((row) => row?.is_public === true && row.id && row.id !== glyphId)
         .map((row) => [row.id, row])).values()].slice(0, 200);
       const rawRows = [];

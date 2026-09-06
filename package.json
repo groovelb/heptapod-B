@@ -10,7 +10,11 @@
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "generate-rules": "node scripts/generate-rules.js"
+    "generate-rules": "node scripts/generate-rules.js",
+    "test:locale": "node scripts/test-locale.mjs && node scripts/test-locale-state.mjs",
+    "test:navigation": "node scripts/test-app-navigation.mjs",
+    "test:routes": "node scripts/test-canvas-routes.mjs && node scripts/test-hero-affordance.mjs && node scripts/test-archive-motion.mjs",
+    "test:archetypes": "node scripts/test-archive-archetypes.mjs && node scripts/test-archetype-share.mjs && node scripts/test-archive-meaning-ui.mjs && node scripts/test-archive-field-state.mjs && node scripts/test-archive-feed-index.mjs && node scripts/test-encoder-result.mjs"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.4.0",

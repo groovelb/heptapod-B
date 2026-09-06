@@ -1,0 +1,196 @@
+/** Browser-free integration checks: SSR/contracts, not pixels or real focus/scroll. */
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { createServer } from 'vite';
+import react from '@vitejs/plugin-react';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { ThemeProvider } from '@mui/material/styles';
+import { ARCHIVE_STORY_GLYPHS } from '../src/test-fixtures/archiveClient.js';
+import { groupArchiveMeanings } from '../src/utils/heptapod/groupArchiveMeanings.js';
+import { compareGlyphMeanings, interpretGlyphMeaning } from '../src/utils/heptapod/interpretGlyphMeaning.js';
+import { relateGlyphs } from '../src/utils/heptapod/relateGlyphs.js';
+import { archiveMeaningPath, parseArchiveMeaningSearch } from '../src/utils/heptapod/shareArchive.js';
+import { isRenderableGlyphModel } from '../src/utils/heptapod/extractGlyphFeatures.js';
+import { ARCHETYPE_CATALOG } from '../src/data/heptapodArchetypeCatalog.js';
+import { getArchiveArchetypeSymbol } from '../src/data/archiveArchetypeSymbols.js';
+import { buildArchiveArchetypeFeed } from '../src/utils/heptapod/buildArchiveArchetypeFeed.js';
+
+const originalFetch = globalThis.fetch;
+let requests = 0;
+globalThis.fetch = () => { requests += 1; throw new Error('No network in meaning presentation tests.'); };
+const server = await createServer({ configFile: false, plugins: [react()], server: { middlewareMode: true, hmr: false },
+  optimizeDeps: { noDiscovery: true }, environments: { ssr: { optimizeDeps: { noDiscovery: true } } }, appType: 'custom', logLevel: 'error' });
+let checks = 0;
+const check = (fn) => { fn(); checks += 1; };
+try {
+  const { default: theme } = await server.ssrLoadModule('/src/styles/themes/default.js');
+  const { default: Summary } = await server.ssrLoadModule('/src/components/data-display/GlyphMeaningSummary.jsx');
+  const { default: ClusterLink } = await server.ssrLoadModule('/src/components/data-display/GlyphClusterLink.jsx');
+  const { default: Explorer, filterMeaningGlyphs } = await server.ssrLoadModule('/src/components/data-display/ArchiveMeaningExplorer.jsx');
+  const { default: Pair } = await server.ssrLoadModule('/src/components/data-display/GlyphPairComparison.jsx');
+  const { default: Preview } = await server.ssrLoadModule('/src/components/data-display/ResonancePreview.jsx');
+  const { default: Depth } = await server.ssrLoadModule('/src/components/data-display/ArchiveDepthExplorer.jsx');
+  const { default: Glyph } = await server.ssrLoadModule('/src/components/data-display/ArchiveGlyph.jsx');
+  const { default: FamilySymbol } = await server.ssrLoadModule('/src/components/data-display/ArchiveFamilySymbol.jsx');
+  const { default: Feed } = await server.ssrLoadModule('/src/components/data-display/ArchiveArchetypeFeed.jsx');
+  const render = (Component, props) => renderToStaticMarkup(createElement(ThemeProvider, { theme }, createElement(Component, props)));
+  // Explicit synthetic fixtures cover the full catalog, not claims about public names.
+  for (const archetype of Object.values(ARCHETYPE_CATALOG)) {
+    const model = getArchiveArchetypeSymbol(archetype.id).model;
+    const row = { id: `00000000-0000-0000-0000-${String(archetype.order + 1).padStart(12, '0')}`, is_public: true, model_data: model };
+    const dto = groupArchiveMeanings([row]);
+    const feedHtml = render(Feed, { feed: buildArchiveArchetypeFeed([row], dto) });
+    const readingHtml = render(Summary, { interpretation: interpretGlyphMeaning(model), variant: 'reading' });
+    const membershipHtml = render(ClusterLink, { interpretation: interpretGlyphMeaning(model) });
+    check(() => assert.ok(membershipHtml.includes(archetype.title)));
+    check(() => assert.ok(membershipHtml.includes(`group=${encodeURIComponent(archetype.id)}`)));
+    for (const content of [feedHtml, readingHtml]) {
+      check(() => assert.ok(content.includes(archetype.title)));
+      check(() => assert.ok(content.includes(archetype.reading)));
+    }
+    check(() => assert.equal((feedHtml.match(/data-archive-member=/g) || []).length, 1));
+    check(() => assert.equal((feedHtml.match(/data-archetype-section=/g) || []).length, 1));
+    check(() => assert.ok(feedHtml.includes(`data-archetype-symbol="${archetype.id}"`)));
+    check(() => assert.doesNotMatch(feedHtml, /role="tab"|data-archive-facets/));
+  }
+  check(() => assert.doesNotMatch(render(ClusterLink, { interpretation: { status: 'partial' } }), /href=/));
+  const emptyFeedHtml = render(Feed, { feed: buildArchiveArchetypeFeed([], groupArchiveMeanings([])) });
+  check(() => assert.doesNotMatch(emptyFeedHtml, /data-archetype-section|data-archive-member|data-archetype-symbol/));
+  const publicGlyphs = ARCHIVE_STORY_GLYPHS.filter((row) => row.is_public === true);
+  const meanings = groupArchiveMeanings(publicGlyphs);
+  const left = publicGlyphs[0];
+  const right = publicGlyphs.find((row) => row.id !== left.id);
+  const interpretation = interpretGlyphMeaning(left.model_data);
+  const comparison = compareGlyphMeanings(left.model_data, right.model_data);
+  const relations = relateGlyphs(left, right);
+  const filter = { base: null, modifiers: [], groupId: null, status: 'all' };
+  const pair = { leftGlyph: left, rightGlyph: right, relations, meaningComparison: comparison };
+
+  check(() => assert.match(render(Summary, { interpretation }), /형태에서 읽은 의미/));
+  check(() => assert.match(render(Summary, { interpretation }), /공식 번역/));
+  check(() => assert.ok(render(Summary, { interpretation, compact: true }).includes(interpretation.title)));
+  check(() => assert.match(render(Summary, { interpretation, onSelectObservation() {} }), /aria-pressed/));
+  check(() => assert.match(render(Summary, { interpretation: interpretGlyphMeaning(null) }), /판독 미확인/));
+  check(() => assert.match(render(Summary, { interpretation, compact: true, fg: '#ffffff' }), /rgba\(255, 255, 255, 0.8\)/));
+  const partial = structuredClone(left.model_data);
+  partial.inkLoads = [];
+  check(() => assert.match(render(Summary, { interpretation: interpretGlyphMeaning(partial) }), /부분 판독/));
+
+  const html = render(Explorer, { meanings, glyphs: publicGlyphs, filter, onFilterChange() {} });
+  check(() => assert.match(html, /기본 의미 단일 선택/));
+  check(() => assert.match(html, /추가 의미 모두 포함/));
+  check(() => assert.match(html, /복합 의미군 정확히 선택/));
+  check(() => assert.match(html, /현재 불러온 공개 표본/));
+  const sharedGroup = meanings.groups.find((group) => group.memberIds.length > 1);
+  check(() => assert.ok(sharedGroup, 'comparison fixture needs a multi-member meaning group'));
+  const rootHtml = render(Depth, { meanings, glyphs: publicGlyphs });
+  check(() => assert.match(rootHtml, /data-archive-depth="families"/));
+  check(() => assert.match(rootHtml, /상위 표식군/));
+  check(() => assert.match(rootHtml, /data-family-symbol/));
+  check(() => assert.doesNotMatch(rootHtml, /data-sample-glyph/));
+  check(() => assert.match(rootHtml, /기본 계열의 상징/));
+  for (const familyId of ['arrival', 'reception', 'reciprocity']) {
+    const symbolHtml = render(FamilySymbol, { familyId });
+    check(() => assert.match(symbolHtml, new RegExp(`data-family-symbol="${familyId}"`)));
+    check(() => assert.match(symbolHtml, /개인의 이름 표식이 아닙니다/));
+  }
+  check(() => assert.equal(render(FamilySymbol, { familyId: 'unknown' }), ''));
+  const familyHtml = render(Depth, { meanings, glyphs: publicGlyphs, filter: { base: meanings.interpretations[sharedGroup.memberIds[0]].baseMeaning } });
+  check(() => assert.match(familyHtml, /data-archive-member/));
+  check(() => assert.match(familyHtml, /data-archetype-feed/));
+  check(() => assert.match(familyHtml, /data-archetype-section/));
+  check(() => assert.doesNotMatch(familyHtml, /data-archive-facets|data-archive-meta|role="tab"/));
+  check(() => assert.doesNotMatch(familyHtml, /data-sample-glyph|data-cluster-id/));
+  check(() => assert.doesNotMatch(familyHtml, /data-family-symbol/));
+  check(() => assert.doesNotMatch(rootHtml, /기본 의미 단일 선택|판독 가능|형태 분류 v|현재 조건|<select|분석 보기/));
+  const peopleHtml = render(Depth, { meanings, glyphs: publicGlyphs, filter: { groupId: sharedGroup.id }, onFocusGlyph() {} });
+  check(() => assert.match(peopleHtml, /data-archive-depth="members"/));
+  check(() => assert.match(peopleHtml, /의 표식 가까이 보기/));
+  check(() => assert.doesNotMatch(peopleHtml, /data-cluster-id/));
+  const focusedHtml = render(Depth, { meanings, glyphs: publicGlyphs, filter: { groupId: sharedGroup.id }, focusedId: sharedGroup.memberIds[0] });
+  check(() => assert.match(focusedHtml, /data-archive-depth="glyph"/));
+  // The personal Dialog is portalled on the client. Its interactions are checked
+  // in test-archive-field-state.mjs; SSR must retain the underlying member field.
+  check(() => assert.match(focusedHtml, /data-archive-member/));
+  check(() => assert.equal((focusedHtml.match(/data-archive-member=/g) || []).length, sharedGroup.memberIds.length));
+  check(() => assert.match(render(Depth, { meanings, glyphs: publicGlyphs, focusedId: 'missing' }), /data-family-symbol/));
+  check(() => assert.match(render(Glyph, { glyph: { ...left, model_data: null }, showName: true }), /아직 모습을 불러올 수 없어요/));
+  check(() => assert.match(render(Explorer, { meanings, glyphs: publicGlyphs, filter: { ...filter, groupId: sharedGroup.id }, onCompare() {} }), /두 표식의 의미 비교/));
+  check(() => assert.doesNotMatch(html, /NaN|undefined|궁합|성격 유형/));
+  check(() => assert.match(render(Explorer, { meanings, glyphs: publicGlyphs, filter, loading: true }), /갤러리는 계속/));
+  check(() => assert.match(render(Explorer, { error: '다시 판독해 주세요.', onRetry() {} }), /role="alert"/));
+  check(() => assert.match(render(Explorer, { meanings: groupArchiveMeanings([]), glyphs: [], filter }), /현재 공개 표본이 없어요/));
+  check(() => assert.equal(filterMeaningGlyphs(publicGlyphs, meanings, filter).length, meanings.sampleSize));
+  for (const group of meanings.groups) {
+    const exact = { ...filter, groupId: group.id };
+    check(() => assert.deepEqual(filterMeaningGlyphs(publicGlyphs, meanings, exact).map((row) => row.id).sort(), [...group.memberIds].sort()));
+    const decoded = parseArchiveMeaningSearch(new URL(archiveMeaningPath(exact), 'https://example.test').search);
+    check(() => assert.equal(decoded.filter.groupId, group.id));
+  }
+  for (const base of ['arrival', 'reception', 'reciprocity']) {
+    const selected = filterMeaningGlyphs(publicGlyphs, meanings, { ...filter, base, modifiers: ['openness', 'trace'] });
+    check(() => assert.ok(selected.every((row) => {
+      const item = meanings.interpretations[row.id];
+      return item.baseMeaning === base && item.modifiers.openness === true && item.modifiers.trace === true;
+    })));
+  }
+  check(() => assert.deepEqual(filterMeaningGlyphs([{ ...left, is_public: false }], meanings, filter), []));
+  check(() => assert.deepEqual(filterMeaningGlyphs([{ ...left, is_public: undefined }], meanings, filter), []));
+  check(() => assert.equal(filterMeaningGlyphs([...publicGlyphs, left], meanings, filter).length, meanings.sampleSize));
+
+  const meaningHtml = render(Pair, { ...pair, initialView: 'meaning', onShare() {} });
+  check(() => assert.match(meaningHtml, /data-comparison-reading="meaning"/));
+  check(() => assert.match(meaningHtml, /이 의미 비교 공유하기/));
+  check(() => assert.doesNotMatch(meaningHtml, /전체 형태 점수|계산 근거 펼쳐보기/));
+  check(() => assert.match(meaningHtml, /정밀하게 닮은 것은 아니에요/));
+  check(() => assert.match(render(Pair, { ...pair, view: 'precision', initialView: 'meaning' }), /data-comparison-reading="precision"/));
+  check(() => assert.match(render(Pair, { ...pair, view: 'meaning', initialView: 'precision' }), /data-comparison-reading="meaning"/));
+  check(() => assert.doesNotMatch(render(Pair, { ...pair, meaningComparison: undefined }), /비교 읽기 방식/));
+  check(() => assert.match(render(Pair, { ...pair, meaningComparison: compareGlyphMeanings(left.model_data, left.model_data), initialView: 'meaning' }), /같은 복합 의미/));
+  check(() => assert.match(render(Pair, { ...pair, leftGlyph: { ...left, model_data: {} }, meaningComparison: compareGlyphMeanings({}, right.model_data), initialView: 'meaning' }), /의미를 아직 비교할 수 없어요/));
+  check(() => assert.match(render(Pair, { ...pair, leftGlyph: { ...left, model_data: { bad: true } }, meaningComparison: undefined }), /표식 없음/));
+  check(() => assert.equal(Boolean(isRenderableGlyphModel({ bad: true })), false));
+  check(() => assert.equal(Boolean(isRenderableGlyphModel(left.model_data)), true));
+  check(() => assert.ok(render(Preview, { primaryName: left.canonical_name, primaryModel: left.model_data }).includes(interpretation.title)));
+
+  for (const path of ['templates/MyArchivePage', 'templates/GlyphDetailPage', 'templates/ArchiveComparePage',
+    'data-display/ResonancePreview', 'data-display/ArchiveMeaningExplorer', 'data-display/GlyphMeaningSummary', 'data-display/GlyphPairComparison', 'data-display/ArchiveDepthExplorer', 'data-display/ArchiveArchetypeFeed', 'data-display/ArchiveGlyph', 'data-display/ArchiveFamilySymbol']) {
+    const story = await server.ssrLoadModule(`/src/components/${path}.stories.jsx`);
+    check(() => assert.ok(story.default.component));
+  }
+  const archiveSource = await readFile(new URL('../src/components/templates/MyArchivePage.jsx', import.meta.url), 'utf8');
+  const depthSource = await readFile(new URL('../src/components/data-display/ArchiveDepthExplorer.jsx', import.meta.url), 'utf8');
+  const glyphSource = await readFile(new URL('../src/components/data-display/ArchiveGlyph.jsx', import.meta.url), 'utf8');
+  const detailSource = await readFile(new URL('../src/components/templates/GlyphDetailPage.jsx', import.meta.url), 'utf8');
+  const compareSource = await readFile(new URL('../src/components/templates/ArchiveComparePage.jsx', import.meta.url), 'utf8');
+  const previewSource = await readFile(new URL('../src/components/data-display/ResonancePreview.jsx', import.meta.url), 'utf8');
+  check(() => assert.match(archiveSource, /useArchiveMeanings\(glyphs/));
+  check(() => assert.match(archiveSource, /filterMeaningGlyphs\(glyphs, meanings, meaningFilter\)/));
+  const feedSource = await readFile(new URL('../src/components/data-display/ArchiveArchetypeFeed.jsx', import.meta.url), 'utf8');
+  check(() => assert.match(feedSource, /key=\{ glyph\.id \}/));
+  check(() => assert.match(depthSource, /key=\{ scope\.scopeKey \}/));
+  check(() => assert.match(depthSource, /<Dialog open=\{ Boolean\(focusedId\) \}/));
+  check(() => assert.match(depthSource, /component="details"/));
+  check(() => assert.doesNotMatch(depthSource, /component="details"[^>]*\sopen[\s=>]/));
+  check(() => assert.match(archiveSource, /useArchiveScroll\(scopePath, ready && !interpreting && !meaningError\)/));
+  check(() => assert.match(glyphSource, /isRenderableGlyphModel\(glyph\.model_data\)/));
+  check(() => assert.match(glyphSource, /<LogogramRendererCanvas model=\{ glyph\.model_data \} size=\{ canvasSize \} isActive=\{ visible \} \/>/));
+  check(() => assert.doesNotMatch(archiveSource, /if \(!entered\)|<AnalysisOverlay/));
+  check(() => assert.doesNotMatch(archiveSource, /<Drawer|observationOpen|useArchiveClusters|setObserving/));
+  check(() => assert.doesNotMatch(depthSource, /partialCount|invalidCount|partialFilter|invalidFilter|tracesStillBeingRead/));
+  check(() => assert.match(detailSource, /interpretGlyphMeaning\(glyph\.model_data\)/));
+  check(() => assert.match(detailSource, /isRenderableGlyphModel\(glyph\?\.model_data\)/));
+  check(() => assert.match(detailSource, /anchors=\{ selectedMeaningObservation\?\.anchors \}/));
+  check(() => assert.match(compareSource, /compareGlyphMeanings\(left\.model_data, right\.model_data\)/));
+  check(() => assert.match(compareSource, /view=\{ readingView \}/));
+  check(() => assert.equal(parseArchiveMeaningSearch('?reading=meaning&mv=999').unsupportedVersion, true));
+  check(() => assert.equal(parseArchiveMeaningSearch('?reading=meaning&mv=1').unsupportedVersion, false));
+  check(() => assert.match(compareSource, /exportPairCard\(left, right, selectedShareReason, \{ reading: readingView/));
+  check(() => assert.match(previewSource, /interpretGlyphMeaning\(primaryModel\)/));
+  check(() => assert.equal(requests, 0));
+  console.log(`Meaning presentation/integration: ${checks} checks passed; no browser or network.`);
+} finally {
+  globalThis.fetch = originalFetch;
+  await server.close();
+}

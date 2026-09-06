@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/useI18n.js';
 import { useEffect, useMemo, useRef } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -558,6 +559,7 @@ function LogogramRendererWebgl({
   onFormationComplete,
   onContextLost,
 }) {
+  const { t } = useI18n();
   const theme = useTheme();
   const canvasRef = useRef(null);
   const formationRef = useRef(onFormationComplete);
@@ -841,7 +843,7 @@ function LogogramRendererWebgl({
       <canvas
         ref={ canvasRef }
         role="img"
-        aria-label={ `Heptapod B logogram (fluid): ${model.meta.name}` }
+        aria-label={ t('logogramRendererWebgl.heptapodBLogogramFluid', { p0: model.meta.name }) }
         style={ { width: size, height: size } }
       />
     </Box>

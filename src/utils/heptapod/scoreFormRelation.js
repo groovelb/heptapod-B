@@ -1,3 +1,4 @@
+import { sourceText as t } from '../../i18n/messages.js';
 /** v3: actual morphology, with strict whole-form and independently evidenced motifs. */
 import { angleDistance, clamp01, harmonicSimilarity, profileSimilarity } from './morphology.js';
 
@@ -27,7 +28,7 @@ export const FORM_MAX_PER_NODE = 6;
 const ratio = (a, b) => Math.max(a, b) <= 0 ? 1 : Math.min(a, b) / Math.max(a, b);
 const cleanScore = (value) => Number(clamp01(value).toFixed(12));
 
-function branchPair(a, b, indexA, indexB) {
+export function compareBranchMorphology(a, b, indexA = 0, indexB = 0) {
   const angleDifference = angleDistance(a.ang, b.ang);
   const intensityRatio = ratio(a.intensity, b.intensity);
   const coneDifference = Math.abs(a.coneSpread - b.coneSpread);
@@ -59,7 +60,7 @@ function branchPair(a, b, indexA, indexB) {
 
 /** At most 3! assignments; array order is not a shape feature. */
 function matchBranches(a, b) {
-  const allPairs = a.flatMap((left, i) => b.map((right, j) => branchPair(left, right, i, j)));
+  const allPairs = a.flatMap((left, i) => b.map((right, j) => compareBranchMorphology(left, right, i, j)));
   if (!a.length || !b.length) return { score: a.length === b.length ? 1 : 0, pairs: [], allPairs };
   const swapped = a.length > b.length;
   const shortLength = Math.min(a.length, b.length);
@@ -106,12 +107,12 @@ function correspondingPeaks(a = [], b = []) {
 }
 
 function branchObservation(pair) {
-  const direction = pair.directionA === 1 ? '바깥으로 뻗는' : '안쪽으로 향하는';
-  const detail = pair.spikeA === pair.spikeB ? '가시 ' + pair.spikeA + '개와 배치 각도가'
-    : '가시 수와 배치 각도가';
+  const direction = pair.directionA === 1 ? t('clusterArchiveGlyphs.outwardReaching') : t('clusterArchiveGlyphs.inwardFacing');
   return {
     kind: 'branch',
-    reason: direction + ' 가지에서 ' + detail + ' 닮았습니다.',
+    reason: pair.spikeA === pair.spikeB
+      ? t('form.branchSameSpikes', { p0: direction, p1: pair.spikeA })
+      : t('form.branchDifferentSpikes', { p0: direction }),
     similarity: pair.score,
     anchorA: { ang: pair.angA, clusterIndex: pair.indexA },
     anchorB: { ang: pair.angB, clusterIndex: pair.indexB },
@@ -134,9 +135,9 @@ export function scoreFormRelation(featuresA, featuresB) {
 
   const inkCandidates = [
     { similarity: pressureSim, pair: correspondingPeaks(featuresA.pressurePeaks, featuresB.pressurePeaks),
-      profile: 'pressure', reason: '두 표식에서 필압이 강해지는 구간의 위치와 변화가 닮았습니다.' },
+      profile: 'pressure', reason: t('scoreFormRelation.theTwoGlyphsShareSimilarPositionsAnd') },
     { similarity: inkLoadSim, pair: correspondingPeaks(featuresA.inkPeaks, featuresB.inkPeaks),
-      profile: 'ink-load', reason: '두 표식에서 먹이 고이는 구간의 방향과 분포가 닮았습니다.' },
+      profile: 'ink-load', reason: t('scoreFormRelation.theTwoGlyphsShareSimilarDirectionsAnd') },
   ].filter((item) => item.pair && item.similarity >= MORPHOLOGY_THRESHOLDS.observedProfile)
     .sort((a, b) => b.similarity - a.similarity);
   const ink = inkCandidates[0];
@@ -160,7 +161,7 @@ export function scoreFormRelation(featuresA, featuresB) {
     usedA.add(pair.indexA); usedB.add(pair.indexB);
   }
   if (opening.motif) observations.push({
-    kind: 'opening', reason: '두 표식의 열린 구간이 비슷한 방향에 있고, 열린 폭도 닮았습니다.',
+    kind: 'opening', reason: t('scoreFormRelation.theOpeningsFaceSimilarDirectionsAndHave'),
     similarity: cleanScore(opening.score),
     anchorA: { ang: featuresA.gap.ang, half: featuresA.gap.half },
     anchorB: { ang: featuresB.gap.ang, half: featuresB.gap.half },
@@ -171,7 +172,7 @@ export function scoreFormRelation(featuresA, featuresB) {
   });
   const ring = correspondingPeaks(featuresA.ringPeaks, featuresB.ringPeaks);
   if (ring && harmonicSim >= MORPHOLOGY_THRESHOLDS.observedProfile) observations.push({
-    kind: 'ring', reason: '바깥으로 부푼 링 구간의 방향과 굴곡이 닮았습니다.',
+    kind: 'ring', reason: t('scoreFormRelation.theOutwardBulgesOfTheRingsShare'),
     similarity: cleanScore(harmonicSim),
     anchorA: { ang: ring.left.ang }, anchorB: { ang: ring.right.ang },
   });
@@ -182,7 +183,7 @@ export function scoreFormRelation(featuresA, featuresB) {
     score: wholeScore,
     pass: (wholeForm || sharedMotif) && observations.length > 0,
     components: {
-      level, wholeScore, motifScore, motifKind,
+      level, wholeScore, motifScore, motifKind, openingInkMotif,
       clusterScore: cleanScore(branches.score), ringScore: cleanScore(harmonicSim),
       harmonicSim: cleanScore(harmonicSim), gapSim: cleanScore(opening.score),
       inkScore: cleanScore(inkScore), pressureSim: cleanScore(pressureSim),

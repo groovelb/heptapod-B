@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { resolveArchiveClient } from '../../lib/archiveClient.js';
+import { APP_PATHS } from '../../routes/paths.js';
 
 export function useAuth({ client } = {}) {
   const [user, setUser] = useState(null);
@@ -33,7 +34,7 @@ export function useAuth({ client } = {}) {
       const sb = await resolveArchiveClient(client);
       const current = await sb.auth.getSession();
       if (current.error) throw current.error;
-      const options = { provider: 'google', options: { redirectTo: `${window.location.origin}/me` } };
+      const options = { provider: 'google', options: { redirectTo: `${window.location.origin}${APP_PATHS.canvas}` } };
       // Linking preserves the anonymous owner's ID and its existing responses.
       const result = current.data?.session?.user?.is_anonymous
         ? await sb.auth.linkIdentity(options)
