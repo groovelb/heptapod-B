@@ -5,6 +5,15 @@ import { createServer } from 'vite';
 import react from '@vitejs/plugin-react';
 
 const dom = new Window({ url: 'http://localhost/archive', settings: { disableCSSFileLoading: true, disableJavaScriptFileLoading: true, device: { prefersReducedMotion: 'reduce' } } });
+const musicCalls = { play: 0, pause: 0, destroy: 0 };
+// Local player stub: no external iframe, script, audio or network.
+dom.YT = { Player: class {
+  constructor(_container, { events }) { queueMicrotask(() => events.onReady()); }
+  setVolume() {}
+  playVideo() { musicCalls.play += 1; }
+  pauseVideo() { musicCalls.pause += 1; }
+  destroy() { musicCalls.destroy += 1; }
+} };
 dom.document.write('<!doctype html><html><body><div id="root"></div></body></html>');
 // happy-dom's partial WAAPI rejects cancellation; use Motion's JS fallback.
 Object.defineProperty(dom.Element.prototype, 'animate', { configurable: true, value: undefined });
@@ -67,6 +76,21 @@ try {
   const first = before[0];
   const initialScrollCalls = scrollCalls.length;
   check(() => assert.equal(document.querySelector('[data-archive-facets], [data-archive-meta], [role="tab"]'), null));
+  const soundButton = () => document.querySelector('header button[aria-pressed]');
+  check(() => assert.equal(soundButton().getAttribute('aria-pressed'), 'true', 'Archive sound defaults on'));
+  check(() => assert.ok(musicCalls.play > 0, 'Default on attempts real controller playback'));
+  await act(async () => soundButton().click());
+  await settle();
+  check(() => assert.equal(soundButton().getAttribute('aria-pressed'), 'false'));
+  check(() => assert.ok(musicCalls.pause > 0));
+  const mutedPlays = musicCalls.play;
+  await act(async () => window.dispatchEvent(new window.Event('pointerdown')));
+  await act(async () => window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'a' })));
+  check(() => assert.equal(musicCalls.play, mutedPlays, 'Gestures do not restart explicitly muted audio'));
+  await act(async () => soundButton().click());
+  await settle();
+  check(() => assert.equal(soundButton().getAttribute('aria-pressed'), 'true'));
+  check(() => assert.ok(musicCalls.play > mutedPlays));
   const members = () => [...document.querySelectorAll('[data-archetype-feed] [data-archive-member]')];
   check(() => assert.deepEqual(members().map((element) => element.dataset.archiveMember), expectedFeed.glyphs.map((glyph) => glyph.id), 'Legacy meta does not override fixed exact-type order'));
   const sections = [...document.querySelectorAll('[data-archetype-section]')];

@@ -16,13 +16,14 @@ import LogogramChamber from '../motion/LogogramChamber';
 import { createBackgroundMusic } from '../../utils/heptapod/backgroundMusic';
 import { APP_PATHS } from '../../routes/paths';
 
+const MUSIC_AUTOPLAY = import.meta.env.VITE_MUSIC_AUTOPLAY !== 'false';
 const SERIF = "'Cinzel', 'Noto Serif KR', Georgia, serif";
 const actionSx = { color: 'custom.chamber.ink', minHeight: 44, fontSize: 13, textTransform: 'none' };
 
 /** Public archive, immediately visible. Projects the existing loaded local/API
- * snapshot into depth. Sound is opt-in; formation and the single Lenis survive.
+ * snapshot into depth. Sound defaults on; formation and the single Lenis survive.
  */
-export default function MyArchivePage({ client, meaningProvider }) {
+export default function MyArchivePage({ client, meaningProvider, musicAutoplay = MUSIC_AUTOPLAY }) {
   const { locale, localize, t } = useI18n();
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -35,7 +36,7 @@ export default function MyArchivePage({ client, meaningProvider }) {
   const [shareNotice, setShareNotice] = useState('');
   const [shareError, setShareError] = useState('');
   const musicRef = useRef(null);
-  const [isMusicOn, setIsMusicOn] = useState(false);
+  const [isMusicOn, setIsMusicOn] = useState(musicAutoplay);
   const visibleGlyphs = useMemo(() => order ? glyphs : filterMeaningGlyphs(glyphs, meanings, meaningFilter), [glyphs, meanings, meaningFilter, order]);
   const shareable = Boolean((order || meanings) && (!focusedId || visibleGlyphs.some((glyph) => glyph.id === focusedId)));
 
@@ -44,6 +45,27 @@ export default function MyArchivePage({ client, meaningProvider }) {
     musicRef.current = music;
     return () => { music.dispose(); musicRef.current = null; };
   }, []);
+  useEffect(() => {
+    if (!isMusicOn) { musicRef.current?.pause(); return undefined; }
+    musicRef.current?.play();
+    const kick = () => {
+      musicRef.current?.play();
+      window.removeEventListener('pointerdown', kick);
+      window.removeEventListener('keydown', kick);
+    };
+    window.addEventListener('pointerdown', kick);
+    window.addEventListener('keydown', kick);
+    return () => {
+      window.removeEventListener('pointerdown', kick);
+      window.removeEventListener('keydown', kick);
+    };
+  }, [isMusicOn]);
+  const handleToggleMusic = () => {
+    const next = !isMusicOn;
+    setIsMusicOn(next);
+    if (next) musicRef.current?.play();
+    else musicRef.current?.pause();
+  };
   useArchiveScroll(scopePath, ready && !interpreting && !meaningError);
 
   const changeMeaningFilter = (filter) => {
@@ -76,7 +98,7 @@ export default function MyArchivePage({ client, meaningProvider }) {
   return (
     <Box sx={ { position: 'relative', isolation: 'isolate', minHeight: '100svh', bgcolor: 'custom.chamber.fog', color: 'custom.chamber.ink', overflowX: 'clip' } }>
       <Box aria-hidden="true" sx={ { position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none' } }><LogogramChamber isFullscreen /></Box>
-      <AppGNB soundOn={ isMusicOn } onToggleSound={ () => setIsMusicOn(musicRef.current?.toggle() ?? false) } />
+      <AppGNB soundOn={ isMusicOn } onToggleSound={ handleToggleMusic } />
 
       <Box component="main" sx={ { px: { xs: 2, sm: 4, md: 6 }, pb: { xs: 3, md: 5 }, maxWidth: 1600, mx: 'auto', minHeight: 'calc(100svh - 100px)' } }>
         { loading || (ready && !unsupportedVersion && interpreting) ? <Box role="status" sx={ { minHeight: '65svh', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 } }>

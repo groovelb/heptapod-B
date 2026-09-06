@@ -5,7 +5,7 @@ import AppGNB from './AppGNB';
 import Placeholder from '../../common/ui/Placeholder';
 
 function NavigationDemo(args) {
-  const [soundOn, setSoundOn] = useState(false);
+  const [soundOn, setSoundOn] = useState(args.soundOn ?? true);
   return <Box sx={ { minHeight: '180vh', bgcolor: args.tone === 'dark' ? 'background.default' : 'custom.chamber.fog' } }>
     <AppGNB { ...args } soundOn={ soundOn } onToggleSound={ () => setSoundOn((value) => !value) } />
     <Placeholder.Box label="Page content" sx={ { minHeight: '100vh' } } />
@@ -19,7 +19,7 @@ export default {
   argTypes: {
     overlay: { control: 'boolean', description: '콘텐츠 위에 겹침. false이면 본문 간격 확보. 헤더는 투명하며 dark overlay에서만 그라데이션 적용' },
     tone: { control: 'select', options: ['light', 'dark'], description: '페이지 배경에 맞는 전경과 Drawer 톤' },
-    soundOn: { control: 'boolean', description: '현재 페이지 사운드 상태' },
+    soundOn: { control: 'boolean', description: '현재 페이지 사운드 상태. 기본 켜짐' },
     soundLoading: { control: 'boolean', description: '사운드 준비 중 버튼 비활성화' },
     onToggleSound: { action: 'sound', description: '기존 페이지 오디오 토글. 없으면 사운드 아이콘 생략' },
     children: { control: false, description: 'SKIP 등 페이지별 추가 컨트롤' },

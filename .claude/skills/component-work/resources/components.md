@@ -104,7 +104,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 - LanguageSwitcher: 지구본 아이콘으로 여는 시스템 설정/한국어/영어 메뉴. 모노크롬·직각·헤어라인·모노 타이포와 선택 체크 표시. OS 언어 초기화·선택 저장·기존 입력 보존, GNB와 앱 상단에서 공유 (`components/navigation/LanguageSwitcher.jsx`)
 
-- AppGNB: Story·Create·Archive 공통 fixed GNB. 모바일 64px·데스크톱 80px + 안전 영역, md 미만 전체 화면 Drawer·40–72px 메뉴 타이포, 활성 경로·언어·페이지별 사운드·SKIP. Canvas 세션 및 Archive URL/스크롤 복원 연동. 헤더는 투명하고 overlay로 본문 간격 제어, tone 배경은 Drawer에 적용하고 dark overlay 헤더에만 그라데이션 사용 (`components/navigation/AppGNB.jsx`)
+- AppGNB: 사운드 상태 기본 켜짐. Story·Create·Archive 공통 fixed GNB. 모바일 64px·데스크톱 80px + 안전 영역, md 미만 전체 화면 Drawer·40–72px 메뉴 타이포, 활성 경로·언어·페이지별 사운드·SKIP. Canvas 세션 및 Archive URL/스크롤 복원 연동. 헤더는 투명하고 overlay로 본문 간격 제어, tone 배경은 Drawer에 적용하고 dark overlay 헤더에만 그라데이션 사용 (`components/navigation/AppGNB.jsx`)
 - GNB: isFixed·resetKey·drawerSx로 앱 헤더 재사용, Drawer 경로/화면폭 변경 닫기 및 Lenis 잠금 복원. 기본 언어 전환 표시(showLanguageSwitcher), 반응형 글로벌 네비게이션 바. 데스크탑 메뉴 / 모바일 Drawer (`components/navigation/GNB.jsx`)
 - NavMenu: 네비게이션 메뉴 (`components/navigation/NavMenu.jsx`)
 - SlidingHighlightMenu: 슬라이딩 하이라이트 메뉴. hover 시 layoutId 기반 인디케이터 이동, background/underline, horizontal/vertical (`components/navigation/SlidingHighlightMenu.jsx`)
@@ -148,7 +148,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - Indicator: 범용 인디케이터 (`common/ui/Indicator.jsx`)
 - Placeholder: 스토리 예제용 FPO 플레이스홀더 시스템. Box/Image/Media/Text/Line/Paragraph/Card 서브컴포넌트 (`common/ui/Placeholder.jsx`)
 - FilterBar: 필터 바 (`components/templates/FilterBar.jsx`)
-- MyArchivePage: `/archive` 기본 상징 → 유형별 실제 구성원 피드. 선택 UUID·공유·뒤로 가기 및 기존 group/AND/status 범위 유지. 신규 meta URL/탭 정렬 제거. 단일 공개 표식 공유 문구는 공통 유형 카탈로그 사용. 관측 Drawer·내 응답·미판독 메뉴 복원 없음. meaningProvider·Canvas 형성·전역 Lenis·공용 AppGNB 유지 (`components/templates/MyArchivePage.jsx`)
+- MyArchivePage: 배경음악 기본 켜짐, 자동재생 재시도는 첫 pointer/keyboard 제스처에서 수행하고 끄면 재시도 리스너 해제. musicAutoplay로 초기값 주입. `/archive` 기본 상징 → 유형별 실제 구성원 피드. 선택 UUID·공유·뒤로 가기 및 기존 group/AND/status 범위 유지. 신규 meta URL/탭 정렬 제거. 단일 공개 표식 공유 문구는 공통 유형 카탈로그 사용. 관측 Drawer·내 응답·미판독 메뉴 복원 없음. meaningProvider·Canvas 형성·전역 Lenis·공용 AppGNB 유지 (`components/templates/MyArchivePage.jsx`)
 - GlyphDetailPage: `/glyph/:id`에 실제 소속 군집명·군집 이동 링크, 의미 판독·근거 선택과 상위 정밀 연결3개 표시. 버전이 명시된 UUID 의미 공유 (`components/templates/GlyphDetailPage.jsx`)
 - ResonanceFieldPage: `/field/:id` 가지/개구부/잉크/링/질문 변주 필터·현재 공개 표본·실제 관측 부위 선택·중심 이동, 모바일 기본 목록 (`components/templates/ResonanceFieldPage.jsx`)
 - ArchiveComparePage: `/compare/:leftId/:rightId?` 공개/로컬 입력의 의미·정밀 비교. URL reading으로 보기와 공유·PNG 문구 일치, 미지원 의미 버전 차단, 공개 동의 유지 (`components/templates/ArchiveComparePage.jsx`)

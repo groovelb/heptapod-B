@@ -41,7 +41,7 @@ function NavigationLinks({ pathname, targets, routed }) {
   </Box>;
 }
 
-function NavigationView({ pathname = '/', locationKey = 'preview', routed = false, targets, overlay = false, tone = 'light', soundOn = false, soundLoading = false, onToggleSound, children }) {
+function NavigationView({ pathname = '/', locationKey = 'preview', routed = false, targets, overlay = false, tone = 'light', soundOn = true, soundLoading = false, onToggleSound, children }) {
   const { t } = useI18n();
   const dark = tone === 'dark';
   const colors = { color: dark ? 'text.primary' : 'custom.chamber.ink', bgcolor: dark ? 'background.paper' : 'custom.chamber.fog' };

@@ -13,10 +13,11 @@ export default {
     </MemoryRouter>
   )],
   argTypes: {
+    musicAutoplay: { control: 'boolean', description: '앱 기본 켜짐. 스토리의 외부 음원 자동 로드는 끔' },
     client: { control: false, description: '공개 표본을 반환하는 메모리 클라이언트' },
     meaningProvider: { control: false, description: '의미 판독 provider 주입. 기본값은 무네트워크 local provider' },
   },
-  args: { client: createArchiveStoryClient() },
+  args: { client: createArchiveStoryClient(), musicAutoplay: false },
 };
 
 export const Default = {};
