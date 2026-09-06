@@ -94,6 +94,7 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
   const feed = useMemo(() => timeline || buildArchiveArchetypeFeed(scope.glyphs, meanings), [timeline, scope.glyphs, meanings]);
   const selectedArchetype = ARCHETYPE_CATALOG[scope.selectedGroup?.id];
   const titleRef = useRef(null);
+  const navigationRef = useRef(null);
   const previousFocus = useRef(focusedId);
   const lastScopeKey = useRef(scope.scopeKey);
   const [direction, setDirection] = useState(1);
@@ -111,6 +112,18 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
     }
     previousFocus.current = focusedId;
   }, [focusedId]);
+  // Wrapped breadcrumbs can make the sticky bar taller on narrow screens.
+  // Share its measured height with the feed's sticky index and anchor offsets.
+  useEffect(() => {
+    const navigation = navigationRef.current;
+    if (!navigation) return undefined;
+    const surface = navigation.parentElement;
+    const update = () => surface.style.setProperty('--archive-navigation-height', `${Math.max(48, Math.ceil(navigation.getBoundingClientRect().height))}px`);
+    update();
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null;
+    observer?.observe(navigation);
+    return () => { observer?.disconnect(); surface.style.removeProperty('--archive-navigation-height'); };
+  }, []);
   // Navigation handlers own direction; no per-frame React state.
   const enter = (next) => { setDirection(1); onFilterChange?.(next); };
   const back = (next) => { setDirection(-1); if (timeline && onOrderChange) onOrderChange(null); else onFilterChange?.(next); };
@@ -134,8 +147,11 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
   return (
     <Box component="section" aria-label={ t('archiveDepthExplorer.exploreGlyphGroupsInDepth') } data-archive-depth={ scene.level }
       onKeyDown={ (event) => { if (event.key === 'Escape' && (focusedId || !root)) { event.preventDefault(); if (focusedId) leaveDetail(); else back(scope.parentFilter); } } }
-      sx={ { color: 'custom.chamber.ink' } }>
-      <Box component="nav" aria-label={ t('archiveDepthExplorer.yourPlaceInTheArchive') } sx={ { minHeight: 48, display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' } }>
+      sx={ { color: 'custom.chamber.ink', '--archive-navigation-height': '48px' } }>
+      <Box component="nav" ref={ navigationRef } data-archive-navigation aria-label={ t('archiveDepthExplorer.yourPlaceInTheArchive') }
+        sx={ { position: 'sticky', top: { xs: 'calc(64px + env(safe-area-inset-top, 0px))', md: 'calc(80px + env(safe-area-inset-top, 0px))' },
+          zIndex: (theme) => theme.zIndex.appBar - 1, bgcolor: !root || focusedId ? 'custom.chamber.fog' : 'transparent',
+          minHeight: 48, display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' } }>
         { (focusedId || !root) && <Button data-archive-back sx={ actionSx } onClick={ focusedId ? leaveDetail : () => back(scope.parentFilter) }>← { t(focusedId ? 'archiveDepthExplorer.backToList' : 'archiveDepthExplorer.oneLayerOut') }</Button> }
         { !root && scope.selectedGroup && <Button sx={ actionSx } onClick={ () => back(EMPTY_ARCHIVE_FILTER) }>{ t('archiveDepthExplorer.all') }</Button> }
         { scope.base && scope.selectedGroup && <><Typography aria-hidden="true">/</Typography><Button sx={ actionSx } onClick={ () => back({ ...EMPTY_ARCHIVE_FILTER, base: scope.base }) }>{ localize(MEANING_CATALOG[scope.base].label) }</Button></> }

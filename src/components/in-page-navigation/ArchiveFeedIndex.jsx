@@ -15,7 +15,8 @@ export default function ArchiveFeedIndex({ items = [], sx }) {
   const largest = Math.max(1, ...items.map((item) => item.count));
   const offset = () => {
     const top = navRef.current ? Number.parseFloat(getComputedStyle(navRef.current).top) : NaN;
-    return (Number.isFinite(top) ? top : window.innerWidth >= 900 ? 104 : 88) + 16;
+    const navigationHeight = navRef.current ? Number.parseFloat(getComputedStyle(navRef.current).getPropertyValue('--archive-navigation-height')) || 0 : 0;
+    return (Number.isFinite(top) ? top : (window.innerWidth >= 900 ? 104 : 88) + navigationHeight) + 16;
   };
 
   useEffect(() => {
@@ -74,8 +75,8 @@ export default function ArchiveFeedIndex({ items = [], sx }) {
 
   if (!items.length) return null;
   return <Box component="nav" ref={ navRef } aria-label={ t('archiveIndex.navigation') } data-archive-index data-lenis-prevent
-    sx={ { position: 'sticky', alignSelf: 'start', top: { xs: 'calc(88px + env(safe-area-inset-top, 0px))', md: 'calc(104px + env(safe-area-inset-top, 0px))' },
-      maxHeight: 'calc(100svh - 144px - env(safe-area-inset-top, 0px))', overflowY: 'auto', overscrollBehavior: 'contain', scrollbarWidth: 'thin',
+    sx={ { position: 'sticky', alignSelf: 'start', top: { xs: 'calc(88px + var(--archive-navigation-height, 0px) + env(safe-area-inset-top, 0px))', md: 'calc(104px + var(--archive-navigation-height, 0px) + env(safe-area-inset-top, 0px))' },
+      maxHeight: 'calc(100svh - 144px - var(--archive-navigation-height, 0px) - env(safe-area-inset-top, 0px))', overflowY: 'auto', overscrollBehavior: 'contain', scrollbarWidth: 'thin',
       color: 'custom.chamber.ink', width: 44, ...sx } }>
     <Box component="ol" sx={ { listStyle: 'none', m: 0, p: 0 } }>
       { items.map((item, index) => <Box component="li" key={ item.id }>

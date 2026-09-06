@@ -19,9 +19,15 @@ dom.document.write('<!doctype html><html><body><div id="root"></div></body></htm
 Object.defineProperty(dom.Element.prototype, 'animate', { configurable: true, value: undefined });
 // Do not activate Canvas rendering; this test checks DOM identity and navigation.
 class Observer { observe() {} disconnect() {} unobserve() {} }
+const resizeObservers = [];
+class ResizeObserverStub extends Observer {
+  constructor(callback) { super(); this.callback = callback; resizeObservers.push(this); }
+  observe(target) { this.target = target; }
+  disconnect() { this.disconnected = true; }
+}
 const globals = { window: dom, document: dom.document, navigator: dom.navigator,
   HTMLElement: dom.HTMLElement, Element: dom.Element, Node: dom.Node, DocumentFragment: dom.DocumentFragment,
-  MutationObserver: dom.MutationObserver, IntersectionObserver: Observer, ResizeObserver: Observer,
+  MutationObserver: dom.MutationObserver, IntersectionObserver: Observer, ResizeObserver: ResizeObserverStub,
   getComputedStyle: dom.getComputedStyle.bind(dom), requestAnimationFrame: dom.requestAnimationFrame.bind(dom),
   cancelAnimationFrame: dom.cancelAnimationFrame.bind(dom), IS_REACT_ACT_ENVIRONMENT: true };
 const original = Object.fromEntries(Object.keys(globals).map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
@@ -91,6 +97,15 @@ try {
   await settle();
   check(() => assert.equal(soundButton().getAttribute('aria-pressed'), 'true'));
   check(() => assert.ok(musicCalls.play > mutedPlays));
+  const navigation = document.querySelector('[data-archive-navigation]');
+  const navigationResize = resizeObservers.find((observer) => observer.target === navigation);
+  check(() => assert.equal(getComputedStyle(navigation).position, 'sticky'));
+  check(() => assert.equal(navigation.parentElement.style.getPropertyValue('--archive-navigation-height'), '48px'));
+  navigation.getBoundingClientRect = () => ({ height: 96 });
+  navigationResize.callback();
+  check(() => assert.equal(navigation.parentElement.style.getPropertyValue('--archive-navigation-height'), '96px', 'Wrapped navigation updates the shared index/anchor clearance'));
+  navigation.getBoundingClientRect = () => ({ height: 48 });
+  navigationResize.callback();
   const members = () => [...document.querySelectorAll('[data-archetype-feed] [data-archive-member]')];
   check(() => assert.deepEqual(members().map((element) => element.dataset.archiveMember), expectedFeed.glyphs.map((glyph) => glyph.id), 'Legacy meta does not override fixed exact-type order'));
   const sections = [...document.querySelectorAll('[data-archetype-section]')];

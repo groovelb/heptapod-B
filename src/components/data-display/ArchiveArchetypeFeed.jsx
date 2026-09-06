@@ -53,7 +53,7 @@ export default function ArchiveArchetypeFeed({ feed, onSelect, sx }) {
       const symbol = getArchiveArchetypeSymbol(archetype.meaningKey);
       const title = localize(archetype.title);
       return <Box component="section" key={ id } id={ items[index].targetId } tabIndex={ -1 } aria-label={ title } data-archetype-section={ archetype.meaningKey }
-        sx={ { scrollMarginTop: 'calc(128px + env(safe-area-inset-top, 0px))', '&:focus': { outline: 'none' }, '& + section': { mt: { xs: 9, md: 14 } } } }>
+        sx={ { scrollMarginTop: 'calc(128px + var(--archive-navigation-height, 0px) + env(safe-area-inset-top, 0px))', '&:focus': { outline: 'none' }, '& + section': { mt: { xs: 9, md: 14 } } } }>
         <Box component="header" sx={ {
           display: 'flex', alignItems: 'center', gap: { xs: 2, md: 3 }, mb: { xs: 2, md: 3 },
           maxWidth: 760, mx: 'auto',
@@ -72,7 +72,7 @@ export default function ArchiveArchetypeFeed({ feed, onSelect, sx }) {
         <Members glyphs={ glyphs } onSelect={ onSelect } />
       </Box>;
     }) }
-    { untypedGlyphs.length > 0 && <Box id={ `${prefix}-untyped` } tabIndex={ -1 } aria-label={ t('archiveIndex.other') } sx={ { mt: sections.length ? { xs: 9, md: 14 } : 0, scrollMarginTop: 128, '&:focus': { outline: 'none' } } }>
+    { untypedGlyphs.length > 0 && <Box id={ `${prefix}-untyped` } tabIndex={ -1 } aria-label={ t('archiveIndex.other') } sx={ { mt: sections.length ? { xs: 9, md: 14 } : 0, scrollMarginTop: 'calc(128px + var(--archive-navigation-height, 0px) + env(safe-area-inset-top, 0px))', '&:focus': { outline: 'none' } } }>
       <Members glyphs={ untypedGlyphs } onSelect={ onSelect } />
     </Box> }
     </Box>
