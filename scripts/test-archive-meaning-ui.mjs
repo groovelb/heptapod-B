@@ -169,7 +169,7 @@ try {
   check(() => assert.match(archiveSource, /filterMeaningGlyphs\(glyphs, meanings, meaningFilter\)/));
   const feedSource = await readFile(new URL('../src/components/data-display/ArchiveArchetypeFeed.jsx', import.meta.url), 'utf8');
   check(() => assert.match(feedSource, /key=\{ glyph\.id \}/));
-  check(() => assert.match(depthSource, /key=\{ scope\.scopeKey \}/));
+  check(() => assert.match(depthSource, /key=\{ timeline \? 'timeline' : scope\.scopeKey \}/));
   check(() => assert.match(depthSource, /<Dialog open=\{ Boolean\(focusedId\) \}/));
   check(() => assert.match(depthSource, /component="details"/));
   check(() => assert.doesNotMatch(depthSource, /component="details"[^>]*\sopen[\s=>]/));

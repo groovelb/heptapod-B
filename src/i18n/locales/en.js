@@ -2,6 +2,15 @@
 import { archetypeEn } from './archetypes.js';
 
 export default Object.freeze({
+  "archiveTimeline.view": "Archive view",
+  "archiveTimeline.grouped": "Glyph groups",
+  "archiveTimeline.allByTime": "View all by time",
+  "archiveTimeline.title": "All glyphs",
+  "archiveTimeline.newest": "Newest first",
+  "archiveTimeline.oldest": "Oldest first",
+  "archiveTimeline.switchOldest": "Show oldest first",
+  "archiveTimeline.switchNewest": "Show newest first",
+
   "archiveIndex.hint": "{title} · {count} glyphs",
   "archiveIndex.navigation": "Jump to a glyph type",
   "archiveIndex.jump": "{order}. Jump to {title}, {count} glyphs",

@@ -156,6 +156,38 @@ try {
   check(() => assert.equal(document.querySelector('[role="dialog"]'), null, 'Legacy observation URL cannot reopen the removed Drawer'));
   check(() => assert.doesNotMatch(document.body.textContent, /이 공간의 관측 기록|내가 남긴 응답|아직 읽고 있는 흔적|모습을 기다리는 응답/));
   check(() => assert.ok(!client.calls.some((key) => ['auth', 'glyph_contributions', 'archive-relations'].includes(key)), 'Archive must not load personal records or precision relations'));
+  // Whole-archive order includes unreadable models and survives focus and Back.
+  await act(async () => document.querySelector('[data-archive-chronological]').click());
+  await settle();
+  check(() => assert.equal(new URLSearchParams(router.state.location.search).get('order'), 'newest'));
+  const { buildArchiveTimeline } = await server.ssrLoadModule('/src/utils/heptapod/buildArchiveArchetypeFeed.js');
+  const chronologicalIds = () => [...document.querySelectorAll('[data-archive-timeline] [data-archive-member]')].map((node) => node.dataset.archiveMember);
+  check(() => assert.deepEqual(chronologicalIds(), buildArchiveTimeline(rows).glyphs.map((row) => row.id)));
+  check(() => assert.ok(chronologicalIds().includes(invalid.id), 'Uncategorized public glyphs remain visible'));
+  check(() => assert.equal(document.querySelector('[data-archetype-section]'), null));
+  await act(async () => document.querySelector('[data-archive-order]').click());
+  await settle();
+  check(() => assert.deepEqual(chronologicalIds(), buildArchiveTimeline(rows, 'oldest').glyphs.map((row) => row.id)));
+  const timelineMembers = [...document.querySelectorAll('[data-archive-timeline] [data-archive-member]')];
+  await act(async () => timelineMembers[0].querySelector('button').click());
+  await settle();
+  check(() => assert.equal(new URLSearchParams(router.state.location.search).get('order'), 'oldest'));
+  check(() => assert.equal(new URLSearchParams(router.state.location.search).get('glyph'), timelineMembers[0].dataset.archiveMember));
+  await act(async () => document.querySelector('[role="dialog"] button[aria-label^="다음"]').click());
+  await settle();
+  check(() => assert.equal(new URLSearchParams(router.state.location.search).get('glyph'), timelineMembers[1].dataset.archiveMember));
+  check(() => assert.ok(timelineMembers.every((node) => node.isConnected)));
+  await act(async () => document.querySelector('button[aria-label="표식 닫기"]').click());
+  await settle();
+  await act(async () => router.navigate(-1));
+  await settle();
+  check(() => assert.equal(new URLSearchParams(router.state.location.search).get('order'), 'oldest'));
+  await act(async () => document.querySelector('button[aria-label="표식 닫기"]').click());
+  await settle();
+  await act(async () => document.querySelector('[data-archive-grouped]').click());
+  await settle();
+  check(() => assert.equal(document.querySelector('[data-archive-timeline]'), null));
+  check(() => assert.ok(document.querySelector('[data-cluster-title]').closest('.archive-cluster-cloud'), 'Cluster title is inside its circle'));
   check(() => assert.equal(requests, 0));
   console.log(`Archive type feed: ${checks} checks passed; exact sections, legacy scope, same-type share, feed-ordered arrows, focus/Back preserve mounted members and scroll. In-memory DOM only.`);
 } finally {

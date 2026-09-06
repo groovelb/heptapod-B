@@ -2,6 +2,15 @@
 import { archetypeKo } from './archetypes.js';
 
 export default Object.freeze({
+  "archiveTimeline.view": "아카이브 보기 방식",
+  "archiveTimeline.grouped": "표식 군집",
+  "archiveTimeline.allByTime": "시간순으로 모두 보기",
+  "archiveTimeline.title": "모든 표식",
+  "archiveTimeline.newest": "최신 등록순",
+  "archiveTimeline.oldest": "오래된 등록순",
+  "archiveTimeline.switchOldest": "오래된 등록순으로 변경",
+  "archiveTimeline.switchNewest": "최신 등록순으로 변경",
+
   "archiveIndex.hint": "{title} · 표식 {count}개",
   "archiveIndex.navigation": "유형별 표식 바로 이동",
   "archiveIndex.jump": "{order}. {title}, 표식 {count}개로 이동",

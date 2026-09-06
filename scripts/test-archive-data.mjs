@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { publishArchiveGlyph, unpublishArchiveGlyph, readGlyphRelations, readPublicGlyph, readArchiveGlyphs } from '../src/lib/archiveClient.js';
+import { publishArchiveGlyph, unpublishArchiveGlyph, readGlyphRelations, readPublicGlyph, readArchiveGlyphs, readAllArchiveGlyphs } from '../src/lib/archiveClient.js';
 import { computePublicRelations } from '../supabase/functions/_shared/archive-relations.js';
 import { readRequest, validGlyphId } from '../supabase/functions/_shared/archive-http.js';
 import { prepareArchiveGlyph } from '../src/utils/heptapod/archiveGlyph.js';
@@ -72,6 +72,7 @@ function tableClient(tables, { failedTable } = {}) {
       const filters = [];
       const criteria = [];
       let limit = Infinity;
+      let offset = 0;
       let single = false;
       const query = {
         select: () => query,
@@ -80,12 +81,13 @@ function tableClient(tables, { failedTable } = {}) {
         in: (key, values) => { filters.push((row) => values.includes(row[key])); return query; },
         ilike: () => { throw new Error('Morphology candidates must not use name-prefix matching'); },
         order: () => query,
+        range: (from, to) => { offset = from; limit = to - from + 1; return query; },
         limit: (value) => { limit = value; return query; },
         maybeSingle: () => { single = true; return query; },
         abortSignal: () => query,
         then(resolve, reject) {
           calls.push({ table, limit, criteria });
-          const rows = (tables[table] || []).filter((row) => filters.every((filter) => filter(row))).slice(0, limit);
+          const rows = (tables[table] || []).filter((row) => filters.every((filter) => filter(row))).slice(offset, offset + limit);
           return Promise.resolve({ data: single ? rows[0] || null : rows, error: table === failedTable ? new Error('network') : null }).then(resolve, reject);
         },
       };
@@ -196,6 +198,18 @@ await test('request validation rejects malformed JSON and IDs', async () => {
   assert.equal(validGlyphId('name,Louise'), false);
   await assert.rejects(() => readRequest(new Request('https://example.test', { method: 'POST', body: '[]' })), /JSON/);
   await assert.rejects(() => readRequest(new Request('https://example.test')), /POST/);
+});
+
+await test('chronological archive fetches every DB page, keeps hidden rows out and fails on read errors', async () => {
+  const rows = Array.from({ length: 451 }, (_, i) => ({ id: `row-${i}`, is_public: true }));
+  const client = tableClient({ glyphs: [...rows, { id: 'private', is_public: false }] });
+  assert.deepEqual(await readAllArchiveGlyphs(client), rows);
+  assert.equal(client.calls.length, 3);
+  await assert.rejects(() => readAllArchiveGlyphs(tableClient({ glyphs: rows }, { failedTable: 'glyphs' })), /network/);
+  const controller = new AbortController(); controller.abort();
+  const aborted = tableClient({ glyphs: rows });
+  await assert.rejects(() => readAllArchiveGlyphs(aborted, { signal: controller.signal }), { name: 'AbortError' });
+  assert.equal(aborted.calls.length, 0);
 });
 
 console.log(`Archive data: ${assertions} checks passed.`);

@@ -115,6 +115,7 @@ export function createArchiveStoryClient({
       const filters = [];
       const orders = [];
       let limit = Infinity;
+      let offset = 0;
       let single = false;
       let signal;
       const query = {
@@ -122,6 +123,7 @@ export function createArchiveStoryClient({
         eq: (key, value) => { filters.push((row) => row[key] === value); return query; },
         is: (key, value) => { filters.push((row) => row[key] === value); return query; },
         order: (key, { ascending = true } = {}) => { orders.push({ key, ascending }); return query; },
+        range: (from, to) => { offset = from; limit = to - from + 1; return query; },
         limit: (value) => { limit = value; return query; },
         maybeSingle: () => { single = true; return query; },
         abortSignal: (value) => { signal = value; return query; },
@@ -135,7 +137,7 @@ export function createArchiveStoryClient({
               }
               return 0;
             });
-            const result = rows.slice(0, limit).map((row) => table === 'glyph_contributions'
+            const result = rows.slice(offset, offset + limit).map((row) => table === 'glyph_contributions'
               ? { ...row, glyph: records.find((glyph) => glyph.id === row.glyph_id) || null } : { ...row });
             return single ? result[0] || null : result;
           }, signal).then(resolve, reject);

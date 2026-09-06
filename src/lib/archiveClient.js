@@ -80,6 +80,25 @@ export async function readArchiveGlyphs(client, { limit = 200, signal } = {}) {
   return data || [];
 }
 
+/** Fetch every public page for the chronological view, independent of analysis limits. */
+export async function readAllArchiveGlyphs(client, { signal } = {}) {
+  const sb = await resolveArchiveClient(client);
+  const rows = new Map();
+  const pageSize = 200;
+  for (let offset = 0; ; offset += pageSize) {
+    assertArchiveRequestActive(signal);
+    let query = sb.from('glyphs').select('*').eq('is_public', true)
+      .order('created_at', { ascending: false }).order('id', { ascending: false })
+      .range(offset, offset + pageSize - 1);
+    if (signal && query.abortSignal) query = query.abortSignal(signal);
+    const { data, error } = await query;
+    if (error) throw error;
+    assertArchiveRequestActive(signal);
+    for (const row of data || []) rows.set(row.id, row);
+    if (!data || data.length < pageSize) return [...rows.values()];
+  }
+}
+
 /** Same facade/DTO for local computation, today's Edge API or a future provider. */
 export async function readGlyphRelations(client, glyphId, { signal, mode, provider } = {}) {
   assertArchiveRequestActive(signal);

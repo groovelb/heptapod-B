@@ -40,3 +40,22 @@ export function buildArchiveArchetypeFeed(glyphs, meanings) {
   return { sections, untypedGlyphs,
     glyphs: [...sections.flatMap((section) => section.glyphs), ...untypedGlyphs] };
 }
+
+/** Real public rows in registration order, including unreadable/uncategorized models. */
+export function buildArchiveTimeline(glyphs, order = 'newest') {
+  const seen = new Set();
+  const timestamp = (glyph) => {
+    const value = Date.parse(glyph.created_at);
+    return Number.isFinite(value) ? value : null;
+  };
+  const rows = (Array.isArray(glyphs) ? glyphs : []).filter((glyph) => {
+    if (glyph?.is_public !== true || !PUBLIC_ID.test(glyph.id || '') || seen.has(glyph.id.toLowerCase())) return false;
+    seen.add(glyph.id.toLowerCase());
+    return true;
+  }).sort((left, right) => {
+    const a = timestamp(left), b = timestamp(right);
+    if (a === null || b === null) return a === b ? compareIds(left, right) : a === null ? 1 : -1;
+    return (order === 'oldest' ? a - b : b - a) || compareIds(left, right);
+  });
+  return { sections: [], untypedGlyphs: [], glyphs: rows, chronological: true };
+}

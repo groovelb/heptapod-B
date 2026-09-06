@@ -67,36 +67,40 @@ export function parseArchiveMeaningSearch(search = '') {
 }
 
 /** `meta` changes presentation order only; legacy AND/group filters keep their scope. */
-export function archiveDepthPath(filter = {}, focusedId = null, { meta = null } = {}) {
+export function archiveDepthPath(filter = {}, focusedId = null, { meta = null, order = null } = {}) {
   if (focusedId !== null && (typeof focusedId !== 'string' || !UUID.test(focusedId))) throw new Error(t('shareArchive.checkThePublicGlyphAddress'));
   if (meta !== null && !MEANING_MODIFIER_IDS.includes(meta)) throw new Error(t('shareArchive.checkTheMeaningFilters'));
+  if (order !== null && !['newest', 'oldest'].includes(order)) throw new Error(t('shareArchive.checkTheMeaningFilters'));
   const path = archiveMeaningPath(filter);
-  return `${path}${meta ? `&meta=${meta}` : ''}${focusedId ? `&glyph=${encodeURIComponent(focusedId)}` : ''}`;
+  return `${path}${meta ? `&meta=${meta}` : ''}${order ? `&order=${order}` : ''}${focusedId ? `&glyph=${encodeURIComponent(focusedId)}` : ''}`;
 }
 
 export function parseArchiveDepthSearch(search = '') {
   const invalid = () => ({ filter: EMPTY_MEANING_FILTER(), focusedId: null, meta: null, unsupportedVersion: false, invalidLocation: true });
   if (typeof search !== 'string' || search.length > 4096) return invalid();
   const params = new URLSearchParams(search);
-  const keys = ['view', 'mv', 'base', 'modifiers', 'group', 'status', 'glyph', 'meta'];
+  const keys = ['view', 'mv', 'base', 'modifiers', 'group', 'status', 'glyph', 'meta', 'order'];
   if ([...params.keys()].some((key) => !keys.includes(key) || params.getAll(key).length !== 1)) return invalid();
   const focusedId = params.get('glyph');
   const meta = params.get('meta');
+  const order = params.get('order');
+  if (order !== null && !['newest', 'oldest'].includes(order)) return invalid();
   if (focusedId !== null && !UUID.test(focusedId)) return invalid();
   if (meta !== null && !MEANING_MODIFIER_IDS.includes(meta)) return invalid();
   if (params.has('view') && !['meaning', 'precision'].includes(params.get('view'))) return invalid();
-  if (!params.has('view') && ['base', 'modifiers', 'group', 'status', 'glyph', 'meta'].some((key) => params.has(key))) return invalid();
+  if (!params.has('view') && ['base', 'modifiers', 'group', 'status', 'glyph', 'meta', 'order'].some((key) => params.has(key))) return invalid();
   try {
     meaningFilter({ base: params.get('base'), modifiers: params.has('modifiers') ? params.get('modifiers').split(',') : [],
       groupId: params.get('group'), status: params.get('status') ?? 'all' });
   } catch { return invalid(); }
   params.delete('glyph'); // The old filter parser intentionally rejects additional fields.
   params.delete('meta');
+  params.delete('order');
   if (params.get('view') === 'precision') {
     params.set('view', 'meaning'); // Drawer mode must not erase the underlying depth.
     if (!params.has('mv')) params.set('mv', String(MEANING_VERSION));
   }
-  return { ...parseArchiveMeaningSearch(params.toString()), focusedId, meta, invalidLocation: false };
+  return { ...parseArchiveMeaningSearch(params.toString()), focusedId, meta, order, invalidLocation: false };
 }
 
 function shareReading(options) {

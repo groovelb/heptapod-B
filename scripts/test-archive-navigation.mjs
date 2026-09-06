@@ -3,6 +3,7 @@ import test from 'node:test';
 import { archiveDepthPath, archiveMeaningPath, parseArchiveDepthSearch, parseArchiveMeaningSearch } from '../src/utils/heptapod/shareArchive.js';
 import { groupArchiveMeanings } from '../src/utils/heptapod/groupArchiveMeanings.js';
 import { filterMeaningGlyphs } from '../src/utils/heptapod/archiveDepthView.js';
+import { buildArchiveTimeline } from '../src/utils/heptapod/buildArchiveArchetypeFeed.js';
 import { ARCHIVE_STORY_GLYPHS } from '../src/test-fixtures/archiveClient.js';
 
 const meaningData = groupArchiveMeanings(ARCHIVE_STORY_GLYPHS);
@@ -70,4 +71,28 @@ test('invalid/duplicate meta parameters fail closed rather than broadening scope
   assert.equal(parseArchiveDepthSearch('?meta=trace').invalidLocation, true);
   assert.throws(() => archiveDepthPath({}, null, { meta: 'arrival' }));
   assert.throws(() => archiveDepthPath({}, 'private-name', { meta: 'trace' }));
+});
+
+test('chronological links preserve order on focus/close and reject invalid orders', () => {
+  for (const order of ['newest', 'oldest']) {
+    const path = archiveDepthPath({}, personId, { order });
+    const parsed = parseArchiveDepthSearch(query(path));
+    assert.equal(parsed.order, order);
+    assert.equal(parsed.focusedId, personId);
+    assert.equal(parsed.invalidLocation, false);
+    assert.equal(parseArchiveDepthSearch(query(archiveDepthPath(parsed.filter, null, { order: parsed.order }))).order, order);
+  }
+  assert.equal(parseArchiveDepthSearch('?view=meaning&mv=1&order=wrong').invalidLocation, true);
+  assert.equal(parseArchiveDepthSearch('?view=meaning&mv=1&order=newest&order=oldest').invalidLocation, true);
+  assert.throws(() => archiveDepthPath({}, null, { order: 'wrong' }));
+});
+
+test('timeline orders real registration timestamps, places missing dates last and does not mutate rows', () => {
+  const row = (number, date, is_public = true) => ({ id: `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`, created_at: date, is_public });
+  const old = row(1, '2026-09-01T00:00:00Z'), recent = row(2, '2026-09-06T00:00:00Z');
+  const unknown = row(3, null), tie = row(4, recent.created_at), hidden = row(5, '2026-09-07T00:00:00Z', false);
+  const rows = [unknown, old, recent, hidden, tie, old];
+  assert.deepEqual(buildArchiveTimeline(rows).glyphs, [recent, tie, old, unknown]);
+  assert.deepEqual(buildArchiveTimeline(rows, 'oldest').glyphs, [old, recent, tie, unknown]);
+  assert.deepEqual(rows, [unknown, old, recent, hidden, tie, old]);
 });

@@ -14,10 +14,15 @@ const gridSx = {
   columnGap: { xs: 2, md: 6 }, rowGap: { xs: 4, md: 6 }, alignItems: 'start',
 };
 
-function Members({ glyphs, onSelect }) {
+function Members({ glyphs, onSelect, showDate = false }) {
+  const { locale } = useI18n();
   return <Box sx={ gridSx }>{ glyphs.map((glyph) => (
     <Box key={ glyph.id } data-archive-member={ glyph.id } sx={ { minWidth: 0 } }>
       <ArchiveGlyph glyph={ glyph } showName onSelect={ onSelect } />
+      { showDate && Number.isFinite(Date.parse(glyph.created_at)) && <Typography component="time" dateTime={ glyph.created_at }
+        sx={ { display: 'block', textAlign: 'center', fontSize: 12, mt: 1, fontVariantNumeric: 'tabular-nums' } }>
+        { new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(glyph.created_at)) }
+      </Typography> }
     </Box>
   )) }</Box>;
 }
@@ -34,6 +39,9 @@ export default function ArchiveArchetypeFeed({ feed, onSelect, sx }) {
     ...sections.map(({ id, archetype, glyphs }, index) => ({ id, targetId: `${prefix}-type-${index}`, label: localize(archetype.title), count: glyphs.length })),
     ...(untypedGlyphs.length ? [{ id: 'untyped', targetId: `${prefix}-untyped`, label: t('archiveIndex.other'), count: untypedGlyphs.length }] : []),
   ], [sections, untypedGlyphs, prefix, localize, t]);
+  if (feed?.chronological) return <Box data-archive-timeline sx={ { maxWidth: 1440, mx: 'auto', py: { xs: 4, md: 7 }, ...sx } }>
+    <Members glyphs={ feed.glyphs } onSelect={ onSelect } showDate />
+  </Box>;
   return <Box data-archetype-feed="true" sx={ { maxWidth: 1440, mx: 'auto', pt: { xs: 4, md: 7 }, pb: { xs: 6, md: 10 },
     display: 'grid', gridTemplateColumns: items.length ? '44px minmax(0, 1fr)' : '1fr',
     gap: { xs: 1.5, sm: 3, md: 5 }, alignItems: 'start', ...sx } }>

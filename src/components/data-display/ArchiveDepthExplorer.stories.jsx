@@ -7,7 +7,7 @@ import { EMPTY_ARCHIVE_FILTER } from '../../utils/heptapod/archiveDepthView';
 
 const glyphs = ['Louise', 'Hannah', 'Ian', 'Abbott', 'Costello', '민준', '서연', 'Louis', 'Mia', 'Noah', 'Olivia', 'Liam', 'Emma', 'Sophia', 'Ethan', 'Amelia', 'Louise?'].map((name, index) => ({
   id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
-  display_name: name, is_public: true, model_data: buildArchiveModel(name),
+  display_name: name, is_public: true, created_at: new Date(Date.UTC(2026, 8, 1, index)).toISOString(), model_data: buildArchiveModel(name),
 }));
 const meanings = groupArchiveMeanings(glyphs);
 const family = [...new Set(Object.values(meanings.interpretations).map((item) => item.baseMeaning))]
@@ -21,9 +21,10 @@ const partialMeanings = { ...meanings, interpretations: { ...meanings.interpreta
 } };
 
 function InteractiveDepth(args) {
-  const [selection, setSelection] = useState({ filter: args.filter, focusedId: args.focusedId });
+  const [selection, setSelection] = useState({ filter: args.filter, focusedId: args.focusedId, order: args.order });
   return <ArchiveDepthExplorer { ...args } { ...selection }
-    onFilterChange={ (filter) => { setSelection({ filter, focusedId: null }); args.onFilterChange?.(filter); } }
+    onOrderChange={ (order) => setSelection({ filter: EMPTY_ARCHIVE_FILTER, focusedId: null, order }) }
+    onFilterChange={ (filter) => { setSelection({ filter, focusedId: null, order: null }); args.onFilterChange?.(filter); } }
     onFocusGlyph={ (focusedId) => { setSelection((previous) => ({ ...previous, focusedId })); args.onFocusGlyph?.(focusedId); } } />;
 }
 
@@ -32,6 +33,8 @@ export default {
   parameters: { layout: 'fullscreen', docs: { description: { component: '기본 계열 상징을 선택하면 고유한 유형명·서사·저작 상징과 실제 구성원 표식이 세로 피드로 이어집니다. 메타 탭이나 별도 유형 선택 깊이가 없으며, 실제 구성원이 있는 정확한 유형만 표시합니다. 부분 판독 표식은 별도 메뉴·유형명 없이 유지합니다. 개인 Dialog의 전후 이동은 피드 순서와 같고, 닫으면 기존 Canvas·스크롤이 유지됩니다. 저작 상징은 사람이나 평균 표식이 아닙니다. 공간 공유 아이콘·관측 부위 강조·형성 효과·감소 모션을 보존합니다. 로컬 판독 DTO만 사용하는 표시 스토리이며 네트워크·DB·오디오는 없습니다.' } } },
   decorators: [(Story) => <Box sx={ { minHeight: '100svh', px: { xs: 2, md: 5 }, bgcolor: 'custom.chamber.fog' } }>{ createElement(Story) }</Box>],
   argTypes: {
+    order: { control: 'select', options: [null, 'newest', 'oldest'], description: 'null은 군집, 나머지는 전체 등록 시간순' },
+    onOrderChange: { action: 'change-order', description: '전체 보기·군집 보기 전환' },
     glyphs: { control: 'object', description: '불러온 공개 모델. 구성원 표식을 직접 렌더링' },
     meanings: { control: 'object', description: '검증된 의미 판독 DTO. 계산은 상위 책임' },
     filter: { control: 'object', description: 'URL과 동일한 base/modifiers/groupId/status 범위' },
@@ -47,8 +50,11 @@ export default {
   args: { glyphs, meanings, filter: EMPTY_ARCHIVE_FILTER, focusedId: null, shareNotice: '', shareError: '' },
 };
 
-export const Docs = { render: (args) => <InteractiveDepth key={ JSON.stringify([args.filter, args.focusedId]) } { ...args } /> };
+export const Docs = { render: (args) => <InteractiveDepth key={ JSON.stringify([args.filter, args.focusedId, args.order]) } { ...args } /> };
 export const InsideFamily = { args: { filter: { ...EMPTY_ARCHIVE_FILTER, base: family } }, render: Docs.render };
 export const Partial = { args: { filter: { ...EMPTY_ARCHIVE_FILTER, base: family }, meanings: partialMeanings }, render: Docs.render };
 export const OnePerson = { args: { filter: { ...EMPTY_ARCHIVE_FILTER, base: family }, focusedId: firstMember.id }, render: Docs.render };
 export const Empty = { args: { glyphs: [], meanings: groupArchiveMeanings([]) } };
+
+export const Chronological = { args: { order: 'newest' }, render: Docs.render };
+export const OldestFirst = { args: { order: 'oldest' }, render: Docs.render };

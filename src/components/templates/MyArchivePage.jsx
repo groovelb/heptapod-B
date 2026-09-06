@@ -26,18 +26,18 @@ export default function MyArchivePage({ client, meaningProvider }) {
   const { locale, localize, t } = useI18n();
   const navigate = useNavigate();
   const { search } = useLocation();
-  const { filter: meaningFilter, focusedId, unsupportedVersion, invalidLocation } = useMemo(() => parseArchiveDepthSearch(search), [search]);
+  const { filter: meaningFilter, focusedId, order, unsupportedVersion, invalidLocation } = useMemo(() => parseArchiveDepthSearch(search), [search]);
   // The catalog orders the feed; person focus does not change its scope.
-  const scopePath = useMemo(() => depthPath(meaningFilter), [meaningFilter]);
-  const { glyphs, loading, error, refetch } = useArchiveGlyphs({ client });
+  const scopePath = useMemo(() => depthPath(meaningFilter, null, { order }), [meaningFilter, order]);
+  const { glyphs, loading, error, refetch } = useArchiveGlyphs({ client, all: Boolean(order) });
   const ready = !loading && !error;
-  const { meanings, loading: interpreting, error: meaningError, refetch: retryMeanings } = useArchiveMeanings(glyphs, { enabled: ready && !unsupportedVersion && !invalidLocation, provider: meaningProvider });
+  const { meanings, loading: interpreting, error: meaningError, refetch: retryMeanings } = useArchiveMeanings(glyphs, { enabled: !order && ready && !unsupportedVersion && !invalidLocation, provider: meaningProvider });
   const [shareNotice, setShareNotice] = useState('');
   const [shareError, setShareError] = useState('');
   const musicRef = useRef(null);
   const [isMusicOn, setIsMusicOn] = useState(false);
-  const visibleGlyphs = useMemo(() => filterMeaningGlyphs(glyphs, meanings, meaningFilter), [glyphs, meanings, meaningFilter]);
-  const shareable = Boolean(meanings && (!focusedId || visibleGlyphs.some((glyph) => glyph.id === focusedId)));
+  const visibleGlyphs = useMemo(() => order ? glyphs : filterMeaningGlyphs(glyphs, meanings, meaningFilter), [glyphs, meanings, meaningFilter, order]);
+  const shareable = Boolean((order || meanings) && (!focusedId || visibleGlyphs.some((glyph) => glyph.id === focusedId)));
 
   useEffect(() => {
     const music = createBackgroundMusic();
@@ -53,15 +53,15 @@ export default function MyArchivePage({ client, meaningProvider }) {
   const focusGlyph = (id) => {
     if (id !== null && !visibleGlyphs.some((glyph) => glyph.id === id)) return;
     setShareNotice(''); setShareError('');
-    navigate(depthPath(meaningFilter, id));
+    navigate(depthPath(meaningFilter, id, { order }));
   };
   const shareSpace = async () => {
     if (!shareable) return;
     setShareNotice(''); setShareError('');
-    const url = new URL(depthPath(meaningFilter, focusedId), window.location.origin).href;
+    const url = new URL(depthPath(meaningFilter, focusedId, { order }), window.location.origin).href;
     const focusedGlyph = focusedId ? visibleGlyphs.find((glyph) => glyph.id === focusedId) : null;
     const copy = focusedGlyph && !unsupportedVersion
-      ? glyphArchetypeShareCopy(focusedGlyph, meanings.interpretations[focusedId], locale) : null;
+      ? glyphArchetypeShareCopy(focusedGlyph, meanings?.interpretations?.[focusedId], locale) : null;
     try {
       if (navigator.share) {
         try { await navigator.share({ ...(copy || { title: t('myArchivePage.theResponseArchive'), text: t('myArchivePage.whichNamesWillYouMeetWithinThis') }), url }); return; }
@@ -90,7 +90,7 @@ export default function MyArchivePage({ client, meaningProvider }) {
         </Box> : glyphs.length === 0 ? <Box role="status" sx={ { textAlign: 'center', py: 12 } }>
           <Typography sx={ { fontFamily: SERIF, fontSize: 26 } }>{ t('myArchivePage.waitingForTheFirstResponse') }</Typography>
           <Button sx={ { ...actionSx, mt: 3 } } onClick={ () => navigate(APP_PATHS.canvas) }>{ t('myArchivePage.startWithMyName') }</Button>
-        </Box> : <ArchiveDepthExplorer glyphs={ glyphs } meanings={ meanings } filter={ meaningFilter } focusedId={ focusedId }
+        </Box> : <ArchiveDepthExplorer order={ order } onOrderChange={ (next) => navigate(depthPath({}, null, { order: next })) } glyphs={ glyphs } meanings={ meanings } filter={ meaningFilter } focusedId={ focusedId }
           shareNotice={ shareNotice } shareError={ shareError }
           onFilterChange={ changeMeaningFilter } onFocusGlyph={ focusGlyph } onShare={ shareable ? shareSpace : undefined }
           onInspectGlyph={ (id) => navigate(`/glyph/${id}?reading=meaning&mv=1`) }
