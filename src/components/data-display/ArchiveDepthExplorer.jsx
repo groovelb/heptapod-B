@@ -56,9 +56,9 @@ function ClusterPortal({ node, onSelect }) {
         '@media (prefers-reduced-motion: reduce)': { transition: 'none', transform: 'none !important' },
       } }>
         { familySymbol && <ArchiveFamilySymbol familyId={ node.id } /> }
-        <Typography component="span" data-cluster-title sx={ { position: 'absolute', inset: '25%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        <Typography component="span" data-cluster-title sx={ { position: 'absolute', top: '50%', left: '50%', width: 'max-content', transform: 'translate(-50%, -50%)',
           textAlign: 'center', fontFamily: SERIF, fontSize: node.kind === 'family' ? { xs: 19, md: 28 } : { xs: 15, md: 18 },
-          letterSpacing: '0.06em', lineHeight: 1.6, overflowWrap: 'anywhere', pointerEvents: 'none' } }>{ localize(node.title) }</Typography>
+          letterSpacing: '0.06em', lineHeight: 1.6, whiteSpace: 'nowrap', pointerEvents: 'none' } }>{ localize(node.title) }</Typography>
       </Box>
       { familySymbol && <Typography component="span" sx={ { display: 'block', mt: 1, fontSize: 13 } }>{ localize(familySymbol.cue) }</Typography> }
       <Typography component="span" className="archive-cluster-invite" sx={ { display: 'block', mt: 0.5, fontSize: 12, opacity: 0.75 } }>
