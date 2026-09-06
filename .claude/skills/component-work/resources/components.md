@@ -84,11 +84,13 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 ## 9. Overlay & Feedback — 맥락적 정보 표시
 
 - Dialog: MUI Dialog 컴포넌트 [MUI]
-- PublishDialog: 명시적 공개 동의·익명 소유권 안내, pending/success/error, 실패 시 입력 보존 (`components/overlay-feedback/PublishDialog.jsx`)
+- PublishDialog: 명시적 공개 동의·익명 소유권 안내, pending/success/error. optional intent='share'/completion='stay'/onShare로 공개 후 사용자 클릭 공유와 결과 화면 유지 지원. 공유 실패는 완료 상태에서 재시도하며 재게시하지 않음. 기본 기존 Archive 완료 흐름 유지 (`components/overlay-feedback/PublishDialog.jsx`)
 - RelationInspector: 선택한 두 표식의 형태 관측 Drawer. leftGlyph/neighborGlyph가 있으면 GlyphPairComparison으로 실제 대응 부위 표시, 크게 비교/중심 이동 (`components/overlay-feedback/RelationInspector.jsx`)
 - AnalysisOverlay: Heptapod B 울프럼 포렌식 화면 재현. 모델에서 특징점(빨강 vertex, 클러스터 주변 조밀) 추출 + 경량 Delaunay(Bowyer–Watson, 의존성0) 삼각망(초록 mesh) + 12세그먼트 점선 격자·측정 링·무게중심, 라이브 스캔 애니메이션 + 계측 readout. 분석 모드 한정 계측색(초록/빨강) 허용, 그 외 모노크롬. 렌더러와 좌표계 일치 (`components/overlay-feedback/AnalysisOverlay.jsx`)
 
 ## 10. Navigation (Global) — 페이지 간 이동
+
+- LanguageSwitcher: 시스템 설정/한국어/영어 선택. OS 언어 초기화·선택 저장·기존 입력 보존, GNB와 앱 상단에서 공유 (`components/navigation/LanguageSwitcher.jsx`)
 
 - GNB: 반응형 글로벌 네비게이션 바. 데스크탑 메뉴 / 모바일 Drawer (`components/navigation/GNB.jsx`)
 - NavMenu: 네비게이션 메뉴 (`components/navigation/NavMenu.jsx`)
@@ -137,4 +139,4 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - ArchiveComparePage: `/compare/:leftId/:rightId?` 공개 쌍 및 비공개 로컬 입력 비교, 이미지 저장·동의 후 링크 공유 (`components/templates/ArchiveComparePage.jsx`)
 - MyResponsesPage: `/me` 본인 활성 Contribution 조회/철회, 익명 소유자를 유지한 Google 연결 (`components/templates/MyResponsesPage.jsx`)
 - HeptapodHeroIntro: Heptapod B Encoder 스테이지 세그먼트 재생 기반 스크롤리텔링 인트로. **고정(fixed) 풀스크린 영상**(오디오 원본)을 스크럽이 아니라 **세그먼트 단위로 소리와 함께 재생**한다. 세계관 카피(B0~B6, 영문 serif + 한글)는 일반 흐름(자연 스크롤)으로 흘러가며, 각 섹션의 뷰포트 중앙 진입(IntersectionObserver)이 활성 스테이지를 결정 → 해당 세그먼트 `play()`, 끝 프레임에서 정지 후 대기(위로 스크롤 시 되감기). 섹션 높이는 세그먼트 길이에 비례. 영상 unmuted(첫 제스처에서 unmute), 인코더 진입 시 영상 정지 + children에 `audioActive` 주입(인트로=영상 음성 / 인코더=OST 분리). 인코더는 children으로 받아 near면 display·inView면 audioActive. SKIP은 인코더로 scrollIntoView. `App.jsx`가 `<HeptapodHeroIntro><HeptapodEncoderPage/></HeptapodHeroIntro>`로 합성(공유 URL `?name=`은 인트로 생략, Lenis 스무스 스크롤 감속). 데이터는 `data/heptapodHeroStory.js` (`HERO_STORY_BEATS[i].video=[start,end]`) (`components/templates/HeptapodHeroIntro.jsx`)
-- HeptapodEncoderPage: Heptapod B Encoder 메인 페이지. 풀스크린 안개 챔버 + 비네트 + 분석 스크림, 가역 인코딩(`buildModelReversible`) — 이름을 손실 없이 형태에 인코딩하고 우상단 status의 DECODE 행으로 형태→원본 복원을 증명, 깊이 내비게이션(N레벨 fractal — 문단↔문장↔단어↔글자, splitText 재귀 분할. 로고그램 클릭 시 하위 격자로 드릴다운, 경로 브레드크럼으로 복귀, 글자 hover 시 글리프 중앙에 원본). ANALYSIS 모드 시 "문자→수→형태설정→형태" 설명을 화면에 분배 오버레이(좌측 ①②글자·수 / 우측 ③형태설정 / 중앙 글리프 데이터 콜아웃 GlyphCallouts / 하단 가역결론), AnalysisOverlay는 showMesh=false로 프레임만. 데스크톱은 오버레이·모바일은 RAW DATA 모달(`inspect`) fallback (데이터↔형태 연관), 용량 초과 시 길이 가드. 사운드(`ambientAudio`)·`?` 자동 의문형·분석 토글 (`components/templates/HeptapodEncoderPage.jsx`)
+- HeptapodEncoderPage: 기존 풀스크린 챔버·중앙 표식·우상단 오버레이 유지. 덩어리 수·가닥 수·무게중심·링 상태를 고정 네 줄(32px×4)로 표시하며 ANALYSIS 전환으로 행·제목·액션 위치를 바꾸지 않음. 우측 진입은 ANALYSIS / Publish and share / Archive만 제공. 모바일 상세 RAW DATA는 별도 버튼 없이 ANALYSIS에서 열고 닫으면 분석도 해제. SAVE·하단 의미 설명·의미군 링크·이름 비교는 제거. 문자 분해·타이핑 프리뷰·IME/검증·Canvas/Chamber·audioActive/음악 유지. 미공개는 동의·공개 후 새 Share 클릭으로 공유하며 공개 완료 뒤 같은 버튼은 재게시 없이 Share로 동작. 기존 v1 URL은 명시적 v2 재생성 후 공개. optional client/initialName으로 무네트워크 스토리 지원 (`components/templates/HeptapodEncoderPage.jsx`)

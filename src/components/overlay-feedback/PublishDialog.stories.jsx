@@ -15,6 +15,9 @@ export default {
     model: { control: 'object', description: '현재 실제 표식 모델' },
     onPublish: { control: false, description: '동의 후 실행. 성공 결과 반환 또는 실패 throw' },
     onPublished: { action: 'view-published', description: '완료 후 표식 보기 동작' },
+    intent: { control: 'select', options: ['publish', 'share'], description: '공개만 또는 공개 후 공유 의도' },
+    completion: { control: 'select', options: ['archive', 'stay'], description: '완료 후 상세 진입 또는 현재 화면 유지' },
+    onShare: { control: false, description: '완료 후 새로운 클릭에서 공개 결과로 공유. 상태 문자열 반환' },
   },
   args: { open: true, glyphName: 'Louise', model: buildArchiveModel('Louise'), onPublish: undefined },
 };
@@ -23,3 +26,4 @@ export const Default = {};
 export const SuccessFlow = { args: { onPublish: async () => ({ glyphId: ARCHIVE_STORY_IDS.left, isNew: true, mappingStatus: 'on-demand' }) } };
 export const FailureFlow = { args: { onPublish: async () => { throw new Error('저장을 완료하지 못했습니다. 입력한 이름은 그대로 유지됩니다.'); } } };
 export const Publishing = { args: { onPublish: () => new Promise(() => {}) } };
+export const ShareFlow = { args: { ...SuccessFlow.args, intent: 'share', completion: 'stay', onShare: async () => 'copied' } };

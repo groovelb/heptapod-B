@@ -31,10 +31,11 @@
 - Framer Motion 12.x / Lenis 1.x / Three.js 0.182.x
 - Supabase Auth / PostgreSQL / Edge Functions — **로컬 구현·검증 범위는 아래 스냅샷 참조. 운영 적용은 별도**
 
-### 구현 스냅샷 · 2026-09-05
+### 구현 스냅샷 · 2026-09-06
 
 실제 동작 기준은 `docs/heptapod-b-encoder/15-resonance-implementation-plan.md`와 `16-resonance-implementation.md`다. 아래의 bookmark/report/태그 확장은 장기 계획이며 이번 사용자 플로우에 포함되지 않는다.
 
+- 이름 입력 → 표식 생성 → 분석 / 공개·공유 / Archive. 기존 풀스크린 중앙 표식과 우측 상단 오버레이는 유지한다. 메타데이터는 덩어리 수·가닥 수·무게중심·링 상태의 고정 네 줄이며 ANALYSIS로 제목·행 수·패널 높이·버튼 위치를 바꾸지 않는다. 데스크톱 분석·형태 콜아웃, 모바일 ANALYSIS 안의 RAW DATA, 타이핑 프리뷰와 문자 분해는 유지한다. 우측 기능은 ANALYSIS / Publish and share / Archive만 남기고 SAVE·하단 의미 설명·의미군 링크·이름 비교는 제거한다. 공개·공유는 하나의 버튼으로 동의·공개 후 명시적 공유 클릭을 제공하며, 공개 후에는 Share로 바뀐다. 실패 시 입력을 보존하고 결과 화면을 유지하며 공유 실패로 재게시하지 않는다. 이전 버전의 이름 링크 재현과 명시적 v2 재생성을 유지한다.
 - `/archive` 공개 카드 → `/glyph/:id` 주요 연결 → `/field/:id` 근거·중심 이동 → `/compare/:leftId/:rightId?` 두 이름 비교 → 공개 동의 후 UUID 공유.
 - `/me`는 공개 갤러리와 분리된 본인 기여 관리. 익명 소유자 세션에서 공개 가능하며 Google 연결로 동일 소유자를 유지한다.
 - 관계 알고리즘 v3는 저장된 실제 `model_data`만 비교한다. FORM(전체 형태/일부 구조)과 실제 본체가 같은 VARIANT만 지원한다. 문자 공유·포함·태그를 연결 근거로 쓰지 않는다. 개발 환경은 프론트 공개 snapshot 최대 200개, API는 최근 공개/기존 이웃 최대 300개 후보이며 전체 아카이브의 완전 탐색을 주장하지 않는다. API 교체 시에도 같은 v3 계약을 요구한다.
@@ -75,7 +76,7 @@ The Signal
 
 | 경로 / 표면 | 역할 | 주요 UI 책임 |
 |---|---|---|
-| `/` | 인트로 + 인코더 | 현재 체험 유지, publish 진입점 추가 |
+| `/` | 인트로 + 인코더 | 이름 → 중앙 표식. 고정 네 줄 메타데이터와 분석 / 공개·공유 / Archive. 의미 설명·이름 비교 제외 |
 | PublishDialog | 동의·공개 | 동의 후 익명 인증 또는 기존 세션 재사용, 오류 시 결과 유지 |
 | `/archive` | 공개 아카이브 | 최근 공개 표식 최대 200개, 카드에서 연결 탐색 |
 | `/field/:id` | Resonance Field | 중심 이동, 관계 필터, 근거, 모바일 기본 목록 |
@@ -103,7 +104,7 @@ The Signal
 
 ## 데이터·인증 경계
 
-- 비회원도 인코딩·분석·PNG 저장·공개 Glyph/관계 읽기를 할 수 있다.
+- 비회원도 인코딩·분석·공개 Glyph/관계 읽기를 할 수 있다. 인코더의 SAVE 버튼은 제공하지 않는다.
 - 인증은 publish, bookmark, report, unpublish에서만 요구한다.
 - publish 동의 전 이름·모델·태그는 DB에 저장하지 않는다.
 - 같은 canonical name과 encoder version은 하나의 `Glyph`로 통합하고, 사용자 소유는 `GlyphContribution`으로 분리한다.

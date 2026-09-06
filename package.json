@@ -13,6 +13,7 @@
     "generate-rules": "node scripts/generate-rules.js"
   },
   "dependencies": {
+    "@emotion/is-prop-valid": "^1.4.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fontsource-variable/material-symbols-outlined": "^5.2.30",
@@ -46,6 +47,7 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "eslint-plugin-storybook": "^10.1.0",
     "globals": "^16.5.0",
+    "happy-dom": "^20.14.0",
     "playwright": "^1.57.0",
     "prop-types": "^15.8.1",
     "storybook": "^10.1.0",

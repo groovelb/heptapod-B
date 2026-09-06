@@ -12,6 +12,7 @@ import { defaultTheme as theme } from './styles/themes';
 import { LenisContext } from './utils/lenisContext';
 import HeptapodEncoderPage from './components/templates/HeptapodEncoderPage';
 import HeptapodHeroIntro from './components/templates/HeptapodHeroIntro';
+import LocaleProvider from './i18n/LocaleProvider';
 
 const GlyphDetailPage = lazy(() => import('./components/templates/GlyphDetailPage'));
 const ResonanceFieldPage = lazy(() => import('./components/templates/ResonanceFieldPage'));
@@ -25,10 +26,11 @@ const RouteFallback = () => (
   </Box>
 );
 
-/** 공유 URL(?name=)로 진입했는지 — 그렇다면 인트로 없이 인코더만 노출한다 */
+/** 공유 표식 또는 아카이브의 만들기 액션은 인트로 없이 인코더로 진입한다. */
 function hasSharedName() {
   if (typeof window === 'undefined') return false;
-  return Boolean(new URLSearchParams(window.location.search).get('name'));
+  const params = new URLSearchParams(window.location.search);
+  return Boolean(params.get('name')) || params.get('create') === '1';
 }
 
 /**
@@ -126,7 +128,7 @@ function AppContent() {
 }
 
 function App() {
-  return <BrowserRouter><AppContent /></BrowserRouter>;
+  return <LocaleProvider><BrowserRouter><AppContent /></BrowserRouter></LocaleProvider>;
 }
 
 export default App;
