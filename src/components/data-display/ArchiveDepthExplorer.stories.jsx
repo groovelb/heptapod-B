@@ -30,7 +30,7 @@ function InteractiveDepth(args) {
 
 export default {
   title: 'Custom Component/5. Data Display/ArchiveDepthExplorer', component: ArchiveDepthExplorer, tags: ['autodocs'],
-  parameters: { layout: 'fullscreen', docs: { description: { component: '기본 계열 상징을 선택하면 고유한 유형명·서사·저작 상징과 실제 구성원 표식이 세로 피드로 이어집니다. 메타 탭이나 별도 유형 선택 깊이가 없으며, 실제 구성원이 있는 정확한 유형만 표시합니다. 부분 판독 표식은 별도 메뉴·유형명 없이 유지합니다. 개인 Dialog의 전후 이동은 피드 순서와 같고, 닫으면 기존 Canvas·스크롤이 유지됩니다. 저작 상징은 사람이나 평균 표식이 아닙니다. 공간 공유 아이콘·관측 부위 강조·형성 효과·감소 모션을 보존합니다. 로컬 판독 DTO만 사용하는 표시 스토리이며 네트워크·DB·오디오는 없습니다.' } } },
+  parameters: { layout: 'fullscreen', docs: { description: { component: '군집 3개는 첫 행에, 시간순 전체 보기 원형 진입 항목은 둘째 행 중앙에 표시하며 상단 보기 탭은 없습니다. 기본 계열 상징을 선택하면 고유한 유형명·서사·저작 상징과 실제 구성원 표식이 세로 피드로 이어집니다. 메타 탭이나 별도 유형 선택 깊이가 없으며, 실제 구성원이 있는 정확한 유형만 표시합니다. 부분 판독 표식은 별도 메뉴·유형명 없이 유지합니다. 개인 Dialog의 전후 이동은 피드 순서와 같고, 닫으면 기존 Canvas·스크롤이 유지됩니다. 저작 상징은 사람이나 평균 표식이 아닙니다. 공간 공유 아이콘·관측 부위 강조·형성 효과·감소 모션을 보존합니다. 로컬 판독 DTO만 사용하는 표시 스토리이며 네트워크·DB·오디오는 없습니다.' } } },
   decorators: [(Story) => <Box sx={ { minHeight: '100svh', px: { xs: 2, md: 5 }, bgcolor: 'custom.chamber.fog' } }>{ createElement(Story) }</Box>],
   argTypes: {
     order: { control: 'select', options: [null, 'newest', 'oldest'], description: 'null은 군집, 나머지는 전체 등록 시간순' },

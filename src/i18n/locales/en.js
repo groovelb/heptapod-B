@@ -2,6 +2,7 @@
 import { archetypeEn } from './archetypes.js';
 
 export default Object.freeze({
+  "archiveTimeline.allPublic": "All public glyphs · Enter",
   "archiveTimeline.view": "Archive view",
   "archiveTimeline.grouped": "Glyph groups",
   "archiveTimeline.allByTime": "View all by time",

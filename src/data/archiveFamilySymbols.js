@@ -57,3 +57,12 @@ export const ARCHIVE_FAMILY_SYMBOLS = freezeTree(Object.fromEntries(
 export function getArchiveFamilySymbol(familyId) {
   return Object.hasOwn(ARCHIVE_FAMILY_SYMBOLS, familyId) ? ARCHIVE_FAMILY_SYMBOLS[familyId] : null;
 }
+
+/** A plain ink ring for the whole archive; it is not an additional meaning family. */
+export const ARCHIVE_TIMELINE_SYMBOL = freezeTree({
+  model_data: {
+    ...ARCHIVE_FAMILY_SYMBOLS.arrival.model,
+    meta: { hash: 0x485042, kind: 'timeline-symbol', symbolVersion: 1 },
+    clusters: [], main: null,
+  },
+});

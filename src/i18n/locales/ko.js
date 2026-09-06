@@ -2,6 +2,7 @@
 import { archetypeKo } from './archetypes.js';
 
 export default Object.freeze({
+  "archiveTimeline.allPublic": "모든 공개 표식 · 들어가기",
   "archiveTimeline.view": "아카이브 보기 방식",
   "archiveTimeline.grouped": "표식 군집",
   "archiveTimeline.allByTime": "시간순으로 모두 보기",

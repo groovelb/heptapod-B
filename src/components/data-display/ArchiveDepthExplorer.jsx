@@ -10,7 +10,7 @@ import Dialog from '@mui/material/Dialog';
 import Typography from '@mui/material/Typography';
 import { buildArchiveDepthView, EMPTY_ARCHIVE_FILTER } from '../../utils/heptapod/archiveDepthView';
 import { MEANING_CATALOG } from '../../data/heptapodMeaningCatalog';
-import { getArchiveFamilySymbol } from '../../data/archiveFamilySymbols';
+import { getArchiveFamilySymbol, ARCHIVE_TIMELINE_SYMBOL } from '../../data/archiveFamilySymbols';
 import ArchiveGlyph from './ArchiveGlyph';
 import ArchiveArchetypeFeed from './ArchiveArchetypeFeed';
 import { glyphLabel } from '../../utils/heptapod/resonanceView.js';
@@ -40,9 +40,9 @@ function ClusterPortal({ node, onSelect }) {
   const familySymbol = getArchiveFamilySymbol(node.id);
   return (
     <Box component="button" type="button" onClick={ () => onSelect(node.filter) }
-      aria-label={ familySymbol ? t('archiveDepthExplorer.familySymbolMeetGlyphs', { p0: localize(node.title), p1: localize(familySymbol.cue), p2: node.glyphs.length })
+      aria-label={ node.kind === 'timeline' ? t('archiveTimeline.allByTime') : familySymbol ? t('archiveDepthExplorer.familySymbolMeetGlyphs', { p0: localize(node.title), p1: localize(familySymbol.cue), p2: node.glyphs.length })
         : t('archiveDepthExplorer.enterTheGroupGlyphs', { p0: localize(node.title), p1: node.glyphs.length }) }
-      data-cluster-id={ node.id }
+      data-cluster-id={ node.id } data-archive-chronological={ node.kind === 'timeline' ? true : undefined }
       sx={ {
         position: 'relative', display: 'block', width: '100%', maxWidth: 390, mx: 'auto', p: 0, pb: 2,
         border: 0, background: 'transparent', color: 'custom.chamber.ink', cursor: 'pointer',
@@ -56,13 +56,14 @@ function ClusterPortal({ node, onSelect }) {
         '@media (prefers-reduced-motion: reduce)': { transition: 'none', transform: 'none !important' },
       } }>
         { familySymbol && <ArchiveFamilySymbol familyId={ node.id } /> }
+        { node.kind === 'timeline' && <ArchiveGlyph glyph={ ARCHIVE_TIMELINE_SYMBOL } /> }
         <Typography component="span" data-cluster-title sx={ { position: 'absolute', top: '50%', left: '50%', width: 'max-content', transform: 'translate(-50%, -50%)',
-          textAlign: 'center', fontFamily: SERIF, fontSize: node.kind === 'family' ? { xs: 19, md: 28 } : { xs: 15, md: 18 },
+          textAlign: 'center', fontFamily: SERIF, fontSize: ['family', 'timeline'].includes(node.kind) ? { xs: 19, md: 28 } : { xs: 15, md: 18 },
           letterSpacing: '0.06em', lineHeight: 1.6, whiteSpace: 'nowrap', pointerEvents: 'none' } }>{ localize(node.title) }</Typography>
       </Box>
-      { familySymbol && <Typography component="span" sx={ { display: 'block', mt: 1, fontSize: 13 } }>{ localize(familySymbol.cue) }</Typography> }
+      { (familySymbol || node.kind === 'timeline') && <Typography component="span" sx={ { display: 'block', mt: 1, fontSize: 13 } }>{ familySymbol ? localize(familySymbol.cue) : t('archiveTimeline.newest') }</Typography> }
       <Typography component="span" className="archive-cluster-invite" sx={ { display: 'block', mt: 0.5, fontSize: 12, opacity: 0.75 } }>
-        { node.glyphs.length }{ t('archiveDepthExplorer.glyphsEnter') }</Typography>
+        { node.kind === 'timeline' ? t('archiveTimeline.allPublic') : `${node.glyphs.length}${t('archiveDepthExplorer.glyphsEnter')}` }</Typography>
     </Box>
   );
 }
@@ -103,7 +104,7 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
   }, [scope.scopeKey]);
   // Navigation handlers own direction; no per-frame React state.
   const enter = (next) => { setDirection(1); onFilterChange?.(next); };
-  const back = (next) => { setDirection(-1); onFilterChange?.(next); };
+  const back = (next) => { setDirection(-1); if (timeline && onOrderChange) onOrderChange(null); else onFilterChange?.(next); };
   const focus = (id) => onFocusGlyph?.(id);
   const focusedIndex = feed.glyphs.findIndex((glyph) => glyph.id === scene.focusedGlyph?.id);
   const nextGlyph = feed.glyphs.length > 1 ? feed.glyphs[(focusedIndex + 1) % feed.glyphs.length] : null;
@@ -115,26 +116,21 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
   const observation = readingSelection?.glyphId === scene.focusedGlyph?.id
     ? interpretation?.observations.find((item) => item.id === readingSelection.observationId) : null;
   const root = scope.level === 'families';
+  const portals = root && onOrderChange ? [...scope.nodes, { id: 'timeline', kind: 'timeline', title: t('archiveTimeline.allByTime') }] : scope.nodes;
 
   return (
     <Box component="section" aria-label={ t('archiveDepthExplorer.exploreGlyphGroupsInDepth') } data-archive-depth={ scene.level }
       onKeyDown={ (event) => { if (event.key === 'Escape' && !root && !focusedId) { event.preventDefault(); back(scope.parentFilter); } } }
       sx={ { color: 'custom.chamber.ink' } }>
-      { onOrderChange && <Box role="group" aria-label={ t('archiveTimeline.view') } sx={ { display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 1, pt: 2 } }>
-        <Button data-archive-grouped aria-pressed={ !order } sx={ { ...actionSx, borderBottom: !order ? '1px solid currentColor' : '1px solid transparent', borderRadius: 0 } }
-          onClick={ () => onOrderChange(null) }>{ t('archiveTimeline.grouped') }</Button>
-        <Button data-archive-chronological aria-pressed={ Boolean(order) } sx={ { ...actionSx, borderBottom: order ? '1px solid currentColor' : '1px solid transparent', borderRadius: 0 } }
-          onClick={ () => onOrderChange('newest') }>{ t('archiveTimeline.allByTime') }</Button>
-        { order && <Button data-archive-order sx={ actionSx } onClick={ () => onOrderChange(order === 'newest' ? 'oldest' : 'newest') }
-          aria-label={ t(order === 'newest' ? 'archiveTimeline.switchOldest' : 'archiveTimeline.switchNewest') }>
-          { t(order === 'newest' ? 'archiveTimeline.newest' : 'archiveTimeline.oldest') } ↕
-        </Button> }
-      </Box> }
       <Box component="nav" aria-label={ t('archiveDepthExplorer.yourPlaceInTheArchive') } sx={ { minHeight: 48, display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' } }>
-        { !root && <Button sx={ actionSx } onClick={ () => back(scope.parentFilter) }>← { t('archiveDepthExplorer.oneLayerOut') }</Button> }
+        { !root && <Button data-archive-back sx={ actionSx } onClick={ () => back(scope.parentFilter) }>← { t('archiveDepthExplorer.oneLayerOut') }</Button> }
         { !root && scope.selectedGroup && <Button sx={ actionSx } onClick={ () => back(EMPTY_ARCHIVE_FILTER) }>{ t('archiveDepthExplorer.all') }</Button> }
         { scope.base && scope.selectedGroup && <><Typography aria-hidden="true">/</Typography><Button sx={ actionSx } onClick={ () => back({ ...EMPTY_ARCHIVE_FILTER, base: scope.base }) }>{ localize(MEANING_CATALOG[scope.base].label) }</Button></> }
         { scope.selectedGroup && <Typography variant="caption" sx={ { overflowWrap: 'anywhere', py: 1 } }>/ { localize(selectedArchetype?.title || scope.selectedGroup.title) }</Typography> }
+        { order && onOrderChange && <Button data-archive-order sx={ actionSx } onClick={ () => onOrderChange(order === 'newest' ? 'oldest' : 'newest') }
+          aria-label={ t(order === 'newest' ? 'archiveTimeline.switchOldest' : 'archiveTimeline.switchNewest') }>
+          { t(order === 'newest' ? 'archiveTimeline.newest' : 'archiveTimeline.oldest') } ↕
+        </Button> }
         { !root && onShare && <IconButton sx={ { ...shareIconSx, ml: 'auto' } } onClick={ onShare }
           aria-label={ t('archiveDepthExplorer.shareThisSpace') } title={ t('archiveDepthExplorer.shareThisSpace') }>
           <ShareOutlinedIcon sx={ { fontSize: 20 } } />
@@ -153,17 +149,15 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
         <MotionBox key={ timeline ? 'timeline' : scope.scopeKey } data-archive-scope={ scope.scopeKey } custom={ direction } variants={ reducedMotion ? STILL_VARIANTS : DEPTH_VARIANTS }
           initial="enter" animate="present" exit="leave" transition={ transition }
           sx={ { transformOrigin: '50% 32%', minHeight: root ? '50svh' : 300 } }>
-          { scope.nodes.length > 0 && <Box role="group" aria-label={ t('archiveDepthExplorer.parentGlyphGroup') } sx={ {
-            display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))' },
+          { portals.length > 0 && <Box role="group" aria-label={ t('archiveDepthExplorer.parentGlyphGroup') } sx={ {
+            display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
             columnGap: { xs: 1, md: 3 }, rowGap: 3, maxWidth: 1200, mx: 'auto', pt: { xs: 2, md: 3 }, pb: 4,
-              '& > :last-child:nth-child(odd)': { gridColumn: { xs: '1 / -1', md: 'auto' }, width: { xs: '52%', md: '100%' }, mx: 'auto' },
-              '& > :nth-of-type(2)': { pt: { xs: 4, md: 9 } },
-          } }>{ scope.nodes.map((node) => <Box key={ node.id } sx={ { minWidth: 0 } }><ClusterPortal node={ node } onSelect={ enter } /></Box>) }</Box> }
+          } }>{ portals.map((node) => <Box key={ node.id } data-archive-portal={ node.id } sx={ { minWidth: 0, ...(node.kind === 'timeline' ? { gridColumn: 2, gridRow: 2 } : {}) } }><ClusterPortal node={ node } onSelect={ node.kind === 'timeline' ? () => { setDirection(1); onOrderChange('newest'); } : enter } /></Box>) }</Box> }
 
           { !root && <ArchiveArchetypeFeed feed={ feed } onSelect={ focus } /> }
 
-          { !scope.nodes.length && !scope.glyphs.length && <Typography role="status" sx={ { textAlign: 'center', py: 8 } }>{ t('archiveDepthExplorer.thereAreNoGlyphsHereYetFollow') }</Typography> }
-          { !scope.nodes.length && scope.glyphs.length > 0 && root && <Typography role="status" sx={ { textAlign: 'center', py: 4 } }>{ t('archiveDepthExplorer.someResponsesHaveNotYetFormedA') }</Typography> }
+          { !portals.length && !scope.glyphs.length && <Typography role="status" sx={ { textAlign: 'center', py: 8 } }>{ t('archiveDepthExplorer.thereAreNoGlyphsHereYetFollow') }</Typography> }
+          { !portals.length && scope.glyphs.length > 0 && root && <Typography role="status" sx={ { textAlign: 'center', py: 4 } }>{ t('archiveDepthExplorer.someResponsesHaveNotYetFormedA') }</Typography> }
         </MotionBox>
       </AnimatePresence>
       <Dialog open={ Boolean(focusedId) } onClose={ () => focus(null) } maxWidth="md" fullWidth

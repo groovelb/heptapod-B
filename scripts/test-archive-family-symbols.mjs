@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ARCHIVE_FAMILY_SYMBOLS, getArchiveFamilySymbol } from '../src/data/archiveFamilySymbols.js';
+import { ARCHIVE_FAMILY_SYMBOLS, getArchiveFamilySymbol, ARCHIVE_TIMELINE_SYMBOL } from '../src/data/archiveFamilySymbols.js';
 import { MEANING_BASE_IDS } from '../src/data/heptapodMeaningCatalog.js';
 import { isRenderableGlyphModel } from '../src/utils/heptapod/extractGlyphFeatures.js';
 import { interpretGlyphMeaning } from '../src/utils/heptapod/interpretGlyphMeaning.js';
@@ -60,4 +60,14 @@ test('symbols have no public identity and cannot enter meaning groups or counts'
   assert.deepEqual(groupArchiveMeanings(surfaces).groups, []);
   assert.equal(getArchiveFamilySymbol('not-a-family'), null);
   assert.equal(getArchiveFamilySymbol('__proto__'), null);
+});
+
+test('timeline portal uses the same renderable ink ring without becoming a meaning family or public glyph', () => {
+  assert.ok(isRenderableGlyphModel(ARCHIVE_TIMELINE_SYMBOL.model_data));
+  assert.deepEqual(ARCHIVE_TIMELINE_SYMBOL.model_data.clusters, []);
+  assert.equal(ARCHIVE_TIMELINE_SYMBOL.id, undefined);
+  assert.equal(groupArchiveMeanings([ARCHIVE_TIMELINE_SYMBOL]).sampleSize, 0);
+  const { particles } = generateParticles(ARCHIVE_TIMELINE_SYMBOL.model_data);
+  assert.ok(particles.length > 0);
+  assert.ok(particles.every((particle) => [particle.x, particle.y, particle.r, particle.a].every(Number.isFinite)));
 });

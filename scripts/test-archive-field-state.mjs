@@ -4,7 +4,7 @@ import { Window } from 'happy-dom';
 import { createServer } from 'vite';
 import react from '@vitejs/plugin-react';
 
-const dom = new Window({ url: 'http://localhost/archive', settings: { disableCSSFileLoading: true, disableJavaScriptFileLoading: true } });
+const dom = new Window({ url: 'http://localhost/archive', settings: { disableCSSFileLoading: true, disableJavaScriptFileLoading: true, device: { prefersReducedMotion: 'reduce' } } });
 dom.document.write('<!doctype html><html><body><div id="root"></div></body></html>');
 // happy-dom's partial WAAPI rejects cancellation; use Motion's JS fallback.
 Object.defineProperty(dom.Element.prototype, 'animate', { configurable: true, value: undefined });
@@ -156,10 +156,18 @@ try {
   check(() => assert.equal(document.querySelector('[role="dialog"]'), null, 'Legacy observation URL cannot reopen the removed Drawer'));
   check(() => assert.doesNotMatch(document.body.textContent, /이 공간의 관측 기록|내가 남긴 응답|아직 읽고 있는 흔적|모습을 기다리는 응답/));
   check(() => assert.ok(!client.calls.some((key) => ['auth', 'glyph_contributions', 'archive-relations'].includes(key)), 'Archive must not load personal records or precision relations'));
+  // Time is an equal circle portal, not a view tab.
+  for (let i = 0; i < 20 && !document.querySelector('[data-cluster-id="timeline"]'); i += 1) await settle();
+  const timelinePortal = document.querySelector('[data-cluster-id="timeline"]');
+  check(() => assert.ok(timelinePortal?.querySelector('.archive-cluster-cloud [data-cluster-title]')));
+  check(() => assert.ok(timelinePortal.parentElement.parentElement.querySelector('[data-cluster-id="arrival"]')));
+  check(() => assert.equal(document.querySelector('[data-archive-grouped], [role="tablist"]'), null));
   // Whole-archive order includes unreadable models and survives focus and Back.
   await act(async () => document.querySelector('[data-archive-chronological]').click());
+  for (let i = 0; i < 20 && !document.querySelector('[data-archive-timeline]'); i += 1) await settle();
   await settle();
   check(() => assert.equal(new URLSearchParams(router.state.location.search).get('order'), 'newest'));
+  check(() => assert.equal(document.querySelector('[data-archive-chronological]'), null, 'The portal stays at the family level'));
   const { buildArchiveTimeline } = await server.ssrLoadModule('/src/utils/heptapod/buildArchiveArchetypeFeed.js');
   const chronologicalIds = () => [...document.querySelectorAll('[data-archive-timeline] [data-archive-member]')].map((node) => node.dataset.archiveMember);
   check(() => assert.deepEqual(chronologicalIds(), buildArchiveTimeline(rows).glyphs.map((row) => row.id)));
@@ -184,7 +192,8 @@ try {
   check(() => assert.equal(new URLSearchParams(router.state.location.search).get('order'), 'oldest'));
   await act(async () => document.querySelector('button[aria-label="표식 닫기"]').click());
   await settle();
-  await act(async () => document.querySelector('[data-archive-grouped]').click());
+  await act(async () => document.querySelector('[data-archive-back]').click());
+  for (let i = 0; i < 20 && !document.querySelector('[data-cluster-id="timeline"]'); i += 1) await settle();
   await settle();
   check(() => assert.equal(document.querySelector('[data-archive-timeline]'), null));
   check(() => assert.ok(document.querySelector('[data-cluster-title]').closest('.archive-cluster-cloud'), 'Cluster title is inside its circle'));
