@@ -21,6 +21,8 @@ import ScrubCaption from '../kinetic-typography/scrub/ScrubCaption';
 import TitleDisperse from '../kinetic-typography/scrub/TitleDisperse';
 import {
   HERO_SCRUB_TIMELINE,
+  HERO_MOBILE_SCRUB_TIMELINE,
+  getMobileTrackProgress,
   findClipIndex,
   mapTrackToVideo,
 } from '../../data/heptapodScrubTimeline';
@@ -145,10 +147,10 @@ function BeatCounter({ progress, clips, monoFont, titleProgress }) {
  */
 function HeptapodHeroIntro({ onComplete }) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
   const monoFont = theme.typography?.custom?.mono?.fontFamily || 'monospace';
   const lenis = useContext(LenisContext);
-  const timeline = HERO_SCRUB_TIMELINE;
+  const timeline = isMobile ? HERO_MOBILE_SCRUB_TIMELINE : HERO_SCRUB_TIMELINE;
 
   const trackRef = useRef(null);
   const mediaRef = useRef(null);
@@ -243,27 +245,45 @@ function HeptapodHeroIntro({ onComplete }) {
    * Lenis/네이티브의 실제 스크롤 위치를 캡션·스크럽 트랙 진행도에 반영한다.
    */
   useEffect(() => {
+    let metrics = { top: 0, height: 0 };
     const compute = () => {
       const vh = window.innerHeight || 1;
       const scrollY = window.scrollY || window.pageYOffset || 0;
+      if (isMobile) {
+        const position = getMobileTrackProgress(scrollY, metrics, timeline.scrubCells);
+        titleProgress.set(position.title);
+        trackProgress.set(position.track);
+        return;
+      }
       titleProgress.set(Math.min(1, Math.max(0, scrollY / (vh * TITLE_DISPERSE_VH))));
       trackProgress.set(Math.min(1, Math.max(0, scrollY / (vh * timeline.scrubCells))));
     };
-    compute();
-    window.addEventListener('resize', compute);
+    const measure = () => {
+      if (isMobile && trackRef.current) {
+        const rect = trackRef.current.getBoundingClientRect();
+        metrics = { top: rect.top + (window.scrollY || 0), height: rect.height };
+      }
+      compute();
+    };
+    measure();
+    const observer = isMobile && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    if (trackRef.current) observer?.observe(trackRef.current);
+    window.addEventListener('resize', measure);
     if (lenis) {
       lenis.on('scroll', compute);
       return () => {
         lenis.off('scroll', compute);
-        window.removeEventListener('resize', compute);
+        window.removeEventListener('resize', measure);
+        observer?.disconnect();
       };
     }
     window.addEventListener('scroll', compute, { passive: true });
     return () => {
       window.removeEventListener('scroll', compute);
-      window.removeEventListener('resize', compute);
+      window.removeEventListener('resize', measure);
+      observer?.disconnect();
     };
-  }, [lenis, titleProgress, trackProgress, timeline.scrubCells]);
+  }, [lenis, titleProgress, trackProgress, timeline.scrubCells, isMobile]);
 
   /** 스크럽 상한 도달 → 현재 프레임부터 완주. 재생 중 역스크롤로 취소하지 않는다. */
   useEffect(() => {
@@ -381,7 +401,14 @@ function HeptapodHeroIntro({ onComplete }) {
           : started ? 'scroll' : null;
 
   return (
-    <Box data-hero-intro sx={ { position: 'relative', backgroundColor: 'background.default' } }>
+    <Box data-hero-intro data-hero-profile={ isMobile ? 'mobile' : 'desktop' } sx={ {
+      position: 'relative', backgroundColor: 'background.default',
+      ...(isMobile ? {
+        '--hero-cell-height': '100vh',
+        '@supports (height: 1svh)': { '--hero-cell-height': '100svh' },
+        '& [data-sticky-caption] > div': { height: 'var(--hero-cell-height)' },
+      } : {}),
+    } }>
       {/* 고정 영상 레이어 (z0) — muted 스크럽. 트랙(trackRef) 스크롤 진행도 → 셀 가중치 매핑 → currentTime */}
       <Box sx={ { position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', backgroundColor: 'background.default' } }>
         <VideoScrubbing
@@ -396,6 +423,7 @@ function HeptapodHeroIntro({ onComplete }) {
           onPlaybackStateChange={ handlePlaybackStateChange }
           playToEnd={ playToEnd }
           playbackRequestedRef={ playToEndRef }
+          mobilePlayback={ isMobile }
           onEnded={ handleVideoEnded }
           sx={ MEDIA_FIT }
         />
@@ -478,7 +506,7 @@ function HeptapodHeroIntro({ onComplete }) {
           sx={ {
             position: 'relative',
             display: 'flow-root',
-            height: `${timeline.scrubCells * 100}vh`,
+            height: isMobile ? `calc(var(--hero-cell-height) * ${timeline.scrubCells})` : `${timeline.scrubCells * 100}vh`,
             pointerEvents: 'none',
           } }
         >
@@ -489,8 +517,8 @@ function HeptapodHeroIntro({ onComplete }) {
               top: 0,
               left: 0,
               width: '100%',
-              height: '100vh',
-              '@supports (height: 1dvh)': { height: '100dvh' },
+              height: isMobile ? 'var(--hero-cell-height)' : '100vh',
+              ...(!isMobile ? { '@supports (height: 1dvh)': { height: '100dvh' } } : {}),
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -508,9 +536,9 @@ function HeptapodHeroIntro({ onComplete }) {
               sx={ {
                 fontFamily: HERO_HEADLINE_FONT,
                 fontWeight: 700,
-                fontSize: 'clamp(32px, 6vw, 88px)',
+                fontSize: { xs: 'clamp(24px, 6vw, 40px)', md: 'clamp(32px, 6vw, 88px)' },
                 textTransform: 'lowercase',
-                letterSpacing: '0.34em',
+                letterSpacing: { xs: '0.18em', md: '0.34em' },
                 color: TEXT_LIGHT,
                 textShadow: COPY_SHADOW,
                 textAlign: 'center',
@@ -565,7 +593,7 @@ function HeptapodHeroIntro({ onComplete }) {
         </Box>
 
         {/* 스크럽 끝까지 도달할 여유 거리. 전환은 이 위치가 아닌 실제 video ended가 결정한다. */}
-        <Box ref={ handoffRef } sx={ { position: 'relative', minHeight: `${HERO_HANDOFF_VH}vh` } } />
+        <Box ref={ handoffRef } sx={ { position: 'relative', minHeight: isMobile ? `calc(var(--hero-cell-height) * ${HERO_HANDOFF_VH / 100})` : `${HERO_HANDOFF_VH}vh` } } />
       </Box>
     </Box>
   );

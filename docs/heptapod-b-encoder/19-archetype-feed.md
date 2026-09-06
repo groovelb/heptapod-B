@@ -42,7 +42,7 @@ Artifact sharding + 읽기 전용 공유 경로 조사. 유효 동시성 4(root 
 - `buildArchiveArchetypeFeed(glyphs, meanings)`는 기존 scope에서 걸러진 공개 glyph 배열과 동일 판독 DTO를 소비한다. 새 판독/새 관계 계산 없음.
 - 반환 `{ sections, untypedGlyphs, glyphs }`.
 - section `{ id, archetype, glyphs }`, 비어 있지 않은 정확한 유형만 카탈로그 순서로 나열. 각 유형 안은 안정적 ID 순서.
-- glyphs는 sections의 실제 구성원 + untypedGlyphs 순서이며 Dialog 전후 이동과 일치한다. 원본 glyph 참조를 유지한다.
+- glyphs는 sections의 실제 구성원 + untypedGlyphs 순서다. 원본 glyph 참조를 유지한다. 개인 Dialog 전후 이동은 후속 요청으로 제거했다.
 
 ## 통합 책임
 
@@ -53,13 +53,15 @@ Artifact sharding + 읽기 전용 공유 경로 조사. 유효 동시성 4(root 
 2026-09-06: A/B 구현과 C 공유 경로 조사를 합류하고 root 통합을 완료했다.
 
 - `ArchiveArchetypeFeed`는 상징·유형명·짧은 서사 아래 실제 구성원을 모바일 2열/데스크톱 3열로 표시한다. 빈 유형과 메타 탭은 없고, 미확인 표식은 유형을 강제하지 않는다.
+- 표식 이름은 목록부터 실제 원 중앙에 크게 표시한다. 선택 시 목록 대신 `ArchiveSelectedGlyph` 상세 화면을 보여준다. 원본 표식·이름 → 분석 on/off → 같은 정확한 유형의 다른 표식 → 공통 의미별 원본 부위 그리드 순서다. 분석에는 실제 초록 mesh·스캔과 선택한 관측의 좌표 강조가 연결된다. 그리드는 선택 표식과 최대 두 구성원의 모델을 재생성하지 않고 관측 좌표의 Canvas 부분만 드러낸다. 모든 다른 구성원은 위 목록에 표시하며 singleton/미확인 유형에는 공통성을 만들지 않는다. 모달·Next/Compare는 없다.
 - 분석 reading·Archive 피드/개인 확대·공유 상세·단일 네이티브 공유 제목/본문이 같은 유형 카탈로그를 읽는다. 기존 의미 선택·형태 근거·anchors·초록 분석 라인·스캔·비프와 우상단 고정 메타데이터/3액션은 유지했다.
-- 새 Archive URL은 meta를 생성하지 않는다. 기존 group/AND/status 필터 및 공개 UUID 범위, 피드 순서의 전후 이동과 Dialog 뒤 Canvas/스크롤을 유지한다. 동시 작업에서 도입된 공용 AppGNB·useArchiveScroll과도 통합 검증했다.
+- 새 Archive URL은 meta를 생성하지 않는다. 기존 group/AND/status 필터 및 공개 UUID 범위는 유지한다. 목록은 상세에서 hidden/inert로 보이지도 조작되지도 않지만 마운트는 유지한다. 목록/개인 URL별 Lenis 스크롤을 따로 저장하며 상세 첫 진입은 상단, Back은 기존 목록 위치와 구성원 포커스로 복귀한다. 시간순 상세는 200개 표본에 잘리지 않도록 로드한 공개 모델 전체를 같은 판독기로 읽는다. 공용 AppGNB·전역 Lenis 수명을 바꾸지 않는다.
 - DB/분류 임계값/meaning v1/provider 계약 변경 없음. 로컬 판독 DTO를 화면용 피드로 투영하므로 추후 동일 DTO API 주입 경계를 유지한다.
 - 공유 문구만 유형 카탈로그와 연결했다. 기존 UUID/정밀 비교/OG 이미지·PNG 계약은 보존하며, 유형명이 들어간 새 공유 이미지 제작이나 OG 서버 배포를 완료한 것은 아니다.
 
 검증 결과:
 
+- 선택 상세 후속 수정: 메모리 DOM 91개(중앙 이름·상세/목록 전환·실제 분석 선택·singleton·시간순 구성원·스크롤/포커스 복원), 의미/화면 SSR 362개(200번째 이후 시간순 표식·원본 부위 mask 포함), 한영 1738개, 공용 탐색 37개, 모션 7개 통과. 변경 컴포넌트 ESLint·앱/Storybook 빌드 통과. 아래 수치는 이전 유형 피드 통합 당시 결과다. 실제 브라우저 픽셀 검증은 하지 않았다.
 - `pnpm run test:archetypes`: 유형 도메인 8개, 단일 공유 456개, 의미/피드 SSR 297개, Archive 메모리 DOM 47개, 결과 화면 메모리 DOM 148개 검사 통과.
 - 24개 저작 상징을 기존 판독기로 재판독하여 정확한 의미 키를 확인했다. 모든 유형의 피드/분석 제목·서사가 일치하고 상징이 구성원 수에 들어가지 않는지 검사했다. 합성 테스트 모델은 공개 이름 표본이나 인코더 도달성 증거가 아니다.
 - 기존 의미/데이터/필터/깊이/URL/상징/공유/통합 8개 스크립트의 Node 테스트 88개 통과. 기존 Archive UI 79개·meaning reading 241개 통과.

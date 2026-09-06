@@ -8,6 +8,8 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import { useGlyph } from '../../hooks/data/useGlyph';
 import { usePublish } from '../../hooks/data/usePublish';
 import { buildArchiveModel, ARCHIVE_ENCODER_VERSION } from '../../utils/heptapod/archiveGlyph';
@@ -23,6 +25,8 @@ import PublishDialog from '../overlay-feedback/PublishDialog';
 /** Public pair links and private, local comparisons use the same rendered models. */
 export default function ArchiveComparePage({ client }) {
   const { locale, localize, t } = useI18n();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { leftId, rightId } = useParams();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -84,12 +88,14 @@ export default function ArchiveComparePage({ client }) {
       setLocalName(draft.trim());
       setInputError('');
       setNotice(t('archiveComparePage.yourEncodedNameWasComparedOnThis'));
+      if (isMobile) event.currentTarget.querySelector('input')?.blur();
     } catch (error) { setInputError(error.message); }
   };
   const loading = leftState.loading || (!!rightId && rightState.loading);
   const unavailable = leftState.error || (rightId && rightState.error) || (!loading && (!left || (!!rightId && !rightState.glyph)));
   return (
-    <Box component="main" sx={ { minHeight: '100vh', bgcolor: 'custom.chamber.fog', color: 'custom.chamber.ink', px: { xs: 2, md: 5 }, py: 3 } }>
+    <Box component="main" sx={ { minHeight: '100vh', bgcolor: 'custom.chamber.fog', color: 'custom.chamber.ink', px: { xs: 2, md: 5 }, py: 3,
+      [theme.breakpoints.down('md')]: { minHeight: '100dvh', pb: 'max(24px, env(safe-area-inset-bottom, 0px))', overflowWrap: 'anywhere' } } }>
       <AppGNB />
       <Box component="nav" aria-label={ t('archiveComparePage.comparisonNavigation') } sx={ { display: 'flex', justifyContent: 'space-between', mb: 4, '& .MuiButton-root': { color: 'inherit', minHeight: 44 } } }>
         <Button component={ RouterLink } to={ `/glyph/${leftId}` }>{ t('archiveComparePage.backToGlyph') }</Button>
@@ -120,7 +126,8 @@ export default function ArchiveComparePage({ client }) {
             <Box component="form" onSubmit={ compareLocal } sx={ { mt: 5, py: 3, borderTop: '1px solid', borderColor: 'custom.chamber.ink', maxWidth: 620, mx: 'auto' } }>
               <Typography component="h2" variant="h6" sx={ { mb: 1 } }>{ t('archiveComparePage.whichGlyphsWillResonateWithYourName') }</Typography>
               <Typography sx={ { mb: 2 } }>{ t('archiveComparePage.encodeYourNameAsAHeptapodB') }</Typography>
-              <Box sx={ { display: 'flex', gap: 1, alignItems: 'start' } }>
+              <Box sx={ { display: 'flex', gap: 1, alignItems: 'start',
+                [theme.breakpoints.down('md')]: { flexDirection: 'column', '& > .MuiButton-root': { width: '100%' } } } }>
                 <TextField label={ t('archiveComparePage.nameToEncode') } value={ draft } onChange={ (event) => setDraft(event.target.value) } error={ !!inputError } helperText={ localize(inputError) } fullWidth
                   onCompositionStart={ () => { composing.current = true; } } onCompositionEnd={ () => { composing.current = false; } }
                   onKeyDown={ (event) => { if (event.key === 'Enter' && (composing.current || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229)) event.preventDefault(); } }

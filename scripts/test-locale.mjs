@@ -65,7 +65,7 @@ try {
   const { default: LocaleProvider } = await server.ssrLoadModule('/src/i18n/LocaleProvider.jsx');
   const knownNames = [...new Set(ARCHIVE_STORY_GLYPHS.flatMap((glyph) => [glyph.canonical_name, glyph.display_name]).filter(Boolean))].sort((a, b) => b.length - a.length);
   const paths = [
-    'data-display/ArchiveClusterExplorer', 'data-display/ArchiveDepthExplorer', 'data-display/ArchiveFamilySymbol', 'data-display/ArchiveArchetypeFeed',
+    'data-display/ArchiveClusterExplorer', 'data-display/ArchiveDepthExplorer', 'data-display/ArchiveSelectedGlyph', 'data-display/ArchiveFamilySymbol', 'data-display/ArchiveArchetypeFeed',
     'data-display/ArchiveMeaningExplorer', 'data-display/GlyphMeaningSummary', 'data-display/GlyphPairComparison',
     'data-display/ResonanceList', 'data-display/ResonanceMap', 'data-display/ResonancePreview',
     'templates/MyArchivePage', 'templates/ArchiveComparePage',

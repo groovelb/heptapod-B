@@ -8,6 +8,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
+import { useTheme } from '@mui/material/styles';
 import ShareIcon from '@mui/icons-material/Share';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -72,6 +73,8 @@ const ResponsiveLogogram = ({ model, maxSize = 360, onFormationComplete, anchors
  */
 const GlyphDetailPage = ({ client }) => {
   const { locale, localize, t } = useI18n();
+  const theme = useTheme();
+  const mobileViewport = { [theme.breakpoints.down('md')]: { minHeight: '100dvh', pb: 'max(32px, env(safe-area-inset-bottom, 0px))', overflowWrap: 'anywhere' } };
   const { id } = useParams();
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -155,7 +158,7 @@ const GlyphDetailPage = ({ client }) => {
 
   if (loading) {
     return (
-      <Box sx={ { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'custom.chamber.fog' } }>
+      <Box sx={ { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'custom.chamber.fog', ...mobileViewport } }>
         <AppGNB overlay />
         <CircularProgress sx={ { color: 'rgba(28,34,38,0.25)' } } />
       </Box>
@@ -164,7 +167,7 @@ const GlyphDetailPage = ({ client }) => {
 
   if (error || !glyph) {
     return (
-      <Box sx={ { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', bgcolor: 'custom.chamber.fog', color: INK, gap: 2 } }>
+      <Box sx={ { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', bgcolor: 'custom.chamber.fog', color: INK, gap: 2, ...mobileViewport } }>
         <AppGNB overlay />
         <Typography variant="h5" sx={ { fontFamily: SERIF_ALL, letterSpacing: '0.1em' } }>{ t('glyphDetailPage.signalNotFound') }</Typography>
         <Typography variant="body2" sx={ { color: 'rgba(28,34,38,0.45)' } }>
@@ -182,7 +185,7 @@ const GlyphDetailPage = ({ client }) => {
     : t('glyphDetailPage.formDataUnconfirmed');
 
   return (
-    <Box sx={ { minHeight: '100vh', bgcolor: 'custom.chamber.fog', color: INK, px: { xs: 2, sm: 4, md: 6 }, py: { xs: 4, sm: 6 } } }>
+    <Box sx={ { minHeight: '100vh', bgcolor: 'custom.chamber.fog', color: INK, px: { xs: 2, sm: 4, md: 6 }, py: { xs: 4, sm: 6 }, ...mobileViewport } }>
       <AppGNB soundOn={ isMusicOn } onToggleSound={ handleToggleMusic } />
       <Box sx={ { display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4, borderBottom: '1px solid rgba(28,34,38,0.1)', pb: 2 } }>
         <IconButton onClick={ () => navigate('/archive') } aria-label={ t('glyphDetailPage.goToPublicArchive') } sx={ { color: 'rgba(28,34,38,0.7)' } }>
@@ -203,6 +206,7 @@ const GlyphDetailPage = ({ client }) => {
             textTransform: 'uppercase',
             textAlign: 'center',
             color: INK,
+            [theme.breakpoints.down('md')]: { maxWidth: '100%', minWidth: 0, overflowWrap: 'anywhere' },
           } }
         >
           {glyphLabel(glyph)}
@@ -217,7 +221,8 @@ const GlyphDetailPage = ({ client }) => {
           sx={ { maxWidth: 640, mx: 'auto', mb: 5 } } /> }
 
       <Box sx={ { maxWidth: 480, mx: 'auto', mb: 6, border: '1px solid rgba(28,34,38,0.12)', borderRadius: 1, p: 2.5 } }>
-        <Box sx={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 } }>
+        <Box sx={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1,
+          [theme.breakpoints.down('md')]: { gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', '& > *': { minWidth: 0, overflowWrap: 'anywhere' } } } }>
           {[
             [t('glyphDetailPage.fingerprint'), glyph.fingerprint ? `${glyph.fingerprint.slice(0, 16)}…` : t('glyphDetailPage.notRecorded')],
             [t('glyphDetailPage.encoder'), `v${glyph.encoder_version}`],

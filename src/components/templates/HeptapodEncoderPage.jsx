@@ -277,6 +277,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
   const [stageMin, setStageMin] = useState(0);
 
   const stageRef = useRef(null);
+  const inputRef = useRef(null);
   const sharePending = useRef(false);
   const composingRef = useRef(false);
   const audioRef = useRef(null);
@@ -329,7 +330,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
 
   const reducedMotion = !!renderConfig.reducedMotion;
   const TierRenderer = RENDERER_BY_TIER[renderConfig.tier] || LogogramRendererCanvas;
-  const rendererSize = Math.max(200, Math.round(stageMin * FULLSCREEN_FILL));
+  const rendererSize = Math.max(200, Math.round(stageMin * (isMobileAnalysis ? 0.9 : FULLSCREEN_FILL)));
   const mobileGlyphSize = Math.min(320, Math.max(200, stageMin - 48));
 
   // 형성 중 여부 — 렌더 시점 파생값 (모델 교체 즉시 반영)
@@ -360,22 +361,34 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
     return () => observer.disconnect();
   }, []);
 
-  // Resize this page's available space when a mobile keyboard covers the viewport.
+  // Mobile uses document flow: do not subtract the keyboard twice or move the PC HUD.
   useEffect(() => {
+    if (!isMobileAnalysis) return undefined;
     const viewport = window.visualViewport;
     const page = stageRef.current?.closest('[data-encoder-result]');
     if (!viewport || !page) return undefined;
+    let frame;
     const resize = () => {
       const obscured = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
-      page.style.setProperty('--kb-offset', obscured > 80 ? `${Math.round(obscured)}px` : '0px');
+      const keyboardOpen = obscured > 80 && document.activeElement === inputRef.current;
+      page.dataset.encoderKeyboard = keyboardOpen ? 'open' : 'closed';
+      const inputRect = inputRef.current?.getBoundingClientRect();
+      const covered = inputRect && (inputRect.bottom > viewport.offsetTop + viewport.height - 16 || inputRect.top < viewport.offsetTop + 64);
+      if (keyboardOpen && covered && viewport.scale === 1) {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => inputRef.current?.scrollIntoView?.({ block: 'center', behavior: 'instant' }));
+      }
     };
     resize();
     viewport.addEventListener('resize', resize);
+    viewport.addEventListener('scroll', resize);
     return () => {
       viewport.removeEventListener('resize', resize);
-      page.style.removeProperty('--kb-offset');
+      viewport.removeEventListener('scroll', resize);
+      cancelAnimationFrame(frame);
+      delete page.dataset.encoderKeyboard;
     };
-  }, []);
+  }, [isMobileAnalysis]);
 
   /** 앰비언트 오디오 컨트롤러 — 마운트 시 생성(컨텍스트는 제스처 때 resume) */
   useEffect(() => {
@@ -449,13 +462,13 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
 
   const handleEncode = useCallback(() => {
     const trimmed = name.trim();
-    if (!trimmed || composingRef.current || publishIntent || sharePending.current) return;
+    if (!trimmed || composingRef.current || publishIntent || sharePending.current) return false;
     try { buildArchiveModel(trimmed); }
-    catch (error) { setInputError(error.message); return; }
+    catch (error) { setInputError(error.message); return false; }
     setInputError('');
     setShareError('');
     setShareStatus('');
-    if (trimmed === encodedName && encoderVersion === 2) return;
+    if (trimmed === encodedName && encoderVersion === 2) return true;
     setEncoderVersion(2);
     setPublished(null);
     setStack([]);
@@ -465,13 +478,22 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
     if (!reducedMotion) setDiveKey((key) => key + 1);
     setEncodedName(trimmed);
     setName(trimmed);
+    return true;
   }, [name, encodedName, encoderVersion, reducedMotion, publishIntent]);
+
+  const handleSubmit = useCallback((event) => {
+    event.preventDefault();
+    if (handleEncode() && isMobileAnalysis) inputRef.current?.blur();
+  }, [handleEncode, isMobileAnalysis]);
 
   const handleKeyDown = useCallback((event) => {
     if (event.key !== 'Enter') return;
+    // Preserve the original Enter guard, including Safari's 229 fallback:
+    // otherwise the new form could implicitly submit a composing key press.
     event.preventDefault();
-    if (!event.nativeEvent.isComposing && event.nativeEvent.keyCode !== 229 && !composingRef.current) handleEncode();
-  }, [handleEncode]);
+    if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229 || composingRef.current) return;
+    if (handleEncode() && isMobileAnalysis) inputRef.current?.blur();
+  }, [handleEncode, isMobileAnalysis]);
 
   // Called on a fresh user click, including the post-publication Share button.
   const handleShare = useCallback(async (result = published, shareOptions = {}) => {
@@ -526,6 +548,12 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
         height: '100vh',
         overflow: 'hidden',
         backgroundColor: 'background.default',
+        [theme.breakpoints.down('md')]: {
+          '--encoder-mobile-stage': 'clamp(200px, 72vw, 360px)',
+          height: 'auto', minHeight: '100svh', overflow: 'clip visible',
+          display: 'flex', flexDirection: 'column',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        },
       } }
     >
       {/* L0 — 화면 전체 안개 공간 (영화: 챔버 안에 들어와 있는 구도).
@@ -540,6 +568,10 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            [theme.breakpoints.down('md')]: {
+              position: 'absolute', top: 'calc(116px + env(safe-area-inset-top, 0px))',
+              height: 'var(--encoder-mobile-stage)',
+            },
           } }
         >
           {/* 확정 인코딩 — 루트 단일 (클릭 시 분해) */}
@@ -743,6 +775,12 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
             zIndex: 3,
             m: 0,
             width: { xs: 148, md: 200 },
+            [theme.breakpoints.down('md')]: {
+              position: 'relative', top: 'auto', right: 'auto', order: 2,
+              width: 'min(540px, calc(100% - 40px))', mx: 'auto', mt: 3, mb: 3,
+              '& [data-encoder-metadata]': { height: 64, gridTemplateRows: 'repeat(2, 32px)', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: 2 },
+              '& button, & a': { minHeight: 44 },
+            },
           } }
         >
           <FadeTransition direction="down" duration={ 800 }>
@@ -861,6 +899,8 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
 
       {/* 중앙 하단: 기존 대형 underline 입력과 타이핑 프리뷰 */}
       <Box
+        component="form"
+        onSubmit={ handleSubmit }
         data-encoder-controls
         sx={ {
           position: 'absolute',
@@ -873,6 +913,12 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          [theme.breakpoints.down('md')]: {
+            position: 'relative', left: 'auto', bottom: 'auto', transform: 'none', order: 1,
+            width: 'min(540px, calc(100% - 40px))', mx: 'auto',
+            mt: 'calc(124px + env(safe-area-inset-top, 0px) + var(--encoder-mobile-stage))',
+            transition: 'none', scrollMarginBlock: '80px',
+          },
         } }
       >
         {/* 타이핑 라이브 프리뷰 — 입력창 바로 위 UI 장치 (방금 친 글자 1개) */}
@@ -884,6 +930,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
 
         {/* 큰 underline 입력만 (ENCODE 버튼 없음 — Enter로 인코딩) */}
         <TextField
+          inputRef={ inputRef }
           value={ name }
           onChange={ (event) => { setName(event.target.value); setInputError(''); setShareError(''); setShareStatus(''); } }
           onCompositionStart={ () => { composingRef.current = true; } }
@@ -896,7 +943,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
           fullWidth
           variant="standard"
           slotProps={ {
-            htmlInput: { 'aria-label': t('heptapodEncoderPage.nameToEncode'), enterKeyHint: 'go', autoComplete: 'off' },
+            htmlInput: { 'aria-label': t('heptapodEncoderPage.nameToEncode'), enterKeyHint: isMobileAnalysis ? 'done' : 'go', autoComplete: 'off' },
             input: {
               sx: {
                 // 영화 타이틀 톤 — Outfit(라틴)+Pretendard(한글) Light, 넓은 자간
@@ -944,14 +991,14 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
       <Dialog open={ analysisActive && isMobileAnalysis } onClose={ handleCloseAnalysis }
         fullScreen aria-labelledby={ readingDialogId } data-lenis-prevent
         transitionDuration={ reducedMotion ? 0 : theme.transitions.duration.shortest }
-        slotProps={ { paper: { sx: { bgcolor: 'background.default', backgroundImage: 'none', color: 'common.white' } } } }>
-        <Box sx={ { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, px: 3, py: 1 } }>
+        slotProps={ { paper: { sx: { bgcolor: 'background.default', backgroundImage: 'none', color: 'common.white', height: '100dvh', pt: 'env(safe-area-inset-top, 0px)', pb: 'env(safe-area-inset-bottom, 0px)', boxSizing: 'border-box' } } } }>
+        <Box sx={ { display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: 2, px: 3, py: 1 } }>
           <Typography id={ readingDialogId } component="h2" sx={ { fontSize: 16, fontWeight: 400, overflowWrap: 'anywhere' } }>
             { t('meaningReading.dialogTitle', { name: encodedName }) }
           </Typography>
           <Button onClick={ handleCloseAnalysis } sx={ { color: 'inherit', minWidth: 44, minHeight: 44, flexShrink: 0 } }>{ t('heptapodEncoderPage.close') }</Button>
         </Box>
-        <Box sx={ { px: 3, pb: 4, overflowY: 'auto', overscrollBehavior: 'contain' } }>
+        <Box sx={ { px: 3, pb: 4, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain' } }>
           <Box data-encoder-mobile-glyph sx={ { position: 'relative', width: mobileGlyphSize, height: mobileGlyphSize, mx: 'auto' } }>
             <LogogramRendererCanvas model={ model } size={ mobileGlyphSize } inkColor={ theme.palette.common.white } isActive />
             <AnalysisOverlay model={ model } size={ mobileGlyphSize } isVisible={ analysisActive }

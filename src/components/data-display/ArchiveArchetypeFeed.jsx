@@ -1,6 +1,7 @@
 import { useId, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material/styles';
 import { useI18n } from '../../i18n/useI18n.js';
 import { getArchiveArchetypeSymbol } from '../../data/archiveArchetypeSymbols.js';
 import ArchiveGlyph from './ArchiveGlyph';
@@ -32,6 +33,7 @@ function Members({ glyphs, onSelect, showDate = false }) {
  */
 export default function ArchiveArchetypeFeed({ feed, onSelect, sx }) {
   const { localize, t } = useI18n();
+  const theme = useTheme();
   const sections = feed?.sections || EMPTY;
   const untypedGlyphs = feed?.untypedGlyphs || EMPTY;
   const prefix = useId();
@@ -55,6 +57,7 @@ export default function ArchiveArchetypeFeed({ feed, onSelect, sx }) {
         <Box component="header" sx={ {
           display: 'flex', alignItems: 'center', gap: { xs: 2, md: 3 }, mb: { xs: 2, md: 3 },
           maxWidth: 760, mx: 'auto',
+          [theme.breakpoints.down('sm')]: { flexDirection: 'column', alignItems: 'flex-start', gap: 1 },
         } }>
           { symbol && <Box role="img" aria-label={ t('archiveArchetypeFeed.authoredSymbol', { title }) }
             data-archetype-symbol={ archetype.meaningKey }

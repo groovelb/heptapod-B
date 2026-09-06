@@ -10,7 +10,10 @@ export default {
   argTypes: {
     glyph: { control: 'object', description: '표시할 공개 모델' },
     onSelect: { action: 'select-glyph', description: '제공하면 접근 가능한 버튼, 미제공이면 장식 표식' },
-    showName: { control: 'boolean', description: '실제 이름을 표식 아래 표시' },
+    showName: { control: 'boolean', description: '실제 이름을 표식 중앙에 크게 표시' },
+    nameComponent: { control: 'select', options: ['span', 'h1'], description: '상세의 이름은 h1, 목록은 span' },
+    analysis: { control: 'boolean', description: '초록 분석 라인·정점·스캔 효과' },
+    fragmentAnchors: { control: 'object', description: '지정한 관측 주변의 원본 Canvas 부분만 표시' },
     maxSize: { control: { type: 'number', min: 80, max: 600 }, description: 'Canvas 최대 크기' },
     anchors: { control: 'object', description: '선택한 의미의 실제 관측 좌표. Canvas와 같은 정방형에서 강조' },
     sx: { control: 'object', description: 'MUI 표면 스타일' },
@@ -19,4 +22,5 @@ export default {
 };
 export const Default = {};
 export const ClusterSample = { args: { showName: false, onSelect: undefined } };
+export const Analysis = { args: { analysis: true } };
 export const MissingModel = { args: { glyph: { id: 'unavailable', display_name: '아직 도착하지 않은 응답', model_data: null } } };

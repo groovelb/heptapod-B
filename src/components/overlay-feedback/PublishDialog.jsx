@@ -1,7 +1,7 @@
 import { useI18n } from '../../i18n/useI18n.js';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { alpha } from '@mui/material/styles';
+import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -33,6 +33,7 @@ import { archiveSharePath, archiveShareUrl, archiveSocialLinks, copyArchiveLink,
  */
 function PublishDialog({ open, onClose, glyphName, model, interpretation, onPublish, onPublished, publishedResult, intent = 'publish', completion = 'archive', onShare, onCopy, canShareWithApps = typeof globalThis.navigator?.share === 'function' }) {
   const { locale, localize, t } = useI18n();
+  const theme = useTheme();
   const navigate = useNavigate();
   const [step, setStep] = useState('confirm');
   const [consented, setConsented] = useState(false);
@@ -149,11 +150,16 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
             borderRadius: 0,
             boxShadow: 'none',
             color: fg,
+            [theme.breakpoints.down('md')]: {
+              m: '12px', width: 'calc(100% - 24px)',
+              maxHeight: 'calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))',
+              overflowWrap: 'anywhere',
+            },
           },
         },
       } }
     >
-      <Box sx={ { p: { xs: 3, sm: 4 } } }>
+      <Box sx={ { p: { xs: 3, sm: 4 }, [theme.breakpoints.down('md')]: { p: 2 } } }>
         <Box sx={ { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mb: 3 } }>
           <Typography id="archive-publish-title" component="h2" sx={ { ...monoSx, color: fg, opacity: 0.95, letterSpacing: '0.24em', fontSize: '0.8rem', textTransform: 'uppercase' } }>{ t('publishDialog.publishToArchive') }</Typography>
           <Box
@@ -161,7 +167,8 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
             onClick={ handleClose }
             disabled={ currentStep === 'publishing' || sharing || copying }
             aria-label={ t('publishDialog.closePublishingDialog') }
-            sx={ { ...monoSx, background: 'none', border: 'none', cursor: 'pointer', color: fg, opacity: 0.6, fontSize: '0.7rem', '&:hover': { opacity: 1 } } }
+            sx={ { ...monoSx, background: 'none', border: 'none', cursor: 'pointer', color: fg, opacity: 0.6, fontSize: '0.7rem', '&:hover': { opacity: 1 },
+              [theme.breakpoints.down('md')]: { minWidth: 44, minHeight: 44, flexShrink: 0 } } }
           >
             ✕
           </Box>

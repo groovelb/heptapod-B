@@ -23,3 +23,10 @@ export default {
 };
 
 export const Default = { render: (args) => <CompletionDemo { ...args } /> };
+
+/** Use the actual viewport: mobile is an independent 4.85-cell timeline, desktop remains 6.4. */
+export const Mobile = {
+  ...Default,
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  parameters: { docs: { description: { story: 'md 미만은 4.85셀 터치 페이싱·안정적인 svh 좌표를 사용합니다. 주소창 높이가 변해도 영상과 캡션의 트랙 시계가 일치하며 실제 ended 뒤 Canvas 완료 콜백이 실행됩니다. PC의 6.4셀·42초 자동 재생 경계는 유지합니다.' } } },
+};

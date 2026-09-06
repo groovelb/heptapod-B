@@ -20,6 +20,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
  * @param {React.RefObject} mediaRef - 재시도 등 사용자 제스처에서 사용할 video 요소 ref [Optional]
  * @param {function} onPlaybackStateChange - loading/ready/waiting/playing/error 상태 [Optional]
  * @param {React.RefObject<boolean>} playbackRequestedRef - React 커밋 전에도 스크럽 seek를 차단하는 재생 요청 ref [Optional]
+ * @param {boolean} mobilePlayback - 모바일 준비/제스처 재시도와 실제 종료 상태 복구 [Optional, 기본값: false]
  */
 const VideoScrubbing = ({
   src,
@@ -36,6 +37,7 @@ const VideoScrubbing = ({
   mediaRef,
   onPlaybackStateChange,
   playbackRequestedRef,
+  mobilePlayback = false,
   ...props
 }) => {
   const internalVideoRef = useRef(null);
@@ -83,7 +85,10 @@ const VideoScrubbing = ({
       primed = true;
       const p = video.play();
       if (p && typeof p.then === 'function') {
-        p.then(() => { if (!playingRef.current && !playbackRequestedRef?.current) video.pause(); }).catch(() => {});
+        p.then(() => {
+          if (!playingRef.current && !playbackRequestedRef?.current) video.pause();
+          detach();
+        }).catch(() => { if (mobilePlayback) primed = false; });
       } else {
         try {
           video.pause();
@@ -91,14 +96,14 @@ const VideoScrubbing = ({
           /* 이미 일시정지 */
         }
       }
-      detach();
+      if (!mobilePlayback) detach();
     };
     // 제스처 "완료" 시점(iOS가 play()를 가장 잘 허용). 스크롤도 손 떼면 touchend가 뜬다.
     const events = ['touchend', 'pointerup', 'click'];
     const detach = () => events.forEach((e) => window.removeEventListener(e, prime));
     events.forEach((e) => window.addEventListener(e, prime));
     return detach;
-  }, [videoRef, playbackRequestedRef]);
+  }, [videoRef, playbackRequestedRef, mobilePlayback]);
 
   // 로드 진행도/준비 상태 보고 — 히어로 로딩 오버레이(포스터 + 로딩바)가 소비한다
   useEffect(() => {
@@ -215,9 +220,16 @@ const VideoScrubbing = ({
     const video = videoRef.current;
     if (!video) return;
     let cancelled = false;
+    let attempting = false;
     const play = () => {
       if (cancelled || video.seeking || restoringRef.current) return;
-      video.play().catch(() => { if (!cancelled) onPlaybackStateChange?.('error'); });
+      if (mobilePlayback && (attempting || video.ended)) return;
+      attempting = true;
+      video.play().catch(() => { if (!cancelled) onPlaybackStateChange?.('error'); })
+        .finally(() => { attempting = false; });
+    };
+    const resume = () => {
+      if (document.visibilityState !== 'hidden' && video.paused && !video.ended) play();
     };
     if (playToEnd) {
       playingRef.current = true;
@@ -225,15 +237,35 @@ const VideoScrubbing = ({
       seekingRef.current = false;
       onPlaybackStateChange?.('waiting');
       // 고정 타임코드로 seek하지 않는다. 진행 중인 seek가 끝나면 그 프레임에서 이어 재생한다.
-      if (video.seeking || restoringRef.current) video.addEventListener('seeked', play, { once: true });
-      else play();
+      if (mobilePlayback) {
+        // WebKit may resolve metadata/readiness after the seek or interrupt play on backgrounding.
+        // Retry only from the actual current frame; never seek to the end or manufacture completion.
+        video.addEventListener('seeked', resume);
+        video.addEventListener('canplay', resume);
+        document.addEventListener('visibilitychange', resume);
+        window.addEventListener('pointerup', resume);
+        window.addEventListener('touchend', resume);
+        window.addEventListener('keydown', resume);
+      }
+      if (video.seeking || restoringRef.current) {
+        if (!mobilePlayback) video.addEventListener('seeked', play, { once: true });
+      } else play();
     } else {
       playingRef.current = false;
       if (!video.paused) video.pause();
       if (!video.error && video.readyState >= 3) onPlaybackStateChange?.('ready');
     }
-    return () => { cancelled = true; video.removeEventListener('seeked', play); };
-  }, [playToEnd, src, onPlaybackStateChange, videoRef]);
+    return () => {
+      cancelled = true;
+      video.removeEventListener('seeked', play);
+      video.removeEventListener('seeked', resume);
+      video.removeEventListener('canplay', resume);
+      document.removeEventListener('visibilitychange', resume);
+      window.removeEventListener('pointerup', resume);
+      window.removeEventListener('touchend', resume);
+      window.removeEventListener('keydown', resume);
+    };
+  }, [playToEnd, src, onPlaybackStateChange, videoRef, mobilePlayback]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -244,8 +276,19 @@ const VideoScrubbing = ({
       onEnded();
     };
     video.addEventListener('ended', handler);
-    return () => video.removeEventListener('ended', handler);
-  }, [onEnded, onProgressChange, videoRef]);
+    if (mobilePlayback) {
+      // A foregrounded WebKit video can already be ended before the queued ended event.
+      // Native ended AND actual media time remain mandatory, including on these recovery events.
+      video.addEventListener('timeupdate', handler);
+      document.addEventListener('visibilitychange', handler);
+      handler();
+    }
+    return () => {
+      video.removeEventListener('ended', handler);
+      video.removeEventListener('timeupdate', handler);
+      document.removeEventListener('visibilitychange', handler);
+    };
+  }, [onEnded, onProgressChange, videoRef, mobilePlayback]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -346,17 +389,21 @@ const VideoScrubbing = ({
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
+    const observer = mobilePlayback && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onResize) : null;
+    const target = containerRef?.current ?? videoRef.current;
+    if (target) observer?.observe(target);
 
     return () => {
       isRunningRef.current = false;
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
+      observer?.disconnect();
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = 0;
       }
     };
-  }, [containerRef, isInView, prefersReducedMotion, scrollRange, mapProgress, onProgressChange, videoRef, playbackRequestedRef]);
+  }, [containerRef, isInView, prefersReducedMotion, scrollRange, mapProgress, onProgressChange, videoRef, playbackRequestedRef, mobilePlayback]);
 
   return (
     <Box

@@ -74,7 +74,8 @@ function GlyphFigure({ glyph, observations, activeObservation, side, onExplore, 
   return (
     <Box component="figure" sx={ { m: 0, minWidth: 0, textAlign: 'center' } }>
       <Box sx={ { position: 'relative', width: '100%', maxWidth: 248, mx: 'auto' } }>
-        <GlyphNode model={ unavailableModel ? null : model } size={ 248 } sx={ { p: 0, border: 0, display: 'flex', width: '100%', '& canvas': { height: 'auto', aspectRatio: '1' } } } />
+        <GlyphNode model={ unavailableModel ? null : model } size={ 248 } sx={ { p: 0, border: 0, display: 'flex', width: '100%', '& canvas': { height: 'auto', aspectRatio: '1' },
+          [theme.breakpoints.down('md')]: { '& [role="img"]:not(canvas)': { width: '100%', maxWidth: 248, height: 'auto', aspectRatio: '1' } } } } />
         { !unavailableModel && <GlyphObservationOverlay model={ model } anchors={ anchors } /> }
       </Box>
       <Typography component="figcaption" sx={ { fontFamily: "'Cinzel', 'Noto Serif KR', Georgia, serif", fontSize: { xs: '1rem', sm: '1.2rem' }, overflowWrap: 'anywhere', lineHeight: 1.8 } }>

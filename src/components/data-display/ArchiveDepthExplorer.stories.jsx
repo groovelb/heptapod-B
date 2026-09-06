@@ -30,7 +30,7 @@ function InteractiveDepth(args) {
 
 export default {
   title: 'Custom Component/5. Data Display/ArchiveDepthExplorer', component: ArchiveDepthExplorer, tags: ['autodocs'],
-  parameters: { layout: 'fullscreen', docs: { description: { component: '군집 3개는 첫 행에, 시간순 전체 보기 원형 진입 항목은 둘째 행 중앙에 표시하며 상단 보기 탭은 없습니다. 기본 계열 상징을 선택하면 고유한 유형명·서사·저작 상징과 실제 구성원 표식이 세로 피드로 이어집니다. 메타 탭이나 별도 유형 선택 깊이가 없으며, 실제 구성원이 있는 정확한 유형만 표시합니다. 부분 판독 표식은 별도 메뉴·유형명 없이 유지합니다. 개인 Dialog의 전후 이동은 피드 순서와 같고, 닫으면 기존 Canvas·스크롤이 유지됩니다. 저작 상징은 사람이나 평균 표식이 아닙니다. 공간 공유 아이콘·관측 부위 강조·형성 효과·감소 모션을 보존합니다. 로컬 판독 DTO만 사용하는 표시 스토리이며 네트워크·DB·오디오는 없습니다.' } } },
+  parameters: { layout: 'fullscreen', docs: { description: { component: '모바일은 계열·시간순 진입을 2열로, PC는 기존 3개 계열과 둘째 행 중앙 시간순 진입으로 표시합니다. 군집 3개는 첫 행, 시간순 보기 원은 둘째 행 중앙입니다. 유형별 실제 구성원 피드에서 원 중앙의 이름을 선택하면 상세 화면으로 전환합니다. 모달·Next·Compare 없이 초록 분석 효과와 의미 선택, 같은 정확한 유형의 다른 표식, 공통 의미별 실제 부위 그리드를 표시합니다. 목록은 숨긴 채 마운트를 유지하고 돌아오면 원래 구성원으로 포커스를 복원합니다. 실제 URL·스크롤 복원은 MyArchivePage의 책임입니다. 부분 판독 표식의 유형을 강제하지 않으며, 저작 상징은 사람/평균 표식이 아닙니다. 형성·감소 모션 유지. 로컬 DTO만 사용하며 네트워크·DB·오디오는 없습니다.' } } },
   decorators: [(Story) => <Box sx={ { minHeight: '100svh', px: { xs: 2, md: 5 }, bgcolor: 'custom.chamber.fog' } }>{ createElement(Story) }</Box>],
   argTypes: {
     order: { control: 'select', options: [null, 'newest', 'oldest'], description: 'null은 군집, 나머지는 전체 등록 시간순' },
@@ -40,14 +40,10 @@ export default {
     filter: { control: 'object', description: 'URL과 동일한 base/modifiers/groupId/status 범위' },
     focusedId: { control: 'text', description: '현재 범위 안에서 크게 볼 표식 UUID' },
     onFilterChange: { action: 'navigate-depth', description: '상위/하위 깊이로 이동' },
-    onFocusGlyph: { action: 'focus-person', description: '같은 공간에서 사람의 표식을 크게 보기. null이면 확대 닫기' },
-    onInspectGlyph: { action: 'inspect-glyph', description: '선택한 표식의 상세 연결로 이동' },
-    onCompare: { action: 'compare-glyphs', description: '현재 구성원 두 표식 비교' },
+    onFocusGlyph: { action: 'focus-person', description: '선택 표식 상세 화면으로 전환. null이면 목록 복귀' },
     onShare: { action: 'share-space', description: '현재 깊이의 공개 링크 공유' },
-    shareNotice: { control: 'text', description: '확대된 표식 안에서 알리는 공유 완료 상태' },
-    shareError: { control: 'text', description: '확대된 표식 안에서 알리는 공유 실패 상태' },
   },
-  args: { glyphs, meanings, filter: EMPTY_ARCHIVE_FILTER, focusedId: null, shareNotice: '', shareError: '' },
+  args: { glyphs, meanings, filter: EMPTY_ARCHIVE_FILTER, focusedId: null },
 };
 
 export const Docs = { render: (args) => <InteractiveDepth key={ JSON.stringify([args.filter, args.focusedId, args.order]) } { ...args } /> };

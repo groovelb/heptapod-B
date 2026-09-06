@@ -15,7 +15,7 @@ const noCommonMeaning = glyph('明月');
 
 export default {
   title: 'Custom Component/5. Data Display/GlyphPairComparison', component: GlyphPairComparison, tags: ['autodocs'],
-  parameters: { docs: { description: { component: '이름을 실제로 변환한 모델 쌍의 공명을 비교합니다. 선택적 의미 비교는 프로젝트의 형태 해석이며 정밀 공명과 별도 탭·근거를 사용합니다. 의미 보기에서 번호는 각 모델의 실제 관측 지점이며 서로 정확히 대응한다는 뜻이 아닙니다. 의미 정보가 없는 기존 호출은 그대로 정밀 공명만 표시합니다. 공유 시 현재 reading과 reason을 전달하며 네트워크를 사용하지 않습니다.' } } },
+  parameters: { docs: { description: { component: '모바일에서 손상된 모델의 대체 표시도 셀 너비에 맞춥니다. 정상 표식과 PC 배치는 유지합니다. 이름을 실제로 변환한 모델 쌍의 공명을 비교합니다. 선택적 의미 비교는 프로젝트의 형태 해석이며 정밀 공명과 별도 탭·근거를 사용합니다. 의미 보기에서 번호는 각 모델의 실제 관측 지점이며 서로 정확히 대응한다는 뜻이 아닙니다. 의미 정보가 없는 기존 호출은 그대로 정밀 공명만 표시합니다. 공유 시 현재 reading과 reason을 전달하며 네트워크를 사용하지 않습니다.' } } },
   argTypes: {
     leftGlyph: { control: 'object', description: '왼쪽 DB 형태 Glyph' },
     rightGlyph: { control: 'object', description: '오른쪽 DB 형태 Glyph' },

@@ -7,7 +7,7 @@ import { interpretGlyphMeaning } from '../../utils/heptapod/interpretGlyphMeanin
 
 export default {
   title: 'Custom Component/9. Overlay & Feedback/PublishDialog', component: PublishDialog, tags: ['autodocs'],
-  parameters: { docs: { description: { component: '공개 동의 후 주소·소속 군집·링크 보관 안내·내 표식 페이지 열기·독립 복사를 제공합니다. 소셜 공유를 누르면 X·Threads·Facebook 및 지원 기기의 다른 앱 공유를 선택하며 자동 복사로 전환하지 않습니다. 완료 상태는 공유 취소나 실패에도 유지합니다. 완료 스토리는 즉시 표시되고 Flow 스토리는 동의 후 공개하기를 누르세요. 콜백은 로컬 결과만 반환하며 공개 API·인증·실제 공유창·클립보드를 호출하지 않습니다.' } } },
+  parameters: { docs: { description: { component: 'md 미만은 12px 바깥 여백·동적 화면 높이·44px 닫기 영역으로 대응합니다. PC 배치는 유지합니다. 공개 동의 후 주소·소속 군집·링크 보관 안내·내 표식 페이지 열기·독립 복사를 제공합니다. 소셜 공유를 누르면 X·Threads·Facebook 및 지원 기기의 다른 앱 공유를 선택하며 자동 복사로 전환하지 않습니다. 완료 상태는 공유 취소나 실패에도 유지합니다. 완료 스토리는 즉시 표시되고 Flow 스토리는 동의 후 공개하기를 누르세요. 콜백은 로컬 결과만 반환하며 공개 API·인증·실제 공유창·클립보드를 호출하지 않습니다.' } } },
   decorators: [(Story) => <MemoryRouter>{ createElement(Story) }</MemoryRouter>],
   argTypes: {
     open: { control: 'boolean', description: '열림 상태' },

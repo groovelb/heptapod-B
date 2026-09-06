@@ -7,6 +7,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
+import { useTheme } from '@mui/material/styles';
 import { useArchiveGlyphs } from '../../hooks/data/useArchiveGlyphs';
 import { useArchiveMeanings } from '../../hooks/data/useArchiveMeanings';
 import ArchiveDepthExplorer from '../data-display/ArchiveDepthExplorer';
@@ -25,11 +26,12 @@ const actionSx = { color: 'custom.chamber.ink', minHeight: 44, fontSize: 13, tex
  */
 export default function MyArchivePage({ client, meaningProvider, musicAutoplay = MUSIC_AUTOPLAY }) {
   const { locale, localize, t } = useI18n();
+  const theme = useTheme();
   const navigate = useNavigate();
   const { search } = useLocation();
   const { filter: meaningFilter, focusedId, order, unsupportedVersion, invalidLocation } = useMemo(() => parseArchiveDepthSearch(search), [search]);
-  // The catalog orders the feed; person focus does not change its scope.
-  const scopePath = useMemo(() => depthPath(meaningFilter, null, { order }), [meaningFilter, order]);
+  // List and individual detail have independent, restorable scroll positions.
+  const viewPath = useMemo(() => depthPath(meaningFilter, focusedId, { order }), [meaningFilter, focusedId, order]);
   const { glyphs, loading, error, refetch } = useArchiveGlyphs({ client, all: Boolean(order) });
   const ready = !loading && !error;
   const { meanings, loading: interpreting, error: meaningError, refetch: retryMeanings } = useArchiveMeanings(glyphs, { enabled: !order && ready && !unsupportedVersion && !invalidLocation, provider: meaningProvider });
@@ -66,7 +68,7 @@ export default function MyArchivePage({ client, meaningProvider, musicAutoplay =
     if (next) musicRef.current?.play();
     else musicRef.current?.pause();
   };
-  useArchiveScroll(scopePath, ready && !interpreting && !meaningError);
+  useArchiveScroll(viewPath, ready && !interpreting && !meaningError);
 
   const changeMeaningFilter = (filter) => {
     setShareNotice(''); setShareError('');
@@ -100,7 +102,9 @@ export default function MyArchivePage({ client, meaningProvider, musicAutoplay =
       <Box aria-hidden="true" sx={ { position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none' } }><LogogramChamber isFullscreen /></Box>
       <AppGNB soundOn={ isMusicOn } onToggleSound={ handleToggleMusic } />
 
-      <Box component="main" sx={ { px: { xs: 2, sm: 4, md: 6 }, pb: { xs: 3, md: 5 }, maxWidth: 1600, mx: 'auto', minHeight: 'calc(100svh - 100px)' } }>
+      <Box component="main" sx={ { px: { xs: 2, sm: 4, md: 6 }, pb: { xs: 3, md: 5 }, maxWidth: 1600, mx: 'auto', minHeight: 'calc(100svh - 100px)',
+        [theme.breakpoints.down('md')]: { pl: 'max(16px, env(safe-area-inset-left, 0px))', pr: 'max(16px, env(safe-area-inset-right, 0px))', pb: 'max(24px, env(safe-area-inset-bottom, 0px))' },
+      } }>
         { loading || (ready && !unsupportedVersion && interpreting) ? <Box role="status" sx={ { minHeight: '65svh', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 } }>
           <CircularProgress color="inherit" size={ 18 } /><Typography sx={ { fontSize: 14 } }>{ t('myArchivePage.glyphsAreGatheringBeyondTheMist') }</Typography>
         </Box> : error || meaningError ? <Box role="alert" sx={ { textAlign: 'center', py: 12 } }>
@@ -113,10 +117,7 @@ export default function MyArchivePage({ client, meaningProvider, musicAutoplay =
           <Typography sx={ { fontFamily: SERIF, fontSize: 26 } }>{ t('myArchivePage.waitingForTheFirstResponse') }</Typography>
           <Button sx={ { ...actionSx, mt: 3 } } onClick={ () => navigate(APP_PATHS.canvas) }>{ t('myArchivePage.startWithMyName') }</Button>
         </Box> : <ArchiveDepthExplorer order={ order } onOrderChange={ (next) => navigate(depthPath({}, null, { order: next })) } glyphs={ glyphs } meanings={ meanings } filter={ meaningFilter } focusedId={ focusedId }
-          shareNotice={ shareNotice } shareError={ shareError }
-          onFilterChange={ changeMeaningFilter } onFocusGlyph={ focusGlyph } onShare={ shareable ? shareSpace : undefined }
-          onInspectGlyph={ (id) => navigate(`/glyph/${id}?reading=meaning&mv=1`) }
-          onCompare={ (leftId, rightId) => navigate(`/compare/${leftId}/${rightId}?reading=meaning&mv=1`) } /> }
+          onFilterChange={ changeMeaningFilter } onFocusGlyph={ focusGlyph } onShare={ shareable ? shareSpace : undefined } /> }
         { shareNotice && <Typography role="status" sx={ { textAlign: 'center', py: 2, fontSize: 13 } }>{ localize(shareNotice) }</Typography> }
         { shareError && <Typography role="alert" sx={ { textAlign: 'center', py: 2, fontSize: 13 } }>{ localize(shareError) }</Typography> }
       </Box>

@@ -2,6 +2,16 @@
 
 Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테고리 번호.
 
+### 모바일 적용 기준 · 2026-09-06
+
+아래 기존 PC 배치 설명은 md(900px) 이상에서 유지한다. md 미만의 최신 동작은 다음과 같다.
+
+- HeptapodHeroIntro: PC 6.4셀 유지, 모바일 4.85셀·타이틀 분산 0.3셀. 영상/캡션/자동 재생은 실제 측정한 svh 트랙 좌표를 공유한다. VideoScrubbing의 optional `mobilePlayback=false`를 모바일만 켜서 seek/준비/제스처 복구와 실제 ended 상태 확인을 적용한다. 실제 완주 후 Canvas replace 계약 유지.
+- HeptapodEncoderPage: 모바일만 표식 → 입력 → 2열×2행 메타데이터·44px 액션의 문서 흐름으로 배치. valid Enter/Done/form submit 후 blur, IME/invalid 입력은 유지. visualViewport의 가림을 확인해 입력을 스크롤로 노출하고 pinch 확대는 건드리지 않는다. PC 중앙 표식·우상단 4행·Enter 포커스는 유지.
+- ArchiveDepthExplorer: 모바일 계열/시간순 포털 2열·긴 제목 줄바꿈. ArchiveArchetypeFeed는 600px 미만에서 유형 상징과 서사를 세로 배치한다. MyArchivePage는 모바일 좌우/하단 안전영역을 확보한다.
+- AppGNB·PublishDialog: 모바일 좌우 노치, 12px 다이얼로그 여백·동적 최대 높이·44px 닫기 영역. GlyphDetailPage는 긴 이름/지문 줄바꿈과 축소 가능한 메타 그리드, ArchiveComparePage는 세로 입력/유효 제출 blur, GlyphPairComparison은 손상 모델 대체 표시도 모바일 셀 너비에 맞춘다.
+- 각 상세 story와 `docs/heptapod-b-encoder/20-mobile-optimization.md`에 대응 범위·검증 한계를 기록한다. 브라우저 픽셀/실기기 키보드 검증을 수행한 것은 아니다.
+
 ## 참조 문서
 
 - 전체 텍소노미: `.claude/skills/component-work/resources/taxonomy-v0.4.md`
@@ -47,9 +57,10 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - Table: MUI Table 컴포넌트 [MUI]
 - DataReadout: Heptapod B 로고그램 분석 패널. 모노스페이스 연구 장비 톤, 시드 해시·NFD·12슬롯 상태 표기, ScrambleText 값 전환 (`components/data-display/DataReadout.jsx`)
 - GlyphNode: 저장 모델의 실제 입자 기하를 재사용하는 정적 Canvas 표식, 키보드 선택·긴 이름 접근성 (`components/data-display/GlyphNode.jsx`)
-- ArchiveGlyph: 입력 모델의 뷰포트 진입 Canvas 형성. 실제 구성원 샘플/이름 있는 버튼/확대 및 비조작 계열 상징의 표시 표면을 재사용. optional anchors를 실제 Canvas와 같은 크기에 겹치며 형성을 다시 시작하지 않음. 손상 모델 가드·Observer 해제·감소 모션 유지 (`components/data-display/ArchiveGlyph.jsx`)
+- ArchiveGlyph: 입력 모델의 뷰포트 진입 Canvas 형성. 이름은 원 중앙에 크게 표시하며 긴 이름은 줄바꿈·크기 조절한다. analysis로 초록 mesh·스캔, anchors로 실제 관측 위치, fragmentAnchors로 원본 관측 부위만 드러낸다. nameComponent는 상세 h1 지원. 분석/의미 선택으로 Canvas를 다시 만들지 않고 숨긴 목록의 폭 0 보고도 기존 크기를 보존한다. 손상 모델 가드·Observer 해제·감소 모션 유지 (`components/data-display/ArchiveGlyph.jsx`)
 - ArchiveFamilySymbol: 도래/수용/상호성의 방향성을 각각 하나의 저작된 링 패턴으로 표시. 동일 외곽·질감에서 가지 방향만 차별화하며 추가 의미 없음 검증. 개인 이름/평균 표식이 아니고 공개 정체성·소속·개수에 포함하지 않음. ArchiveGlyph 생성 효과 재사용 (`components/data-display/ArchiveFamilySymbol.jsx`)
-- ArchiveDepthExplorer: 군집 제목을 원형 상징 중앙에 한 줄로 표시하며 원과 겹쳐도 줄바꿈하지 않음. 군집 3개는 첫 행, 시간순 전체 보기 원형 포털은 둘째 행 중앙. 상단 보기 탭 없음. order/onOrderChange로 최신순·오래된순 전체 보기와 군집 복귀, 시간순 Dialog도 목록 순서 유지. 계열 상징 → 유형별 피드 → 개인 확대. 메타 탭·분포·중간 유형 포털 없이 기존 범위의 공개 구성원을 ArchiveArchetypeFeed로 전달. 개인 Dialog는 scopeKey 목록을 보존하고 피드 순서 전후 이동·Escape·공유·접힌 판독 제공. 기존 group/AND/status 범위와 partial 표식 유지 (`components/data-display/ArchiveDepthExplorer.jsx`)
+- ArchiveDepthExplorer: 군집 3개 첫 행·시간순 원 둘째 행 중앙, 계열 → 유형별 피드 → 선택 상세 화면. 상세 시 목록을 hidden/inert로 유지하고 복귀 시 구성원 포커스 복원. 시간순 상세도 로드한 공개 모델 전체에서 같은 정확한 유형을 연결한다. 모달·Next·Compare·메타 탭·중간 유형 포털 없이 기존 group/AND/status 범위와 partial 표식을 유지 (`components/data-display/ArchiveDepthExplorer.jsx`)
+- ArchiveSelectedGlyph: 원본 표식과 중앙 h1 이름, 분석 on/off와 실제 관측 선택, 자기 자신을 제외한 같은 유형 구성원 목록, 공통 의미별 실제 부위 그리드. 그리드는 선택 표식+최대 두 구성원을 원본 좌표에서 mask로 표시하며 유형별 동일 형태라고 주장하지 않는다. singleton/미확인 상태에는 공통성을 만들지 않음. 로컬 DTO 입력, URL/분류 소유권은 부모 (`components/data-display/ArchiveSelectedGlyph.jsx`)
 - ArchiveArchetypeFeed: chronological DTO에서는 군집 없이 전체 공개 표식·등록 시간을 표시. 실제 구성원이 있는 정확한 유형만 저작 상징·제목·짧은 서사와 함께 세로 배열. 실제 표식 모바일 2열/데스크톱 3열, untyped는 유형을 강제하지 않고 뒤에 유지. API·라우팅·분류 계산 없이 projection DTO 소비 (`components/data-display/ArchiveArchetypeFeed.jsx`)
 - ResonanceList: 이웃 ID별 복수 근거 목록, 설명/중심 이동 분리, loading/error/empty 구분 (`components/data-display/ResonanceList.jsx`)
 - ResonanceMap: 선택한 중심의 1-hop 관측 지도, 모바일6/데스크톱12, 항상 목록 전환 가능 (`components/data-display/ResonanceMap.jsx`)

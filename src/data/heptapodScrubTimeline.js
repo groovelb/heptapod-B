@@ -97,4 +97,20 @@ export function findClipIndex(clips, p) {
 
 export const HERO_SCRUB_TIMELINE = buildScrubTimeline();
 
+/** Touch pacing is independent of the desktop story. Video/copy order stays identical. */
+export const HERO_MOBILE_BEAT_CELLS = Object.freeze([0.65, 1, 0.8, 1, 0.65, 0.75]);
+export const HERO_MOBILE_SCRUB_TIMELINE = buildScrubTimeline(
+  HERO_STORY_BEATS.map((beat, index) => ({ ...beat, cells: HERO_MOBILE_BEAT_CELLS[index] })),
+);
+
+/** Use the measured track for mobile: CSS vh and innerHeight differ under browser chrome. */
+export function getMobileTrackProgress(scrollY, { top, height }, scrubCells) {
+  const distance = Math.max(0, scrollY - top);
+  const cellHeight = height / scrubCells;
+  return {
+    track: height > 0 ? Math.min(1, distance / height) : 0,
+    title: cellHeight > 0 ? Math.min(1, distance / (cellHeight * 0.3)) : 0,
+  };
+}
+
 export default HERO_SCRUB_TIMELINE;

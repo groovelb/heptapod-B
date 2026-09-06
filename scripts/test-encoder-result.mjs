@@ -318,7 +318,7 @@ try {
   await mount(page);
   const mobileLayout = layoutStyles();
   check(() => assert.equal(overlay().querySelectorAll('button, a').length, 4));
-  check(() => assert.equal(getComputedStyle(metadata()).height, '128px'));
+  check(() => assert.equal(getComputedStyle(metadata()).height, '64px', 'Mobile arranges the same four metadata values in two fixed-height rows'));
   await click(analysis());
   check(() => assert.equal(analysis().getAttribute('aria-pressed'), 'true'));
   check(() => assert.match(dialog().textContent, /Louise의 표식 읽기.*Archive의 공통 언어/));

@@ -85,7 +85,7 @@ test('archive cards keep viewport-triggered formation rather than static thumbna
 test('depth transitions respect reduced motion and keep query navigation on existing Lenis', () => {
   assert.match(depth, /useReducedMotion/);
   assert.match(depth, /reducedMotion \? STILL_VARIANTS : DEPTH_VARIANTS/);
-  assert.match(archive, /useArchiveScroll\(scopePath, ready && !interpreting && !meaningError\)/);
+  assert.match(archive, /useArchiveScroll\(viewPath, ready && !interpreting && !meaningError\)/);
   assert.doesNotMatch(archive, /new Lenis|lenis\.stop\(|lenis\.destroy\(/);
   assert.match(gallery, /io\.disconnect\(\); ro\.disconnect\(\)/);
 });

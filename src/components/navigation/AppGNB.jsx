@@ -3,6 +3,7 @@ import { Link, useInRouterContext, useLocation } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
+import { useTheme } from '@mui/material/styles';
 import VolumeUpOutlinedIcon from '@mui/icons-material/VolumeUpOutlined';
 import VolumeOffOutlinedIcon from '@mui/icons-material/VolumeOffOutlined';
 import { GNB, useGNB } from './GNB';
@@ -43,6 +44,7 @@ function NavigationLinks({ pathname, targets, routed }) {
 
 function NavigationView({ pathname = '/', locationKey = 'preview', routed = false, targets, overlay = false, tone = 'light', soundOn = true, soundLoading = false, onToggleSound, children }) {
   const { t } = useI18n();
+  const theme = useTheme();
   const dark = tone === 'dark';
   const colors = { color: dark ? 'text.primary' : 'custom.chamber.ink', bgcolor: dark ? 'background.paper' : 'custom.chamber.fog' };
   return <>
@@ -63,6 +65,7 @@ function NavigationView({ pathname = '/', locationKey = 'preview', routed = fals
       drawerSx={ { ...colors, width: '100vw', maxWidth: 'none', height: '100dvh', pb: 'env(safe-area-inset-bottom, 0px)' } }
       sx={ { color: colors.color, bgcolor: 'transparent', height: HEIGHT, pt: 'env(safe-area-inset-top, 0px)', boxSizing: 'border-box', px: { xs: 2, md: 5 },
         background: overlay && dark ? 'linear-gradient(to bottom, rgba(8,12,11,0.65), transparent)' : 'none', backdropFilter: 'none',
+        [theme.breakpoints.down('md')]: { pl: 'max(16px, env(safe-area-inset-left, 0px))', pr: 'max(16px, env(safe-area-inset-right, 0px))' },
       } } />
     { !overlay && <Box aria-hidden sx={ { height: HEIGHT, flexShrink: 0 } } /> }
   </>;

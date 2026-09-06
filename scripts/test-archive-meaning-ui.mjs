@@ -15,6 +15,7 @@ import { isRenderableGlyphModel } from '../src/utils/heptapod/extractGlyphFeatur
 import { ARCHETYPE_CATALOG } from '../src/data/heptapodArchetypeCatalog.js';
 import { getArchiveArchetypeSymbol } from '../src/data/archiveArchetypeSymbols.js';
 import { buildArchiveArchetypeFeed } from '../src/utils/heptapod/buildArchiveArchetypeFeed.js';
+import { glyphObservationMask } from '../src/utils/heptapod/glyphObservationMask.js';
 
 const originalFetch = globalThis.fetch;
 let requests = 0;
@@ -110,13 +111,35 @@ try {
   check(() => assert.doesNotMatch(peopleHtml, /data-cluster-id/));
   const focusedHtml = render(Depth, { meanings, glyphs: publicGlyphs, filter: { groupId: sharedGroup.id }, focusedId: sharedGroup.memberIds[0] });
   check(() => assert.match(focusedHtml, /data-archive-depth="glyph"/));
-  // The personal Dialog is portalled on the client. Its interactions are checked
-  // in test-archive-field-state.mjs; SSR must retain the underlying member field.
+  // Detail replaces the visible list, but the hidden list retains its Canvas state.
   check(() => assert.match(focusedHtml, /data-archive-member/));
+  check(() => assert.match(focusedHtml, /data-selected-glyph-detail/));
+  check(() => assert.match(focusedHtml, /data-same-type-glyph/));
+  check(() => assert.match(focusedHtml, /같은 의미가 나타나는 부분/));
+  check(() => assert.match(focusedHtml, /data-archive-list-view="true" hidden="" inert=""/));
+  check(() => assert.match(focusedHtml, /data-shared-meaning/));
+  check(() => assert.doesNotMatch(focusedHtml, /role="dialog"/));
   check(() => assert.equal((focusedHtml.match(/data-archive-member=/g) || []).length, sharedGroup.memberIds.length));
   check(() => assert.match(render(Depth, { meanings, glyphs: publicGlyphs, focusedId: 'missing' }), /data-family-symbol/));
   check(() => assert.match(render(Glyph, { glyph: { ...left, model_data: null }, showName: true }), /아직 모습을 불러올 수 없어요/));
-  check(() => assert.match(render(Explorer, { meanings, glyphs: publicGlyphs, filter: { ...filter, groupId: sharedGroup.id }, onCompare() {} }), /두 표식의 의미 비교/));
+  check(() => assert.doesNotMatch(focusedHtml, /다음 표식|두 표식의 의미 비교/));
+  // Timeline detail must not accidentally inherit the meaning sample's 200-row cap.
+  const lateGlyph = { ...left, id: '00000000-0000-4000-8000-000000001999' };
+  const longTimeline = [left, ...Array.from({ length: 201 }, (_, index) => ({ ...left,
+    id: `00000000-0000-4000-8000-${String(1000 + index).padStart(12, '0')}`, model_data: null })), lateGlyph];
+  const lateHtml = render(Depth, { glyphs: longTimeline, order: 'newest', focusedId: lateGlyph.id });
+  check(() => assert.match(lateHtml, /data-selected-glyph-detail/));
+  check(() => assert.equal((lateHtml.match(/data-same-type-glyph=/g) || []).length, 1));
+  check(() => assert.match(lateHtml, new RegExp(`data-same-type-glyph="${left.id}"`)));
+  check(() => assert.match(lateHtml, /data-shared-pattern-grid/));
+  const originalModel = JSON.stringify(left.model_data);
+  const observed = interpretation.observations[0].anchors;
+  const mask = glyphObservationMask(left.model_data, observed);
+  check(() => assert.match(mask, /radial-gradient\(circle at [\d.]+% [\d.]+%/));
+  check(() => assert.doesNotMatch(mask, /NaN|undefined/));
+  check(() => assert.notEqual(mask, glyphObservationMask(left.model_data, [{ ...observed[0], ang: observed[0].ang + 0.5 }]), 'Mask follows actual observation angles'));
+  check(() => assert.equal(glyphObservationMask(left.model_data, []), 'linear-gradient(transparent, transparent)'));
+  check(() => assert.equal(JSON.stringify(left.model_data), originalModel, 'Fragments never regenerate or modify stored geometry'));
   check(() => assert.doesNotMatch(html, /NaN|undefined|궁합|성격 유형/));
   check(() => assert.match(render(Explorer, { meanings, glyphs: publicGlyphs, filter, loading: true }), /갤러리는 계속/));
   check(() => assert.match(render(Explorer, { error: '다시 판독해 주세요.', onRetry() {} }), /role="alert"/));
@@ -155,12 +178,13 @@ try {
   check(() => assert.ok(render(Preview, { primaryName: left.canonical_name, primaryModel: left.model_data }).includes(interpretation.title)));
 
   for (const path of ['templates/MyArchivePage', 'templates/GlyphDetailPage', 'templates/ArchiveComparePage',
-    'data-display/ResonancePreview', 'data-display/ArchiveMeaningExplorer', 'data-display/GlyphMeaningSummary', 'data-display/GlyphPairComparison', 'data-display/ArchiveDepthExplorer', 'data-display/ArchiveArchetypeFeed', 'data-display/ArchiveGlyph', 'data-display/ArchiveFamilySymbol']) {
+    'data-display/ResonancePreview', 'data-display/ArchiveMeaningExplorer', 'data-display/GlyphMeaningSummary', 'data-display/GlyphPairComparison', 'data-display/ArchiveDepthExplorer', 'data-display/ArchiveSelectedGlyph', 'data-display/ArchiveArchetypeFeed', 'data-display/ArchiveGlyph', 'data-display/ArchiveFamilySymbol']) {
     const story = await server.ssrLoadModule(`/src/components/${path}.stories.jsx`);
     check(() => assert.ok(story.default.component));
   }
   const archiveSource = await readFile(new URL('../src/components/templates/MyArchivePage.jsx', import.meta.url), 'utf8');
   const depthSource = await readFile(new URL('../src/components/data-display/ArchiveDepthExplorer.jsx', import.meta.url), 'utf8');
+  const selectedSource = await readFile(new URL('../src/components/data-display/ArchiveSelectedGlyph.jsx', import.meta.url), 'utf8');
   const glyphSource = await readFile(new URL('../src/components/data-display/ArchiveGlyph.jsx', import.meta.url), 'utf8');
   const detailSource = await readFile(new URL('../src/components/templates/GlyphDetailPage.jsx', import.meta.url), 'utf8');
   const compareSource = await readFile(new URL('../src/components/templates/ArchiveComparePage.jsx', import.meta.url), 'utf8');
@@ -170,10 +194,10 @@ try {
   const feedSource = await readFile(new URL('../src/components/data-display/ArchiveArchetypeFeed.jsx', import.meta.url), 'utf8');
   check(() => assert.match(feedSource, /key=\{ glyph\.id \}/));
   check(() => assert.match(depthSource, /key=\{ timeline \? 'timeline' : scope\.scopeKey \}/));
-  check(() => assert.match(depthSource, /<Dialog open=\{ Boolean\(focusedId\) \}/));
-  check(() => assert.match(depthSource, /component="details"/));
-  check(() => assert.doesNotMatch(depthSource, /component="details"[^>]*\sopen[\s=>]/));
-  check(() => assert.match(archiveSource, /useArchiveScroll\(scopePath, ready && !interpreting && !meaningError\)/));
+  check(() => assert.doesNotMatch(depthSource, /<Dialog|다음 표식|비교/));
+  check(() => assert.match(selectedSource, /data-selected-glyph-detail/));
+  check(() => assert.match(selectedSource, /data-same-type-glyph/));
+  check(() => assert.match(archiveSource, /useArchiveScroll\(viewPath, ready && !interpreting && !meaningError\)/));
   check(() => assert.match(glyphSource, /isRenderableGlyphModel\(glyph\.model_data\)/));
   check(() => assert.match(glyphSource, /<LogogramRendererCanvas model=\{ glyph\.model_data \} size=\{ canvasSize \} isActive=\{ visible \} \/>/));
   check(() => assert.doesNotMatch(archiveSource, /if \(!entered\)|<AnalysisOverlay/));
