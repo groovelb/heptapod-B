@@ -32,6 +32,7 @@ export default {
 - 스크롤 기반 재생: 페이지 스크롤에 따라 비디오 프레임 이동
 - 성능 최적화: IntersectionObserver + requestAnimationFrame (~60fps)
 - 진행도 콜백: onProgressChange로 외부에서 진행도(0-1) 활용 가능
+- 재시도 복구: 로드가 진행 중 seek를 취소해도 잠금을 해제하고, 마지막 완료 위치를 복원한 뒤 스크롤 탐색을 재개
         `,
       },
     },

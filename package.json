@@ -13,6 +13,7 @@
     "generate-rules": "node scripts/generate-rules.js",
     "test:locale": "node scripts/test-locale.mjs && node scripts/test-locale-state.mjs",
     "test:navigation": "node scripts/test-app-navigation.mjs",
+    "test:performance-contracts": "node scripts/test-video-recovery.mjs && node scripts/test-encoder-render-work.mjs && node scripts/test-logogram-geometry-cache.mjs && node scripts/test-mobile-hero.mjs && node scripts/test-mobile-canvas.mjs && node scripts/test-mobile-shared.mjs && node scripts/test-mobile-archive-layout.mjs",
     "test:routes": "node scripts/test-canvas-routes.mjs && node scripts/test-hero-affordance.mjs && node scripts/test-archive-motion.mjs",
     "test:archetypes": "node scripts/test-archive-archetypes.mjs && node scripts/test-archetype-share.mjs && node scripts/test-archive-meaning-ui.mjs && node scripts/test-archive-field-state.mjs && node scripts/test-archive-feed-index.mjs && node scripts/test-encoder-result.mjs"
   },

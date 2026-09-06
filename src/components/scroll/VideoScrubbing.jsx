@@ -124,6 +124,10 @@ const VideoScrubbing = ({
       reportProgress();
     };
     const reportLoading = () => {
+      // load() can abort a seek without emitting seeked. Its old lock/target cannot
+      // survive into the new resource; keep only the last completed checkpoint.
+      seekingRef.current = false;
+      pendingTimeRef.current = null;
       restoringRef.current = resumeTimeRef.current > 0;
       onPlaybackStateChange?.('loading');
     };
@@ -133,6 +137,7 @@ const VideoScrubbing = ({
     const reportMetadata = () => {
       if (resumeTimeRef.current > 0 && Number.isFinite(video.duration)) {
         restoringRef.current = true;
+        seekingRef.current = true;
         video.currentTime = Math.min(resumeTimeRef.current, Math.max(0, video.duration - 0.05));
       }
     };
@@ -141,6 +146,7 @@ const VideoScrubbing = ({
     };
 
     video.addEventListener('loadstart', reportLoading);
+    video.addEventListener('emptied', reportLoading);
     video.addEventListener('loadedmetadata', reportMetadata);
     video.addEventListener('waiting', reportWaiting);
     video.addEventListener('playing', reportPlaying);
@@ -154,6 +160,7 @@ const VideoScrubbing = ({
 
     return () => {
       video.removeEventListener('loadstart', reportLoading);
+      video.removeEventListener('emptied', reportLoading);
       video.removeEventListener('loadedmetadata', reportMetadata);
       video.removeEventListener('waiting', reportWaiting);
       video.removeEventListener('playing', reportPlaying);
@@ -329,6 +336,8 @@ const VideoScrubbing = ({
         return;
       }
       if (playingRef.current || playbackRequestedRef?.current) return;
+      // The restoration seek must finish before scroll can enqueue another target.
+      if (restoringRef.current || currentVideo.readyState < 1 || currentVideo.error) return;
 
       let progress = 0;
       const { top, height } = layoutRef.current;

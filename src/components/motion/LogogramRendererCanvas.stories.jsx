@@ -26,7 +26,7 @@ export default {
   argTypes: {
     model: {
       control: false,
-      description: 'LogogramModel (encode → buildModel 산출물). 스토리에서는 name arg로 실제 생성',
+      description: '불변 LogogramModel. 같은 객체의 입자·vapor 기하는 재사용하고 형성 시계는 각각 유지. 형태 변경 시 새 객체 전달. 스토리에서는 name arg로 실제 생성',
     },
     size: {
       control: { type: 'number', min: 120, max: 960, step: 20 },

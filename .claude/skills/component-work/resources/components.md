@@ -14,6 +14,15 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 ## 참조 문서
 
+### 성능 보완 · 2026-09-06
+
+- VideoScrubbing: 오류 재로드의 `emptied/loadstart`에서 취소된 seek 잠금과 대기 목표를 초기화한다. 마지막 완료 위치 복원 중에는 스크롤 seek를 차단하며 실제 ended·PC/모바일 타이밍 계약은 유지한다.
+- HeptapodEncoderPage: 하위 표식 모델은 실제 분해 진입 시 생성하고, 타이핑 프리뷰는 마지막 글자별로 memoize한다. 유효성 검사는 기존 validateName을 직접 사용해 버리는 완성 모델을 만들지 않는다. 모바일 가림 보정 RAF는 blur 후 스크롤하지 않는다. 배치·분석·형성은 유지한다.
+- LogogramRendererCanvas: 불변 모델 객체별 WeakMap으로 결정론적 입자·vapor 기하만 재사용한다. 일반/감소 모션 입자는 분리하고 Canvas·색상 스프라이트·형성 시간·가시성 상태는 개별 인스턴스에 유지한다. 형태를 바꿀 때는 새 모델 객체를 전달한다.
+- 점검 근거와 브라우저 평가 게이트: `docs/heptapod-b-encoder/21-performance-audit.md`.
+
+### 분류 참조
+
 - 전체 텍소노미: `.claude/skills/component-work/resources/taxonomy-v0.4.md`
 - 빠른 인덱스: `.claude/skills/component-work/resources/taxonomy-index.md`
 

@@ -3,9 +3,10 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import {
-  generateParticles, generateVapor, makeSprites, makeVaporSprites,
+  makeSprites, makeVaporSprites,
   drawInkParticle, paintStatic, paintVapor, stampStreaks, easeOutCubic, SIZE0,
 } from '../../utils/heptapod/logogramParticles';
+import { getLogogramGeometry } from '../../utils/heptapod/logogramGeometryCache';
 
 /**
  * Heptapod B 로고그램 Canvas 2D 렌더러 — 방향성 스윕 × 연기 질감 (v2.1)
@@ -26,7 +27,7 @@ import {
  * vapor 잔상만 프레임레이트 의존(근사) — 형태·잉크·PNG는 엄밀 결정론.
  *
  * Props:
- * @param {object} model - LogogramModel (encode → buildModel 산출물) [Required]
+ * @param {object} model - Immutable LogogramModel; form changes require a new object [Required]
  * @param {number} size - 캔버스 정방형 한 변 (px) [Optional, 기본값: 480]
  * @param {string} inkColor - 잉크 색 [Optional, 기본값: theme custom.chamber.ink → '#15171a' 폴백]
  * @param {boolean} isActive - 형성 애니메이션 시작 여부 (false면 빈 무대) [Optional, 기본값: true]
@@ -55,11 +56,10 @@ function LogogramRendererCanvas({
     && typeof window.matchMedia === 'function'
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const built = useMemo(
-    () => generateParticles(model, prefersReduced),
+  const { built, vapor } = useMemo(
+    () => getLogogramGeometry(model, prefersReduced),
     [model, prefersReduced],
   );
-  const vapor = useMemo(() => generateVapor(model), [model]);
 
   /** 콜백 최신화 — 애니메이션 effect 의존성에 콜백을 넣지 않기 위한 ref 동기화 */
   useEffect(() => {

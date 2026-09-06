@@ -22,6 +22,7 @@ import { interpretGlyphMeaning } from '../../utils/heptapod/interpretGlyphMeanin
 import PublishDialog from '../overlay-feedback/PublishDialog';
 import { usePublish } from '../../hooks/data/usePublish';
 import { buildArchiveModel } from '../../utils/heptapod/archiveGlyph';
+import { validateName } from '../../utils/heptapod/validateName';
 import { shareArchive } from '../../utils/heptapod/shareArchive';
 import { buildModelReversible } from '../../utils/heptapod/reversibleModel';
 import { detectRenderTier, subscribeReducedMotion } from '../../utils/heptapod/detectRenderTier';
@@ -113,7 +114,7 @@ function TypingPreview({ text, size, ink, monoSx }) {
   const { localize } = useI18n();
   const chars = Array.from(text.replace(/[?？]/g, '')).filter((ch) => !/\s/.test(ch));
   const last = chars[chars.length - 1];
-  const previewModel = last ? safeArchiveModel(last) : null;
+  const previewModel = useMemo(() => (last ? safeArchiveModel(last) : null), [last]);
   if (!previewModel) return null;
   return (
     <Box sx={ { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 } }>
@@ -314,13 +315,13 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
   const currentText = stack.length ? stack[stack.length - 1] : rootCore;
   /** 현재 노드의 자식 로고그램들 (한 단계 하위 단위) */
   const childNodes = useMemo(
-    () => splitText(currentText).map((txt, i) => ({
+    () => (stack.length === 0 ? [] : splitText(currentText).map((txt, i) => ({
       key: `${txt}-${i}`,
       text: txt,
       model: safeArchiveModel(txt),
       splittable: splitText(txt).length > 0,
-    })).filter((node) => node.model),
-    [currentText],
+    })).filter((node) => node.model)),
+    [currentText, stack.length],
   );
   const canSplitRoot = splitText(rootCore).length > 0;
   const atRoot = stack.length === 0;
@@ -376,7 +377,9 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
       const covered = inputRect && (inputRect.bottom > viewport.offsetTop + viewport.height - 16 || inputRect.top < viewport.offsetTop + 64);
       if (keyboardOpen && covered && viewport.scale === 1) {
         cancelAnimationFrame(frame);
-        frame = requestAnimationFrame(() => inputRef.current?.scrollIntoView?.({ block: 'center', behavior: 'instant' }));
+        frame = requestAnimationFrame(() => {
+          if (document.activeElement === inputRef.current) inputRef.current?.scrollIntoView?.({ block: 'center', behavior: 'instant' });
+        });
       }
     };
     resize();
@@ -463,8 +466,8 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
   const handleEncode = useCallback(() => {
     const trimmed = name.trim();
     if (!trimmed || composingRef.current || publishIntent || sharePending.current) return false;
-    try { buildArchiveModel(trimmed); }
-    catch (error) { setInputError(error.message); return false; }
+    const validation = validateName(trimmed);
+    if (!validation.valid) { setInputError(validation.error.message); return false; }
     setInputError('');
     setShareError('');
     setShareStatus('');
