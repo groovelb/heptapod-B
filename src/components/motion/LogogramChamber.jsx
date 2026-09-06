@@ -97,7 +97,7 @@ const driftKeyframes = {
  * @param {boolean} isActive - drift 동작 여부
  * @returns {JSX.Element} 3장 프래그먼트
  */
-function fogStack(layerBaseSx, isActive) {
+function fogStack(layerBaseSx, isActive, isPaused) {
   return (
     <>
       <Box
@@ -110,6 +110,7 @@ function fogStack(layerBaseSx, isActive) {
           mixBlendMode: 'multiply',
           filter: 'blur(14px)',
           animation: isActive ? 'chamberDriftA 40s linear infinite alternate' : 'none',
+          animationPlayState: isPaused ? 'paused' : 'running',
           zIndex: 0,
         } }
       />
@@ -123,6 +124,7 @@ function fogStack(layerBaseSx, isActive) {
           mixBlendMode: 'multiply',
           filter: 'blur(8px)',
           animation: isActive ? 'chamberDriftB 31s linear infinite alternate' : 'none',
+          animationPlayState: isPaused ? 'paused' : 'running',
           zIndex: 0,
         } }
       />
@@ -136,6 +138,7 @@ function fogStack(layerBaseSx, isActive) {
           mixBlendMode: 'overlay',
           filter: 'blur(2px)',
           animation: isActive ? 'chamberDriftC 24s linear infinite alternate' : 'none',
+          animationPlayState: isPaused ? 'paused' : 'running',
           zIndex: 1,
         } }
       />
@@ -143,7 +146,7 @@ function fogStack(layerBaseSx, isActive) {
   );
 }
 
-function renderLayers(layerBaseSx, isActive, diveKey = 0) {
+function renderLayers(layerBaseSx, isActive, diveKey = 0, isPaused = false) {
   /** 평상시 전진 한 겹 — fogZoom 무한 루프 + delay로 위상차. 정적 환경(reduced)은 1겹 고정 */
   const creepLayerSx = (delayMs) => ({
     ...zoomKeyframes,
@@ -153,12 +156,13 @@ function renderLayers(layerBaseSx, isActive, diveKey = 0) {
     transformOrigin: '50% 45%',
     animation: `fogZoom ${CREEP_MS}ms linear infinite`,
     animationDelay: `${delayMs}ms`,
+    animationPlayState: isPaused ? 'paused' : 'running',
     '@media (prefers-reduced-motion: reduce)': { animation: 'none', opacity: 1, transform: 'none' },
   });
 
   // 정적(reduced-motion): 크로스페이드 없이 단일 스택 — 안개 농도 2배 방지
   if (!isActive) {
-    return fogStack(layerBaseSx, false);
+    return fogStack(layerBaseSx, false, isPaused);
   }
 
   return (
@@ -166,6 +170,7 @@ function renderLayers(layerBaseSx, isActive, diveKey = 0) {
     // 1회 재생되고, 안쪽 creep transform과 합성되어 "상시 전진이 확 빨라지는" 가속이 된다.
     <Box
       key={ diveKey }
+      className="chamber-fog-dive"
       sx={ {
         ...diveKeyframes,
         position: 'absolute',
@@ -174,12 +179,13 @@ function renderLayers(layerBaseSx, isActive, diveKey = 0) {
         transformOrigin: '50% 45%',
         // front-load ease-out — Enter 직후 즉시 빠르게 나갔다 감속, 뒤로 안 감(forwards)
         animation: diveKey > 0 ? `fogDiveIn ${DIVE_MS}ms cubic-bezier(0.05, 0.7, 0.1, 1) forwards` : 'none',
+        animationPlayState: isPaused ? 'paused' : 'running',
         '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
       } }
     >
       {/* 평상시 상시 전진 — 같은 fogZoom을 절반 위상차로 두 겹 크로스페이드(끊김 없는 연속 줌) */}
-      <Box sx={ creepLayerSx(0) }>{ fogStack(layerBaseSx, isActive) }</Box>
-      <Box sx={ creepLayerSx(-CREEP_MS / 2) }>{ fogStack(layerBaseSx, isActive) }</Box>
+      <Box className="chamber-fog-zoom" sx={ creepLayerSx(0) }>{ fogStack(layerBaseSx, isActive, isPaused) }</Box>
+      <Box className="chamber-fog-zoom" sx={ creepLayerSx(-CREEP_MS / 2) }>{ fogStack(layerBaseSx, isActive, isPaused) }</Box>
     </Box>
   );
 }
@@ -203,6 +209,7 @@ function renderLayers(layerBaseSx, isActive, diveKey = 0) {
  * @param {string|number} ratio - 무대 비율 (RatioContainer ratio — '1:1' | 'phi' | number 등) [Optional, 기본값: '1:1']
  * @param {string} maxWidth - 챔버 최대 너비 [Optional]
  * @param {boolean} isActive - 안개 드리프트 동작 여부 (false면 정적 안개) [Optional, 기본값: true]
+ * @param {boolean} isPaused - 완전히 가려진 동안 기존 CSS 애니메이션의 위상만 정지. 재마운트 없이 이어 재생 [Optional, 기본값: false]
  * @param {boolean} isFullscreen - 비율 컨테이너 대신 부모를 가득 채우는 안개 공간 (absolute inset 0) [Optional, 기본값: false]
  * @param {number} diveKey - 값이 바뀔 때마다 안개가 화면 안쪽으로 가속 진입(Z-dive) 1회 재생 [Optional, 기본값: 0]
  * @param {object} sx - 추가 스타일 오버라이드 [Optional]
@@ -220,6 +227,7 @@ function LogogramChamber({
   ratio = '1:1',
   maxWidth,
   isActive = true,
+  isPaused = false,
   isFullscreen = false,
   diveKey = 0,
   sx = {},
@@ -263,8 +271,8 @@ function LogogramChamber({
 
   if (isFullscreen) {
     return (
-      <Box sx={ { position: 'absolute', inset: 0, overflow: 'hidden', ...chamberSx } }>
-        { renderLayers(layerBaseSx, isActive, diveKey) }
+      <Box data-chamber-paused={ isPaused } sx={ { position: 'absolute', inset: 0, overflow: 'hidden', ...chamberSx } }>
+        { renderLayers(layerBaseSx, isActive, diveKey, isPaused) }
         <Box
           sx={ {
             position: 'relative',
@@ -284,13 +292,14 @@ function LogogramChamber({
 
   return (
     <RatioContainer
+      data-chamber-paused={ isPaused }
       ratio={ ratio }
       maxWidth={ maxWidth }
       isContained
       background="custom.chamber.fog"
       sx={ chamberSx }
     >
-      { renderLayers(layerBaseSx, isActive, diveKey) }
+      { renderLayers(layerBaseSx, isActive, diveKey, isPaused) }
       {/* 로고그램 렌더러 무대 — 안개 레이어 위, 비네트 아래 */}
       <Box
         sx={ {

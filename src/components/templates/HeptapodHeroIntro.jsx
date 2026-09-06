@@ -424,6 +424,7 @@ function HeptapodHeroIntro({ onComplete }) {
           playToEnd={ playToEnd }
           playbackRequestedRef={ playToEndRef }
           mobilePlayback={ isMobile }
+          scrubFrameRate={ 24 }
           onEnded={ handleVideoEnded }
           sx={ MEDIA_FIT }
         />

@@ -21,6 +21,14 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - LogogramRendererCanvas: 불변 모델 객체별 WeakMap으로 결정론적 입자·vapor 기하만 재사용한다. 일반/감소 모션 입자는 분리하고 Canvas·색상 스프라이트·형성 시간·가시성 상태는 개별 인스턴스에 유지한다. 형태를 바꿀 때는 새 모델 객체를 전달한다.
 - 점검 근거와 브라우저 평가 게이트: `docs/heptapod-b-encoder/21-performance-audit.md`.
 
+### 지속 렌더링 보완
+
+- LogogramRendererCanvas의 `isPaused=false`는 isActive와 별개로 RAF만 멈춘다. 버퍼·형성 진행·완료 상태를 보존하고 화면 밖/숨긴 탭 조건과 함께 판정한다. 초기 pause와 반복 복귀도 형성을 재시작하지 않는다.
+- LogogramChamber의 `isPaused=false`는 여섯 drift·두 zoom·dive의 animationPlayState만 변경한다. 모바일 전체 화면 분석에 가려진 원본 Canvas·배경만 함께 정지하며, PC 분석·Dialog 안의 표식·반투명 공유 창 뒤는 유지한다.
+- paintVapor는 일회성 안개가 전부 만료된 뒤 순환 입자만 검사한다. 원본 인덱스/경계/되감기와 그리기 결과는 보존하며 입자 수·DPR·FPS는 낮추지 않는다.
+- VideoScrubbing은 자동 재생·숨김 상태의 불필요한 RAF 예약을 차단하고 의도적 숨김 정지에서 현재 위치를 복구한다. 검증된 히어로 소스만 `scrubFrameRate=24`로 같은 프레임 seek를 생략하며 일반 소스의 기본 시간 계약은 유지한다.
+- 작업 계약·검증 한계·후속 단계: `docs/heptapod-b-encoder/22-sustained-render-work.md`.
+
 ### 분류 참조
 
 - 전체 텍소노미: `.claude/skills/component-work/resources/taxonomy-v0.4.md`

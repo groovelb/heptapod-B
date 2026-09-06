@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import LogogramChamber from './LogogramChamber';
@@ -44,6 +45,10 @@ export default {
       control: 'boolean',
       description: '형성 애니메이션 시작 여부. false→true 전환 시 처음부터 재생',
     },
+    isPaused: {
+      control: 'boolean',
+      description: 'Canvas와 형성 시계를 보존한 채 일시 정지. 해제하면 이전 프레임부터 이어짐',
+    },
     onFormationComplete: {
       action: 'formationComplete',
       description: '형성 완료(입자 응집 종료) 시 호출',
@@ -71,22 +76,27 @@ export const Default = {
     size: 420,
     particleCount: 2400,
     isActive: true,
+    isPaused: false,
   },
-  render: (args) => (
-    <Box sx={ { p: 6, backgroundColor: 'background.default', display: 'flex', justifyContent: 'center' } }>
-      <Box sx={ { backgroundColor: 'custom.chamber.fog', p: 4, display: 'inline-flex' } }>
-        <LogogramRendererCanvas
-          key={ `${args.name}-${args.size}-${args.particleCount}-${args.inkColor}` }
-          model={ modelOf(args.name) }
-          size={ args.size }
-          inkColor={ args.inkColor }
-          particleCount={ args.particleCount }
-          isActive={ args.isActive }
-          onFormationComplete={ args.onFormationComplete }
-        />
+  render: function RendererDemo(args) {
+    const model = useMemo(() => modelOf(args.name), [args.name]);
+    return (
+      <Box sx={ { p: 6, backgroundColor: 'background.default', display: 'flex', justifyContent: 'center' } }>
+        <Box sx={ { backgroundColor: 'custom.chamber.fog', p: 4, display: 'inline-flex' } }>
+          <LogogramRendererCanvas
+            key={ `${args.name}-${args.size}-${args.particleCount}-${args.inkColor}` }
+            model={ model }
+            size={ args.size }
+            inkColor={ args.inkColor }
+            particleCount={ args.particleCount }
+            isActive={ args.isActive }
+            isPaused={ args.isPaused }
+            onFormationComplete={ args.onFormationComplete }
+          />
+        </Box>
       </Box>
-    </Box>
-  ),
+    );
+  },
 };
 
 /**

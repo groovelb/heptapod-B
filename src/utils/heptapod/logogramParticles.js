@@ -534,6 +534,26 @@ export function generateVapor(model) {
   return { puffs, formEnd };
 }
 
+// Geometry schedules are immutable after construction. Weak keys let discarded
+// models release this index; no Canvas or animation clock is retained here.
+const vaporWorkSchedules = new WeakMap();
+
+function vaporWorkSchedule(puffs) {
+  let schedule = vaporWorkSchedules.get(puffs);
+  if (!schedule) {
+    const cyclicIndices = [];
+    let formationEnd = -Infinity;
+    for (let i = 0; i < puffs.length; i += 1) {
+      const puff = puffs[i];
+      if (puff.cycle > 0) cyclicIndices.push(i);
+      else formationEnd = Math.max(formationEnd, puff.birth + puff.life);
+    }
+    schedule = { cyclicIndices, formationEnd };
+    vaporWorkSchedules.set(puffs, schedule);
+  }
+  return schedule;
+}
+
 /**
  * vapor puff들을 시간 t의 순수 함수로 그린다 (vctx는 720-space 변환 적용).
  * 푸프 생명주기: scale 성장 + 개별 느린 회전 + cosine 알파 (정석 처방).
@@ -544,7 +564,14 @@ export function generateVapor(model) {
  * @param {HTMLCanvasElement} puffSprite - makeVaporSprites().puff
  */
 export function paintVapor(vctx, puffs, t, puffSprite) {
-  for (let i = 0; i < puffs.length; i += 1) {
+  const { cyclicIndices, formationEnd } = vaporWorkSchedule(puffs);
+  // At the exact expiry boundary alpha is still written by the original path.
+  // Only skip after every one-shot puff expired; rewinding selects all again.
+  const equilibrium = t > formationEnd;
+  const count = equilibrium ? cyclicIndices.length : puffs.length;
+  for (let index = 0; index < count; index += 1) {
+    // Keep original indices: noiseHash below depends on array position.
+    const i = equilibrium ? cyclicIndices[index] : index;
     const p = puffs[i];
     let age;
     if (p.cycle > 0) {

@@ -2,6 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
+// Frame-rate opt-in only removes seeks that would decode the same CFR image.
+// Preserve the caller's exact timestamp, existing tolerance and end boundaries.
+function needsScrubSeek(current, target, duration, frameRate) {
+  if (Math.abs(current - target) <= 0.033) return false;
+  if (!Number.isFinite(frameRate) || frameRate <= 0 || target <= 0 || target >= duration) return true;
+  return Math.floor(current * frameRate) !== Math.floor(target * frameRate);
+}
+
 /**
  * VideoScrubbing Component
  * 스크롤 위치에 따라 비디오를 프레임 단위로 재생(스크러빙)하는 컴포넌트입니다.
@@ -21,6 +29,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
  * @param {function} onPlaybackStateChange - loading/ready/waiting/playing/error 상태 [Optional]
  * @param {React.RefObject<boolean>} playbackRequestedRef - React 커밋 전에도 스크럽 seek를 차단하는 재생 요청 ref [Optional]
  * @param {boolean} mobilePlayback - 모바일 준비/제스처 재시도와 실제 종료 상태 복구 [Optional, 기본값: false]
+ * @param {number} scrubFrameRate - 검증된 CFR 영상만 동일 프레임 seek 생략. 시각/진행도는 양자화하지 않음 [Optional]
  */
 const VideoScrubbing = ({
   src,
@@ -38,6 +47,7 @@ const VideoScrubbing = ({
   onPlaybackStateChange,
   playbackRequestedRef,
   mobilePlayback = false,
+  scrubFrameRate,
   ...props
 }) => {
   const internalVideoRef = useRef(null);
@@ -53,6 +63,8 @@ const VideoScrubbing = ({
   // 실제 재생/seek 완료 위치만 저장한다. 재시도·소스 재로드에서도 앞 구간을 건너뛰지 않는다.
   const resumeTimeRef = useRef(0);
   const restoringRef = useRef(false);
+  const hiddenPauseRef = useRef(false);
+  const resumeAfterHiddenRef = useRef(false);
   const [isInView, setIsInView] = useState(false);
 
   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
@@ -81,7 +93,7 @@ const VideoScrubbing = ({
 
     let primed = false;
     const prime = () => {
-      if (primed || playingRef.current || playbackRequestedRef?.current) return;
+      if (primed || playingRef.current || playbackRequestedRef?.current || document.visibilityState === 'hidden') return;
       primed = true;
       const p = video.play();
       if (p && typeof p.then === 'function') {
@@ -132,7 +144,12 @@ const VideoScrubbing = ({
       onPlaybackStateChange?.('loading');
     };
     const reportWaiting = () => { if (playingRef.current) onPlaybackStateChange?.('waiting'); };
-    const reportPlaying = () => { if (playingRef.current) onPlaybackStateChange?.('playing'); };
+    const reportPlaying = () => {
+      // A queued playing event can arrive after the document intentionally paused.
+      if (document.visibilityState === 'hidden' || video.paused) return;
+      hiddenPauseRef.current = false;
+      if (playingRef.current) onPlaybackStateChange?.('playing');
+    };
     const reportError = () => onPlaybackStateChange?.('error');
     const reportMetadata = () => {
       if (resumeTimeRef.current > 0 && Number.isFinite(video.duration)) {
@@ -142,6 +159,9 @@ const VideoScrubbing = ({
       }
     };
     const reportPause = () => {
+      // Native events are queued: an old pause must not overwrite resumed playback.
+      if (!video.paused) return;
+      if (hiddenPauseRef.current || document.visibilityState === 'hidden') return;
       if (playingRef.current && !video.ended && video.readyState >= 2) onPlaybackStateChange?.('error');
     };
 
@@ -212,36 +232,67 @@ const VideoScrubbing = ({
       resumeTimeRef.current = video.currentTime;
       if (video.duration) onProgressChange?.(video.currentTime / video.duration);
       if (playingRef.current || playbackRequestedRef?.current) return;
+      if (document.visibilityState === 'hidden') return;
       const target = pendingTimeRef.current;
       if (target == null || !video.duration) return;
-      if (Math.abs(video.currentTime - target) > 0.033) {
+      if (needsScrubSeek(video.currentTime, target, video.duration, scrubFrameRate)) {
         seekingRef.current = true;
         video.currentTime = target;
       }
     };
     video.addEventListener('seeked', onSeeked);
     return () => video.removeEventListener('seeked', onSeeked);
-  }, [videoRef, onProgressChange, playbackRequestedRef]);
+  }, [videoRef, onProgressChange, playbackRequestedRef, scrubFrameRate]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     let cancelled = false;
     let attempting = false;
+    let suspensionEpoch = 0;
     const play = () => {
       if (cancelled || video.seeking || restoringRef.current) return;
+      if (document.visibilityState === 'hidden') {
+        resumeAfterHiddenRef.current = !video.ended;
+        return;
+      }
       if (mobilePlayback && (attempting || video.ended)) return;
+      resumeAfterHiddenRef.current = false;
       attempting = true;
-      video.play().catch(() => { if (!cancelled) onPlaybackStateChange?.('error'); })
-        .finally(() => { attempting = false; });
+      const playEpoch = suspensionEpoch;
+      video.play().catch(() => {
+        if (!cancelled && playEpoch === suspensionEpoch && document.visibilityState !== 'hidden') {
+          hiddenPauseRef.current = false;
+          onPlaybackStateChange?.('error');
+        }
+      })
+        .finally(() => {
+          attempting = false;
+          if (!cancelled && resumeAfterHiddenRef.current && document.visibilityState !== 'hidden') resume();
+        });
     };
     const resume = () => {
       if (document.visibilityState !== 'hidden' && video.paused && !video.ended) play();
+    };
+    const visibility = () => {
+      if (document.visibilityState === 'hidden') {
+        pendingTimeRef.current = null;
+        if (playingRef.current && !video.ended && (!video.paused || video.seeking || restoringRef.current || attempting)) {
+          resumeAfterHiddenRef.current = true;
+          hiddenPauseRef.current = true;
+          suspensionEpoch += 1;
+          video.pause();
+        }
+      } else if (resumeAfterHiddenRef.current) {
+        if (video.ended) resumeAfterHiddenRef.current = false;
+        else resume();
+      }
     };
     if (playToEnd) {
       playingRef.current = true;
       pendingTimeRef.current = null;
       seekingRef.current = false;
+      if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = 0; }
       onPlaybackStateChange?.('waiting');
       // 고정 타임코드로 seek하지 않는다. 진행 중인 seek가 끝나면 그 프레임에서 이어 재생한다.
       if (mobilePlayback) {
@@ -249,7 +300,6 @@ const VideoScrubbing = ({
         // Retry only from the actual current frame; never seek to the end or manufacture completion.
         video.addEventListener('seeked', resume);
         video.addEventListener('canplay', resume);
-        document.addEventListener('visibilitychange', resume);
         window.addEventListener('pointerup', resume);
         window.addEventListener('touchend', resume);
         window.addEventListener('keydown', resume);
@@ -257,8 +307,12 @@ const VideoScrubbing = ({
       if (video.seeking || restoringRef.current) {
         if (!mobilePlayback) video.addEventListener('seeked', play, { once: true });
       } else play();
+      document.addEventListener('visibilitychange', visibility);
+      visibility();
     } else {
       playingRef.current = false;
+      resumeAfterHiddenRef.current = false;
+      hiddenPauseRef.current = false;
       if (!video.paused) video.pause();
       if (!video.error && video.readyState >= 3) onPlaybackStateChange?.('ready');
     }
@@ -267,7 +321,7 @@ const VideoScrubbing = ({
       video.removeEventListener('seeked', play);
       video.removeEventListener('seeked', resume);
       video.removeEventListener('canplay', resume);
-      document.removeEventListener('visibilitychange', resume);
+      document.removeEventListener('visibilitychange', visibility);
       window.removeEventListener('pointerup', resume);
       window.removeEventListener('touchend', resume);
       window.removeEventListener('keydown', resume);
@@ -335,7 +389,7 @@ const VideoScrubbing = ({
       if (!currentVideo || !isInView || prefersReducedMotion) {
         return;
       }
-      if (playingRef.current || playbackRequestedRef?.current) return;
+      if (playingRef.current || playbackRequestedRef?.current || document.visibilityState === 'hidden') return;
       // The restoration seek must finish before scroll can enqueue another target.
       if (restoringRef.current || currentVideo.readyState < 1 || currentVideo.error) return;
 
@@ -360,7 +414,7 @@ const VideoScrubbing = ({
         // 최신 목표는 항상 기록하고, 진행 중인 seek가 없을 때만 새 seek를 쏜다.
         // 나머지는 seeked 핸들러가 따라잡는다 → 매 프레임 seek로 디코더를 밀어붙이지 않는다.
         pendingTimeRef.current = targetTime;
-        if (!seekingRef.current && Math.abs(currentVideo.currentTime - targetTime) > 0.033) {
+        if (!seekingRef.current && needsScrubSeek(currentVideo.currentTime, targetTime, currentVideo.duration, scrubFrameRate)) {
           seekingRef.current = true;
           currentVideo.currentTime = targetTime;
         }
@@ -371,7 +425,7 @@ const VideoScrubbing = ({
     };
 
     const onScroll = () => {
-      if (!isRunningRef.current || rafRef.current) return;
+      if (!isRunningRef.current || rafRef.current || playingRef.current || playbackRequestedRef?.current || document.visibilityState === 'hidden') return;
       rafRef.current = requestAnimationFrame(updateVideoTime);
     };
 
@@ -386,18 +440,22 @@ const VideoScrubbing = ({
         height: rect.height,
       };
 
-      if (!isRunningRef.current) return;
+      if (!isRunningRef.current || playingRef.current || playbackRequestedRef?.current || document.visibilityState === 'hidden') return;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(updateVideoTime);
     };
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        pendingTimeRef.current = null;
+        if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = 0; }
+      } else onResize();
+    };
 
     onResize();
-    if (!rafRef.current) {
-      rafRef.current = requestAnimationFrame(updateVideoTime);
-    }
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
+    document.addEventListener('visibilitychange', onVisibility);
     const observer = mobilePlayback && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onResize) : null;
     const target = containerRef?.current ?? videoRef.current;
     if (target) observer?.observe(target);
@@ -406,13 +464,14 @@ const VideoScrubbing = ({
       isRunningRef.current = false;
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
+      document.removeEventListener('visibilitychange', onVisibility);
       observer?.disconnect();
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = 0;
       }
     };
-  }, [containerRef, isInView, prefersReducedMotion, scrollRange, mapProgress, onProgressChange, videoRef, playbackRequestedRef, mobilePlayback]);
+  }, [containerRef, isInView, prefersReducedMotion, scrollRange, mapProgress, onProgressChange, videoRef, playbackRequestedRef, mobilePlayback, scrubFrameRate]);
 
   return (
     <Box

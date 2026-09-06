@@ -38,6 +38,7 @@ export default {
     },
   },
   argTypes: {
+    scrubFrameRate: { control: { type: 'number', min: 1 }, description: '검증된 CFR 영상의 프레임률만 지정. 동일 프레임 seek 생략, 원래 타임코드·진행도 유지. 기본 미지정' },
     mobilePlayback: { control: 'boolean', description: '모바일 canplay/seek/제스처 복구. 실제 ended 이후에만 완료하며 PC 기본값은 false' },
     mediaRef: { control: false, description: '사용자 제스처에서 재시도할 video 요소 ref' },
     playbackRequestedRef: { control: false, description: '커밋 전에 스크럽 seek를 차단하는 재생 요청 ref' },

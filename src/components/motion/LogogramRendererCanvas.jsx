@@ -31,6 +31,7 @@ import { getLogogramGeometry } from '../../utils/heptapod/logogramGeometryCache'
  * @param {number} size - 캔버스 정방형 한 변 (px) [Optional, 기본값: 480]
  * @param {string} inkColor - 잉크 색 [Optional, 기본값: theme custom.chamber.ink → '#15171a' 폴백]
  * @param {boolean} isActive - 형성 애니메이션 시작 여부 (false면 빈 무대) [Optional, 기본값: true]
+ * @param {boolean} isPaused - 화면과 형성 시계를 보존하며 RAF만 정지 [Optional, 기본값: false]
  * @param {function} onFormationComplete - 형성 완료 시 호출 [Optional]
  *
  * Example usage:
@@ -42,6 +43,7 @@ function LogogramRendererCanvas({
   size = 480,
   inkColor,
   isActive = true,
+  isPaused = false,
   timeScale = 1,
   onFormationComplete,
 }) {
@@ -49,6 +51,8 @@ function LogogramRendererCanvas({
   const theme = useTheme();
   const canvasRef = useRef(null);
   const completeRef = useRef(onFormationComplete);
+  const pausedRef = useRef(isPaused);
+  const visibilityGateRef = useRef(null);
 
   const ink = inkColor || theme.palette.custom?.chamber?.ink || '#15171a';
 
@@ -65,6 +69,12 @@ function LogogramRendererCanvas({
   useEffect(() => {
     completeRef.current = onFormationComplete;
   }, [onFormationComplete]);
+
+  // Pause changes must not tear down the drawing effect or clear its surfaces.
+  useEffect(() => {
+    pausedRef.current = isPaused;
+    visibilityGateRef.current?.();
+  }, [isPaused]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -162,18 +172,22 @@ function LogogramRendererCanvas({
     // RAF를 멈춘다. 복귀 시 멈춰 있던 시간만큼 t0를 밀어 형성 위상이 끊기지
     // 않게 보정하므로, 보이는 동안의 비주얼은 기존과 100% 동일하다.
     let running = false;
-    let pausedAt = 0;
+    let pausedAt = null;
     const start = () => {
       if (running) return;
       running = true;
-      if (pausedAt) {
+      if (pausedAt !== null) {
         t0 += performance.now() - pausedAt;
-        pausedAt = 0;
+        pausedAt = null;
       }
       raf = requestAnimationFrame(tick);
     };
     const stop = () => {
-      if (!running) return;
+      if (!running) {
+        // Initial occlusion must also suspend the formation clock.
+        if (pausedAt === null) pausedAt = performance.now();
+        return;
+      }
       running = false;
       cancelAnimationFrame(raf);
       raf = 0;
@@ -183,9 +197,10 @@ function LogogramRendererCanvas({
     let visible = !document.hidden;
     let onScreen = true;
     const evaluate = () => {
-      if (visible && onScreen) start();
+      if (visible && onScreen && !pausedRef.current) start();
       else stop();
     };
+    visibilityGateRef.current = evaluate;
 
     const onVisibility = () => {
       visible = !document.hidden;
@@ -205,6 +220,7 @@ function LogogramRendererCanvas({
     evaluate();
 
     return () => {
+      visibilityGateRef.current = null;
       stop();
       document.removeEventListener('visibilitychange', onVisibility);
       if (io) io.disconnect();

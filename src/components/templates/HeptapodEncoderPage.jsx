@@ -561,7 +561,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
     >
       {/* L0 — 화면 전체 안개 공간 (영화: 챔버 안에 들어와 있는 구도).
           diveKey 변경 시 안개가 화면 안쪽으로 가속 진입(Z-dive)한다. */}
-      <LogogramChamber isFullscreen isActive={ !reducedMotion } diveKey={ diveKey }>
+      <LogogramChamber isFullscreen isActive={ !reducedMotion } isPaused={ analysisActive && isMobileAnalysis } diveKey={ diveKey }>
         <Box
           ref={ stageRef }
           data-encoder-stage
@@ -605,6 +605,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
                 model={ model }
                 size={ rendererSize }
                 isActive
+                isPaused={ analysisActive && isMobileAnalysis }
                 onFormationComplete={ handleFormationComplete }
                 onContextLost={ handleContextLost }
               />

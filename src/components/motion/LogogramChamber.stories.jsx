@@ -23,6 +23,10 @@ export default {
       control: 'boolean',
       description: '안개 드리프트 동작 여부 (false면 정적 안개)',
     },
+    isPaused: {
+      control: 'boolean',
+      description: '완전히 가려진 동안 드리프트·줌·진입의 현재 위상만 정지. 해제하면 같은 레이어에서 이어 재생',
+    },
   },
   parameters: {
     backgrounds: {
@@ -38,6 +42,7 @@ export const Default = {
     ratio: '1:1',
     maxWidth: '480px',
     isActive: true,
+    isPaused: false,
   },
   render: (args) => (
     <Box sx={ { p: 6, backgroundColor: 'background.default', display: 'flex', justifyContent: 'center' } }>
