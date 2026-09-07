@@ -103,7 +103,7 @@ try {
   check(() => assert.match(render(Summary, { interpretation }), /형태에서 읽은 의미/));
   check(() => assert.match(render(Summary, { interpretation }), /공식 번역/));
   check(() => assert.ok(render(Summary, { interpretation, compact: true }).includes(interpretation.title)));
-  check(() => assert.match(render(Summary, { interpretation, onSelectObservation() {} }), /aria-pressed/));
+  check(() => assert.match(render(Summary, { interpretation, onToggleObservation() {} }), /aria-pressed/));
   check(() => assert.match(render(Summary, { interpretation: interpretGlyphMeaning(null) }), /판독 미확인/));
   check(() => assert.match(render(Summary, { interpretation, compact: true, fg: '#ffffff' }), /rgba\(255, 255, 255, 0.8\)/));
   const partial = structuredClone(left.model_data);
@@ -237,7 +237,7 @@ try {
   check(() => assert.doesNotMatch(depthSource, /partialCount|invalidCount|partialFilter|invalidFilter|tracesStillBeingRead/));
   check(() => assert.match(detailSource, /interpretGlyphMeaning\(glyph\.model_data\)/));
   check(() => assert.match(detailSource, /isRenderableGlyphModel\(glyph\?\.model_data\)/));
-  check(() => assert.match(detailSource, /anchors=\{ selectedMeaningObservation\?\.anchors \}/));
+  check(() => assert.match(detailSource, /anchors=\{ selectedMeaningAnchors \}/));
   check(() => assert.match(compareSource, /compareGlyphMeanings\(left\.model_data, right\.model_data\)/));
   check(() => assert.match(compareSource, /view=\{ readingView \}/));
   check(() => assert.equal(parseArchiveMeaningSearch('?reading=meaning&mv=999').unsupportedVersion, true));

@@ -7,8 +7,9 @@ import { getGlyphArchetype } from '../../data/heptapodArchetypeCatalog';
 import { buildMeaningReading } from '../../utils/heptapod/buildMeaningReading';
 import { glyphLabel } from '../../utils/heptapod/resonanceView';
 import ArchiveGlyph from './ArchiveGlyph';
-import GlyphMeaningSummary from './GlyphMeaningSummary';
+import GlyphObservationChips from '../input/GlyphObservationChips';
 import ArchetypeNarrative from './ArchetypeNarrative';
+import ArchetypeMotto from './ArchetypeMotto';
 
 const headingSx = { typography: 'editorialTitle' };
 
@@ -20,9 +21,9 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
   const ref = useRef(null);
   const analysisId = useId();
   const [analysis, setAnalysis] = useState(false);
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
   const entries = buildMeaningReading(interpretation, locale);
-  const selected = entries.find((entry) => entry.id === selectedId);
+  const selectedAnchors = entries.filter((entry) => selectedIds.includes(entry.id)).flatMap((entry) => entry.anchors);
   const type = getGlyphArchetype(interpretation);
   const peers = members.filter((member) => member.id !== glyph.id);
   // Keep the complete peer list below; the fragment matrix samples two peers so
@@ -35,24 +36,30 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
   return <Box ref={ ref } tabIndex={ -1 } component="section" aria-label={ t('archiveDepthExplorer.selectedGlyphDetail') } data-selected-glyph-detail
     sx={ { maxWidth: (theme) => theme.editorial.spread, mx: 'auto', pt: { xs: 2, md: 4 }, pb: { xs: 5, md: 10 }, '&:focus': { outline: 'none' } } }>
     <Box sx={ { display: 'grid', gridTemplateColumns: (theme) => theme.editorial.detailColumns, gap: (theme) => theme.editorial.spreadGap, alignItems: 'start' } }>
-      <ArchiveGlyph glyph={ glyph } showName nameComponent="h1" maxSize={ 520 } analysis={ analysis } anchors={ analysis ? selected?.anchors || [] : [] } />
+      <Box data-archive-sticky-figure sx={ { position: { xs: 'static', md: 'sticky' }, alignSelf: 'start', minWidth: 0,
+        '--archive-figure-top': (theme) => theme.editorial.archiveFigure.top, top: 'var(--archive-figure-top)',
+      } }>
+        <Box id={ analysisId }>
+          <ArchiveGlyph glyph={ glyph } showName nameComponent="h1" maxSize={ 520 } analysis={ analysis } anchors={ selectedAnchors }
+            sx={ { maxWidth: (theme) => ({ xs: '100%', md: theme.editorial.archiveFigure.maxWidth }) } } />
+        </Box>
+        <Button data-selected-analysis-toggle aria-pressed={ analysis } aria-controls={ analysisId }
+          onClick={ () => setAnalysis((open) => !open) }
+          sx={ { display: 'flex', mx: 'auto', color: 'inherit', typography: 'editorialAction', minHeight: 44, mt: (theme) => theme.editorial.paragraphGap, px: 0, borderBottom: '1px solid', borderRadius: 0, textTransform: 'none' } }>
+          { t(analysis ? 'archiveDepthExplorer.hideAnalysis' : 'archiveDepthExplorer.showAnalysis') }
+        </Button>
+      </Box>
       <Box sx={ { pt: { xs: 0, md: 5 } } }>
         <Typography sx={ { typography: 'editorialMeta' } }>{ t('archiveDepthExplorer.selectedGlyph') }</Typography>
         <Typography component="h2" sx={ { ...headingSx, mt: 1 } }>{ localize(type?.title || interpretation?.title) || t('glyphMeaningSummary.thisMeaningCannotBeReadYet') }</Typography>
-        <Button data-selected-analysis-toggle aria-pressed={ analysis } aria-expanded={ analysis } aria-controls={ analysisId }
-          onClick={ () => setAnalysis((open) => !open) }
-          sx={ { color: 'inherit', typography: 'editorialAction', minHeight: 44, mt: 2, px: 0, borderBottom: '1px solid', borderRadius: 0, textTransform: 'none' } }>
-          { t(analysis ? 'archiveDepthExplorer.hideAnalysis' : 'archiveDepthExplorer.showAnalysis') }
-        </Button>
-        { !analysis && type && <ArchetypeNarrative archetype={ type } sx={ { mt: 2 } } /> }
-        <Box id={ analysisId } hidden={ !analysis } sx={ { mt: analysis ? 2 : 0 } }>
-          { analysis && <GlyphMeaningSummary interpretation={ interpretation } variant="reading" selectedObservationId={ selectedId }
-            onSelectObservation={ (entry) => setSelectedId(entry?.id || null) } /> }
-        </Box>
+        <ArchetypeMotto archetype={ type } />
+        <GlyphObservationChips entries={ entries } selectedIds={ selectedIds }
+          onToggle={ (entry) => setSelectedIds((ids) => ids.includes(entry.id) ? ids.filter((id) => id !== entry.id) : [...ids, entry.id]) } />
+        { type && <ArchetypeNarrative archetype={ type } showMotto={ false } sx={ { mt: (theme) => theme.editorial.paragraphGap } } /> }
       </Box>
     </Box>
 
-    <Box component="section" aria-label={ t('archiveDepthExplorer.sameTypeGlyphs') } sx={ { mt: { xs: 5, md: 8 } } }>
+    <Box component="section" aria-label={ t('archiveDepthExplorer.sameTypeGlyphs') } sx={ { mt: (theme) => theme.editorial.sectionBreak } }>
       <Typography component="h2" sx={ headingSx }>{ t('archiveDepthExplorer.sameTypeGlyphs') }</Typography>
       <Typography sx={ { mt: 1, typography: 'editorialMeta' } }>{ !type ? t('archiveDepthExplorer.typeUnconfirmed')
         : peers.length ? t('archiveDepthExplorer.sameTypeCount', { count: peers.length }) : t('archiveDepthExplorer.noTypePeers') }</Typography>
@@ -61,7 +68,7 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
       </Box> }
     </Box>
 
-    { peers.length > 0 && shared.length > 0 && <Box component="section" aria-label={ t('archiveDepthExplorer.sharedPatternGrid') } data-shared-pattern-grid sx={ { mt: { xs: 5, md: 8 } } }>
+    { peers.length > 0 && shared.length > 0 && <Box component="section" aria-label={ t('archiveDepthExplorer.sharedPatternGrid') } data-shared-pattern-grid sx={ { mt: (theme) => theme.editorial.sectionBreak } }>
       <Typography component="h2" sx={ headingSx }>{ t('archiveDepthExplorer.sharedPatternGrid') }</Typography>
       <Typography sx={ { mt: 1, mb: 3, typography: 'editorialBody' } }>{ t('archiveDepthExplorer.sharedPatternIntro', { count: samples.length }) }</Typography>
       { shared.map((entry) => <Box key={ entry.meaningId } data-shared-meaning={ entry.meaningId } sx={ { py: 3, borderTop: '1px solid', borderColor: 'divider' } }>

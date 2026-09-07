@@ -25,11 +25,17 @@ export function createEditorialTokens({ typography, breakpoints }) {
     layout: {
       measure: '40rem', wideMeasure: '48rem', spread: '80rem',
       detailColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 2fr) minmax(0, 3fr)' },
-      sectionGap: { xs: 4, md: 6 }, sectionPadding: { xs: 3, md: 4 },
-      labelGap: 1.5, paragraphGap: 2, itemGap: 1.5,
+      sectionGap: { xs: 7, md: 10 }, sectionPadding: { xs: 1.5, md: 2 },
+      sectionBreak: { xs: 10, md: 14 },
+      labelGap: 0.75, paragraphGap: 1, itemGap: 1,
       spreadGap: { xs: 4, md: 8 }, leadSpace: { xs: 1, md: 2 },
       readingViewport: 'min(30rem, 48svh)', railMeasure: 'clamp(18rem, 28vw, 24rem)',
       rule: { borderTop: 1, borderColor: 'currentColor' },
+      archiveFigure: {
+        top: 'calc(80px + var(--archive-navigation-height, 48px) + env(safe-area-inset-top, 0px) + 1rem)',
+        maxWidth: 'min(100%, max(10rem, calc(100svh - var(--archive-figure-top) - 5rem)))',
+      },
+      observationChip: { borderRadius: '999px', minHeight: 44, height: 'auto', py: 0.75, px: 0.5 },
     },
   };
 }

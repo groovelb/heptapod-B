@@ -8,13 +8,14 @@ export default {
     archetype: { control: 'object', description: '완전 판독한 ARCHETYPE_CATALOG 항목. 미제공하면 군집 설명만 표시' },
     familyId: { control: 'select', options: ['arrival', 'reception', 'reciprocity'], description: '상위 군집. 기본값은 archetype.familyId' },
     showIdentity: { control: 'boolean', description: '이름의 뜻을 맨 앞에 표시. 이미 정체성을 보여주는 피드에서는 false' },
+    showMotto: { control: 'boolean', description: '한마디를 처음에 인용문으로 표시. 제목 아래 별도로 표시하는 부모에서는 false' },
     showFamily: { control: 'boolean', description: '피드에서 이미 소개한 상위 군집의 반복 표시 여부' },
     variant: { control: 'select', options: ['full', 'compact'], description: 'full은 특징·상황·긴장·질문·관계·차이·한마디까지 표시, compact는 조합과 핵심 서사' },
     sx: { control: 'object', description: 'MUI sx 추가 스타일' },
   },
   args: { archetype: ARCHETYPE_CATALOG['meaning-v1:reciprocity:simultaneity+openness+trace'], showFamily: true, showIdentity: true, variant: 'full', sx: { maxWidth: (theme) => theme.editorial.measure, p: 2 } },
 };
-export const Default = {};
+export const Docs = {};
 export const Family = { args: { archetype: undefined, familyId: 'arrival' } };
 export const Feed = { args: { showFamily: false, showIdentity: false, variant: 'compact' } };
 export const Baseline = { args: { archetype: ARCHETYPE_CATALOG['meaning-v1:reception:none'] } };

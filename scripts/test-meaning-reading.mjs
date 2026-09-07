@@ -56,15 +56,27 @@ try {
   const { default: Overlay } = await server.ssrLoadModule('/src/components/overlay-feedback/GlyphObservationOverlay.jsx');
   const { default: theme } = await server.ssrLoadModule('/src/styles/themes/default.js');
   const { default: LocaleProvider } = await server.ssrLoadModule('/src/i18n/LocaleProvider.jsx');
-  const render = (interpretation, selectedObservationId, locale = 'ko', readingTheme = theme) => renderToStaticMarkup(createElement(LocaleProvider, { initialMode: locale, syncDocument: false },
-    createElement(ThemeProvider, { theme: readingTheme }, createElement(Summary, { interpretation, variant: 'reading', selectedObservationId, onSelectObservation() {} }))));
+  const render = (interpretation, selectedObservationIds = [], locale = 'ko', readingTheme = theme) => renderToStaticMarkup(createElement(LocaleProvider, { initialMode: locale, syncDocument: false },
+    createElement(ThemeProvider, { theme: readingTheme }, createElement(Summary, { interpretation, variant: 'reading', selectedObservationIds, onToggleObservation() {} }))));
   for (const interpretation of [louise, minjun, hannah]) {
     for (const observation of interpretation.observations) {
-      const html = render(interpretation, observation.id);
+      const html = render(interpretation, [observation.id]);
       check(() => assert.ok(html.includes(MEANING_CATALOG[observation.meaningId].description)));
       check(() => assert.equal((html.match(/aria-pressed="true"/g) || []).length, 1));
       check(() => assert.ok(html.includes(`height:${theme.editorial.readingViewport}`)));
-      check(() => assert.doesNotMatch(render(interpretation, observation.id, 'en'), /[가-힣]/));
+      check(() => assert.doesNotMatch(render(interpretation, [observation.id], 'en'), /[가-힣]/));
+    }
+  }
+  for (const interpretation of [louise, minjun, hannah]) {
+    const entries = buildMeaningReading(interpretation);
+    const anchors = entries.flatMap((entry) => entry.anchors);
+    check(() => assert.equal(new Set(anchors.map((anchor) => anchor.number)).size, anchors.length, 'Combined markers have unique, stable numbers'));
+    for (let mask = 0; mask < 2 ** entries.length; mask += 1) {
+      const selected = entries.filter((entry, index) => mask & (1 << index));
+      const html = render(interpretation, selected.map((entry) => entry.id));
+      check(() => assert.equal((html.match(/aria-pressed="true"/g) || []).length, selected.length));
+      check(() => assert.equal((html.match(/data-reading-selected=/g) || []).length, selected.length));
+      check(() => assert.ok(!html.includes('role="tab"') && !html.includes('role="tablist"')));
     }
   }
   // A theme override must reach actual rendered reading CSS, without local sizes winning.

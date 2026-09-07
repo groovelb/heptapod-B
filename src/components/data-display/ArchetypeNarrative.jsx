@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import ArchetypeMotto from './ArchetypeMotto';
 import { useI18n } from '../../i18n/useI18n.js';
 import { ARCHETYPE_FAMILIES } from '../../data/heptapodArchetypeCatalog.js';
 import { MEANING_CATALOG } from '../../data/heptapodMeaningCatalog.js';
@@ -11,11 +12,12 @@ const sectionSx = (theme) => ({ ...theme.editorial.rule, pt: theme.editorial.sec
 /** The same deployed JSON narrative in Create and Archive. No classification,
  * fetching or local selection; only complete catalog types receive combination copy.
  */
-export default function ArchetypeNarrative({ archetype, familyId = archetype?.familyId, showFamily = true, showIdentity = true, variant = 'full', sx }) {
+export default function ArchetypeNarrative({ archetype, familyId = archetype?.familyId, showFamily = true, showIdentity = true, showMotto = true, variant = 'full', sx }) {
   const { t, localize } = useI18n();
   const family = ARCHETYPE_FAMILIES[familyId];
   if (!family && !archetype) return null;
   return <Box data-narrative-type={ archetype?.id } sx={ { display: 'grid', gap: (theme) => theme.editorial.sectionGap, maxWidth: (theme) => theme.editorial.measure, minWidth: 0, ...sx } }>
+    { archetype && showMotto && variant === 'full' && <ArchetypeMotto archetype={ archetype } sx={ { mt: 0 } } /> }
     { archetype && showIdentity && <Typography data-narrative-identity sx={ { typography: 'editorialLead', pb: (theme) => theme.editorial.leadSpace } }>{ localize(archetype.reading) }</Typography> }
     { showFamily && family && <Box sx={ sectionSx } component="section" data-narrative-family={ family.id }>
       <Typography component="h3" sx={ labelSx }>{ t('archetypeNarrative.family') } · { localize(family.title) }</Typography>
@@ -46,10 +48,10 @@ export default function ArchetypeNarrative({ archetype, familyId = archetype?.fa
           <Typography component="h3" sx={ labelSx }>{ t('archetypeNarrative.relations') }</Typography>
           { archetype.relations.map((relation) => <Typography key={ relation.targetMeaningKey } sx={ { ...textSx, '& + p': { mt: (theme) => theme.editorial.paragraphGap } } }>{ localize(relation.reading) }</Typography>) }
         </Box>
-        { ['distinction', 'motto'].map((field) => <Box sx={ sectionSx } component="section" key={ field } data-narrative-field={ field }>
-          <Typography component="h3" sx={ labelSx }>{ t(`archetypeNarrative.${field}`) }</Typography>
-          <Typography sx={ field === 'motto' ? { typography: 'editorialQuote' } : textSx }>{ localize(archetype[field]) }</Typography>
-        </Box>) }
+        <Box sx={ sectionSx } component="section" data-narrative-field="distinction">
+          <Typography component="h3" sx={ labelSx }>{ t('archetypeNarrative.distinction') }</Typography>
+          <Typography sx={ textSx }>{ localize(archetype.distinction) }</Typography>
+        </Box>
       </> }
     </> }
   </Box>;

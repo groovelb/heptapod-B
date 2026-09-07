@@ -240,6 +240,7 @@ function uniqueEdges(tris) {
  * @param {object} model - LogogramModel (encode → buildModel 산출물) [Required]
  * @param {number} size - SVG 정방형 한 변 (px) — 렌더러와 동일 값 [Optional, 기본값: 480]
  * @param {boolean} isVisible - 표시 여부. true 전환 시 라이브 스캔 재생 [Optional, 기본값: true]
+ * @param {boolean} showVertices - 빨간 특징점 표시. false이면 초록 mesh만 유지 [Optional, 기본값: true]
  * @param {boolean} showReadout - 계측 수치·캡션. 의미 판독과 병용 시 false, 시각 효과는 유지 [Optional, 기본값: true]
  *
  * Example usage:
@@ -249,7 +250,7 @@ function uniqueEdges(tris) {
  * </Box>
  */
 function AnalysisOverlay({
-  model, size = 480, isVisible = true, showMesh = true, showFrame = true, showReadout = true, onScan,
+  model, size = 480, isVisible = true, showMesh = true, showVertices = true, showFrame = true, showReadout = true, onScan,
 }) {
   const { t } = useI18n();
   const theme = useTheme();
@@ -440,7 +441,7 @@ function AnalysisOverlay({
 
         {/* 특징점 (빨강 vertex) — 순차 검출 (showMesh일 때만) */}
         <g fill={ MEAS_RED }>
-          { showMesh && isVisible && geometry.verts.map((p, i) => (
+          { showMesh && showVertices && isVisible && geometry.verts.map((p, i) => (
             <circle
               key={ `vtx-${i}` }
               className="hb-vtx"

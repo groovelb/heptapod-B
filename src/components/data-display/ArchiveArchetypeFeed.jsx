@@ -53,9 +53,9 @@ export default function ArchiveArchetypeFeed({ feed, onSelect, sx }) {
       const symbol = getArchiveArchetypeSymbol(archetype.meaningKey);
       const title = localize(archetype.title);
       return <Box component="section" key={ id } id={ items[index].targetId } tabIndex={ -1 } aria-label={ title } data-archetype-section={ archetype.meaningKey }
-        sx={ { scrollMarginTop: 'calc(128px + var(--archive-navigation-height, 0px) + env(safe-area-inset-top, 0px))', '&:focus': { outline: 'none' }, '& + section': { mt: { xs: 9, md: 14 } } } }>
+        sx={ { scrollMarginTop: 'calc(128px + var(--archive-navigation-height, 0px) + env(safe-area-inset-top, 0px))', '&:focus': { outline: 'none' }, '& + section': { mt: (theme) => theme.editorial.sectionBreak } } }>
         <Box component="header" sx={ {
-          display: 'flex', alignItems: 'flex-start', gap: (theme) => theme.editorial.sectionGap, mb: (theme) => theme.editorial.sectionGap,
+          display: 'flex', alignItems: 'flex-start', gap: (theme) => theme.editorial.paragraphGap, mb: (theme) => theme.editorial.sectionPadding,
           maxWidth: (theme) => theme.editorial.wideMeasure, mx: 'auto',
           [theme.breakpoints.down('sm')]: { flexDirection: 'column', alignItems: 'flex-start', gap: 1 },
         } }>

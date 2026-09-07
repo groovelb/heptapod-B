@@ -18,6 +18,7 @@ import LogogramRendererCanvas from '../motion/LogogramRendererCanvas';
 import ResonanceList from '../data-display/ResonanceList';
 import RelationInspector from '../overlay-feedback/RelationInspector';
 import GlyphMeaningSummary from '../data-display/GlyphMeaningSummary';
+import { buildMeaningReading } from '../../utils/heptapod/buildMeaningReading';
 import GlyphClusterLink from '../data-display/GlyphClusterLink';
 import GlyphObservationOverlay from '../overlay-feedback/GlyphObservationOverlay';
 import { interpretGlyphMeaning } from '../../utils/heptapod/interpretGlyphMeaning';
@@ -88,8 +89,8 @@ const GlyphDetailPage = ({ client }) => {
   const [meaningSelection, setMeaningSelection] = useState(null);
   const interpretation = useMemo(() => glyph?.model_data ? interpretGlyphMeaning(glyph.model_data) : null, [glyph?.model_data]);
   const canRenderModel = useMemo(() => isRenderableGlyphModel(glyph?.model_data), [glyph?.model_data]);
-  const selectedMeaningObservation = !unsupportedVersion && meaningSelection?.glyphId === glyph?.id
-    ? interpretation?.observations.find((item) => item.id === meaningSelection.observationId) : null;
+  const selectedMeaningIds = !unsupportedVersion && meaningSelection && meaningSelection.glyphId === glyph?.id ? meaningSelection.ids : [];
+  const selectedMeaningAnchors = buildMeaningReading(interpretation).filter((entry) => selectedMeaningIds.includes(entry.id)).flatMap((entry) => entry.anchors);
   const neighbors = useMemo(() => groupResonanceRows(relations), [relations]);
   const inspected = neighbors.find((neighbor) => neighbor.id === inspectedId);
   const audioRef = useRef(null);
@@ -195,7 +196,7 @@ const GlyphDetailPage = ({ client }) => {
 
       <Box sx={ { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, mb: 6 } }>
         {canRenderModel && (
-          <ResponsiveLogogram model={ model } maxSize={ 360 } onFormationComplete={ handleFormationComplete } anchors={ selectedMeaningObservation?.anchors } />
+          <ResponsiveLogogram model={ model } maxSize={ 360 } onFormationComplete={ handleFormationComplete } anchors={ selectedMeaningAnchors } />
         )}
         {!canRenderModel && <Typography role="status">{ t('glyphDetailPage.theGlyphCouldNotBeDrawnBecause') }</Typography>}
         <Typography
@@ -216,8 +217,11 @@ const GlyphDetailPage = ({ client }) => {
       {!unsupportedVersion && <GlyphClusterLink interpretation={ interpretation } sx={ { maxWidth: 640, mx: 'auto', mb: 3 } } />}
 
       { unsupportedVersion ? <Alert severity="info" sx={ { maxWidth: 640, mx: 'auto', mb: 4 } }>{ t('glyphDetailPage.theMeaningRulesInThisLinkAre') }</Alert>
-        : interpretation && <GlyphMeaningSummary interpretation={ interpretation } variant="reading" selectedObservationId={ selectedMeaningObservation?.id }
-          onSelectObservation={ (observation) => setMeaningSelection(observation ? { glyphId: glyph.id, observationId: observation.id } : null) }
+        : interpretation && <GlyphMeaningSummary interpretation={ interpretation } variant="reading" selectedObservationIds={ selectedMeaningIds }
+          onToggleObservation={ (entry) => setMeaningSelection((previous) => {
+            const ids = previous?.glyphId === glyph.id ? previous.ids : [];
+            return { glyphId: glyph.id, ids: ids.includes(entry.id) ? ids.filter((id) => id !== entry.id) : [...ids, entry.id] };
+          }) }
           sx={ { maxWidth: 640, mx: 'auto', mb: 5 } } /> }
 
       <Box sx={ { maxWidth: 480, mx: 'auto', mb: 6, border: '1px solid rgba(28,34,38,0.12)', borderRadius: 1, p: 2.5 } }>

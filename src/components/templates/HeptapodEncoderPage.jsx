@@ -17,6 +17,7 @@ import FadeTransition from '../motion/FadeTransition';
 import AnalysisOverlay from '../overlay-feedback/AnalysisOverlay';
 import GlyphObservationOverlay from '../overlay-feedback/GlyphObservationOverlay';
 import GlyphMeaningSummary from '../data-display/GlyphMeaningSummary';
+import { buildMeaningReading } from '../../utils/heptapod/buildMeaningReading';
 import GlyphClusterLink from '../data-display/GlyphClusterLink';
 import { interpretGlyphMeaning } from '../../utils/heptapod/interpretGlyphMeaning';
 import PublishDialog from '../overlay-feedback/PublishDialog';
@@ -295,9 +296,10 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
   );
 
   const interpretation = useMemo(() => interpretGlyphMeaning(model), [model]);
-  const [selectedMeaningId, setSelectedMeaningId] = useState(() => session?.snapshot?.selectedMeaningId ?? null);
-  const selectedObservation = interpretation.observations.find((item) => item.id === selectedMeaningId);
-  const selectedAnchors = selectedObservation?.anchors || [];
+  const [selectedMeaningIds, setSelectedMeaningIds] = useState(() => session?.snapshot?.selectedMeaningIds
+    ?? (session?.snapshot?.selectedMeaningId ? [session.snapshot.selectedMeaningId] : []));
+  const selectedAnchors = buildMeaningReading(interpretation).filter((entry) => selectedMeaningIds.includes(entry.id)).flatMap((entry) => entry.anchors);
+  const handleToggleMeaning = (entry) => setSelectedMeaningIds((ids) => ids.includes(entry.id) ? ids.filter((id) => id !== entry.id) : [...ids, entry.id]);
   const handleToggleAnalysis = () => {
     setStack([]);
     setIsAnalysisOn((value) => !value);
@@ -308,8 +310,8 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
   // [] = 루트 단일 뷰, [..] = 마지막 노드의 자식 격자.
   const [stack, setStack] = useState(() => session?.snapshot?.stack ?? []);
   useEffect(() => {
-    if (session) session.snapshot = { name, encodedName, encoderVersion, inputError, published, isAnalysisOn, selectedMeaningId, stack, isMusicOn };
-  }, [session, name, encodedName, encoderVersion, inputError, published, isAnalysisOn, selectedMeaningId, stack, isMusicOn]);
+    if (session) session.snapshot = { name, encodedName, encoderVersion, inputError, published, isAnalysisOn, selectedMeaningIds, stack, isMusicOn };
+  }, [session, name, encodedName, encoderVersion, inputError, published, isAnalysisOn, selectedMeaningIds, stack, isMusicOn]);
 
   const rootCore = encodedName.replace(/[?？]/g, '').trim();
   const currentText = stack.length ? stack[stack.length - 1] : rootCore;
@@ -476,7 +478,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
     setPublished(null);
     setStack([]);
     setIsAnalysisOn(false);
-    setSelectedMeaningId(null);
+    setSelectedMeaningIds([]);
     audioRef.current?.encodeStart();
     if (!reducedMotion) setDiveKey((key) => key + 1);
     setEncodedName(trimmed);
@@ -672,7 +674,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
           width: theme.editorial.railMeasure, overflowY: 'auto', overscrollBehavior: 'contain', pr: 1,
         } }>
           <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fg={ fg }
-            selectedObservationId={ selectedMeaningId } onSelectObservation={ (observation) => setSelectedMeaningId(observation?.id || null) } />
+            selectedObservationIds={ selectedMeaningIds } onToggleObservation={ handleToggleMeaning } />
         </Box>
       </> }
 
@@ -1011,7 +1013,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
             <GlyphObservationOverlay model={ model } anchors={ selectedAnchors } fg={ theme.palette.common.white } />
           </Box>
           <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fg={ theme.palette.common.white } sx={ { maxWidth: theme.editorial.measure, mx: 'auto' } }
-            selectedObservationId={ selectedMeaningId } onSelectObservation={ (observation) => setSelectedMeaningId(observation?.id || null) } />
+            selectedObservationIds={ selectedMeaningIds } onToggleObservation={ handleToggleMeaning } />
         </Box>
       </Dialog>
     </Box>

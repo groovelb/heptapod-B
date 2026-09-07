@@ -14,10 +14,12 @@ export function buildMeaningReading(interpretation, locale = 'ko') {
   const focuses = morphology.focuses || [];
   const outward = focuses.filter((focus) => focus.dirBias === 1).length;
   const inward = focuses.filter((focus) => focus.dirBias === -1).length;
+  // Number across the full glyph so simultaneous overlays and text share stable IDs.
+  let number = 0;
   return interpretation.observations.flatMap((observation) => {
     const term = MEANING_CATALOG[observation.meaningId];
     if (!term) return [];
-    const anchors = observation.anchors.map((anchor, index) => ({ ...anchor, number: index + 1 }));
+    const anchors = observation.anchors.map((anchor) => ({ ...anchor, number: ++number }));
     let detail;
     switch (observation.meaningId) {
       case 'arrival': detail = t('meaningReading.outward', { count: outward }); break;

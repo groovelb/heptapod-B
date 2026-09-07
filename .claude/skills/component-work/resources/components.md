@@ -8,7 +8,8 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 - HeptapodHeroIntro: PC 6.4셀 유지, 모바일 4.85셀·타이틀 분산 0.3셀. 영상/캡션/자동 재생은 실제 측정한 svh 트랙 좌표를 공유한다. VideoScrubbing의 optional `mobilePlayback=false`를 모바일만 켜서 seek/준비/제스처 복구와 실제 ended 상태 확인을 적용한다. 실제 완주 후 Canvas replace 계약 유지.
 - HeptapodEncoderPage: 모바일만 표식 → 입력 → 2열×2행 메타데이터·44px 액션의 문서 흐름으로 배치. valid Enter/Done/form submit 후 blur, IME/invalid 입력은 유지. visualViewport의 가림을 확인해 입력을 스크롤로 노출하고 pinch 확대는 건드리지 않는다. PC 중앙 표식·우상단 4행·Enter 포커스는 유지.
-- ArchetypeNarrative: editorialBody/Lead/Label/Quote 등 시맨틱 타이포와 measure/sectionGap/rule 레이아웃 토큰으로 읽기 위계를 구성. 배포 JSON v4의 이름 뜻을 먼저 제시하고, 군집·조합을 참여자의 행동과 일상 장면으로 설명. showIdentity 기본 true, 이미 reading을 보여주는 피드는 false. full은 특징·상황·긴장·질문·관계·차이·한마디까지 표시하며 compact는 조합과 핵심 서사. Create/Archive 공용, 데이터·분류·네트워크 소유하지 않음 (`components/data-display/ArchetypeNarrative.jsx`)
+- ArchetypeMotto: JSON 한마디를 editorialQuote blockquote로 표시. Archive/Create/공유 상세 유형 제목 바로 아래에 배치하고 본문에서 중복하지 않음 (`components/data-display/ArchetypeMotto.jsx`)
+- ArchetypeNarrative: showMotto로 부모 제목 아래 인용문과 중복 방지. editorialBody/Lead/Label/Quote 등 시맨틱 타이포와 measure/sectionGap/rule 레이아웃 토큰으로 읽기 위계를 구성. 배포 JSON v4의 이름 뜻을 먼저 제시하고, 군집·조합을 참여자의 행동과 일상 장면으로 설명. showIdentity 기본 true, 이미 reading을 보여주는 피드는 false. full은 특징·상황·긴장·질문·관계·차이·한마디까지 표시하며 compact는 조합과 핵심 서사. Create/Archive 공용, 데이터·분류·네트워크 소유하지 않음 (`components/data-display/ArchetypeNarrative.jsx`)
 - ArchiveDepthExplorer: 진입 원 아래 군집 대표 설명, 내부 상단 군집 전체 설명을 표시. 모바일 계열/시간순 포털 2열·긴 제목 줄바꿈. ArchiveArchetypeFeed는 600px 미만에서 유형 상징과 서사를 세로 배치한다. MyArchivePage는 모바일 좌우/하단 안전영역을 확보한다.
 - AppGNB·PublishDialog: 모바일 좌우 노치, 12px 다이얼로그 여백·동적 최대 높이·44px 닫기 영역. GlyphDetailPage는 긴 이름/지문 줄바꿈과 축소 가능한 메타 그리드, ArchiveComparePage는 세로 입력/유효 제출 blur, GlyphPairComparison은 손상 모델 대체 표시도 모바일 셀 너비에 맞춘다.
 - 각 상세 story와 `docs/heptapod-b-encoder/20-mobile-optimization.md`에 대응 범위·검증 한계를 기록한다. 브라우저 픽셀/실기기 키보드 검증을 수행한 것은 아니다.
@@ -77,15 +78,16 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - GlyphNode: 저장 모델의 실제 입자 기하를 재사용하는 정적 Canvas 표식, 키보드 선택·긴 이름 접근성 (`components/data-display/GlyphNode.jsx`)
 - ArchiveGlyph: 입력 모델의 뷰포트 진입 Canvas 형성. 이름은 원 중앙에 크게 표시하며 긴 이름은 줄바꿈·크기 조절한다. analysis로 초록 mesh·스캔, anchors로 실제 관측 위치, fragmentAnchors로 원본 관측 부위만 드러낸다. nameComponent는 상세 h1 지원. 분석/의미 선택으로 Canvas를 다시 만들지 않고 숨긴 목록의 폭 0 보고도 기존 크기를 보존한다. 손상 모델 가드·Observer 해제·감소 모션 유지 (`components/data-display/ArchiveGlyph.jsx`)
 - ArchiveFamilySymbol: 도래/수용/상호성의 방향성을 각각 하나의 저작된 링 패턴으로 표시. 동일 외곽·질감에서 가지 방향만 차별화하며 추가 의미 없음 검증. 개인 이름/평균 표식이 아니고 공개 정체성·소속·개수에 포함하지 않음. ArchiveGlyph 생성 효과 재사용 (`components/data-display/ArchiveFamilySymbol.jsx`)
-- ArchetypeNarrative: editorialBody/Lead/Label/Quote 등 시맨틱 타이포와 measure/sectionGap/rule 레이아웃 토큰으로 읽기 위계를 구성. 배포 JSON v4의 이름 뜻을 먼저 제시하고, 군집·조합을 참여자의 행동과 일상 장면으로 설명. showIdentity 기본 true, 이미 reading을 보여주는 피드는 false. full은 특징·상황·긴장·질문·관계·차이·한마디까지 표시하며 compact는 조합과 핵심 서사. Create/Archive 공용, 데이터·분류·네트워크 소유하지 않음 (`components/data-display/ArchetypeNarrative.jsx`)
+- ArchetypeMotto: JSON 한마디를 editorialQuote blockquote로 표시. Archive/Create/공유 상세 유형 제목 바로 아래에 배치하고 본문에서 중복하지 않음 (`components/data-display/ArchetypeMotto.jsx`)
+- ArchetypeNarrative: showMotto로 부모 제목 아래 인용문과 중복 방지. editorialBody/Lead/Label/Quote 등 시맨틱 타이포와 measure/sectionGap/rule 레이아웃 토큰으로 읽기 위계를 구성. 배포 JSON v4의 이름 뜻을 먼저 제시하고, 군집·조합을 참여자의 행동과 일상 장면으로 설명. showIdentity 기본 true, 이미 reading을 보여주는 피드는 false. full은 특징·상황·긴장·질문·관계·차이·한마디까지 표시하며 compact는 조합과 핵심 서사. Create/Archive 공용, 데이터·분류·네트워크 소유하지 않음 (`components/data-display/ArchetypeNarrative.jsx`)
 - ArchiveDepthExplorer: 진입 원 아래 군집 대표 설명, 내부 상단 군집 전체 설명을 표시. 내부 뒤로 가기·경로·정렬·공유 바를 GNB 아래 sticky로 고정. ResizeObserver로 측정한 높이를 왼쪽 인덱스와 앵커 여백에 반영. 군집 3개 첫 행·시간순 원 둘째 행 중앙, 계열 → 유형별 피드 → 선택 상세 화면. 상세 시 목록을 hidden/inert로 유지하고 복귀 시 구성원 포커스 복원. 시간순 상세도 로드한 공개 모델 전체에서 같은 정확한 유형을 연결한다. 모달·Next·Compare·메타 탭·중간 유형 포털 없이 기존 group/AND/status 범위와 partial 표식을 유지 (`components/data-display/ArchiveDepthExplorer.jsx`)
-- ArchiveSelectedGlyph: JSON v3의 상위 군집·조합 및 유형 전체 원고를 표시. 원본 표식과 중앙 h1 이름, 분석 on/off와 실제 관측 선택, 자기 자신을 제외한 같은 유형 구성원 목록, 공통 의미별 실제 부위 그리드. 그리드는 선택 표식+최대 두 구성원을 원본 좌표에서 mask로 표시하며 유형별 동일 형태라고 주장하지 않는다. singleton/미확인 상태에는 공통성을 만들지 않음. 로컬 DTO 입력, URL/분류 소유권은 부모 (`components/data-display/ArchiveSelectedGlyph.jsx`)
+- ArchiveSelectedGlyph: JSON v3의 상위 군집·조합 및 유형 전체 원고를 표시. 원본 표식과 중앙 h1 이름, 설명 끝까지 sticky인 표식 열과 그 아래 초록 선 토글, 제목 아래 한마디 인용문과 처음부터 보이는 독립 관측 칩, 자기 자신을 제외한 같은 유형 구성원 목록, 공통 의미별 실제 부위 그리드. 그리드는 선택 표식+최대 두 구성원을 원본 좌표에서 mask로 표시하며 유형별 동일 형태라고 주장하지 않는다. singleton/미확인 상태에는 공통성을 만들지 않음. 로컬 DTO 입력, URL/분류 소유권은 부모 (`components/data-display/ArchiveSelectedGlyph.jsx`)
 - ArchiveArchetypeFeed: chronological DTO에서는 군집 없이 전체 공개 표식·등록 시간을 표시. 실제 구성원이 있는 정확한 유형만 저작 상징·제목·정체성·JSON 조합 설명과 핵심 서사와 함께 세로 배열. 실제 표식 모바일 2열/데스크톱 3열, untyped는 유형을 강제하지 않고 뒤에 유지. API·라우팅·분류 계산 없이 projection DTO 소비 (`components/data-display/ArchiveArchetypeFeed.jsx`)
 - ResonanceList: 이웃 ID별 복수 근거 목록, 설명/중심 이동 분리, loading/error/empty 구분 (`components/data-display/ResonanceList.jsx`)
 - ResonanceMap: 선택한 중심의 1-hop 관측 지도, 모바일6/데스크톱12, 항상 목록 전환 가능 (`components/data-display/ResonanceMap.jsx`)
 - ArchiveClusterExplorer: 공개 표본의 중첩 형태 군집 선택·미소속 범위·구성원 비교. 전체 형상/같은 가지/열린 틈+먹 패턴 분리, 군집 전용 근거로 GlyphPairComparison 재사용. 순수 표시·provider와 분리 (`components/data-display/ArchiveClusterExplorer.jsx`)
 - ArchiveMeaningExplorer: 기본 의미 단일 선택·추가 의미 AND·복합 의미 exact·부분/미확인 필터. 공개 그룹 구성원 두 개 선택 비교·필터 공유. `filterMeaningGlyphs`로 갤러리와 동일 소속 판정. 정밀 공명과 분리한 순수 표시 (`components/data-display/ArchiveMeaningExplorer.jsx`)
-- GlyphMeaningSummary: 실제 모델의 의미·관측 근거. summary/compact 유지, reading은 공통 유형명·JSON v3의 상위 군집·조합 및 전체 서사와 기존 의미 정의·개별 방향/틈/먹 위치를 고정 높이로 읽음. 인코더·개인 확대·공유 상세가 카탈로그/buildMeaningReading을 재사용. partial/invalid 유형 강제 없음. 실제 anchors·fg·선택 해제 유지 (`components/data-display/GlyphMeaningSummary.jsx`)
+- GlyphMeaningSummary: 실제 모델의 의미·관측 근거. reading은 독립 토글 칩(selectedObservationIds/onToggleObservation)으로 여러 부위를 함께 표시하고 근거를 함께 읽음. 표식 전체에서 고유한 번호로 시각화·설명 대응. summary/compact 유지, reading은 공통 유형명·JSON v3의 상위 군집·조합 및 전체 서사와 기존 의미 정의·개별 방향/틈/먹 위치를 고정 높이로 읽음. 인코더·개인 확대·공유 상세가 카탈로그/buildMeaningReading을 재사용. partial/invalid 유형 강제 없음. 실제 anchors·fg·선택 해제 유지 (`components/data-display/GlyphMeaningSummary.jsx`)
 - GlyphClusterLink: 실제 해석의 정확한 소속 군집명과 해당 Archive 그룹 링크. 공유 상세·내 표식·등록 완료 팝업에서 재사용. compact/비라우터 Storybook 지원, 불완전 판독에는 임의의 군집 링크를 만들지 않음 (`components/data-display/GlyphClusterLink.jsx`)
 - GlyphPairComparison: 두 모델의 정밀 공명 비교와 optional meaningComparison 기반 의미 읽기를 분리. controlled view·보기별 공유, 실제 anchors 표시. 의미 번호는 각 표식의 독립 관측이며 정밀 대응점/점수가 아님. 기존 props만 전달하면 v3 정밀 비교 유지 (`components/data-display/GlyphPairComparison.jsx`)
 - ResonancePreview: 표시 모델의 의미 요약·의미군 탐색 링크와 로컬 비교 Dialog. 상세와 동일 판독기, 의미/정밀 분리. 입력은 서버에 보내지 않음. 컴포넌트·스토리는 보존하되 현재 인코더 기본 패널에서는 제외 (`components/data-display/ResonancePreview.jsx`)
@@ -97,6 +99,8 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - Tabs: MUI Tabs 컴포넌트 [MUI]
 
 ## 7. Input & Control — 사용자 입력
+
+- GlyphObservationChips: 실제 관측 entries와 selectedIds/onToggle을 받는 독립 다중 토글. 체크/채움색·native button·aria-pressed·한영 안내. Create/Archive/공유 상세 공용이며 설명 패널이나 분류 상태를 소유하지 않음 (`components/input/GlyphObservationChips.jsx`)
 
 - FileDropzone: 파일 드래그&드롭 영역 (`components/input/FileDropzone.jsx`)
 - SearchBar: 검색 입력 바 (`components/input/SearchBar.jsx`)
@@ -128,7 +132,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - PublishDialog: 명시적 공개 동의·익명 소유권 안내, pending/success/error. 완료 후 공개 URL·군집명/이동·보관 안내·페이지 열기·독립 복사 제공. 소셜 공유는 X·Threads·Facebook 선택 및 지원 기기의 다른 앱 공유, 자동 복사 폴백 없음. publishedResult로 완료 화면 재진입, onCopy/interpretation/canShareWithApps 주입. 복사 실패 시 수동 선택 안내, 공유 취소·실패에도 완료 유지 (`components/overlay-feedback/PublishDialog.jsx`)
 - RelationInspector: 선택한 두 표식의 형태 관측 Drawer. leftGlyph/neighborGlyph가 있으면 GlyphPairComparison으로 실제 대응 부위 표시, 크게 비교/중심 이동 (`components/overlay-feedback/RelationInspector.jsx`)
 - GlyphObservationOverlay: 실제 렌더러 좌표의 부위별 번호·원·호 표시. fg 지원, 가까운 번호는 리더 선으로 분리하되 관측 좌표는 유지. Archive의 생성 애니메이션과 GlyphPairComparison에서 같은 표시부 재사용 (`components/overlay-feedback/GlyphObservationOverlay.jsx`)
-- AnalysisOverlay: Heptapod B 울프럼 포렌식 화면 재현. 모델에서 특징점(빨강 vertex, 클러스터 주변 조밀) 추출 + 경량 Delaunay(Bowyer–Watson, 의존성0) 삼각망(초록 mesh) + 12세그먼트 점선 격자·측정 링·무게중심, 라이브 스캔 애니메이션 + 계측 readout. 분석 모드 한정 계측색(초록/빨강) 허용, 그 외 모노크롬. showReadout=false는 수치/기술 캡션만 숨기고 초록 mesh·빨강 vertex·스캔과 onScan은 유지. 의미 설명/관측 강조와 병용 (`components/overlay-feedback/AnalysisOverlay.jsx`)
+- AnalysisOverlay: Heptapod B 울프럼 포렌식 화면 재현. 모델에서 특징점(빨강 vertex, 클러스터 주변 조밀) 추출 + 경량 Delaunay(Bowyer–Watson, 의존성0) 삼각망(초록 mesh) + 12세그먼트 점선 격자·측정 링·무게중심, 라이브 스캔 애니메이션 + 계측 readout. 분석 모드 한정 계측색(초록/빨강) 허용, 그 외 모노크롬. showVertices=false는 빨간 정점을 숨김. Archive는 showVertices/showFrame/showReadout=false로 초록 선만 표시. showReadout=false는 수치/기술 캡션만 숨기고 초록 mesh·빨강 vertex·스캔과 onScan은 유지. 의미 설명/관측 강조와 병용 (`components/overlay-feedback/AnalysisOverlay.jsx`)
 
 ## 10. Navigation (Global) — 페이지 간 이동
 

@@ -55,7 +55,7 @@ export default function ArchiveGlyph({ glyph, onSelect, showName = false, nameCo
           </Box>
         ) }
         { hasModel && <Box data-glyph-analysis={ analysis ? 'on' : 'off' } sx={ { position: 'absolute', inset: 0, pointerEvents: 'none', '& > span > svg': { width: '100%', height: '100%' } } }>
-          { analysis && <AnalysisOverlay model={ glyph.model_data } size={ canvasSize || maxSize } showReadout={ false } /> }
+          { analysis && <AnalysisOverlay model={ glyph.model_data } size={ canvasSize || maxSize } showReadout={ false } showFrame={ false } showVertices={ false } /> }
           <GlyphObservationOverlay model={ glyph.model_data } anchors={ anchors } fg={ analysis ? '#159447' : undefined } />
         </Box> }
         { !hasModel && <Typography variant="body2" sx={ { px: 2 } }>{ t('archiveGlyph.thisFormIsNotAvailableYet') }</Typography> }

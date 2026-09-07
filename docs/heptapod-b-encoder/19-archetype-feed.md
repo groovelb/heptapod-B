@@ -125,3 +125,20 @@ Archive 군집 소개·유형 피드·개인 상세와 Create 분석은 `src/sty
 본문 폭(measure), 넓은 피드 폭(wideMeasure), 문단 간격(sectionGap), 구분선(rule)도 공통 토큰이다. 상세는 데스크톱에서 표식 2 : 설명 3의 비율, 모바일에서 한 열을 사용한다. 의미 읽기 영역은 키보드로 스크롤할 수 있다. 모노크롬과 기존 서체를 유지하며 크기·굵기·여백·얇은 선으로 위계를 만든다.
 
 검증: 24유형·한영 원고·공유·Archive 탐색·Create 결과 계약, 의미 읽기와 테마 오버라이드 SSR, 반응형 타이포 및 모바일 CSSOM 검사, 변경 코드 ESLint, 앱·Storybook 빌드를 확인했다. 브라우저 자동화는 사용하지 않았다.
+
+
+## 분석 메타데이터 다중 토글 · 2026-09-07
+
+Create 데스크톱·모바일 분석, Archive 개인 상세, 공유 상세의 의미 선택을 `GlyphObservationChips` 공용 컴포넌트로 통일했다. MUI Chip·selectedIds 배열·onToggle 콜백으로 누른 항목만 추가/제거한다. 체크·채움색과 + 아이콘, native button·aria-pressed·포커스 표시, 한영 안내를 제공한다. editorialAction과 observationChip 시맨틱 토큰을 사용한다.
+
+Archive는 기존 제목과 전체 서사를 그대로 유지한다. 분석 토글은 원본 표식 위 초록 mesh만 켜고 끈다. 추가 읽기 패널이나 중복 제목/서사를 열지 않는다. 메타데이터 칩은 처음부터 보이고, 초록 mesh와 독립적으로 각 관측 표시를 켜고 끈다. Create와 공유 상세의 기존 읽기 영역은 켜진 관측 근거를 함께 보여준다. 새 이름 생성은 선택을 비우고 Create 세션 복원은 다중 선택을 보존한다.
+
+buildMeaningReading의 번호는 표식 전체에서 고유하며 선택 순서에 따라 바뀌지 않는다. 동시에 표시해도 Create/공유의 본문 위치 설명과 일치한다. AnalysisOverlay의 showVertices 기본값은 true이며, ArchiveGlyph는 showVertices/showFrame/showReadout=false로 초록 선만 그린다.
+
+검증: 관측 부분집합·번호 295개, Create·공유 상세 201개, Archive 상태 106개 검사(처음부터 칩 노출, mesh와 독립 선택, 원래 서사 DOM 유지, 중복 패널/정점/계측 텍스트 없음), 한영 검사 및 앱·Storybook 빌드를 확인했다. 브라우저 자동화는 실행하지 않았다.
+
+데스크톱 표식 열은 GNB와 Archive 내비게이션 아래에 sticky로 유지된다. 고정 범위는 유형 설명이 있는 2열 그리드까지이며, 같은 유형 구성원 목록에서는 해제된다. 분석 버튼은 표식 바로 아래 가운데에 배치했다. 뷰포트 높이에 맞춰 표식의 최대 폭을 줄여 버튼까지 화면에 들어오게 하며, 위치·크기는 theme.editorial.archiveFigure 토큰을 사용한다. 모바일 한 열에서는 본문을 가리지 않도록 일반 흐름을 유지한다.
+
+내 이름을 한마디로(motto)는 공용 ArchetypeMotto의 blockquote로 유형 제목 바로 아래에 배치했다. Archive 상세·Create 분석·공유 상세는 본문 하단에서 이 문구를 반복하지 않는다. ArchetypeNarrative는 showMotto=false로 중복을 방지하며, 독립 사용 시에는 한마디를 맨 앞에 표시한다. 기존 한영 JSON 문구와 editorialQuote 역할을 그대로 사용한다.
+
+간격 리듬: labelGap 6px, paragraphGap/itemGap 8px로 섹션 내부 요소를 묶고 sectionGap 56/80px, sectionBreak 80/112px(모바일/데스크톱)로 섹션 사이를 넓혔다. 구분선과 해당 소제목 사이(sectionPadding)는 12/16px로 줄였다. 모든 값은 theme.editorial 토큰의 MUI spacing 단위로 관리한다.

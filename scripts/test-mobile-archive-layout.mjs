@@ -36,19 +36,37 @@ try {
       const title = dom.document.querySelector(name === 'root' ? 'h1' : name === 'feed' ? '[data-archetype-section] h2' : '[data-selected-glyph-detail] h2');
       const titleRole = name === 'root' ? 'editorialDisplay' : 'editorialTitle';
       assert.equal(dom.getComputedStyle(title).fontSize, resolvedSize(theme.typography[titleRole][desktop].fontSize), `${name}:${width}: heading consumes desktop role`); checks += 1;
-      const body = dom.document.querySelector(name === 'root' ? '[data-family-introduction]' : '[data-archetype-narrative]');
+      const body = dom.document.querySelector(name === 'root' ? '[data-family-introduction]' : name === 'detail' ? '[data-selected-glyph-detail] [data-archetype-narrative]' : '[data-archetype-narrative]');
       assert.equal(dom.getComputedStyle(body).fontSize, resolvedSize(theme.typography.editorialBody[desktop].fontSize), `${name}:${width}: readable body size`); checks += 1;
       assert.equal(dom.getComputedStyle(body).lineHeight, String(theme.typography.editorialBody.lineHeight), `${name}:${width}: body leading`); checks += 1;
+      if (name === 'detail') {
+        const figure = dom.document.querySelector('[data-archive-sticky-figure]');
+        const style = dom.getComputedStyle(figure);
+        assert.equal(style.position, 'sticky'); checks += 1;
+        assert.equal(style.alignSelf, 'start'); checks += 1;
+        assert.equal(style.getPropertyValue('--archive-figure-top'), theme.editorial.archiveFigure.top.replace('var(--archive-navigation-height, 48px)', style.getPropertyValue('--archive-navigation-height') || '48px')); checks += 1;
+        const button = figure.querySelector('[data-selected-analysis-toggle]');
+        assert.ok(button, 'Analysis button stays below the glyph in the sticky column'); checks += 1;
+        assert.equal(button.parentElement, figure); checks += 1;
+        assert.ok(figure.querySelector('[data-glyph-centered-name]').compareDocumentPosition(button) & dom.Node.DOCUMENT_POSITION_FOLLOWING); checks += 1;
+        assert.ok(figure.parentElement.contains(body), 'Sticky scope includes the full explanation'); checks += 1;
+        assert.equal(figure.parentElement.querySelector('[data-same-type-glyph]'), null, 'Sticky stops before peer section'); checks += 1;
+      }
     }
     for (const [width, height] of [[320, 568], [390, 844], [844, 390]]) {
       dom.happyDOM.setWindowSize({ width, height });
       dom.document.body.innerHTML = html;
-      const body = dom.document.querySelector(name === 'root' ? '[data-family-introduction]' : '[data-archetype-narrative]');
+      const body = dom.document.querySelector(name === 'root' ? '[data-family-introduction]' : name === 'detail' ? '[data-selected-glyph-detail] [data-archetype-narrative]' : '[data-archetype-narrative]');
       assert.equal(dom.getComputedStyle(body).fontSize, resolvedSize(theme.typography.editorialBody.fontSize), `${name}:${width}: mobile body consumes semantic role`); checks += 1;
       if (name === 'root') {
         const portals = dom.document.querySelector('[data-archive-portal]').parentElement;
         assert.equal(dom.getComputedStyle(portals).gridTemplateColumns, 'repeat(2, minmax(0, 1fr))'); checks += 1;
         assert.equal(dom.getComputedStyle(dom.document.querySelector('[data-cluster-title]')).whiteSpace, 'normal'); checks += 1;
+      }
+      if (name === 'detail') {
+        const figure = dom.document.querySelector('[data-archive-sticky-figure]');
+        assert.equal(dom.getComputedStyle(figure).position, 'static', 'One-column reading remains unobstructed'); checks += 1;
+        assert.ok(figure.querySelector('[data-selected-analysis-toggle]')); checks += 1;
       }
       if (name === 'feed' && width < 600) {
         assert.equal(dom.getComputedStyle(dom.document.querySelector('[data-archetype-section] header')).flexDirection, 'column'); checks += 1;
