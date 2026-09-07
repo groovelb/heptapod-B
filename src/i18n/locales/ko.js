@@ -25,6 +25,7 @@ export default Object.freeze({
   "archiveDepthExplorer.sameTypeGlyphs": "같은 유형의 표식",
   "archiveDepthExplorer.sameTypeCount": "같은 유형의 표식 {count}개",
   "archiveDepthExplorer.sharedPatternGrid": "같은 의미가 나타나는 부분",
+  "archiveDepthExplorer.returnToFullGlyph": "{name}의 큰 표식으로 돌아가기",
   "archiveDepthExplorer.backToList": "목록으로",
   "archiveDepthExplorer.noTypePeers": "이 유형의 다른 표식은 아직 없어요.",
   "archiveDepthExplorer.typeUnconfirmed": "아직 유형을 확정할 수 없는 표식이에요.",

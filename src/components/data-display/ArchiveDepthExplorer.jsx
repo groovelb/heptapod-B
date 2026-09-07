@@ -116,6 +116,8 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
   const previousFocus = useRef(focusedId);
   const lastScopeKey = useRef(scope.scopeKey);
   const [direction, setDirection] = useState(1);
+  const [observationMode, setObservationMode] = useState('expanded');
+  const compactObservation = Boolean(focusedId) && observationMode !== 'expanded';
   const transition = { duration: reducedMotion ? 0 : theme.transitions.duration.complex / 1000, ease: 'easeOut' };
   useEffect(() => {
     if (lastScopeKey.current !== scope.scopeKey) titleRef.current?.focus({ preventScroll: true });
@@ -166,9 +168,10 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
     <Box component="section" aria-label={ t('archiveDepthExplorer.exploreGlyphGroupsInDepth') } data-archive-depth={ scene.level }
       onKeyDown={ (event) => { if (event.key === 'Escape' && (focusedId || !root)) { event.preventDefault(); if (focusedId) leaveDetail(); else back(scope.parentFilter); } } }
       sx={ { color: 'custom.chamber.ink', '--archive-navigation-height': hasNavigation ? `${theme.editorial.archivePage.navigationHeight}px` : '0px' } }>
-      <Box component="nav" ref={ navigationRef } hidden={ !hasNavigation } data-archive-navigation aria-label={ t('archiveDepthExplorer.yourPlaceInTheArchive') }
+      <Box component="nav" ref={ navigationRef } hidden={ !hasNavigation } data-archive-navigation inert={ compactObservation } aria-hidden={ compactObservation || undefined } aria-label={ t('archiveDepthExplorer.yourPlaceInTheArchive') }
         sx={ { position: 'sticky', top: theme.editorial.archivePage.navigationTop,
-          zIndex: (theme) => theme.zIndex.appBar - 1, bgcolor: !root || focusedId ? 'custom.chamber.fog' : 'transparent',
+          visibility: compactObservation ? 'hidden' : 'visible',
+          zIndex: (theme) => theme.zIndex.appBar - 1, bgcolor: 'transparent',
           minHeight: theme.editorial.archivePage.navigationHeight, maxWidth: theme.editorial.spread, mx: 'auto',
           display: hasNavigation ? 'flex' : 'none', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' } }>
         { (focusedId || !root) && <Button data-archive-back sx={ actionSx } onClick={ focusedId ? leaveDetail : () => back(scope.parentFilter) }>← { t(focusedId ? 'archiveDepthExplorer.backToList' : 'archiveDepthExplorer.oneLayerOut') }</Button> }
@@ -212,7 +215,8 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
       </AnimatePresence>
       </Box>
       { scene.focusedGlyph && <ArchiveSelectedGlyph key={ scene.focusedGlyph.id } glyph={ scene.focusedGlyph }
-        interpretation={ interpretation } interpretations={ detailMeanings?.interpretations } members={ selectedMembers } onSelect={ focus } /> }
+        interpretation={ interpretation } interpretations={ detailMeanings?.interpretations } members={ selectedMembers } onSelect={ focus }
+        onBack={ leaveDetail } onShare={ onShare } navigationRef={ navigationRef } onObservationModeChange={ setObservationMode } /> }
       { focusedId && !scene.focusedGlyph && <Typography role="status" sx={ { textAlign: 'center', py: 8 } }>{ t('archiveDepthExplorer.glyphUnavailable') }</Typography> }
     </Box>
   );

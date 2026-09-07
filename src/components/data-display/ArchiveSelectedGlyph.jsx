@@ -1,8 +1,12 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import Typography from '@mui/material/Typography';
-import { alpha } from '@mui/material/styles';
+import { alpha, useTheme } from '@mui/material/styles';
+import useArchiveMobileObservation from '../../hooks/useArchiveMobileObservation';
 import { useI18n } from '../../i18n/useI18n';
 import { getGlyphArchetype } from '../../data/heptapodArchetypeCatalog';
 import { buildMeaningReading } from '../../utils/heptapod/buildMeaningReading';
@@ -17,10 +21,26 @@ const headingSx = { typography: 'editorialTitle' };
 /** One person's stored form, followed by exact-type peers and observed fragments.
  * Interpretation DTOs are supplied by the parent; this view never classifies names.
  */
-export default function ArchiveSelectedGlyph({ glyph, interpretation, interpretations = {}, members = [], onSelect }) {
+export default function ArchiveSelectedGlyph({ glyph, interpretation, interpretations = {}, members = [], onSelect, onBack, onShare, navigationRef, onObservationModeChange }) {
   const { locale, localize, t } = useI18n();
   const ref = useRef(null);
   const controlsRef = useRef(null);
+  const figureRef = useRef(null);
+  const panelRef = useRef(null);
+  const readingRef = useRef(null);
+  const topRef = useRef(null);
+  const theme = useTheme();
+  const observation = theme.editorial.archiveObservation;
+  const { mode, returnToFigure } = useArchiveMobileObservation({
+    figureRef, panelRef, readingRef, topRef, navigationRef, onModeChange: onObservationModeChange,
+  });
+  const compact = mode !== 'expanded';
+  const glyphSize = mode === 'minimal' ? observation.minimalGlyphSize : observation.glyphSize;
+  const dockActionSx = {
+    display: compact ? 'inline-flex' : 'none',
+    width: observation.targetSize, height: observation.targetSize,
+    p: observation.gap, borderRadius: 0, color: 'custom.chamber.ink',
+  };
   const analysisId = useId();
   const [analysis, setAnalysis] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -37,7 +57,7 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
   useEffect(() => {
     const controls = controlsRef.current;
     if (!controls) return undefined;
-    const figure = controls.parentElement;
+    const figure = controls.closest('[data-archive-sticky-figure]');
     const update = () => figure.style.setProperty('--archive-figure-controls-height', `${Math.ceil(controls.getBoundingClientRect().height)}px`);
     update();
     const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null;
@@ -47,6 +67,7 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
 
   return <Box ref={ ref } tabIndex={ -1 } component="section" aria-label={ t('archiveDepthExplorer.selectedGlyphDetail') } data-selected-glyph-detail
     sx={ { maxWidth: (theme) => theme.editorial.spread, mx: 'auto', pt: (theme) => theme.editorial.archivePage.contentInset, pb: (theme) => theme.editorial.archivePage.bottomInset, '&:focus': { outline: 'none' } } }>
+    <Box ref={ topRef } data-archive-observation-top aria-hidden="true" sx={ { position: 'fixed', top: theme.editorial.archivePage.navigationTop, width: 0, height: 0, pointerEvents: 'none' } } />
     <Box data-archive-detail-layout sx={ {
       display: 'grid', gridTemplateColumns: (theme) => theme.editorial.detailColumns,
       gridTemplateAreas: { xs: '"heading" "figure" "reading"', md: '"figure heading" "figure reading"' },
@@ -64,15 +85,41 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
         <Typography component="h2" sx={ { ...headingSx, m: 0 } }>{ localize(type?.title || interpretation?.title) || t('glyphMeaningSummary.thisMeaningCannotBeReadYet') }</Typography>
         <ArchetypeMotto archetype={ type } sx={ { mt: (theme) => theme.editorial.archiveReading.labelGap } } />
       </Box>
-      <Box data-archive-sticky-figure sx={ { gridArea: 'figure', position: { xs: 'static', md: 'sticky' }, alignSelf: 'start', minWidth: 0,
+      <Box ref={ figureRef } tabIndex={ -1 } data-archive-sticky-figure sx={ { gridArea: 'figure', position: { xs: 'static', md: 'sticky' }, alignSelf: 'start', minWidth: 0,
         '--archive-figure-top': (theme) => theme.editorial.archiveFigure.top, top: 'var(--archive-figure-top)',
         maxHeight: (theme) => ({ md: theme.editorial.archiveFigure.maxHeight }), overflowY: { md: 'auto' },
+        height: { xs: compact ? 'var(--archive-expanded-height)' : 'auto', md: 'auto' },
+        overflowAnchor: 'none', '&:focus': { outline: 'none' },
       } }>
-        <Box id={ analysisId }>
-          <ArchiveGlyph glyph={ glyph } showName nameComponent="h1" maxSize={ 520 } analysis={ analysis } anchors={ selectedAnchors }
-            sx={ { maxWidth: (theme) => ({ xs: '100%', md: theme.editorial.archiveFigure.maxWidth }) } } />
+        <Box ref={ panelRef } data-archive-observation={ mode } sx={ compact ? {
+          position: 'fixed', top: theme.editorial.archivePage.navigationTop,
+          left: 'var(--archive-observation-left)', width: 'var(--archive-observation-width)',
+          boxSizing: 'border-box', zIndex: theme.zIndex.appBar - 1,
+          bgcolor: 'transparent', display: 'grid',
+          gridTemplateColumns: `minmax(${observation.targetSize}px, 1fr) ${glyphSize}px minmax(${observation.targetSize}px, 1fr)`,
+          alignItems: 'center', gap: observation.gap, p: observation.inset,
+        } : {} }>
+        <IconButton data-observation-back aria-label={ t('archiveDepthExplorer.backToList') } onClick={ onBack }
+          disabled={ !onBack } sx={ { ...dockActionSx, gridColumn: 1, gridRow: 1, justifySelf: 'start' } }><ArrowBackIcon /></IconButton>
+        <Box id={ analysisId } sx={ compact ? {
+          position: 'relative', gridColumn: 2, gridRow: 1,
+          width: glyphSize, height: glyphSize,
+          overflow: 'hidden', '& [data-glyph-centered-name]': { opacity: 0 },
+        } : {} }>
+          <ArchiveGlyph glyph={ glyph } showName nameComponent="h1" maxSize={ 520 } analysis={ !compact && analysis } anchors={ compact ? [] : selectedAnchors }
+            sx={ compact ? {
+              // Scale the existing surface; changing Canvas size would restart formation.
+              width: 'var(--archive-expanded-width)', maxWidth: 'none',
+              transform: 'scale(var(--archive-glyph-scale))', transformOrigin: 'top left',
+            } : { maxWidth: (theme) => ({ xs: '100%', md: theme.editorial.archiveFigure.maxWidth }) } } />
+          <Box component="button" type="button" data-observation-expand onClick={ returnToFigure }
+            aria-label={ t('archiveDepthExplorer.returnToFullGlyph', { name: glyphLabel(glyph) }) }
+            sx={ { display: compact ? 'block' : 'none', position: 'absolute', inset: 0,
+              width: '100%', height: '100%', border: 0, p: 0, bgcolor: 'transparent', color: 'custom.chamber.ink', cursor: 'pointer',
+              '&:focus-visible': { outline: '2px solid currentColor', outlineOffset: -2 },
+            } } />
         </Box>
-        <Box ref={ controlsRef } data-archive-figure-controls sx={ { display: 'grid', justifyItems: 'center', gap: (theme) => theme.editorial.visualizationControls.gap, p: (theme) => theme.editorial.visualizationControls.padding } }>
+        <Box ref={ controlsRef } data-archive-figure-controls inert={ compact } aria-hidden={ compact || undefined } sx={ { display: compact ? 'none' : 'grid', justifyItems: 'center', gap: (theme) => theme.editorial.visualizationControls.gap, p: (theme) => theme.editorial.visualizationControls.padding } }>
           <Button data-selected-analysis-toggle aria-pressed={ analysis } aria-controls={ analysisId }
             onClick={ () => setAnalysis((open) => !open) } variant="text"
             sx={ (theme) => ({
@@ -92,8 +139,11 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
             sx={ { justifyContent: 'center' } }
             onToggle={ (entry) => setSelectedIds((ids) => ids.includes(entry.id) ? ids.filter((id) => id !== entry.id) : [...ids, entry.id]) } />
         </Box>
+        <IconButton data-observation-share aria-label={ t('archiveDepthExplorer.shareThisSpace') } onClick={ onShare }
+          disabled={ !onShare } sx={ { ...dockActionSx, gridColumn: 3, gridRow: 1, justifySelf: 'end' } }><ShareOutlinedIcon /></IconButton>
+        </Box>
       </Box>
-      <Box data-archive-reading-column sx={ { gridArea: 'reading', minWidth: 0, maxWidth: (theme) => theme.editorial.measure } }>
+      <Box ref={ readingRef } tabIndex={ -1 } data-archive-reading-column sx={ { gridArea: 'reading', minWidth: 0, '&:focus': { outline: 'none' }, maxWidth: (theme) => theme.editorial.measure } }>
         { type && <ArchetypeNarrative archetype={ type } showMotto={ false } spacing="archiveDetail" /> }
       </Box>
     </Box>

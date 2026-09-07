@@ -65,6 +65,11 @@ export function createEditorialTokens({ typography, breakpoints }) {
         maxHeight: `calc(100svh - var(--archive-figure-top) - ${archiveContentInset})`,
         maxWidth: 'min(100%, max(10rem, calc(100svh - var(--archive-figure-top) - var(--archive-figure-controls-height, 4rem) - 1rem)))',
       },
+      archiveObservation: {
+        glyphSize: 56, minimalGlyphSize: 44, targetSize: 44, gap: 1, inset: 0.5,
+        compactHeight: 64, minimalHeight: 52, viewportFraction: 1 / 3,
+        boundaryTolerance: 16,
+      },
       observationChip: { borderRadius: '999px', minHeight: 44, height: 'auto', py: 0.75, px: 0.5 },
     },
   };

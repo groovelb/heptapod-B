@@ -25,6 +25,7 @@ export default Object.freeze({
   "archiveDepthExplorer.sameTypeGlyphs": "Glyphs in the same type",
   "archiveDepthExplorer.sameTypeCount": "{count} glyphs in the same type",
   "archiveDepthExplorer.sharedPatternGrid": "Where meanings meet",
+  "archiveDepthExplorer.returnToFullGlyph": "Return to {name}’s full glyph",
   "archiveDepthExplorer.backToList": "Back to the list",
   "archiveDepthExplorer.noTypePeers": "No other glyphs of this type yet.",
   "archiveDepthExplorer.typeUnconfirmed": "This glyph’s type is not yet confirmed.",
