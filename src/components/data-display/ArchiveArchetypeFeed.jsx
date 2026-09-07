@@ -10,7 +10,6 @@ import ArchiveFeedIndex from '../in-page-navigation/ArchiveFeedIndex';
 
 const EMPTY = [];
 
-const SERIF = "'Cinzel', 'Noto Serif KR', Georgia, serif";
 const gridSx = {
   display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))' },
   columnGap: { xs: 2, md: 6 }, rowGap: { xs: 4, md: 6 }, alignItems: 'start',
@@ -22,7 +21,7 @@ function Members({ glyphs, onSelect, showDate = false }) {
     <Box key={ glyph.id } data-archive-member={ glyph.id } sx={ { minWidth: 0 } }>
       <ArchiveGlyph glyph={ glyph } showName onSelect={ onSelect } />
       { showDate && Number.isFinite(Date.parse(glyph.created_at)) && <Typography component="time" dateTime={ glyph.created_at }
-        sx={ { display: 'block', textAlign: 'center', fontSize: 12, mt: 1, fontVariantNumeric: 'tabular-nums' } }>
+        sx={ { display: 'block', textAlign: 'center', typography: 'editorialMeta', mt: 1, fontVariantNumeric: 'tabular-nums' } }>
         { new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(glyph.created_at)) }
       </Typography> }
     </Box>
@@ -56,8 +55,8 @@ export default function ArchiveArchetypeFeed({ feed, onSelect, sx }) {
       return <Box component="section" key={ id } id={ items[index].targetId } tabIndex={ -1 } aria-label={ title } data-archetype-section={ archetype.meaningKey }
         sx={ { scrollMarginTop: 'calc(128px + var(--archive-navigation-height, 0px) + env(safe-area-inset-top, 0px))', '&:focus': { outline: 'none' }, '& + section': { mt: { xs: 9, md: 14 } } } }>
         <Box component="header" sx={ {
-          display: 'flex', alignItems: 'center', gap: { xs: 2, md: 3 }, mb: { xs: 2, md: 3 },
-          maxWidth: 760, mx: 'auto',
+          display: 'flex', alignItems: 'flex-start', gap: (theme) => theme.editorial.sectionGap, mb: (theme) => theme.editorial.sectionGap,
+          maxWidth: (theme) => theme.editorial.wideMeasure, mx: 'auto',
           [theme.breakpoints.down('sm')]: { flexDirection: 'column', alignItems: 'flex-start', gap: 1 },
         } }>
           { symbol && <Box role="img" aria-label={ t('archiveArchetypeFeed.authoredSymbol', { title }) }
@@ -66,12 +65,12 @@ export default function ArchiveArchetypeFeed({ feed, onSelect, sx }) {
             <ArchiveGlyph glyph={ { model_data: symbol.model } } maxSize={ 140 } />
           </Box> }
           <Box sx={ { minWidth: 0 } }>
-            <Typography component="h2" sx={ { m: 0, fontFamily: SERIF, fontWeight: 400, fontSize: { xs: 19, sm: 23, md: 27 }, lineHeight: 1.6, overflowWrap: 'anywhere' } }>{ title }</Typography>
-            <Typography sx={ { mt: 1, fontSize: { xs: 12, md: 14 }, lineHeight: 1.9, overflowWrap: 'anywhere' } }>{ localize(archetype.reading) }</Typography>
+            <Typography component="h2" sx={ { m: 0, typography: 'editorialTitle' } }>{ title }</Typography>
+            <Typography sx={ { mt: (theme) => theme.editorial.paragraphGap, typography: 'editorialLead' } }>{ localize(archetype.reading) }</Typography>
           </Box>
         </Box>
         <ArchetypeNarrative archetype={ archetype } showFamily={ false } showIdentity={ false } variant="compact"
-          sx={ { maxWidth: 760, mx: 'auto', mb: { xs: 3, md: 4 } } } />
+          sx={ { maxWidth: (theme) => theme.editorial.wideMeasure, mx: 'auto', mb: { xs: 3, md: 4 } } } />
         <Members glyphs={ glyphs } onSelect={ onSelect } />
       </Box>;
     }) }

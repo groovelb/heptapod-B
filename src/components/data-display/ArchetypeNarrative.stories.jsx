@@ -3,7 +3,7 @@ import { ARCHETYPE_CATALOG } from '../../data/heptapodArchetypeCatalog.js';
 
 export default {
   title: 'Custom Component/5. Data Display/ArchetypeNarrative', component: ArchetypeNarrative, tags: ['autodocs'],
-  parameters: { docs: { description: { component: '배포 JSON에서 내 이름의 뜻을 먼저 보여주고, 상위 군집·메타데이터 조합을 참여자의 행동·관계·일상 장면으로 풉니다. Create 분석·Archive 피드·개별 상세가 재사용하며 분류나 네트워크 요청은 하지 않습니다.' } } },
+  parameters: { docs: { description: { component: '본문·핵심 문장·제목·소제목·보조 정보에 editorial 시맨틱 타이포를 적용하고, 줄 길이·여백·구분선도 테마 토큰으로 관리합니다. 배포 JSON에서 내 이름의 뜻을 먼저 보여주고, 상위 군집·메타데이터 조합을 참여자의 행동·관계·일상 장면으로 풉니다. Create 분석·Archive 피드·개별 상세가 재사용하며 분류나 네트워크 요청은 하지 않습니다.' } } },
   argTypes: {
     archetype: { control: 'object', description: '완전 판독한 ARCHETYPE_CATALOG 항목. 미제공하면 군집 설명만 표시' },
     familyId: { control: 'select', options: ['arrival', 'reception', 'reciprocity'], description: '상위 군집. 기본값은 archetype.familyId' },
@@ -12,7 +12,7 @@ export default {
     variant: { control: 'select', options: ['full', 'compact'], description: 'full은 특징·상황·긴장·질문·관계·차이·한마디까지 표시, compact는 조합과 핵심 서사' },
     sx: { control: 'object', description: 'MUI sx 추가 스타일' },
   },
-  args: { archetype: ARCHETYPE_CATALOG['meaning-v1:reciprocity:simultaneity+openness+trace'], showFamily: true, showIdentity: true, variant: 'full', sx: { maxWidth: 640, p: 2 } },
+  args: { archetype: ARCHETYPE_CATALOG['meaning-v1:reciprocity:simultaneity+openness+trace'], showFamily: true, showIdentity: true, variant: 'full', sx: { maxWidth: (theme) => theme.editorial.measure, p: 2 } },
 };
 export const Default = {};
 export const Family = { args: { archetype: undefined, familyId: 'arrival' } };

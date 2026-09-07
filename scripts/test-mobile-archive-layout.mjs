@@ -1,6 +1,5 @@
 /** CSSOM + SSR only: no browser engine, Canvas paint, network or automation. */
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { Window } from 'happy-dom';
 import { createServer } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -25,33 +24,27 @@ try {
     feed: { filter: { base: 'reciprocity' } },
     detail: { filter: { base: 'reciprocity' }, focusedId: section.glyphs[0].id },
   };
-  // Captured before mobile overrides. Hash only active desktop CSS, with Emotion
-  // class hashes normalized; mobile additions must not change a desktop rule.
-  const desktopBefore = {
-    'root:900': 'f2decd96c811fbad80b78b227adc8278aa0b948af6f1e1ab2193c7f7ae6ab323',
-    'root:1440': 'f2decd96c811fbad80b78b227adc8278aa0b948af6f1e1ab2193c7f7ae6ab323',
-    'feed:900': '0cfce68cdd01063fb97dd52cff52e2f2bb024d0bf9582ad69983ed38f46708ac',
-    'feed:1440': '0cfce68cdd01063fb97dd52cff52e2f2bb024d0bf9582ad69983ed38f46708ac',
-    'detail:900': '7f6b76d707b6cfb7eae58f58604cab4c5bf0a8fe36dfb30dd0e2975269104553',
-    'detail:1440': '7f6b76d707b6cfb7eae58f58604cab4c5bf0a8fe36dfb30dd0e2975269104553',
-  };
-  const activeCSS = (rules) => [...rules].flatMap((rule) => {
-    if (rule.type === 4) return dom.matchMedia(rule.conditionText).matches ? activeCSS(rule.cssRules) : [];
-    return [rule.cssText.replace(/css-[a-z0-9]+/g, 'css-HASH')];
-  });
+  const resolvedSize = (rem) => `${parseFloat(rem) * parseFloat(dom.getComputedStyle(dom.document.documentElement).fontSize)}px`;
+  // Check responsive reading roles, rather than freezing all desktop CSS.
   for (const [name, props] of Object.entries(fixtures)) {
     const html = renderToStaticMarkup(h(ThemeProvider, { theme }, h(Depth, { glyphs: ARCHIVE_STORY_GLYPHS, meanings, ...props })));
     dom.document.body.innerHTML = html;
-    const styles = [...dom.document.querySelectorAll('style')];
     for (const width of [900, 1440]) {
       dom.happyDOM.setWindowSize({ width, height: 900 });
-      const css = styles.flatMap((style) => activeCSS(style.sheet.cssRules)).join('\n');
-      const digest = createHash('sha256').update(css).digest('hex');
-      const key = `${name}:${width}`;
-      assert.equal(digest, desktopBefore[key], `${key}: desktop CSS changed`); checks += 1;
+      dom.document.body.innerHTML = html;
+      const desktop = `@media (min-width:${theme.breakpoints.values.md}px)`;
+      const title = dom.document.querySelector(name === 'root' ? 'h1' : name === 'feed' ? '[data-archetype-section] h2' : '[data-selected-glyph-detail] h2');
+      const titleRole = name === 'root' ? 'editorialDisplay' : 'editorialTitle';
+      assert.equal(dom.getComputedStyle(title).fontSize, resolvedSize(theme.typography[titleRole][desktop].fontSize), `${name}:${width}: heading consumes desktop role`); checks += 1;
+      const body = dom.document.querySelector(name === 'root' ? '[data-family-introduction]' : '[data-archetype-narrative]');
+      assert.equal(dom.getComputedStyle(body).fontSize, resolvedSize(theme.typography.editorialBody[desktop].fontSize), `${name}:${width}: readable body size`); checks += 1;
+      assert.equal(dom.getComputedStyle(body).lineHeight, String(theme.typography.editorialBody.lineHeight), `${name}:${width}: body leading`); checks += 1;
     }
     for (const [width, height] of [[320, 568], [390, 844], [844, 390]]) {
       dom.happyDOM.setWindowSize({ width, height });
+      dom.document.body.innerHTML = html;
+      const body = dom.document.querySelector(name === 'root' ? '[data-family-introduction]' : '[data-archetype-narrative]');
+      assert.equal(dom.getComputedStyle(body).fontSize, resolvedSize(theme.typography.editorialBody.fontSize), `${name}:${width}: mobile body consumes semantic role`); checks += 1;
       if (name === 'root') {
         const portals = dom.document.querySelector('[data-archive-portal]').parentElement;
         assert.equal(dom.getComputedStyle(portals).gridTemplateColumns, 'repeat(2, minmax(0, 1fr))'); checks += 1;
@@ -62,7 +55,7 @@ try {
       }
     }
   }
-  console.log(`Mobile Archive layout: ${checks} checks passed, including 6 pre-change desktop CSS invariants and mobile portrait/landscape rules (SSR/CSSOM only).`);
+  console.log(`Mobile Archive layout: ${checks} checks passed, including 18 desktop semantic typography checks and mobile portrait/landscape rules (SSR/CSSOM only).`);
 } finally {
   await server.close();
   await dom.happyDOM.abort();

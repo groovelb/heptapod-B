@@ -20,7 +20,6 @@ import ArchiveFamilySymbol from './ArchiveFamilySymbol';
 import ArchiveSelectedGlyph from './ArchiveSelectedGlyph';
 import ArchetypeNarrative from './ArchetypeNarrative';
 
-const SERIF = "'Cinzel', 'Noto Serif KR', Georgia, serif";
 const MotionBox = motion.create(Box);
 const DEPTH_VARIANTS = {
   enter: (direction) => ({ opacity: 0, scale: direction < 0 ? 1.12 : 0.86 }),
@@ -28,7 +27,7 @@ const DEPTH_VARIANTS = {
   leave: (direction) => ({ opacity: 0, scale: direction < 0 ? 0.86 : 1.12 }),
 };
 const STILL_VARIANTS = { enter: { opacity: 1 }, present: { opacity: 1 }, leave: { opacity: 1 } };
-const actionSx = { color: 'custom.chamber.ink', minHeight: 44, fontSize: 13, textTransform: 'none' };
+const actionSx = { color: 'custom.chamber.ink', minHeight: 44, typography: 'editorialAction', textTransform: 'none' };
 const shareIconSx = {
   color: 'custom.chamber.ink', width: 44, height: 44, p: 1.25, borderRadius: 0, flexShrink: 0,
   '&:hover': { bgcolor: 'action.hover' },
@@ -61,14 +60,14 @@ function ClusterPortal({ node, onSelect }) {
         { familySymbol && <ArchiveFamilySymbol familyId={ node.id } /> }
         { node.kind === 'timeline' && <ArchiveGlyph glyph={ ARCHIVE_TIMELINE_SYMBOL } /> }
         <Typography component="span" data-cluster-title sx={ { position: 'absolute', top: '50%', left: '50%', width: 'max-content', transform: 'translate(-50%, -50%)',
-          textAlign: 'center', fontFamily: SERIF, fontSize: ['family', 'timeline'].includes(node.kind) ? { xs: 19, md: 28 } : { xs: 15, md: 18 },
-          letterSpacing: '0.06em', lineHeight: 1.6, whiteSpace: 'nowrap', pointerEvents: 'none',
-          [theme.breakpoints.down('md')]: { width: '90%', whiteSpace: 'normal', overflowWrap: 'anywhere', fontSize: 'clamp(15px, 3.8vw, 22px)' },
+          textAlign: 'center', typography: 'editorialPortal',
+          whiteSpace: 'nowrap', pointerEvents: 'none',
+          [theme.breakpoints.down('md')]: { width: '90%', whiteSpace: 'normal', overflowWrap: 'anywhere' },
         } }>{ localize(node.title) }</Typography>
       </Box>
-      { (familySymbol || node.kind === 'timeline') && <Typography component="span" sx={ { display: 'block', mt: 1, fontSize: 13 } }>{ familySymbol ? localize(familySymbol.cue) : t('archiveTimeline.newest') }</Typography> }
-      { familySymbol && <Typography component="span" id={ introductionId } data-family-introduction={ node.id } sx={ { display: 'block', mt: 1.5, px: { xs: 0.5, md: 2 }, fontSize: { xs: 12, md: 14 }, lineHeight: 1.85 } }>{ localize(ARCHETYPE_FAMILIES[node.id].reading) }</Typography> }
-      <Typography component="span" className="archive-cluster-invite" sx={ { display: 'block', mt: 0.5, fontSize: 12, opacity: 0.75 } }>
+      { (familySymbol || node.kind === 'timeline') && <Typography component="span" sx={ { display: 'block', mt: 1, typography: 'editorialMeta' } }>{ familySymbol ? localize(familySymbol.cue) : t('archiveTimeline.newest') }</Typography> }
+      { familySymbol && <Typography component="span" id={ introductionId } data-family-introduction={ node.id } sx={ { display: 'block', mt: 1.5, px: { xs: 0.5, md: 2 }, typography: 'editorialBody' } }>{ localize(ARCHETYPE_FAMILIES[node.id].reading) }</Typography> }
+      <Typography component="span" className="archive-cluster-invite" sx={ { display: 'block', mt: 0.5, typography: 'editorialMeta' } }>
         { node.kind === 'timeline' ? t('archiveTimeline.allPublic') : `${node.glyphs.length}${t('archiveDepthExplorer.glyphsEnter')}` }</Typography>
     </Box>
   );
@@ -171,16 +170,15 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
       </Box>
       <Box data-archive-list-view hidden={ Boolean(focusedId) } inert={ Boolean(focusedId) } sx={ { display: focusedId ? 'none' : 'block' } }>
       <Box sx={ { textAlign: 'center', pt: { xs: 3, md: 4 }, pb: { xs: 1, md: 2 } } }>
-        { root && <Typography sx={ { fontSize: 11, letterSpacing: '0.2em', mb: 1.5 } }>{ t('archiveDepthExplorer.baseFamilySymbol') }</Typography> }
+        { root && <Typography sx={ { typography: 'editorialLabel', mb: 1.5 } }>{ t('archiveDepthExplorer.baseFamilySymbol') }</Typography> }
         <Typography ref={ titleRef } tabIndex={ -1 } component="h1" sx={ {
-          m: 0, fontFamily: SERIF, fontWeight: 400, fontSize: root ? { xs: 25, sm: 36, md: 44 } : { xs: 23, md: 34 },
-          letterSpacing: '0.06em', overflowWrap: 'anywhere', lineHeight: 1.6,
+          m: 0, typography: root ? 'editorialDisplay' : 'editorialTitle',
           '&:focus': { outline: 'none' },
         } }>{ localize(selectedArchetype?.title || scope.title) }</Typography>
-        { scope.subtitle && !scope.base && <Typography sx={ { mt: 1.5, fontSize: { xs: 13, md: 14 }, lineHeight: 1.8 } }>{ localize(scope.subtitle) }</Typography> }
+        { scope.subtitle && !scope.base && <Typography sx={ { mt: 1.5, typography: 'editorialBody' } }>{ localize(scope.subtitle) }</Typography> }
       </Box>
       { !root && !timeline && scope.base && <ArchetypeNarrative familyId={ scope.base }
-        sx={ { maxWidth: 760, mx: 'auto', mt: 2, px: { xs: 1, md: 0 } } } /> }
+        sx={ { maxWidth: (theme) => theme.editorial.measure, mx: 'auto', mt: 2, px: { xs: 1, md: 0 } } } /> }
       <AnimatePresence mode="wait" custom={ direction }>
         <MotionBox key={ timeline ? 'timeline' : scope.scopeKey } data-archive-scope={ scope.scopeKey } custom={ direction } variants={ reducedMotion ? STILL_VARIANTS : DEPTH_VARIANTS }
           initial="enter" animate="present" exit="leave" transition={ transition }

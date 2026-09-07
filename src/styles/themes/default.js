@@ -13,6 +13,7 @@
 
 import { createTheme } from '@mui/material/styles';
 import { grey } from '@mui/material/colors';
+import { createEditorialTokens } from '../tokens/editorial.js';
 
 // ============================================================
 // 1. Color Tokens (색상 토큰)
@@ -395,7 +396,11 @@ const components = {
 // ============================================================
 // Theme 생성
 // ============================================================
+const editorial = createEditorialTokens({ typography, breakpoints });
+Object.assign(typography, editorial.typography);
+
 const defaultTheme = createTheme({
+  editorial: editorial.layout,
   palette,
   typography,
   spacing,

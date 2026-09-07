@@ -104,3 +104,24 @@ Artifact sharding + 읽기 전용 공유 경로 조사. 유효 동시성 4(root 
 Create 분석과 Archive 개인 상세는 이름의 뜻을 첫 문장에 표시한다. `ArchetypeNarrative.showIdentity`는 기본 true이며, 이미 제목 아래 reading을 표시하는 피드는 false로 중복을 피한다. 분류·유형명·JSON 구조·실제 DB 소속은 유지한다. 핵심 서사는 한국어 194~223자로 구체적인 행동과 관계를 담는다.
 
 검증: 기존 24개 유형명 및 판독 계약, 한영 JSON 필드와 관계 대상, 의미/상세 SSR 2,234개 검사(이름의 뜻이 군집 설명보다 먼저 출력되는지 포함), 공유 456개, locale 2,402+21개 검사 통과. 변경한 코드 ESLint 및 앱 빌드 통과. 브라우저 자동화는 사용하지 않았다. 실제 사용자 반응을 측정한 결과는 아니다.
+
+
+## 읽기 중심 에디토리얼 타이포 · 2026-09-07
+
+Archive 군집 소개·유형 피드·개인 상세와 Create 분석은 `src/styles/tokens/editorial.js`의 시맨틱 역할을 사용한다. 기본 테마가 `theme.typography`와 `theme.editorial`로 제공하며 컴포넌트는 역할 이름으로 소비한다. 크기는 rem, 데스크톱 전환은 기존 md breakpoint, 여백은 MUI spacing 단위를 사용한다.
+
+| 역할 | 모바일 / 데스크톱 (기본 루트 16px) | 용도 |
+| --- | --- | --- |
+| editorialBody | 18 / 20px | 군집·조합·인물 설명, 행간 1.75 |
+| editorialLead | 24 / 32px | 내 이름의 뜻 |
+| editorialTitle | 30 / 40px | 유형·상세 제목 |
+| editorialDisplay | 36 / 56px | Archive 페이지 제목 |
+| editorialPortal | 20 / 30px | 군집 원 안의 제목 |
+| editorialLabel | 16 / 17px | 굵은 문단 소제목 |
+| editorialMeta | 15 / 16px | 날짜·안내·보조 정보 |
+| editorialQuote | 24 / 32px | 유형의 한마디 |
+| editorialAction | 16 / 17px | 탐색·분석 액션 |
+
+본문 폭(measure), 넓은 피드 폭(wideMeasure), 문단 간격(sectionGap), 구분선(rule)도 공통 토큰이다. 상세는 데스크톱에서 표식 2 : 설명 3의 비율, 모바일에서 한 열을 사용한다. 의미 읽기 영역은 키보드로 스크롤할 수 있다. 모노크롬과 기존 서체를 유지하며 크기·굵기·여백·얇은 선으로 위계를 만든다.
+
+검증: 24유형·한영 원고·공유·Archive 탐색·Create 결과 계약, 의미 읽기와 테마 오버라이드 SSR, 반응형 타이포 및 모바일 CSSOM 검사, 변경 코드 ESLint, 앱·Storybook 빌드를 확인했다. 브라우저 자동화는 사용하지 않았다.

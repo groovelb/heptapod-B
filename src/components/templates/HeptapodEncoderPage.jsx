@@ -669,7 +669,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
         </Box>
         <Box data-encoder-meaning-rail data-lenis-prevent sx={ {
           position: 'absolute', left: 36, top: 'calc(184px + env(safe-area-inset-top, 0px))', bottom: 172, zIndex: 3,
-          width: 'clamp(220px, 21vw, 280px)', overflowY: 'auto', overscrollBehavior: 'contain', pr: 1,
+          width: theme.editorial.railMeasure, overflowY: 'auto', overscrollBehavior: 'contain', pr: 1,
         } }>
           <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fg={ fg }
             selectedObservationId={ selectedMeaningId } onSelectObservation={ (observation) => setSelectedMeaningId(observation?.id || null) } />
@@ -997,7 +997,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
         transitionDuration={ reducedMotion ? 0 : theme.transitions.duration.shortest }
         slotProps={ { paper: { sx: { bgcolor: 'background.default', backgroundImage: 'none', color: 'common.white', height: '100dvh', pt: 'env(safe-area-inset-top, 0px)', pb: 'env(safe-area-inset-bottom, 0px)', boxSizing: 'border-box' } } } }>
         <Box sx={ { display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: 2, px: 3, py: 1 } }>
-          <Typography id={ readingDialogId } component="h2" sx={ { fontSize: 16, fontWeight: 400, overflowWrap: 'anywhere' } }>
+          <Typography id={ readingDialogId } component="h2" sx={ { typography: 'editorialLabel' } }>
             { t('meaningReading.dialogTitle', { name: encodedName }) }
           </Typography>
           <Button onClick={ handleCloseAnalysis } sx={ { color: 'inherit', minWidth: 44, minHeight: 44, flexShrink: 0 } }>{ t('heptapodEncoderPage.close') }</Button>
@@ -1010,7 +1010,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
               onScan={ (info) => audioRef.current?.scanBeeps(info.count, info) } />
             <GlyphObservationOverlay model={ model } anchors={ selectedAnchors } fg={ theme.palette.common.white } />
           </Box>
-          <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fg={ theme.palette.common.white } sx={ { maxWidth: 540, mx: 'auto' } }
+          <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fg={ theme.palette.common.white } sx={ { maxWidth: theme.editorial.measure, mx: 'auto' } }
             selectedObservationId={ selectedMeaningId } onSelectObservation={ (observation) => setSelectedMeaningId(observation?.id || null) } />
         </Box>
       </Dialog>

@@ -56,17 +56,26 @@ try {
   const { default: Overlay } = await server.ssrLoadModule('/src/components/overlay-feedback/GlyphObservationOverlay.jsx');
   const { default: theme } = await server.ssrLoadModule('/src/styles/themes/default.js');
   const { default: LocaleProvider } = await server.ssrLoadModule('/src/i18n/LocaleProvider.jsx');
-  const render = (interpretation, selectedObservationId, locale = 'ko') => renderToStaticMarkup(createElement(LocaleProvider, { initialMode: locale, syncDocument: false },
-    createElement(ThemeProvider, { theme }, createElement(Summary, { interpretation, variant: 'reading', selectedObservationId, onSelectObservation() {} }))));
+  const render = (interpretation, selectedObservationId, locale = 'ko', readingTheme = theme) => renderToStaticMarkup(createElement(LocaleProvider, { initialMode: locale, syncDocument: false },
+    createElement(ThemeProvider, { theme: readingTheme }, createElement(Summary, { interpretation, variant: 'reading', selectedObservationId, onSelectObservation() {} }))));
   for (const interpretation of [louise, minjun, hannah]) {
     for (const observation of interpretation.observations) {
       const html = render(interpretation, observation.id);
       check(() => assert.ok(html.includes(MEANING_CATALOG[observation.meaningId].description)));
       check(() => assert.equal((html.match(/aria-pressed="true"/g) || []).length, 1));
-      check(() => assert.match(html, /height:280px/));
+      check(() => assert.ok(html.includes(`height:${theme.editorial.readingViewport}`)));
       check(() => assert.doesNotMatch(render(interpretation, observation.id, 'en'), /[가-힣]/));
     }
   }
+  // A theme override must reach actual rendered reading CSS, without local sizes winning.
+  const readingTheme = { ...theme,
+    typography: { ...theme.typography, editorialBody: { ...theme.typography.editorialBody, fontSize: '1.375rem' } },
+    editorial: { ...theme.editorial, readingViewport: '37rem', measure: '39rem' },
+  };
+  const overridden = render(louise, undefined, 'ko', readingTheme);
+  check(() => assert.ok(overridden.includes('font-size:1.375rem'), 'Body size comes from the semantic theme role'));
+  check(() => assert.ok(overridden.includes('height:37rem'), 'Reading viewport comes from the layout token'));
+  check(() => assert.ok(overridden.includes('max-width:39rem'), 'Narrative measure comes from the layout token'));
   check(() => assert.match(render(hannah), /아직 읽지 못한 부분은/));
   check(() => assert.match(render(interpretGlyphMeaning(null)), /충분히 확인할 수 없어/));
   check(() => assert.doesNotMatch(render(interpretGlyphMeaning(null)), /data-reading-meaning=/));
