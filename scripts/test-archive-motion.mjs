@@ -39,7 +39,7 @@ test('Lenis runs on archive/detail/field/compare as well as the landing route', 
     assert.equal(mounted.instances.length, 1, path);
     const instance = mounted.instances[0];
     const isArchive = path === '/archive' || path === '/archive/';
-    assert.equal(instance.options.lerp, isArchive ? 0.12 : 0.05);
+    assert.equal(instance.options.lerp, isArchive ? 0.25 : 0.05);
     assert.equal(instance.options.wheelMultiplier, isArchive ? 1 : 0.65);
     assert.equal(instance.options.syncTouch, !isArchive, 'Archive keeps touch scrolling native');
     assert.equal(instance.options.smoothWheel, true);

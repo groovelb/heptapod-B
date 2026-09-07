@@ -34,7 +34,7 @@ function AppContent() {
     // Query-based archive depths share this instance and the same scroll profile.
     const isArchive = pathname.replace(/\/+$/, '') === APP_PATHS.archive;
     const instance = new Lenis({
-      lerp: isArchive ? 0.12 : 0.05,
+      lerp: isArchive ? 0.25 : 0.05,
       wheelMultiplier: isArchive ? 1 : 0.65,
       touchMultiplier: isArchive ? 1 : 0.9,
       smoothWheel: true,
