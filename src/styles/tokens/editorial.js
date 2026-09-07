@@ -34,6 +34,15 @@ export function createEditorialTokens({ typography, breakpoints }) {
       spreadGap: { xs: 4, md: 8 }, leadSpace: { xs: 1, md: 2 },
       readingViewport: 'min(30rem, 48svh)', railMeasure: 'clamp(18rem, 28vw, 24rem)',
       rule: { borderTop: 1, borderColor: 'currentColor' },
+      listItem: {
+        position: 'relative', paddingInlineStart: '1.25em',
+        '&::before': {
+          content: '""', position: 'absolute', insetInlineStart: 0,
+          // Align the ring with the first line of editorialBody (1.75 line height).
+          top: '0.675em', width: '0.4em', height: '0.4em', boxSizing: 'border-box',
+          border: '1px solid', borderColor: 'currentColor', borderRadius: '50%',
+        },
+      },
       archivePage: {
         // Archive rhythm is independent of Create's long-form analysis.
         // Add sectionPadding to narrativeGap: approximately 32/48px between blocks.

@@ -186,7 +186,6 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
       </Box>
       <Box data-archive-list-view hidden={ Boolean(focusedId) } inert={ Boolean(focusedId) } sx={ { display: focusedId ? 'none' : 'block' } }>
       <Box component="header" data-archive-page-heading sx={ { textAlign: 'center', pt: root ? theme.editorial.archivePage.rootInset : theme.editorial.archivePage.contentInset } }>
-        { root && <Typography sx={ { typography: 'editorialLabel', mb: 1.5 } }>{ t('archiveDepthExplorer.baseFamilySymbol') }</Typography> }
         <Typography ref={ titleRef } tabIndex={ -1 } component="h1" sx={ {
           m: 0, typography: root ? 'editorialDisplay' : 'editorialTitle',
           '&:focus': { outline: 'none' },

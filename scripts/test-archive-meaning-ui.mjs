@@ -122,7 +122,7 @@ try {
   check(() => assert.match(rootHtml, /상위 표식군/));
   check(() => assert.match(rootHtml, /data-family-symbol/));
   check(() => assert.doesNotMatch(rootHtml, /data-sample-glyph/));
-  check(() => assert.match(rootHtml, /기본 계열의 상징/));
+  check(() => assert.doesNotMatch(rootHtml, /기본 계열의 상징/, 'Root starts with its title without a redundant overline'));
   for (const familyId of ['arrival', 'reception', 'reciprocity']) {
     const symbolHtml = render(FamilySymbol, { familyId });
     check(() => assert.match(symbolHtml, new RegExp(`data-family-symbol="${familyId}"`)));

@@ -59,8 +59,7 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
         gridArea: 'heading', minWidth: 0, maxWidth: (theme) => theme.editorial.measure,
         mb: (theme) => ({ xs: theme.editorial.archivePage.groupGap.xs - theme.editorial.paragraphGap, md: 0 }),
       } }>
-        <Typography sx={ { typography: 'editorialMeta' } }>{ t('archiveDepthExplorer.selectedGlyph') }</Typography>
-        <Typography component="h2" sx={ { ...headingSx, mt: (theme) => theme.editorial.paragraphGap } }>{ localize(type?.title || interpretation?.title) || t('glyphMeaningSummary.thisMeaningCannotBeReadYet') }</Typography>
+        <Typography component="h2" sx={ { ...headingSx, m: 0 } }>{ localize(type?.title || interpretation?.title) || t('glyphMeaningSummary.thisMeaningCannotBeReadYet') }</Typography>
         <ArchetypeMotto archetype={ type } />
       </Box>
       <Box data-archive-sticky-figure sx={ { gridArea: 'figure', position: { xs: 'static', md: 'sticky' }, alignSelf: 'start', minWidth: 0,

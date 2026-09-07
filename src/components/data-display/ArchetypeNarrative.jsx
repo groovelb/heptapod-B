@@ -36,8 +36,8 @@ export default function ArchetypeNarrative({ archetype, familyId = archetype?.fa
       { variant === 'full' && <>
         { ['traits', 'moments'].map((field) => <Box sx={ sectionSx } component="section" key={ field } data-narrative-field={ field }>
           <Typography component="h3" sx={ labelSx }>{ t(`archetypeNarrative.${field}`) }</Typography>
-          <Box component="ul" sx={ { m: 0, pl: 2, display: 'grid', gap: (theme) => theme.editorial.itemGap } }>
-            { archetype[field].map((sentence) => <Typography component="li" key={ sentence } sx={ textSx }>{ localize(sentence) }</Typography>) }
+          <Box component="ul" role="list" sx={ { m: 0, p: 0, listStyle: 'none', display: 'grid', gap: (theme) => theme.editorial.itemGap } }>
+            { archetype[field].map((sentence) => <Typography component="li" key={ sentence } sx={ (theme) => ({ ...textSx, ...theme.editorial.listItem }) }>{ localize(sentence) }</Typography>) }
           </Box>
         </Box>) }
         { ['tension', 'question'].map((field) => <Box sx={ sectionSx } component="section" key={ field } data-narrative-field={ field }>
