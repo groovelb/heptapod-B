@@ -35,7 +35,6 @@ import {
   HERO_HANDOFF_VH,
   HERO_MASTER_TITLE,
   HERO_START_LABEL,
-  HERO_SKIP_LABEL,
   HERO_HEADLINE_FONT,
   HERO_STORY_BEATS,
   HERO_AUTOPLAY_FROM,
@@ -154,9 +153,6 @@ function HeptapodHeroIntro({ onComplete }) {
 
   const trackRef = useRef(null);
   const mediaRef = useRef(null);
-  const handoffRef = useRef(null);
-  /** SKIP 이 잠금 해제 직후 실행할 스크롤 목표(element). START 는 목표를 두지 않는다 */
-  const pendingScrollRef = useRef(null);
 
   const [reducedMotion, setReducedMotion] = useState(false);
   const [started, setStarted] = useState(false);
@@ -215,7 +211,6 @@ function HeptapodHeroIntro({ onComplete }) {
 
   /**
    * START 게이트 — 누르기 전엔 스크롤 잠금: Lenis(휠·터치) + html overflow(키보드·네이티브).
-   * 해제 시 대기 중인 스크롤 목표(START=첫 비트, SKIP=핸드오프)로 이동한다.
    */
   useEffect(() => {
     const root = document.documentElement;
@@ -228,18 +223,8 @@ function HeptapodHeroIntro({ onComplete }) {
       };
     }
     lenis?.start();
-    const target = pendingScrollRef.current;
-    pendingScrollRef.current = null;
-    if (target == null) return undefined;
-    if (lenis) {
-      lenis.scrollTo(target, { duration: 1.6, force: true });
-    } else if (typeof target === 'number') {
-      window.scrollTo({ top: target, behavior: reducedMotion ? 'auto' : 'smooth' });
-    } else {
-      target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
-    }
     return undefined;
-  }, [lenis, started, reducedMotion]);
+  }, [lenis, started]);
 
   /**
    * Lenis/네이티브의 실제 스크롤 위치를 캡션·스크럽 트랙 진행도에 반영한다.
@@ -365,19 +350,6 @@ function HeptapodHeroIntro({ onComplete }) {
     setStarted(true);
   }, [soundOn, videoReady, playbackState]);
 
-  /** SKIP — 스크럽 끝으로 이동하되 실제 재생 완주를 건너뛰지는 않는다. */
-  const handleSkip = useCallback(() => {
-    const el = handoffRef.current;
-    if (!started) {
-      pendingScrollRef.current = el;
-      setStarted(true);
-      return;
-    }
-    if (!el) return;
-    if (lenis) lenis.scrollTo(el, { duration: 1.2, force: true });
-    else el.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
-  }, [lenis, started, reducedMotion]);
-
   /** 사운드 토글 — 켤 때는 클릭 제스처 안이라 enable 가능 */
   const toggleSound = useCallback(() => {
     setSoundOn((on) => {
@@ -488,13 +460,7 @@ function HeptapodHeroIntro({ onComplete }) {
         />
       ) }
       <AppGNB overlay tone="dark" soundOn={ soundOn } soundLoading={ sound.isLoading }
-        onToggleSound={ videoEnded ? undefined : toggleSound }>
-        { !videoEnded && <Button onClick={ handleSkip } sx={ {
-          minWidth: 0, minHeight: 44, px: 1, color: 'inherit', fontFamily: monoFont,
-          fontSize: 11, letterSpacing: '0.1em', opacity: 0.7,
-          '&:hover': { opacity: 1, backgroundColor: 'transparent' },
-        } }>{ HERO_SKIP_LABEL }</Button> }
-      </AppGNB>
+        onToggleSound={ videoEnded ? undefined : toggleSound } />
 
       {/* 스크롤 콘텐츠 (자연 흐름, 영상 위) */}
       <Box sx={ { position: 'relative', zIndex: 1 } }>
@@ -594,7 +560,7 @@ function HeptapodHeroIntro({ onComplete }) {
         </Box>
 
         {/* 스크럽 끝까지 도달할 여유 거리. 전환은 이 위치가 아닌 실제 video ended가 결정한다. */}
-        <Box ref={ handoffRef } sx={ { position: 'relative', minHeight: isMobile ? `calc(var(--hero-cell-height) * ${HERO_HANDOFF_VH / 100})` : `${HERO_HANDOFF_VH}vh` } } />
+        <Box sx={ { position: 'relative', minHeight: isMobile ? `calc(var(--hero-cell-height) * ${HERO_HANDOFF_VH / 100})` : `${HERO_HANDOFF_VH}vh` } } />
       </Box>
     </Box>
   );

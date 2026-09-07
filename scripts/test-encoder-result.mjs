@@ -94,6 +94,7 @@ try {
   const heading = () => document.querySelector('[data-encoder-metadata-heading]');
   const readouts = () => Object.fromEntries([...metadata().querySelectorAll('dt')].map((label) => [label.textContent, label.nextElementSibling.textContent]));
   const layoutStyles = () => [overlay(), heading(), metadata(), analysis(), actions()].map((element) => {
+    if (!element) return null;
     const style = getComputedStyle(element);
     return Object.fromEntries(['position', 'top', 'right', 'width', 'height', 'display', 'grid-template-rows', 'margin', 'padding'].map((key) => [key, style.getPropertyValue(key)]));
   });
@@ -337,12 +338,15 @@ try {
   }
   check(() => assert.ok(clusterCounts.size > 1, 'Exercise variable cluster counts'));
 
-  // Same navigation and membership controls on mobile; Analysis opens detailed reading.
+  // Mobile shows only Analysis and publish/share; the detailed reading stays intact.
   await act(async () => dom.happyDOM.setViewport({ width: 390, height: 844 }));
   await mount(page);
   const mobileLayout = layoutStyles();
-  check(() => assert.equal(overlay().querySelectorAll('button, a').length, 3));
-  check(() => assert.equal(getComputedStyle(metadata()).height, '64px', 'Mobile arranges the same four metadata values in two fixed-height rows'));
+  check(() => assert.equal(overlay().querySelectorAll('button, a').length, 2));
+  check(() => assert.equal(metadata(), null));
+  check(() => assert.equal(heading(), null));
+  check(() => assert.equal(overlay().querySelectorAll('a').length, 0));
+  check(() => assert.equal(overlay().querySelector('[data-glyph-cluster-name]'), null));
   await click(analysis());
   check(() => assert.equal(analysis().getAttribute('aria-pressed'), 'true'));
   check(() => assert.match(dialog().textContent, /Louise의 표식 읽기.*Archive의 공통 언어/));

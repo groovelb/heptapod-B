@@ -51,7 +51,7 @@ try {
   const { default: theme } = await server.ssrLoadModule('/src/styles/themes/default.js');
   const { I18nContext } = await server.ssrLoadModule('/src/i18n/useI18n.js');
   const { createTranslator } = await server.ssrLoadModule('/src/i18n/messages.js');
-  const { createArchiveStoryClient } = await server.ssrLoadModule('/src/test-fixtures/archiveClient.js');
+  const { createArchiveStoryClient, ARCHIVE_STORY_IDS } = await server.ssrLoadModule('/src/test-fixtures/archiveClient.js');
   const session = {};
   const mount = async () => {
     if (root) await act(async () => root.unmount());
@@ -103,7 +103,20 @@ try {
   check(() => assert.equal(getComputedStyle(page).height, 'auto', 'Mobile page is not locked to clipped 100vh'));
   check(() => assert.equal(getComputedStyle(document.querySelector('[data-encoder-controls]')).position, 'relative'));
   check(() => assert.equal(getComputedStyle(document.querySelector('[data-encoder-overlay]')).position, 'relative'));
-  check(() => assert.equal(getComputedStyle(document.querySelector('[data-encoder-metadata]')).gridTemplateRows, 'repeat(2, 32px)'));
+  const overlay = () => document.querySelector('[data-encoder-overlay]');
+  const checkMobileActions = () => {
+    check(() => assert.equal(overlay().querySelectorAll('button, a').length, 2));
+    check(() => assert.equal(overlay().querySelectorAll('a').length, 0));
+    check(() => assert.equal(overlay().querySelector('[data-encoder-metadata]'), null));
+    check(() => assert.equal(overlay().querySelector('[data-encoder-metadata-heading]'), null));
+    check(() => assert.equal(overlay().querySelector('[data-glyph-cluster-name]'), null));
+    check(() => assert.equal(overlay().querySelector('[data-encoder-public-link]'), null));
+    check(() => assert.ok(overlay().querySelector('[data-encoder-analysis]')));
+    check(() => assert.ok(overlay().querySelector('[data-encoder-actions] button')));
+    check(() => assert.ok([...overlay().querySelectorAll('button')].every((item) => getComputedStyle(item).minHeight === '52px')));
+  };
+  checkMobileActions();
+  check(() => assert.equal(overlay().querySelector('[data-encoder-actions] button').textContent, createTranslator('ko').t('heptapodEncoderPage.publishAndShare')));
   let scrolled = 0;
   input().scrollIntoView = () => { scrolled += 1; };
   input().getBoundingClientRect = () => ({ top: 600, bottom: 644 });
@@ -124,8 +137,17 @@ try {
   dom.happyDOM.setWindowSize({ width: 844, height: 390 });
   await act(async () => dom.dispatchEvent(new dom.Event('resize')));
   check(() => assert.equal(getComputedStyle(page).height, 'auto', 'Landscape content remains scroll-reachable'));
+  checkMobileActions();
   await act(async () => root.unmount()); root = null;
   check(() => assert.equal(page.dataset.encoderKeyboard, undefined, 'Viewport state is cleaned up'));
+  session.snapshot.published = { glyphId: ARCHIVE_STORY_IDS.left };
+  await mount();
+  checkMobileActions();
+  check(() => assert.equal(overlay().querySelector('[data-encoder-actions] button').textContent, createTranslator('ko').t('encoderResult.share')));
+  await act(async () => overlay().querySelector('[data-encoder-actions] button').click());
+  check(() => assert.ok(document.querySelector('[role="dialog"] [data-publish-open]'), 'Published mobile Share still opens the existing link/share dialog'));
+  await act(async () => root.unmount()); root = null;
+  session.snapshot.published = null;
   dom.happyDOM.setWindowSize({ width: 1280, height: 900 });
   await mount();
   check(() => assert.equal(input().getAttribute('enterkeyhint'), 'go', 'Desktop keyboard hint is unchanged'));

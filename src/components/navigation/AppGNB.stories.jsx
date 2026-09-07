@@ -22,7 +22,7 @@ export default {
     soundOn: { control: 'boolean', description: '현재 페이지 사운드 상태. 기본 켜짐' },
     soundLoading: { control: 'boolean', description: '사운드 준비 중 버튼 비활성화' },
     onToggleSound: { action: 'sound', description: '기존 페이지 오디오 토글. 없으면 사운드 아이콘 생략' },
-    children: { control: false, description: 'SKIP 등 페이지별 추가 컨트롤' },
+    children: { control: false, description: '페이지별 추가 컨트롤' },
   },
 };
 export const Default = { render: (args) => <NavigationDemo { ...args } /> };

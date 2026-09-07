@@ -794,7 +794,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
         </Box>
       ) }
 
-      {/* 우상단: 동일한 네 줄 요약 + 고정 액션. 분석 모드에서도 행을 추가/교체하지 않는다. */}
+      {/* PC는 우상단 네 줄 요약을 유지하고, 모바일 하단은 분석·공유 두 액션만 표시한다. */}
       { model && (
         <Box
           component="aside"
@@ -809,13 +809,13 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
             [theme.breakpoints.down('md')]: {
               position: 'relative', top: 'auto', right: 'auto', order: 2,
               width: 'min(540px, calc(100% - 40px))', mx: 'auto', mt: 3, mb: 3,
-              '& [data-encoder-metadata]': { height: 64, gridTemplateRows: 'repeat(2, 32px)', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: 2 },
               '& a, & [data-encoder-public-link]': { minHeight: 44 },
             },
           } }
         >
           <FadeTransition direction="down" duration={ 800 }>
             <Box>
+              { !isMobileAnalysis && (<>
               <Box
                 data-encoder-metadata-heading
                 sx={ {
@@ -863,6 +863,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
               </Box>
 
               {encoderVersion === 2 && <GlyphClusterLink interpretation={ interpretation } showLink={ false } compact sx={ { mt: 1, color: fg } } />}
+              </>) }
 
               {/* status 하단 — 분석 오버레이 토글 버튼 */}
               <Button
@@ -891,7 +892,9 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
               {/* 미공개면 동의 후 공개·공유, 이미 공개했으면 재게시 없이 공유한다. */}
               <Box data-encoder-actions data-encoder-published={ !!published } sx={ { mt: theme.editorial.createCta.gap } }>
                 <Button
-                  onClick={ encoderVersion === 1 ? handleEncode : () => { handleShare().catch(() => {}); } }
+                  onClick={ encoderVersion === 1 ? handleEncode : isMobileAnalysis
+                    ? () => setPublishIntent('share')
+                    : () => { handleShare().catch(() => {}); } }
                   disabled={ hasDraft || sharing }
                   variant="text" fullWidth
                   sx={ {
@@ -900,7 +903,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
                 >
                   { t(encoderVersion === 1 ? 'encoderResult.recreate' : sharing ? 'encoderResult.sharing' : published ? 'encoderResult.share' : 'heptapodEncoderPage.publishAndShare') }
                 </Button>
-                {published?.glyphId && (
+                {!isMobileAnalysis && published?.glyphId && (
                   <Button data-encoder-public-link onClick={ () => setPublishIntent('share') } disabled={ sharing }
                     variant="text" fullWidth sx={ { ...monoSx, minHeight: 44, color: fg, fontSize: '0.58rem', borderRadius: 0 } }>
                     {t('publishDialog.myGlyphLink')}
@@ -910,7 +913,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
               <Box role="status" aria-live="polite" sx={ { ...monoSx, color: fg, fontSize: '0.6rem', mt: shareStatus || shareError ? 1 : 0 } }>
                 { shareError ? localize(shareError) : shareStatus ? t(`encoderResult.${shareStatus}`) : '' }
               </Box>
-              <Button
+              { !isMobileAnalysis && (<Button
                 component={ RouterLink }
                 to={ APP_PATHS.archive }
                 variant="text"
@@ -920,7 +923,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
                 } }
               >
                 { t('heptapodEncoderPage.archive') }
-              </Button>
+              </Button>) }
             </Box>
           </FadeTransition>
         </Box>

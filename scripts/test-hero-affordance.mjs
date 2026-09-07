@@ -174,7 +174,7 @@ try {
   // A media reload restores the last actual playback checkpoint, never 0 or 42.
   video.error = { code: 2 };
   await event(video, 'error');
-  await act(async () => button('SKIP').click());
+  check(() => assert.equal(button('SKIP'), undefined));
   check(() => assert.equal(state(), 'error'));
   check(() => assert.equal(encoder(), null, 'Canvas must not mount before playback completes'));
   await act(async () => button('다시 시도').click());
@@ -214,17 +214,20 @@ try {
   check(() => assert.equal(document.querySelector('[data-hero-intro]'), null));
   await act(async () => router.navigate(-1));
   check(() => assert.equal(router.state.location.pathname, '/before', 'Auto redirect replaces the completed landing entry'));
-  // SKIP during load still waits for native video completion.
+  // START stays gated during load; scrolling to the end still requires playback.
   video = await mount();
-  await act(async () => button('SKIP').click());
+  check(() => assert.equal(button('SKIP'), undefined));
+  check(() => assert.equal(button('START').disabled, true));
   check(() => assert.equal(encoder(), null, 'Canvas must not mount before playback completes'));
   await ready(video);
+  await start();
+  await scroll(6600);
   check(() => assert.equal(state(), 'playing'));
   check(() => assert.equal(video.currentTime, 0));
   check(() => assert.equal(hasArrow(), false));
   check(() => assert.doesNotMatch(cue().textContent, /스크롤해 이어가세요|위로 밀어 이어가세요/));
   await advance(video, 10);
-  await act(async () => button('SKIP').click());
+  await scroll(6600);
   check(() => assert.equal(video.currentTime, 10));
   // Unexpected pause / a rejected retry cannot bypass completion.
   video.paused = true;
@@ -258,13 +261,14 @@ try {
   await event(video, 'loadedmetadata');
   check(() => assert.equal(button('START').disabled, true));
   await ready(video);
-  await act(async () => button('SKIP').click());
+  await start();
+  await scroll(6600);
   check(() => assert.equal(state(), 'playing'));
   check(() => assert.equal(encoder(), null, 'Canvas must not mount before playback completes'));
   await finish(video);
   await act(async () => pause(750));
   check(() => assert.equal(cue(), null));
-  console.log(`Hero playback: ${checks} checks passed; exclusive status cue, continuous autoplay, seeks, reverse scroll, buffering, errors, reload, SKIP, reduced motion, outgoing fade, one-time /canvas replace and media cleanup (no browser).`);
+  console.log(`Hero playback: ${checks} checks passed; exclusive status cue, continuous autoplay, seeks, reverse scroll, buffering, errors, reload, START gate, reduced motion, outgoing fade, one-time /canvas replace and media cleanup (no browser).`);
 } finally {
   if (root) await act(async () => root.unmount());
   router?.dispose();
