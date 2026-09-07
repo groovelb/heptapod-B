@@ -280,6 +280,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
 
   const stageRef = useRef(null);
   const inputRef = useRef(null);
+  const controlsRef = useRef(null);
   const sharePending = useRef(false);
   const composingRef = useRef(false);
   const audioRef = useRef(null);
@@ -363,6 +364,24 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  // Reserve the input's actual height, including its preview and validation copy.
+  useEffect(() => {
+    const controls = controlsRef.current;
+    const page = controls?.closest('[data-encoder-result]');
+    if (isMobileAnalysis || !page || typeof ResizeObserver === 'undefined') return undefined;
+    const update = () => {
+      const height = controls.getBoundingClientRect().height;
+      if (height > 0) page.style.setProperty('--encoder-controls-height', `${height}px`);
+    };
+    const observer = new ResizeObserver(update);
+    observer.observe(controls);
+    update();
+    return () => {
+      observer.disconnect();
+      page.style.removeProperty('--encoder-controls-height');
+    };
+  }, [isMobileAnalysis]);
 
   // Mobile uses document flow: do not subtract the keyboard twice or move the PC HUD.
   useEffect(() => {
@@ -666,13 +685,6 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
             <GlyphObservationOverlay model={ model } anchors={ selectedAnchors } fg={ fg } />
           </Box>
         </Box>
-        <Box data-encoder-meaning-rail data-lenis-prevent sx={ {
-          position: 'absolute', left: 36, top: theme.editorial.createReading.railTop, bottom: theme.editorial.createReading.railBottom, zIndex: 3,
-          width: theme.editorial.railMeasure, display: 'flex', flexDirection: 'column', minHeight: 0,
-        } }>
-          <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fitHeight fg={ fg }
-            selectedObservationIds={ selectedMeaningIds } onToggleObservation={ handleToggleMeaning } />
-        </Box>
       </> }
 
       {/* L1 — 외곽 비네트 (영상 마지막 프레임 정렬). 블루블랙 크러시가 아니라 쿨 블루슬레이트로
@@ -693,7 +705,16 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
 
       {/* L2 — 플로팅 컨트롤 (전부 잉크 톤) */}
       {/* 좌상단: 타이틀 */}
-      <Box sx={ { position: 'absolute', top: { xs: 'calc(76px + env(safe-area-inset-top, 0px))', md: 'calc(100px + env(safe-area-inset-top, 0px))' }, left: { xs: 20, md: 36 }, zIndex: 3 } }>
+      <Box data-encoder-left-column sx={ {
+        position: 'absolute', top: { xs: 'calc(76px + env(safe-area-inset-top, 0px))', md: theme.editorial.createReading.railTop },
+        left: { xs: 20, md: 36 }, zIndex: 3,
+        ...(analysisActive && !isMobileAnalysis ? {
+          bottom: `max(${theme.editorial.createReading.railBottom}px, calc(var(--encoder-controls-height, 0px) + ${theme.editorial.createReading.controlsBottom}px + ${theme.spacing(theme.editorial.createReading.controlsGap)}))`,
+          width: theme.editorial.railMeasure, display: 'flex', flexDirection: 'column', minHeight: 0,
+          gap: theme.editorial.createReading.groupGap,
+        } : {}),
+      } }>
+        <Box component="header" sx={ { flexShrink: 0 } }>
         <Typography
           component="span"
           sx={ { ...monoSx, color: fg, opacity: 0.55, letterSpacing: '0.4em', textTransform: 'uppercase', display: { xs: 'none', md: 'block' }, mb: 1, fontSize: '0.6rem' } }
@@ -714,6 +735,13 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
         >
           { t('heptapodEncoderPage.heptapodB') }
         </Typography>
+        </Box>
+        { analysisActive && !isMobileAnalysis && <Box data-encoder-meaning-rail data-lenis-prevent sx={ {
+          flex: '1 1 0', minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column',
+        } }>
+          <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fitHeight fg={ fg }
+            selectedObservationIds={ selectedMeaningIds } onToggleObservation={ handleToggleMeaning } />
+        </Box> }
       </Box>
 
       {/* 깊이 내비 — 상단 중앙, 화살표 하나 (← 한 단계 위로) */}
@@ -903,10 +931,11 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
         component="form"
         onSubmit={ handleSubmit }
         data-encoder-controls
+        ref={ controlsRef }
         sx={ {
           position: 'absolute',
           left: '50%',
-          bottom: { xs: 'calc(24px + var(--kb-offset, 0px))', md: 44 },
+          bottom: { xs: 'calc(24px + var(--kb-offset, 0px))', md: theme.editorial.createReading.controlsBottom },
           transition: 'bottom 0.2s ease',
           transform: 'translateX(-50%)',
           zIndex: 3,

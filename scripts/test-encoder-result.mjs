@@ -138,6 +138,14 @@ try {
   const meaningButton = (id) => reading().querySelector(`[data-reading-meaning="${id}"]`);
   const detail = () => reading().querySelector('[data-reading-detail]');
   check(() => assert.equal(getComputedStyle(reading()).display, 'flex'));
+  const leftColumn = document.querySelector('[data-encoder-left-column]');
+  const rail = document.querySelector('[data-encoder-meaning-rail]');
+  check(() => assert.equal(leftColumn.firstElementChild.tagName, 'HEADER'));
+  check(() => assert.equal(leftColumn.firstElementChild.nextElementSibling, rail, 'Page title and reading occupy successive flex rows'));
+  check(() => assert.equal(getComputedStyle(leftColumn).flexDirection, 'column'));
+  check(() => assert.equal(getComputedStyle(rail).position, '', 'The reading rail no longer overlaps the absolutely positioned page title'));
+  check(() => assert.equal(getComputedStyle(rail).minHeight, '0'));
+
   check(() => assert.equal(getComputedStyle(document.querySelector('[data-encoder-meaning-rail]')).overflowY, '', 'Only the inner reading pane owns scrolling'));
   check(() => assert.equal(getComputedStyle(detail()).flexGrow, '1'));
   check(() => assert.equal(getComputedStyle(detail()).minHeight, '0'));
