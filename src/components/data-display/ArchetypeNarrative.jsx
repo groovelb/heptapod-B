@@ -12,13 +12,13 @@ const sectionSx = (theme) => ({ ...theme.editorial.rule, pt: theme.editorial.sec
 /** The same deployed JSON narrative in Create and Archive. No classification,
  * fetching or local selection; only complete catalog types receive combination copy.
  */
-export default function ArchetypeNarrative({ archetype, familyId = archetype?.familyId, showFamily = true, showIdentity = true, showMotto = true, variant = 'full', sx }) {
+export default function ArchetypeNarrative({ archetype, familyId = archetype?.familyId, showFamily = true, showIdentity = true, showMotto = true, variant = 'full', spacing = 'default', sx }) {
   const { t, localize } = useI18n();
   const family = ARCHETYPE_FAMILIES[familyId];
   if (!family && !archetype) return null;
-  return <Box data-narrative-type={ archetype?.id } sx={ { display: 'grid', gap: (theme) => theme.editorial.sectionGap, maxWidth: (theme) => theme.editorial.measure, minWidth: 0, ...sx } }>
+  return <Box data-narrative-type={ archetype?.id } sx={ { display: 'grid', gap: (theme) => spacing === 'archive' ? theme.editorial.archivePage.narrativeGap : theme.editorial.sectionGap, maxWidth: (theme) => theme.editorial.measure, minWidth: 0, ...sx } }>
     { archetype && showMotto && variant === 'full' && <ArchetypeMotto archetype={ archetype } sx={ { mt: 0 } } /> }
-    { archetype && showIdentity && <Typography data-narrative-identity sx={ { typography: 'editorialLead', pb: (theme) => theme.editorial.leadSpace } }>{ localize(archetype.reading) }</Typography> }
+    { archetype && showIdentity && <Typography data-narrative-identity sx={ { typography: 'editorialLead', pb: (theme) => spacing === 'archive' ? 0 : theme.editorial.leadSpace } }>{ localize(archetype.reading) }</Typography> }
     { showFamily && family && <Box sx={ sectionSx } component="section" data-narrative-family={ family.id }>
       <Typography component="h3" sx={ labelSx }>{ t('archetypeNarrative.family') } · { localize(family.title) }</Typography>
       <Typography sx={ textSx }>{ localize(family.story) }</Typography>

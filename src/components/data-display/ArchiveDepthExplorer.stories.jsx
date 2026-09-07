@@ -30,7 +30,7 @@ function InteractiveDepth(args) {
 
 export default {
   title: 'Custom Component/5. Data Display/ArchiveDepthExplorer', component: ArchiveDepthExplorer, tags: ['autodocs'],
-  parameters: { layout: 'fullscreen', docs: { description: { component: '루트의 빈 내비게이션은 높이를 차지하지 않습니다. 페이지 제목은 GNB 뒤 24/32px, 깊이 제목과 상세는 실제 내비게이션 뒤 공통 16px에서 시작합니다. JSON 군집 대표 설명을 각 진입 원 아래에 표시하고, 깊이 안에서는 상위 군집 설명 다음에 조합별 추가 설명과 유형 서사를 표시합니다. 뒤로 가기·현재 경로·정렬·공유 바는 GNB 아래에 sticky로 유지됩니다. 바가 줄바꿈되면 왼쪽 인덱스와 앵커 여백도 실제 높이에 맞춥니다. 모바일은 계열·시간순 진입을 2열로, PC는 기존 3개 계열과 둘째 행 중앙 시간순 진입으로 표시합니다. 군집 3개는 첫 행, 시간순 보기 원은 둘째 행 중앙입니다. 유형별 실제 구성원 피드에서 원 중앙의 이름을 선택하면 상세 화면으로 전환합니다. 모달·Next·Compare 없이 초록 분석 효과와 의미 선택, 같은 정확한 유형의 다른 표식, 공통 의미별 실제 부위 그리드를 표시합니다. 목록은 숨긴 채 마운트를 유지하고 돌아오면 원래 구성원으로 포커스를 복원합니다. 실제 URL·스크롤 복원은 MyArchivePage의 책임입니다. 부분 판독 표식의 유형을 강제하지 않으며, 저작 상징은 사람/평균 표식이 아닙니다. 형성·감소 모션 유지. 로컬 DTO만 사용하며 네트워크·DB·오디오는 없습니다.' } } },
+  parameters: { layout: 'fullscreen', docs: { description: { component: '루트의 빈 내비게이션은 높이를 차지하지 않습니다. 페이지 제목은 GNB 뒤 24/32px, 깊이 제목과 상세는 실제 내비게이션 뒤 공통 16px에서 시작합니다. 군집 원은 모든 화면에서 첫 행 3개, 시간순 원은 다음 중앙에 한 줄 제목으로 표시합니다. 군집 대표 설명은 데스크톱에서 같은 높이에 정렬하고 모바일에서는 시간순 원 다음 전체 폭의 이름·설명 행으로 제공합니다. 깊이 안에서는 상위 군집 설명 다음에 조합별 추가 설명과 유형 서사를 표시합니다. 뒤로 가기·현재 경로·정렬·공유 바는 GNB 아래에 sticky로 유지됩니다. 바가 줄바꿈되면 데스크톱 세로·모바일 가로 인덱스와 앵커 여백도 실제 높이에 맞춥니다. 군집 설명·유형 제목·본문은 640px 정렬축을 공유합니다. 유형별 실제 구성원 피드에서 원 중앙의 이름을 선택하면 상세 화면으로 전환합니다. 모달·Next·Compare 없이 초록 분석 효과와 의미 선택, 같은 정확한 유형의 다른 표식, 공통 의미별 실제 부위 그리드를 표시합니다. 목록은 숨긴 채 마운트를 유지하고 돌아오면 원래 구성원으로 포커스를 복원합니다. 실제 URL·스크롤 복원은 MyArchivePage의 책임입니다. 부분 판독 표식의 유형을 강제하지 않으며, 저작 상징은 사람/평균 표식이 아닙니다. 형성·감소 모션 유지. 로컬 DTO만 사용하며 네트워크·DB·오디오는 없습니다.' } } },
   decorators: [(Story) => <Box sx={ { minHeight: '100svh', px: { xs: 2, md: 5 }, bgcolor: 'custom.chamber.fog' } }>{ createElement(Story) }</Box>],
   argTypes: {
     order: { control: 'select', options: [null, 'newest', 'oldest'], description: 'null은 군집, 나머지는 전체 등록 시간순' },
@@ -54,3 +54,5 @@ export const Empty = { args: { glyphs: [], meanings: groupArchiveMeanings([]) } 
 
 export const Chronological = { args: { order: 'newest' }, render: Docs.render };
 export const OldestFirst = { args: { order: 'oldest' }, render: Docs.render };
+
+export const NarrowHome = { decorators: [(Story) => <Box sx={ { maxWidth: 358, mx: 'auto' } }>{ createElement(Story) }</Box>], render: Docs.render };

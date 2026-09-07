@@ -94,8 +94,14 @@ export default function MyArchivePage({ client, meaningProvider, musicAutoplay =
       <Box aria-hidden="true" sx={ { position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none' } }><LogogramChamber isFullscreen /></Box>
       <AppGNB soundOn={ isMusicOn } onToggleSound={ handleToggleMusic } />
 
-      <Box component="main" sx={ { px: { xs: 2, sm: 4, md: 6 }, pb: { xs: 3, md: 5 }, maxWidth: 1600, mx: 'auto', minHeight: 'calc(100svh - 100px)',
-        [theme.breakpoints.down('md')]: { pl: 'max(16px, env(safe-area-inset-left, 0px))', pr: 'max(16px, env(safe-area-inset-right, 0px))', pb: 'max(24px, env(safe-area-inset-bottom, 0px))' },
+      <Box component="main" sx={ { px: theme.editorial.archivePage.gutter, pb: theme.editorial.archivePage.bottomInset,
+        maxWidth: `calc(${theme.editorial.spread} + ${theme.spacing(theme.editorial.archivePage.gutter.md * 2)})`, mx: 'auto',
+        minHeight: { xs: `calc(100svh - ${theme.editorial.archivePage.navigationTop.xs})`, md: `calc(100svh - ${theme.editorial.archivePage.navigationTop.md})` },
+        [theme.breakpoints.down('md')]: {
+          pl: { xs: `max(${theme.spacing(theme.editorial.archivePage.gutter.xs)}, env(safe-area-inset-left, 0px))`, sm: `max(${theme.spacing(theme.editorial.archivePage.gutter.sm)}, env(safe-area-inset-left, 0px))` },
+          pr: { xs: `max(${theme.spacing(theme.editorial.archivePage.gutter.xs)}, env(safe-area-inset-right, 0px))`, sm: `max(${theme.spacing(theme.editorial.archivePage.gutter.sm)}, env(safe-area-inset-right, 0px))` },
+          pb: `max(${theme.spacing(theme.editorial.archivePage.bottomInset.xs)}, env(safe-area-inset-bottom, 0px))`,
+        },
       } }>
         { loading || (ready && !unsupportedVersion && interpreting) ? <Box role="status" sx={ { minHeight: '65svh', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 } }>
           <CircularProgress color="inherit" size={ 18 } /><Typography sx={ { fontSize: 14 } }>{ t('myArchivePage.glyphsAreGatheringBeyondTheMist') }</Typography>

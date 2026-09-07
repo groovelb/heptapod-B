@@ -27,16 +27,32 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
   const type = getGlyphArchetype(interpretation);
   const peers = members.filter((member) => member.id !== glyph.id);
   // Keep the complete peer list below; the fragment matrix samples two peers so
-  // all three forms remain readable together even on a narrow screen.
+  // desktop compares side by side and narrow screens stack readable samples.
   const samples = [glyph, ...peers.slice(0, 2)];
   const sampleReadings = samples.map((sample) => buildMeaningReading(sample.id === glyph.id ? interpretation : interpretations[sample.id], locale));
   const shared = entries.filter((entry) => entry.anchors.length && sampleReadings.every((reading) => reading.some((item) => item.meaningId === entry.meaningId && item.anchors.length)));
   useEffect(() => { ref.current?.focus({ preventScroll: true }); }, []);
 
   return <Box ref={ ref } tabIndex={ -1 } component="section" aria-label={ t('archiveDepthExplorer.selectedGlyphDetail') } data-selected-glyph-detail
-    sx={ { maxWidth: (theme) => theme.editorial.spread, mx: 'auto', pt: (theme) => theme.editorial.archivePage.contentInset, pb: { xs: 5, md: 10 }, '&:focus': { outline: 'none' } } }>
-    <Box sx={ { display: 'grid', gridTemplateColumns: (theme) => theme.editorial.detailColumns, gap: (theme) => theme.editorial.spreadGap, alignItems: 'start' } }>
-      <Box data-archive-sticky-figure sx={ { position: { xs: 'static', md: 'sticky' }, alignSelf: 'start', minWidth: 0,
+    sx={ { maxWidth: (theme) => theme.editorial.spread, mx: 'auto', pt: (theme) => theme.editorial.archivePage.contentInset, pb: (theme) => theme.editorial.archivePage.bottomInset, '&:focus': { outline: 'none' } } }>
+    <Box data-archive-detail-layout sx={ {
+      display: 'grid', gridTemplateColumns: (theme) => theme.editorial.detailColumns,
+      gridTemplateAreas: { xs: '"heading" "figure" "reading"', md: '"figure heading" "figure reading"' },
+      // A flexible body row keeps the heading at its own content height even
+      // when the spanning figure is taller than a short/unconfirmed reading.
+      gridTemplateRows: { xs: 'auto auto auto', md: 'auto minmax(0, 1fr)' },
+      columnGap: (theme) => theme.editorial.archivePage.columnGap,
+      rowGap: (theme) => theme.editorial.paragraphGap, alignItems: 'start',
+    } }>
+      <Box component="header" data-archive-detail-heading sx={ {
+        gridArea: 'heading', minWidth: 0, maxWidth: (theme) => theme.editorial.measure,
+        mb: (theme) => ({ xs: theme.editorial.archivePage.groupGap.xs - theme.editorial.paragraphGap, md: 0 }),
+      } }>
+        <Typography sx={ { typography: 'editorialMeta' } }>{ t('archiveDepthExplorer.selectedGlyph') }</Typography>
+        <Typography component="h2" sx={ { ...headingSx, mt: (theme) => theme.editorial.paragraphGap } }>{ localize(type?.title || interpretation?.title) || t('glyphMeaningSummary.thisMeaningCannotBeReadYet') }</Typography>
+        <ArchetypeMotto archetype={ type } />
+      </Box>
+      <Box data-archive-sticky-figure sx={ { gridArea: 'figure', position: { xs: 'static', md: 'sticky' }, alignSelf: 'start', minWidth: 0,
         '--archive-figure-top': (theme) => theme.editorial.archiveFigure.top, top: 'var(--archive-figure-top)',
       } }>
         <Box id={ analysisId }>
@@ -49,37 +65,39 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
           { t(analysis ? 'archiveDepthExplorer.hideAnalysis' : 'archiveDepthExplorer.showAnalysis') }
         </Button>
       </Box>
-      <Box data-archive-reading-column sx={ { minWidth: 0 } }>
-        <Typography sx={ { typography: 'editorialMeta' } }>{ t('archiveDepthExplorer.selectedGlyph') }</Typography>
-        <Typography component="h2" sx={ { ...headingSx, mt: 1 } }>{ localize(type?.title || interpretation?.title) || t('glyphMeaningSummary.thisMeaningCannotBeReadYet') }</Typography>
-        <ArchetypeMotto archetype={ type } />
+      <Box data-archive-reading-column sx={ { gridArea: 'reading', minWidth: 0, maxWidth: (theme) => theme.editorial.measure } }>
         <GlyphObservationChips entries={ entries } selectedIds={ selectedIds }
           onToggle={ (entry) => setSelectedIds((ids) => ids.includes(entry.id) ? ids.filter((id) => id !== entry.id) : [...ids, entry.id]) } />
-        { type && <ArchetypeNarrative archetype={ type } showMotto={ false } sx={ { mt: (theme) => theme.editorial.paragraphGap } } /> }
+        { type && <ArchetypeNarrative archetype={ type } showMotto={ false } spacing="archive" sx={ { mt: (theme) => theme.editorial.archivePage.groupGap } } /> }
       </Box>
     </Box>
 
-    <Box component="section" aria-label={ t('archiveDepthExplorer.sameTypeGlyphs') } sx={ { mt: (theme) => theme.editorial.sectionBreak } }>
+    <Box component="section" aria-label={ t('archiveDepthExplorer.sameTypeGlyphs') } sx={ { mt: (theme) => theme.editorial.archivePage.sectionBreak } }>
       <Typography component="h2" sx={ headingSx }>{ t('archiveDepthExplorer.sameTypeGlyphs') }</Typography>
-      <Typography sx={ { mt: 1, typography: 'editorialMeta' } }>{ !type ? t('archiveDepthExplorer.typeUnconfirmed')
+      <Typography sx={ { mt: (theme) => theme.editorial.paragraphGap, typography: 'editorialMeta' } }>{ !type ? t('archiveDepthExplorer.typeUnconfirmed')
         : peers.length ? t('archiveDepthExplorer.sameTypeCount', { count: peers.length }) : t('archiveDepthExplorer.noTypePeers') }</Typography>
-      { peers.length > 0 && <Box sx={ { display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' }, gap: { xs: 2, md: 3 }, mt: 2 } }>
+      { peers.length > 0 && <Box sx={ { display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' }, columnGap: (theme) => theme.editorial.archivePage.columnGap, rowGap: (theme) => theme.editorial.archivePage.groupGap, mt: (theme) => theme.editorial.archivePage.introGap } }>
         { peers.map((peer) => <Box key={ peer.id } data-same-type-glyph={ peer.id }><ArchiveGlyph glyph={ peer } showName onSelect={ onSelect } /></Box>) }
       </Box> }
     </Box>
 
-    { peers.length > 0 && shared.length > 0 && <Box component="section" aria-label={ t('archiveDepthExplorer.sharedPatternGrid') } data-shared-pattern-grid sx={ { mt: (theme) => theme.editorial.sectionBreak } }>
+    { peers.length > 0 && shared.length > 0 && <Box component="section" aria-label={ t('archiveDepthExplorer.sharedPatternGrid') } data-shared-pattern-grid sx={ { mt: (theme) => theme.editorial.archivePage.sectionBreak } }>
       <Typography component="h2" sx={ headingSx }>{ t('archiveDepthExplorer.sharedPatternGrid') }</Typography>
-      <Typography sx={ { mt: 1, mb: 3, typography: 'editorialBody' } }>{ t('archiveDepthExplorer.sharedPatternIntro', { count: samples.length }) }</Typography>
-      { shared.map((entry) => <Box key={ entry.meaningId } data-shared-meaning={ entry.meaningId } sx={ { py: 3, borderTop: '1px solid', borderColor: 'divider' } }>
+      <Typography sx={ { mt: (theme) => theme.editorial.paragraphGap, typography: 'editorialBody' } }>{ t('archiveDepthExplorer.sharedPatternIntro', { count: samples.length }) }</Typography>
+      { shared.map((entry) => <Box key={ entry.meaningId } data-shared-meaning={ entry.meaningId } sx={ { mt: (theme) => theme.editorial.archivePage.narrativeGap, pt: (theme) => theme.editorial.sectionPadding, borderTop: '1px solid', borderColor: 'divider' } }>
         <Typography component="h3" sx={ { typography: 'editorialLabel' } }>{ entry.label }</Typography>
-        <Typography sx={ { mt: 0.75, typography: 'editorialBody', maxWidth: (theme) => theme.editorial.measure } }>{ entry.definition }</Typography>
-        <Box sx={ { display: 'grid', gridTemplateColumns: `repeat(${samples.length}, minmax(0, 1fr))`, gap: { xs: 1, md: 4 }, mt: 2 } }>
+        <Typography sx={ { mt: (theme) => theme.editorial.labelGap, typography: 'editorialBody', maxWidth: (theme) => theme.editorial.measure } }>{ entry.definition }</Typography>
+        <Box data-shared-pattern-samples sx={ {
+          display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: `repeat(${samples.length}, minmax(0, 1fr))` },
+          columnGap: (theme) => theme.editorial.archivePage.columnGap,
+          rowGap: (theme) => theme.editorial.archivePage.groupGap,
+          mt: (theme) => theme.editorial.archivePage.introGap,
+        } }>
           { samples.map((sample, index) => {
             const observation = sampleReadings[index].find((item) => item.meaningId === entry.meaningId);
-            return <Box component="figure" key={ sample.id } data-shared-pattern-glyph={ sample.id } data-fragment-anchor-count={ observation.anchors.length } sx={ { m: 0, minWidth: 0 } }>
+            return <Box component="figure" key={ sample.id } data-shared-pattern-glyph={ sample.id } data-fragment-anchor-count={ observation.anchors.length } sx={ { m: 0, minWidth: 0, width: '100%', maxWidth: (theme) => theme.editorial.archivePage.comparisonSize, justifySelf: 'center' } }>
               <ArchiveGlyph glyph={ sample } fragmentAnchors={ observation.anchors } maxSize={ 300 } />
-              <Typography component="figcaption" sx={ { mt: 1, typography: 'editorialMeta', textAlign: 'center', overflowWrap: 'anywhere' } }>{ glyphLabel(sample) }</Typography>
+              <Typography component="figcaption" sx={ { mt: (theme) => theme.editorial.paragraphGap, typography: 'editorialMeta', textAlign: 'center', overflowWrap: 'anywhere' } }>{ glyphLabel(sample) }</Typography>
             </Box>;
           }) }
         </Box>

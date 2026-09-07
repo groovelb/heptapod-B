@@ -16,6 +16,7 @@ const dom = new Window({ settings: { disableCSSFileLoading: true, disableJavaScr
 let checks = 0;
 try {
   const { default: theme } = await server.ssrLoadModule('/src/styles/themes/default.js');
+  const { default: LocaleProvider } = await server.ssrLoadModule('/src/i18n/LocaleProvider.jsx');
   const { default: Depth } = await server.ssrLoadModule('/src/components/data-display/ArchiveDepthExplorer.jsx');
   const meanings = groupArchiveMeanings(ARCHIVE_STORY_GLYPHS);
   const section = buildArchiveArchetypeFeed(ARCHIVE_STORY_GLYPHS, meanings).sections.find((entry) => entry.glyphs.length > 1);
@@ -26,8 +27,8 @@ try {
   };
   const resolvedSize = (rem) => `${parseFloat(rem) * parseFloat(dom.getComputedStyle(dom.document.documentElement).fontSize)}px`;
   // Check responsive reading roles, rather than freezing all desktop CSS.
-  for (const [name, props] of Object.entries(fixtures)) {
-    const html = renderToStaticMarkup(h(ThemeProvider, { theme }, h(Depth, { glyphs: ARCHIVE_STORY_GLYPHS, meanings, ...props })));
+  for (const locale of ['ko', 'en']) for (const [name, props] of Object.entries(fixtures)) {
+    const html = renderToStaticMarkup(h(LocaleProvider, { initialMode: locale, syncDocument: false }, h(ThemeProvider, { theme }, h(Depth, { glyphs: ARCHIVE_STORY_GLYPHS, meanings, ...props }))));
     dom.document.body.innerHTML = html;
     for (const width of [900, 1440]) {
       dom.happyDOM.setWindowSize({ width, height: 900 });
@@ -45,7 +46,7 @@ try {
       const title = dom.document.querySelector(name === 'root' ? 'h1' : name === 'feed' ? '[data-archetype-section] h2' : '[data-selected-glyph-detail] h2');
       const titleRole = name === 'root' ? 'editorialDisplay' : 'editorialTitle';
       assert.equal(dom.getComputedStyle(title).fontSize, resolvedSize(theme.typography[titleRole][desktop].fontSize), `${name}:${width}: heading consumes desktop role`); checks += 1;
-      const body = dom.document.querySelector(name === 'root' ? '[data-family-introduction]' : name === 'detail' ? '[data-selected-glyph-detail] [data-archetype-narrative]' : '[data-archetype-narrative]');
+      const body = dom.document.querySelector(name === 'root' ? '[data-family-reading]' : name === 'detail' ? '[data-selected-glyph-detail] [data-archetype-narrative]' : '[data-archetype-narrative]');
       assert.equal(dom.getComputedStyle(body).fontSize, resolvedSize(theme.typography.editorialBody[desktop].fontSize), `${name}:${width}: readable body size`); checks += 1;
       assert.equal(dom.getComputedStyle(body).lineHeight, String(theme.typography.editorialBody.lineHeight), `${name}:${width}: body leading`); checks += 1;
       if (name === 'detail') {
@@ -62,27 +63,38 @@ try {
         assert.equal(figure.parentElement.querySelector('[data-same-type-glyph]'), null, 'Sticky stops before peer section'); checks += 1;
       }
     }
-    for (const [width, height] of [[320, 568], [390, 844], [844, 390]]) {
+    for (const [width, height] of [[320, 568], [390, 844], [768, 1024], [844, 390]]) {
       dom.happyDOM.setWindowSize({ width, height });
       dom.document.body.innerHTML = html;
-      const body = dom.document.querySelector(name === 'root' ? '[data-family-introduction]' : name === 'detail' ? '[data-selected-glyph-detail] [data-archetype-narrative]' : '[data-archetype-narrative]');
+      const body = dom.document.querySelector(name === 'root' ? '[data-family-reading]' : name === 'detail' ? '[data-selected-glyph-detail] [data-archetype-narrative]' : '[data-archetype-narrative]');
       assert.equal(dom.getComputedStyle(body).fontSize, resolvedSize(theme.typography.editorialBody.fontSize), `${name}:${width}: mobile body consumes semantic role`); checks += 1;
       if (name === 'root') {
         const portals = dom.document.querySelector('[data-archive-portal]').parentElement;
-        assert.equal(dom.getComputedStyle(portals).gridTemplateColumns, 'repeat(2, minmax(0, 1fr))'); checks += 1;
-        assert.equal(dom.getComputedStyle(dom.document.querySelector('[data-cluster-title]')).whiteSpace, 'normal'); checks += 1;
+        assert.equal(dom.getComputedStyle(portals).gridTemplateColumns, 'repeat(3, minmax(0, 1fr))'); checks += 1;
+        assert.equal(dom.getComputedStyle(dom.document.querySelector('[data-cluster-title]')).whiteSpace, 'nowrap'); checks += 1;
       }
       if (name === 'detail') {
         const figure = dom.document.querySelector('[data-archive-sticky-figure]');
         assert.equal(dom.getComputedStyle(figure).position, 'static', 'One-column reading remains unobstructed'); checks += 1;
         assert.ok(figure.querySelector('[data-selected-analysis-toggle]')); checks += 1;
+        const heading = dom.document.querySelector('[data-archive-detail-heading]');
+        const reading = dom.document.querySelector('[data-archive-reading-column]');
+        assert.ok(heading.compareDocumentPosition(figure) & dom.Node.DOCUMENT_POSITION_FOLLOWING, 'Mobile reading starts with title/quote before the large glyph'); checks += 1;
+        assert.ok(figure.compareDocumentPosition(reading) & dom.Node.DOCUMENT_POSITION_FOLLOWING); checks += 1;
+        const headerContent = [...heading.children].filter((node) => node.tagName !== 'STYLE');
+        assert.equal(headerContent[headerContent.indexOf(heading.querySelector('h2')) + 1].tagName, 'BLOCKQUOTE', 'Quote immediately follows title'); checks += 1;
+        assert.equal(dom.document.querySelectorAll('[data-selected-glyph-detail] blockquote').length, 1, 'No duplicate responsive quote'); checks += 1;
+        for (const samples of dom.document.querySelectorAll('[data-shared-pattern-samples]')) {
+          assert.equal(dom.getComputedStyle(samples).gridTemplateColumns, 'minmax(0, 1fr)', 'Comparison retains readable width'); checks += 1;
+        }
       }
-      if (name === 'feed' && width < 600) {
-        assert.equal(dom.getComputedStyle(dom.document.querySelector('[data-archetype-section] header')).flexDirection, 'column'); checks += 1;
+      if (name === 'feed') {
+        const index = dom.document.querySelector('[data-archive-index]');
+        assert.equal(dom.getComputedStyle(index.querySelector('ol')).flexDirection, 'row', 'Mobile index leaves full reading width'); checks += 1;
       }
     }
   }
-  console.log(`Mobile Archive layout: ${checks} checks passed, including 18 desktop semantic typography checks and mobile portrait/landscape rules (SSR/CSSOM only).`);
+  console.log(`Mobile Archive layout: ${checks} checks passed, bilingual semantic typography, heading order, comparison density and mobile portrait/landscape rules (SSR/CSSOM only).`);
 } finally {
   await server.close();
   await dom.happyDOM.abort();

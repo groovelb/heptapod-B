@@ -83,6 +83,22 @@ try {
   await render(feed, null);
   await act(async () => links()[0].click());
   check(() => assert.equal(native.at(-1)[0].behavior, 'instant'));
+  // A wrapped breadcrumb and horizontal rail must both clear the target.
+  dom.happyDOM.setWindowSize({ width: 390, height: 844 });
+  Object.defineProperty(dom, 'scrollY', { configurable: true, value: 0 });
+  const mobileIndex = document.querySelector('[data-archive-index]');
+  mobileIndex.parentElement.style.setProperty('--archive-navigation-height', '96px');
+  mobileIndex.getBoundingClientRect = () => ({ top: 160, bottom: 212, left: 16, right: 374, width: 358, height: 52 });
+  links()[1].getBoundingClientRect = () => ({ top: 160, bottom: 204, left: 470, right: 514, width: 44, height: 44 });
+  // happy-dom leaves calc/env unresolved; simulate the browser's computed pixel top.
+  mobileIndex.style.top = '160px';
+  await settle();
+  const previousScrollLeft = mobileIndex.scrollLeft;
+  await act(async () => links()[1].click());
+  check(() => assert.equal(native.at(-1)[0].top, 1500 - 64 - 96 - 52 - 16, 'Mobile anchor clears GNB, wrapped breadcrumbs and measured index'));
+  check(() => assert.equal(mobileIndex.scrollLeft, previousScrollLeft + 140, 'Active horizontal item is revealed without moving the page'));
+  check(() => assert.equal(getComputedStyle(mobileIndex.parentElement).display, 'block', 'Mobile sticky rail belongs to the entire feed flow'));
+  check(() => assert.equal(document.activeElement, sections[1]));
   const one = { ...feed, sections: [feed.sections[0]], untypedGlyphs: [], glyphs: feed.sections[0].glyphs };
   await render(one);
   check(() => assert.equal(links().length, 1));
