@@ -24,7 +24,7 @@ function mount(pathname, reduced = false) {
     destroy() { this.destroyed = true; }
   }
   const cleanup = runInNewContext(`(() => {${effect}\n})()`, {
-    pathname, isLanding: pathname === '/', Lenis: LenisStub,
+    pathname, APP_PATHS, isLanding: pathname === '/', Lenis: LenisStub,
     window: { matchMedia: () => ({ matches: reduced }), scrollTo: (...position) => positions.push(position) },
     setLenis: (value) => { state = value; },
     requestAnimationFrame: (callback) => { frames.set(++frameId, callback); return frameId; },
@@ -34,11 +34,14 @@ function mount(pathname, reduced = false) {
 }
 
 test('Lenis runs on archive/detail/field/compare as well as the landing route', () => {
-  for (const path of ['/', '/canvas', '/archive', '/glyph/test', '/field/test', '/compare/a/b', '/me']) {
+  for (const path of ['/', '/canvas', '/archive', '/archive/', '/glyph/test', '/field/test', '/compare/a/b', '/me']) {
     const mounted = mount(path);
     assert.equal(mounted.instances.length, 1, path);
     const instance = mounted.instances[0];
-    assert.equal(instance.options.lerp, 0.05);
+    const isArchive = path === '/archive' || path === '/archive/';
+    assert.equal(instance.options.lerp, isArchive ? 0.12 : 0.05);
+    assert.equal(instance.options.wheelMultiplier, isArchive ? 1 : 0.65);
+    assert.equal(instance.options.syncTouch, !isArchive, 'Archive keeps touch scrolling native');
     assert.equal(instance.options.smoothWheel, true);
     assert.equal(instance.options.allowNestedScroll, true);
     assert.equal(instance.scroll.position, 0);

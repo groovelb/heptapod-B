@@ -9,6 +9,7 @@ import 'lenis/dist/lenis.css';
 import { defaultTheme as theme } from './styles/themes';
 import { LenisContext } from './utils/lenisContext';
 import AppRoutes from './routes/AppRoutes';
+import { APP_PATHS } from './routes/paths';
 import LocaleProvider from './i18n/LocaleProvider';
 
 /** Shared providers and the route-dependent scroll lifetime.
@@ -29,15 +30,15 @@ function AppContent() {
       window.scrollTo(0, 0);
       return undefined;
     }
-    // 스테이지 세그먼트를 음미할 수 있도록 더 느리게(휠당 이동↓ + 감쇠↑).
-    // syncTouch: 기본값(false)이면 모바일 터치는 네이티브 스크롤로 통과해 감쇠·배율이 전혀 안 먹는다.
-    // 켜야 터치도 Lenis가 가로채 데스크톱과 같은 페이싱으로 스크럽된다(touchMultiplier·syncTouchLerp 활성).
+    // Archive is a reading surface: less wheel lag and native touch scrolling.
+    // Query-based archive depths share this instance and the same scroll profile.
+    const isArchive = pathname.replace(/\/+$/, '') === APP_PATHS.archive;
     const instance = new Lenis({
-      lerp: 0.05,
-      wheelMultiplier: 0.65,
-      touchMultiplier: 0.9,
+      lerp: isArchive ? 0.12 : 0.05,
+      wheelMultiplier: isArchive ? 1 : 0.65,
+      touchMultiplier: isArchive ? 1 : 0.9,
       smoothWheel: true,
-      syncTouch: true,
+      syncTouch: !isArchive,
       syncTouchLerp: 0.075, // 플릭 관성 감쇠 — 데스크톱보다 약간 높게(모바일 플릭 관성 유지)
       // Dialog/Drawer 내부는 네이티브 스크롤, 문서 전체는 기존 Lenis 감쇠 유지.
       allowNestedScroll: true,
