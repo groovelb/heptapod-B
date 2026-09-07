@@ -1,6 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { useI18n } from '../../i18n/useI18n';
 import { getGlyphArchetype } from '../../data/heptapodArchetypeCatalog';
@@ -57,10 +56,11 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
     } }>
       <Box component="header" data-archive-detail-heading sx={ {
         gridArea: 'heading', minWidth: 0, maxWidth: (theme) => theme.editorial.measure,
+        px: (theme) => theme.editorial.archiveReading.inset,
         mb: (theme) => ({ xs: theme.editorial.archivePage.groupGap.xs - theme.editorial.paragraphGap, md: 0 }),
       } }>
         <Typography component="h2" sx={ { ...headingSx, m: 0 } }>{ localize(type?.title || interpretation?.title) || t('glyphMeaningSummary.thisMeaningCannotBeReadYet') }</Typography>
-        <ArchetypeMotto archetype={ type } />
+        <ArchetypeMotto archetype={ type } sx={ { mt: (theme) => theme.editorial.archiveReading.labelGap } } />
       </Box>
       <Box data-archive-sticky-figure sx={ { gridArea: 'figure', position: { xs: 'static', md: 'sticky' }, alignSelf: 'start', minWidth: 0,
         '--archive-figure-top': (theme) => theme.editorial.archiveFigure.top, top: 'var(--archive-figure-top)',
@@ -70,18 +70,14 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
           <ArchiveGlyph glyph={ glyph } showName nameComponent="h1" maxSize={ 520 } analysis={ analysis } anchors={ selectedAnchors }
             sx={ { maxWidth: (theme) => ({ xs: '100%', md: theme.editorial.archiveFigure.maxWidth }) } } />
         </Box>
-        <Box ref={ controlsRef } data-archive-figure-controls sx={ { display: 'flow-root' } }>
-          <Button data-selected-analysis-toggle aria-pressed={ analysis } aria-controls={ analysisId }
-            onClick={ () => setAnalysis((open) => !open) }
-            sx={ { display: 'flex', mx: 'auto', color: 'inherit', typography: 'editorialAction', minHeight: 44, mt: (theme) => theme.editorial.paragraphGap, px: 0, borderBottom: '1px solid', borderRadius: 0, textTransform: 'none' } }>
-            { t(analysis ? 'archiveDepthExplorer.hideAnalysis' : 'archiveDepthExplorer.showAnalysis') }
-          </Button>
+        <Box ref={ controlsRef } data-archive-figure-controls sx={ { display: 'flow-root', p: (theme) => theme.editorial.visualizationControls.padding } }>
           <GlyphObservationChips entries={ entries } selectedIds={ selectedIds }
+            analysisToggle={ { active: analysis, onToggle: () => setAnalysis((open) => !open), controlsId: analysisId } }
             onToggle={ (entry) => setSelectedIds((ids) => ids.includes(entry.id) ? ids.filter((id) => id !== entry.id) : [...ids, entry.id]) } />
         </Box>
       </Box>
       <Box data-archive-reading-column sx={ { gridArea: 'reading', minWidth: 0, maxWidth: (theme) => theme.editorial.measure } }>
-        { type && <ArchetypeNarrative archetype={ type } showMotto={ false } spacing="archive" sx={ { mt: (theme) => theme.editorial.archivePage.groupGap } } /> }
+        { type && <ArchetypeNarrative archetype={ type } showMotto={ false } spacing="archiveDetail" /> }
       </Box>
     </Box>
 

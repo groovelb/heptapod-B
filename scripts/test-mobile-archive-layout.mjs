@@ -45,6 +45,7 @@ try {
       }
       const title = dom.document.querySelector(name === 'root' ? 'h1' : name === 'feed' ? '[data-archetype-section] h2' : '[data-selected-glyph-detail] h2');
       const titleRole = name === 'root' ? 'editorialDisplay' : 'editorialTitle';
+      assert.ok(Number(dom.getComputedStyle(title).fontWeight) >= 700, 'Page and section titles are bold'); checks += 1;
       assert.equal(dom.getComputedStyle(title).fontSize, resolvedSize(theme.typography[titleRole][desktop].fontSize), `${name}:${width}: heading consumes desktop role`); checks += 1;
       const body = dom.document.querySelector(name === 'root' ? '[data-family-reading]' : name === 'detail' ? '[data-selected-glyph-detail] [data-archetype-narrative]' : '[data-archetype-narrative]');
       assert.equal(dom.getComputedStyle(body).fontSize, resolvedSize(theme.typography.editorialBody[desktop].fontSize), `${name}:${width}: readable body size`); checks += 1;
@@ -90,6 +91,9 @@ try {
         }
       }
       if (name === 'feed') {
+        const heading = dom.document.querySelector('[data-archetype-section] header');
+        assert.ok(Number(dom.getComputedStyle(heading.querySelector('h2')).fontWeight) >= 700); checks += 1;
+        assert.ok(parseFloat(dom.getComputedStyle(heading.querySelector('p')).fontSize) <= parseFloat(dom.getComputedStyle(body).fontSize) * 1.25, 'Sans reading stays near body scale below the title'); checks += 1;
         const index = dom.document.querySelector('[data-archive-index]');
         assert.equal(dom.getComputedStyle(index.querySelector('ol')).flexDirection, 'row', 'Mobile index leaves full reading width'); checks += 1;
       }

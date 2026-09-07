@@ -183,6 +183,8 @@ try {
   controls.getBoundingClientRect = () => ({ height: 240 });
   controlsResize.callback();
   check(() => assert.equal(stickyFigure.style.getPropertyValue('--archive-figure-controls-height'), '240px', 'Wrapped chips reserve more space below the glyph'));
+  check(() => assert.equal(analysisButton.parentElement, readingMeaning.parentElement, 'Analysis and metadata share one toggle group'));
+  check(() => assert.equal(chips.querySelector('svg, p'), null, 'No decorative icons or helper copy in visualization controls'));
   const focusSearch = router.state.location.search;
   check(() => assert.ok(chips, 'Metadata toggles are visible before enabling analysis'));
   check(() => assert.equal(selectedDetail.querySelector('[data-meaning-reading]'), null, 'No duplicate reading panel'));
@@ -203,7 +205,7 @@ try {
   const otherMeaning = chips.querySelectorAll('[data-reading-meaning]')[1];
   check(() => assert.ok(otherMeaning, 'Fixture exercises multiple metadata chips'));
   await act(async () => otherMeaning.click());
-  check(() => assert.equal(chips.querySelectorAll('[aria-pressed="true"]').length, 2));
+  check(() => assert.equal(chips.querySelectorAll('[data-reading-meaning][aria-pressed="true"]').length, 2));
   await act(async () => otherMeaning.click());
   check(() => assert.equal(readingMeaning.getAttribute('aria-pressed'), 'true'));
   check(() => assert.equal(selectedDetail.querySelector('.hb-edge'), mesh, 'Toggling metadata preserves mesh animation'));

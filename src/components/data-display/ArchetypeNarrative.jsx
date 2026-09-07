@@ -6,8 +6,6 @@ import { ARCHETYPE_FAMILIES } from '../../data/heptapodArchetypeCatalog.js';
 import { MEANING_CATALOG } from '../../data/heptapodMeaningCatalog.js';
 
 const textSx = { typography: 'editorialBody' };
-const labelSx = { typography: 'editorialLabel', mb: (theme) => theme.editorial.labelGap };
-const sectionSx = (theme) => ({ ...theme.editorial.rule, pt: theme.editorial.sectionPadding });
 
 /** The same deployed JSON narrative in Create and Archive. No classification,
  * fetching or local selection; only complete catalog types receive combination copy.
@@ -15,10 +13,16 @@ const sectionSx = (theme) => ({ ...theme.editorial.rule, pt: theme.editorial.sec
 export default function ArchetypeNarrative({ archetype, familyId = archetype?.familyId, showFamily = true, showIdentity = true, showMotto = true, variant = 'full', spacing = 'default', sx }) {
   const { t, localize } = useI18n();
   const family = ARCHETYPE_FAMILIES[familyId];
+  const isDetail = spacing === 'archiveDetail';
+  const labelSx = { typography: 'editorialLabel', mb: (theme) => isDetail ? theme.editorial.archiveReading.labelGap : theme.editorial.labelGap };
+  const sectionSx = (theme) => ({ ...theme.editorial.rule,
+    ...(isDetail ? { px: theme.editorial.archiveReading.inset, py: theme.editorial.archiveReading.padding } : { pt: theme.editorial.sectionPadding }),
+  });
+  const itemGap = (theme) => isDetail ? theme.editorial.archiveReading.itemGap : theme.editorial.itemGap;
   if (!family && !archetype) return null;
-  return <Box data-narrative-type={ archetype?.id } sx={ { display: 'grid', gap: (theme) => spacing === 'archive' ? theme.editorial.archivePage.narrativeGap : theme.editorial.sectionGap, maxWidth: (theme) => theme.editorial.measure, minWidth: 0, ...sx } }>
+  return <Box data-narrative-type={ archetype?.id } sx={ { display: 'grid', gap: (theme) => isDetail ? 0 : spacing === 'archive' ? theme.editorial.archivePage.narrativeGap : theme.editorial.sectionGap, maxWidth: (theme) => theme.editorial.measure, minWidth: 0, ...sx } }>
     { archetype && showMotto && variant === 'full' && <ArchetypeMotto archetype={ archetype } sx={ { mt: 0 } } /> }
-    { archetype && showIdentity && <Typography data-narrative-identity sx={ { typography: 'editorialLead', pb: (theme) => spacing === 'archive' ? 0 : theme.editorial.leadSpace } }>{ localize(archetype.reading) }</Typography> }
+    { archetype && showIdentity && <Typography data-narrative-identity sx={ { typography: isDetail ? 'editorialBody' : 'editorialLead', ...(isDetail ? { px: (theme) => theme.editorial.archiveReading.inset, py: (theme) => theme.editorial.archiveReading.padding } : { pb: (theme) => spacing === 'archive' ? 0 : theme.editorial.leadSpace }) } }>{ localize(archetype.reading) }</Typography> }
     { showFamily && family && <Box sx={ sectionSx } component="section" data-narrative-family={ family.id }>
       <Typography component="h3" sx={ labelSx }>{ t('archetypeNarrative.family') } · { localize(family.title) }</Typography>
       <Typography sx={ textSx }>{ localize(family.story) }</Typography>
@@ -36,7 +40,7 @@ export default function ArchetypeNarrative({ archetype, familyId = archetype?.fa
       { variant === 'full' && <>
         { ['traits', 'moments'].map((field) => <Box sx={ sectionSx } component="section" key={ field } data-narrative-field={ field }>
           <Typography component="h3" sx={ labelSx }>{ t(`archetypeNarrative.${field}`) }</Typography>
-          <Box component="ul" role="list" sx={ { m: 0, p: 0, listStyle: 'none', display: 'grid', gap: (theme) => theme.editorial.itemGap } }>
+          <Box component="ul" role="list" sx={ { m: 0, p: 0, listStyle: 'none', display: 'grid', gap: itemGap } }>
             { archetype[field].map((sentence) => <Typography component="li" key={ sentence } sx={ (theme) => ({ ...textSx, ...theme.editorial.listItem }) }>{ localize(sentence) }</Typography>) }
           </Box>
         </Box>) }
@@ -46,7 +50,7 @@ export default function ArchetypeNarrative({ archetype, familyId = archetype?.fa
         </Box>) }
         <Box sx={ sectionSx } component="section" data-narrative-field="relations">
           <Typography component="h3" sx={ labelSx }>{ t('archetypeNarrative.relations') }</Typography>
-          { archetype.relations.map((relation) => <Typography key={ relation.targetMeaningKey } sx={ { ...textSx, '& + p': { mt: (theme) => theme.editorial.paragraphGap } } }>{ localize(relation.reading) }</Typography>) }
+          { archetype.relations.map((relation) => <Typography key={ relation.targetMeaningKey } sx={ { ...textSx, '& + p': { mt: itemGap } } }>{ localize(relation.reading) }</Typography>) }
         </Box>
         <Box sx={ sectionSx } component="section" data-narrative-field="distinction">
           <Typography component="h3" sx={ labelSx }>{ t('archetypeNarrative.distinction') }</Typography>

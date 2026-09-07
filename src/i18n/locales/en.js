@@ -19,6 +19,8 @@ export default Object.freeze({
   "archiveDepthExplorer.selectedGlyphDetail": "Selected glyph detail",
   "archiveDepthExplorer.selectedGlyph": "Selected glyph",
   "archiveDepthExplorer.showAnalysis": "Show analysis",
+  "archiveDepthExplorer.analysis": "Analysis",
+  "archiveDepthExplorer.visualizations": "Glyph visualizations",
   "archiveDepthExplorer.hideAnalysis": "Hide analysis",
   "archiveDepthExplorer.sameTypeGlyphs": "Glyphs in the same type",
   "archiveDepthExplorer.sameTypeCount": "{count} glyphs in the same type",

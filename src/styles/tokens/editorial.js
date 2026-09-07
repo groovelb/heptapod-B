@@ -15,11 +15,11 @@ export function createEditorialTokens({ typography, breakpoints }) {
   return {
     typography: {
       editorialBody: role('1.125rem', '1.25rem'),
-      editorialLead: role('1.5rem', '2rem', { fontWeight: typography.fontWeightMedium, lineHeight: 1.5, letterSpacing: '-0.02em' }),
-      editorialTitle: role('1.875rem', '2.5rem', { fontFamily: serif, lineHeight: 1.3, letterSpacing: '-0.02em' }),
-      editorialDisplay: role('2.25rem', '3.5rem', { fontFamily: serif, lineHeight: 1.25, letterSpacing: '-0.025em' }),
-      editorialPortal: role('1.25rem', '1.875rem', { fontFamily: serif, lineHeight: 1.4 }),
-      editorialPortalCompact: role('1rem', '1.875rem', { fontFamily: serif, lineHeight: 1.4 }),
+      editorialLead: role('1.25rem', '1.5rem', { lineHeight: 1.65, letterSpacing: '-0.01em' }),
+      editorialTitle: role('1.875rem', '2.5rem', { fontFamily: serif, fontWeight: typography.fontWeightBold, lineHeight: 1.3, letterSpacing: '-0.02em' }),
+      editorialDisplay: role('2.25rem', '3.5rem', { fontFamily: serif, fontWeight: typography.fontWeightBold, lineHeight: 1.25, letterSpacing: '-0.025em' }),
+      editorialPortal: role('1.25rem', '1.875rem', { fontFamily: serif, fontWeight: typography.fontWeightBold, lineHeight: 1.4 }),
+      editorialPortalCompact: role('1rem', '1.875rem', { fontFamily: serif, fontWeight: typography.fontWeightBold, lineHeight: 1.4 }),
       editorialLabel: role('1rem', '1.0625rem', { fontWeight: typography.fontWeightBold, lineHeight: 1.5 }),
       editorialMeta: role('0.9375rem', '1rem', { lineHeight: 1.6 }),
       editorialQuote: role('1.5rem', '2rem', { fontFamily: serif, lineHeight: 1.5 }),
@@ -34,6 +34,11 @@ export function createEditorialTokens({ typography, breakpoints }) {
       spreadGap: { xs: 4, md: 8 }, leadSpace: { xs: 1, md: 2 },
       readingViewport: 'min(30rem, 48svh)', railMeasure: 'clamp(18rem, 28vw, 24rem)',
       rule: { borderTop: 1, borderColor: 'currentColor' },
+      archiveReading: {
+        inset: { xs: 2, md: 3 }, padding: { xs: 3, md: 4 },
+        labelGap: { xs: 2, md: 2.5 }, itemGap: { xs: 2, md: 2.5 },
+      },
+      visualizationControls: { gap: 1.5, padding: { xs: 2, md: 3 } },
       listItem: {
         position: 'relative', paddingInlineStart: '1.25em',
         '&::before': {

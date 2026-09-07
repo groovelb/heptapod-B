@@ -19,6 +19,8 @@ export default Object.freeze({
   "archiveDepthExplorer.selectedGlyphDetail": "선택한 표식 상세",
   "archiveDepthExplorer.selectedGlyph": "선택한 표식",
   "archiveDepthExplorer.showAnalysis": "분석 보기",
+  "archiveDepthExplorer.analysis": "분석",
+  "archiveDepthExplorer.visualizations": "표식 시각화",
   "archiveDepthExplorer.hideAnalysis": "분석 닫기",
   "archiveDepthExplorer.sameTypeGlyphs": "같은 유형의 표식",
   "archiveDepthExplorer.sameTypeCount": "같은 유형의 표식 {count}개",
