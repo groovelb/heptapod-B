@@ -23,6 +23,7 @@ export function createEditorialTokens({ typography, breakpoints }) {
       editorialLabel: role('1rem', '1.0625rem', { fontWeight: typography.fontWeightBold, lineHeight: 1.5 }),
       editorialMeta: role('0.9375rem', '1rem', { lineHeight: 1.6 }),
       editorialQuote: role('1.5rem', '2rem', { fontFamily: serif, lineHeight: 1.5 }),
+      editorialCta: role('1.25rem', '1.375rem', { fontWeight: typography.fontWeightBold, lineHeight: 1.4 }),
       editorialAction: role('1rem', '1.0625rem', { fontWeight: typography.fontWeightMedium, lineHeight: 1.5 }),
     },
     layout: {
@@ -39,6 +40,16 @@ export function createEditorialTokens({ typography, breakpoints }) {
         labelGap: { xs: 2, md: 2.5 }, itemGap: { xs: 2, md: 2.5 },
       },
       visualizationControls: { gap: 1.5, padding: { xs: 2, md: 3 } },
+      createReading: {
+        inset: { xs: 2, md: 2.5 }, dialogInset: 3, compactHeight: 480,
+        railTop: 'calc(104px + env(safe-area-inset-top, 0px))', railBottom: 172,
+        groupGap: 3, sectionGap: { xs: 4, md: 5 },
+        sectionPadding: { xs: 2, md: 2.5 },
+        labelGap: { xs: 1.25, md: 1.5 }, paragraphGap: { xs: 1.5, md: 2 },
+        itemGap: { xs: 1.25, md: 1.5 }, scrollInset: 1.5,
+      },
+      readingScrollbar: { size: 6 },
+      createCta: { minHeight: { xs: 64, md: 72 }, px: 3, py: 2, gap: 2, width: '20rem' },
       listItem: {
         position: 'relative', paddingInlineStart: '1.25em',
         '&::before': {

@@ -29,7 +29,7 @@ import { archiveSharePath, archiveShareUrl, archiveSocialLinks, copyArchiveLink 
  * Example usage:
  * <PublishDialog open={ publishOpen } onClose={ () => setPublishOpen(false) } glyphName="Louise" model={ model } onPublish={ handlePublish } />
  */
-function PublishDialog({ open, onClose, glyphName, model, interpretation, onPublish, onPublished, publishedResult, intent = 'publish', completion = 'archive', onCopy }) {
+function PublishDialog({ open, onClose, glyphName, model, interpretation, onPublish, onPublished, publishedResult, intent = 'publish', completion = 'archive', onCopy, showClusterLink = true }) {
   const { locale, localize, t } = useI18n();
   const theme = useTheme();
   const navigate = useNavigate();
@@ -211,7 +211,7 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
               { t('publishDialog.published', { p0: glyphName }) }
             </Typography>
             <Typography component="p" sx={ { ...monoSx, color: fg, opacity: 0.8, fontSize: '0.75rem', mb: 3 } }>{ t(intent === 'share' ? 'encoderResult.readyToShare' : completion === 'stay' ? 'encoderResult.publishComplete' : 'publishDialog.yourGlyphIsSavedConnectionsAreShown') }</Typography>
-            {interpretation && <GlyphClusterLink interpretation={ interpretation } compact sx={ { mb: 2 } } />}
+            {interpretation && <GlyphClusterLink interpretation={ interpretation } showLink={ showClusterLink } compact sx={ { mb: 2 } } />}
             <Typography id="archive-published-save-hint" sx={ { fontSize: '0.85rem', lineHeight: 1.8, mb: 2 } }>{t('publishDialog.saveLink')}</Typography>
             <Typography component="label" htmlFor="archive-published-url" sx={ { ...monoSx, display: 'block', textAlign: 'left', mb: 1 } }>{t('publishDialog.publicUrl')}</Typography>
             <Box component="input" id="archive-published-url" ref={ urlInput } readOnly value={ publicUrl }

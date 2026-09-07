@@ -14,13 +14,14 @@ export default function ArchetypeNarrative({ archetype, familyId = archetype?.fa
   const { t, localize } = useI18n();
   const family = ARCHETYPE_FAMILIES[familyId];
   const isDetail = spacing === 'archiveDetail';
-  const labelSx = { typography: 'editorialLabel', mb: (theme) => isDetail ? theme.editorial.archiveReading.labelGap : theme.editorial.labelGap };
+  const isCreate = spacing === 'createAnalysis';
+  const labelSx = { typography: 'editorialLabel', mb: (theme) => isDetail ? theme.editorial.archiveReading.labelGap : isCreate ? theme.editorial.createReading.labelGap : theme.editorial.labelGap };
   const sectionSx = (theme) => ({ ...theme.editorial.rule,
-    ...(isDetail ? { px: theme.editorial.archiveReading.inset, py: theme.editorial.archiveReading.padding } : { pt: theme.editorial.sectionPadding }),
+    ...(isDetail ? { px: theme.editorial.archiveReading.inset, py: theme.editorial.archiveReading.padding } : { pt: isCreate ? theme.editorial.createReading.sectionPadding : theme.editorial.sectionPadding }),
   });
-  const itemGap = (theme) => isDetail ? theme.editorial.archiveReading.itemGap : theme.editorial.itemGap;
+  const itemGap = (theme) => isDetail ? theme.editorial.archiveReading.itemGap : isCreate ? theme.editorial.createReading.itemGap : theme.editorial.itemGap;
   if (!family && !archetype) return null;
-  return <Box data-narrative-type={ archetype?.id } sx={ { display: 'grid', gap: (theme) => isDetail ? 0 : spacing === 'archive' ? theme.editorial.archivePage.narrativeGap : theme.editorial.sectionGap, maxWidth: (theme) => theme.editorial.measure, minWidth: 0, ...sx } }>
+  return <Box data-narrative-type={ archetype?.id } sx={ { display: 'grid', gap: (theme) => isDetail ? 0 : isCreate ? theme.editorial.createReading.sectionGap : spacing === 'archive' ? theme.editorial.archivePage.narrativeGap : theme.editorial.sectionGap, maxWidth: (theme) => theme.editorial.measure, minWidth: 0, ...sx } }>
     { archetype && showMotto && variant === 'full' && <ArchetypeMotto archetype={ archetype } sx={ { mt: 0 } } /> }
     { archetype && showIdentity && <Typography data-narrative-identity sx={ { typography: isDetail ? 'editorialBody' : 'editorialLead', ...(isDetail ? { px: (theme) => theme.editorial.archiveReading.inset, py: (theme) => theme.editorial.archiveReading.padding } : { pb: (theme) => spacing === 'archive' ? 0 : theme.editorial.leadSpace }) } }>{ localize(archetype.reading) }</Typography> }
     { showFamily && family && <Box sx={ sectionSx } component="section" data-narrative-family={ family.id }>

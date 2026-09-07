@@ -17,6 +17,7 @@ import FadeTransition from '../motion/FadeTransition';
 import AnalysisOverlay from '../overlay-feedback/AnalysisOverlay';
 import GlyphObservationOverlay from '../overlay-feedback/GlyphObservationOverlay';
 import GlyphMeaningSummary from '../data-display/GlyphMeaningSummary';
+import { readingScrollbarSx } from '../../styles/readingScrollbar';
 import { buildMeaningReading } from '../../utils/heptapod/buildMeaningReading';
 import GlyphClusterLink from '../data-display/GlyphClusterLink';
 import { interpretGlyphMeaning } from '../../utils/heptapod/interpretGlyphMeaning';
@@ -666,10 +667,10 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
           </Box>
         </Box>
         <Box data-encoder-meaning-rail data-lenis-prevent sx={ {
-          position: 'absolute', left: 36, top: 'calc(184px + env(safe-area-inset-top, 0px))', bottom: 172, zIndex: 3,
-          width: theme.editorial.railMeasure, overflowY: 'auto', overscrollBehavior: 'contain', pr: 1,
+          position: 'absolute', left: 36, top: theme.editorial.createReading.railTop, bottom: theme.editorial.createReading.railBottom, zIndex: 3,
+          width: theme.editorial.railMeasure, display: 'flex', flexDirection: 'column', minHeight: 0,
         } }>
-          <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fg={ fg }
+          <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fitHeight fg={ fg }
             selectedObservationIds={ selectedMeaningIds } onToggleObservation={ handleToggleMeaning } />
         </Box>
       </> }
@@ -776,12 +777,12 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
             right: { xs: 16, md: 36 },
             zIndex: 3,
             m: 0,
-            width: { xs: 148, md: 200 },
+            width: { xs: 148, md: theme.editorial.createCta.width },
             [theme.breakpoints.down('md')]: {
               position: 'relative', top: 'auto', right: 'auto', order: 2,
               width: 'min(540px, calc(100% - 40px))', mx: 'auto', mt: 3, mb: 3,
               '& [data-encoder-metadata]': { height: 64, gridTemplateRows: 'repeat(2, 32px)', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: 2 },
-              '& button, & a': { minHeight: 44 },
+              '& a, & [data-encoder-public-link]': { minHeight: 44 },
             },
           } }
         >
@@ -833,7 +834,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
                 )) }
               </Box>
 
-              {encoderVersion === 2 && <GlyphClusterLink interpretation={ interpretation } compact sx={ { mt: 1, color: fg } } />}
+              {encoderVersion === 2 && <GlyphClusterLink interpretation={ interpretation } showLink={ false } compact sx={ { mt: 1, color: fg } } />}
 
               {/* status 하단 — 분석 오버레이 토글 버튼 */}
               <Button
@@ -844,14 +845,12 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
                 variant="text"
                 fullWidth
                 sx={ {
-                  ...monoSx,
-                  mt: 1,
-                  py: 0.75,
+                  typography: 'editorialCta',
+                  mt: theme.editorial.createCta.gap,
+                  minHeight: theme.editorial.createCta.minHeight, px: theme.editorial.createCta.px, py: theme.editorial.createCta.py,
                   justifyContent: 'space-between',
                   color: fg,
-                  opacity: isAnalysisOn ? 0.95 : 0.55,
-                  fontSize: '0.6rem',
-                  letterSpacing: '0.18em',
+                  opacity: 1,
                   borderRadius: 0,
                   border: `1px solid ${alpha(fg, isAnalysisOn ? 0.5 : 0.2)}`,
                   '&:hover': { backgroundColor: alpha(fg, 0.06), borderColor: alpha(fg, 0.6) },
@@ -862,13 +861,13 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
               </Button>
 
               {/* 미공개면 동의 후 공개·공유, 이미 공개했으면 재게시 없이 공유한다. */}
-              <Box data-encoder-actions data-encoder-published={ !!published } sx={ { mt: 0.75 } }>
+              <Box data-encoder-actions data-encoder-published={ !!published } sx={ { mt: theme.editorial.createCta.gap } }>
                 <Button
                   onClick={ encoderVersion === 1 ? handleEncode : () => { handleShare().catch(() => {}); } }
                   disabled={ hasDraft || sharing }
                   variant="text" fullWidth
                   sx={ {
-                    ...monoSx, py: 0.6, color: fg, opacity: 0.7, fontSize: '0.58rem', letterSpacing: '0.04em', lineHeight: 1.5, wordBreak: 'keep-all', borderRadius: 0, border: `1px solid ${alpha(fg, 0.28)}`, '&:hover': { opacity: 0.95, backgroundColor: alpha(fg, 0.06), borderColor: alpha(fg, 0.5) },
+                    typography: 'editorialCta', minHeight: theme.editorial.createCta.minHeight, px: theme.editorial.createCta.px, py: theme.editorial.createCta.py, color: fg, opacity: 1, wordBreak: 'keep-all', borderRadius: 0, border: `1px solid ${alpha(fg, 0.28)}`, '&:hover': { opacity: 0.95, backgroundColor: alpha(fg, 0.06), borderColor: alpha(fg, 0.5) },
                   } }
                 >
                   { t(encoderVersion === 1 ? 'encoderResult.recreate' : sharing ? 'encoderResult.sharing' : published ? 'encoderResult.share' : 'heptapodEncoderPage.publishAndShare') }
@@ -978,7 +977,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
       </Box>
 
       {/* Publish 다이얼로그 — 공개 아카이브 게시 확인 */}
-      <PublishDialog key={ `${encodedName}:${encoderVersion}` } open={ !!publishIntent }
+      <PublishDialog showClusterLink={ false } key={ `${encodedName}:${encoderVersion}` } open={ !!publishIntent }
         intent={ publishIntent || 'publish' } completion="stay" onClose={ () => setPublishIntent(null) }
         publishedResult={ published }
         glyphName={ encodedName } model={ model } interpretation={ interpretation }
@@ -994,13 +993,13 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
         fullScreen aria-labelledby={ readingDialogId } data-lenis-prevent
         transitionDuration={ reducedMotion ? 0 : theme.transitions.duration.shortest }
         slotProps={ { paper: { sx: { bgcolor: 'background.default', backgroundImage: 'none', color: 'common.white', height: '100dvh', pt: 'env(safe-area-inset-top, 0px)', pb: 'env(safe-area-inset-bottom, 0px)', boxSizing: 'border-box' } } } }>
-        <Box sx={ { display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: 2, px: 3, py: 1 } }>
+        <Box sx={ { display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: theme.editorial.createReading.paragraphGap, px: theme.editorial.createReading.dialogInset, py: theme.editorial.createReading.labelGap } }>
           <Typography id={ readingDialogId } component="h2" sx={ { typography: 'editorialLabel' } }>
             { t('meaningReading.dialogTitle', { name: encodedName }) }
           </Typography>
           <Button onClick={ handleCloseAnalysis } sx={ { color: 'inherit', minWidth: 44, minHeight: 44, flexShrink: 0 } }>{ t('heptapodEncoderPage.close') }</Button>
         </Box>
-        <Box sx={ { px: 3, pb: 4, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain' } }>
+        <Box data-encoder-analysis-scroll sx={ { ...readingScrollbarSx(theme), px: theme.editorial.createReading.dialogInset, pb: theme.editorial.createReading.sectionGap, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain' } }>
           <Box data-encoder-mobile-glyph sx={ { position: 'relative', width: mobileGlyphSize, height: mobileGlyphSize, mx: 'auto' } }>
             <LogogramRendererCanvas model={ model } size={ mobileGlyphSize } inkColor={ theme.palette.common.white } isActive />
             <AnalysisOverlay model={ model } size={ mobileGlyphSize } isVisible={ analysisActive }
@@ -1008,7 +1007,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
               onScan={ (info) => audioRef.current?.scanBeeps(info.count, info) } />
             <GlyphObservationOverlay model={ model } anchors={ selectedAnchors } fg={ theme.palette.common.white } />
           </Box>
-          <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fg={ theme.palette.common.white } sx={ { maxWidth: theme.editorial.measure, mx: 'auto' } }
+          <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fg={ theme.palette.common.white } sx={ { maxWidth: theme.editorial.measure, mx: 'auto', mt: theme.editorial.createReading.groupGap } }
             selectedObservationIds={ selectedMeaningIds } onToggleObservation={ handleToggleMeaning } />
         </Box>
       </Dialog>

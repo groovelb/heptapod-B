@@ -131,7 +131,7 @@ try {
   check(() => assert.equal(input().getAttribute('enterkeyhint'), 'go', 'Desktop keyboard hint is unchanged'));
   check(() => assert.equal(getComputedStyle(document.querySelector('[data-encoder-result]')).height, '900px', 'Desktop remains exactly 100vh'));
   check(() => assert.equal(getComputedStyle(document.querySelector('[data-encoder-overlay]')).position, 'absolute'));
-  check(() => assert.equal(getComputedStyle(document.querySelector('[data-encoder-overlay]')).width, '200px'));
+  check(() => assert.equal(getComputedStyle(document.querySelector('[data-encoder-overlay]')).width, '320px'));
   check(() => assert.equal(getComputedStyle(document.querySelector('[data-encoder-metadata]')).gridTemplateRows, 'repeat(4, 32px)'));
   await act(async () => input().focus());
   await setName('Ian'); await enter();

@@ -10,7 +10,7 @@ const entries = Object.values(ARCHETYPE_CATALOG);
 const fields = ['title', 'composition', 'reading', 'story', 'traits', 'moments', 'tension', 'question', 'motto', 'distinction', 'relations'];
 
 test('every existing combination has a complete bilingual editorial record', () => {
-  assert.equal(ARCHETYPE_NARRATIVE_VERSION, 4);
+  assert.equal(ARCHETYPE_NARRATIVE_VERSION, 5);
   assert.deepEqual(Object.keys(narrativesKo), entries.map((entry) => `${entry.familyId}.${entry.modifierIds.join('+') || 'none'}`));
   assert.deepEqual(Object.keys(narrativesEn), Object.keys(narrativesKo));
   assert.deepEqual([0, 1, 2, 3].map((count) => entries.filter((entry) => entry.modifierIds.length === count).length), [3, 9, 9, 3]);
@@ -20,8 +20,8 @@ test('every existing combination has a complete bilingual editorial record', () 
     const en = narrativesEn[id];
     assert.deepEqual(Object.keys(ko).sort(), [...fields].sort(), id);
     assert.deepEqual(Object.keys(en).sort(), [...fields].sort(), id);
-    assert.ok(ko.story.length >= 180 && ko.story.length <= 260, `${id}: Korean story length`);
-    assert.ok(ko.reading.length <= 90 && en.reading.length <= 160, `${id}: short sharing identity`);
+    assert.ok(ko.story.length >= 60 && ko.story.length <= 140, `${id}: Korean story length`);
+    assert.ok(ko.reading.length <= 40 && en.reading.length <= 100, `${id}: short sharing identity`);
     for (const [field, count] of [['traits', 3], ['moments', 2], ['relations', 2]]) {
       assert.equal(ko[field].length, count, `${id}.${field}`);
       assert.equal(en[field].length, count, `${id}.${field}`);

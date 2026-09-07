@@ -10,6 +10,7 @@ export default {
   parameters: { docs: { description: { component: 'md 미만은 12px 바깥 여백·동적 화면 높이·44px 닫기 영역으로 대응합니다. PC 배치는 유지합니다. 공개 동의 후 주소·소속 군집·링크 보관 안내·내 표식 페이지 열기·독립 복사를 제공합니다. 소셜 공유를 누르면 X·Threads·Facebook 작성 링크를 선택하며 자동 복사로 전환하지 않습니다. 공유 의도로 열면 소셜 선택지가 즉시 보이며 OS 공유창은 호출하지 않습니다. 완료 스토리는 즉시 표시되고 Flow 스토리는 동의 후 공개하기를 누르세요. 콜백은 로컬 결과만 반환하며 공개 API·인증·실제 공유창·클립보드를 호출하지 않습니다.' } } },
   decorators: [(Story) => <MemoryRouter>{ createElement(Story) }</MemoryRouter>],
   argTypes: {
+    showClusterLink: { control: 'boolean', description: '군집 이동 링크 표시. Create에서는 숨김' },
     open: { control: 'boolean', description: '열림 상태' },
     onClose: { action: 'close', description: '닫기' },
     glyphName: { control: 'text', description: '공개할 이름' },

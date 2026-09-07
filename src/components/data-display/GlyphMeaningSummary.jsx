@@ -1,6 +1,7 @@
 import { useI18n } from '../../i18n/useI18n.js';
 import { sourceText as t } from '../../i18n/messages.js';
 import { useId } from 'react';
+import { readingScrollbarSx } from '../../styles/readingScrollbar';
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -15,7 +16,7 @@ import { getGlyphArchetype } from '../../data/heptapodArchetypeCatalog';
 const STATUS_LABELS = { complete: t('glyphMeaningSummary.fullyRead'), partial: t('archiveMeaningExplorer.partiallyRead'), invalid: t('archiveMeaningExplorer.readingUnconfirmed') };
 
 /** 실제 모델에서 계산된 의미 해석을 표시한다. 관측 선택과 탐색은 부모가 처리한다. */
-export default function GlyphMeaningSummary({ interpretation, compact = false, variant = 'summary', selectedObservationIds = [], onToggleObservation, onExplore, fg, sx = {} }) {
+export default function GlyphMeaningSummary({ interpretation, compact = false, variant = 'summary', fitHeight = false, selectedObservationIds = [], onToggleObservation, onExplore, fg, sx = {} }) {
   const { locale, localize, t } = useI18n();
   const theme = useTheme();
   const titleId = useId();
@@ -29,33 +30,37 @@ export default function GlyphMeaningSummary({ interpretation, compact = false, v
     const archetype = getGlyphArchetype(interpretation);
     const entries = buildMeaningReading(interpretation, locale);
     const selected = entries.filter((entry) => selectedObservationIds.includes(entry.id));
-    return <Box component="section" aria-labelledby={ titleId } data-meaning-status={ status } data-meaning-reading data-reading-archetype={ archetype?.id } sx={ { color: ink, ...sx } }>
-      <Typography sx={ { typography: 'editorialLabel', mb: theme.editorial.labelGap } }>{ t('meaningReading.eyebrow') }</Typography>
-      <Typography id={ titleId } component="h2" sx={ { m: 0, typography: 'editorialTitle' } }>{ archetype ? localize(archetype.title) : title }</Typography>
-      <ArchetypeMotto archetype={ archetype } />
-      <GlyphObservationChips entries={ entries } selectedIds={ selectedObservationIds } onToggle={ onToggleObservation } fg={ ink } />
+    return <Box component="section" aria-labelledby={ titleId } data-meaning-status={ status } data-meaning-reading data-reading-archetype={ archetype?.id } sx={ { color: ink, px: theme.editorial.createReading.inset, boxSizing: 'border-box',
+      ...(fitHeight ? { display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 } : {}), ...sx } }>
+      { !fitHeight && <Typography sx={ { typography: 'editorialLabel', mb: theme.editorial.createReading.labelGap } }>{ t('meaningReading.eyebrow') }</Typography> }
+      <Typography id={ titleId } component="h2" sx={ { m: 0, typography: 'editorialTitle', flexShrink: 0,
+        ...(fitHeight ? { [`@media (max-height: ${theme.editorial.createReading.compactHeight}px)`]: { typography: 'editorialLabel' } } : {}),
+      } }>{ archetype ? localize(archetype.title) : title }</Typography>
       <Box data-reading-detail tabIndex={ 0 } aria-live="polite" aria-atomic="true" data-lenis-prevent
-        sx={ { height: (theme) => theme.editorial.readingViewport, overflowY: 'auto', overscrollBehavior: 'contain', pr: 0.5, pt: 1 } }>
-        { archetype && <ArchetypeNarrative archetype={ archetype } showMotto={ false } variant={ selected.length ? 'compact' : 'full' } sx={ { mb: 2 } } /> }
+        sx={ { ...readingScrollbarSx(theme), height: fitHeight ? 0 : theme.editorial.readingViewport,
+          ...(fitHeight ? { flex: '1 1 0', minHeight: 0, mt: theme.editorial.createReading.paragraphGap } : {}), overflowY: 'auto', overscrollBehavior: 'contain', pr: theme.editorial.createReading.scrollInset, scrollbarGutter: 'stable' } }>
+        <ArchetypeMotto archetype={ archetype } sx={ { mt: theme.editorial.createReading.paragraphGap } } />
+        <GlyphObservationChips entries={ entries } selectedIds={ selectedObservationIds } onToggle={ onToggleObservation } fg={ ink } sx={ { mt: theme.editorial.createReading.groupGap, mb: theme.editorial.createReading.groupGap } } />
+        { archetype && <ArchetypeNarrative archetype={ archetype } showMotto={ false } spacing="createAnalysis" variant={ selected.length ? 'compact' : 'full' } sx={ { mb: theme.editorial.createReading.groupGap } } /> }
         { invalid ? <Typography sx={ { typography: 'editorialBody' } }>{ t('glyphMeaningSummary.thereIsNotEnoughFormDataTo') }</Typography>
           : selected.length ? selected.map((entry) => <Box key={ entry.id } component="section" data-reading-selected={ entry.meaningId }
-              sx={ { mt: theme.editorial.sectionGap, pt: theme.editorial.sectionPadding, ...theme.editorial.rule } }>
-            <Typography component="h3" sx={ { typography: 'editorialLabel', mb: theme.editorial.labelGap } }>{ entry.label }</Typography>
-            <Typography sx={ { typography: 'editorialLabel', mb: theme.editorial.labelGap } }>{ t(entry.meaningId === interpretation.baseMeaning ? 'meaningReading.base' : 'meaningReading.modifier') }</Typography>
+              sx={ { mt: theme.editorial.createReading.sectionGap, pt: theme.editorial.createReading.sectionPadding, ...theme.editorial.rule } }>
+            <Typography component="h3" sx={ { typography: 'editorialLabel', mb: theme.editorial.createReading.labelGap } }>{ entry.label }</Typography>
+            <Typography sx={ { typography: 'editorialMeta', mb: theme.editorial.createReading.labelGap } }>{ t(entry.meaningId === interpretation.baseMeaning ? 'meaningReading.base' : 'meaningReading.modifier') }</Typography>
             <Typography data-reading-definition sx={ { typography: 'editorialBody' } }>{ entry.definition }</Typography>
-            <Typography sx={ { typography: 'editorialLabel', mt: theme.editorial.paragraphGap, mb: theme.editorial.labelGap } }>{ t('meaningReading.here') }</Typography>
+            <Typography sx={ { typography: 'editorialLabel', mt: theme.editorial.createReading.groupGap, mb: theme.editorial.createReading.labelGap } }>{ t('meaningReading.here') }</Typography>
             <Typography data-reading-evidence sx={ { typography: 'editorialBody' } }>{ entry.detail }</Typography>
-            <Box component="ol" aria-label={ t('glyphMeaningSummary.formEvidenceForMeaning') } sx={ { listStyle: 'none', m: 0, p: 0, mt: 1, display: 'flex', flexWrap: 'wrap', columnGap: 1.5 } }>
+            <Box component="ol" aria-label={ t('glyphMeaningSummary.formEvidenceForMeaning') } sx={ { listStyle: 'none', m: 0, p: 0, mt: theme.editorial.createReading.paragraphGap, display: 'flex', flexWrap: 'wrap', columnGap: theme.editorial.createReading.itemGap, rowGap: theme.editorial.createReading.labelGap } }>
               { entry.locations.map((location) => <Typography component="li" key={ location.number } sx={ { typography: 'editorialMeta' } }>{ location.text }</Typography>) }
             </Box>
           </Box>) : <>
             <Typography sx={ { typography: 'editorialBody' } }>{ archetype ? t('archetypeReading.invitation') : entries.length ? t('meaningReading.intro') : t('glyphMeaningSummary.noMeaningsConfirmedYet') }</Typography>
             { !archetype && entries.length > 0 && <Typography sx={ { mt: 2, typography: 'editorialBody' } }>{ t('meaningReading.individual') }</Typography> }
           </> }
+        { status === 'partial' && <Typography role="status" sx={ { mt: 1, typography: 'editorialMeta' } }>{ t('meaningReading.partial') }</Typography> }
+        <Typography sx={ { mt: theme.editorial.createReading.groupGap, typography: 'editorialMeta', color: alpha(ink, 0.8) } }>{ t('meaningReading.disclaimer') }</Typography>
+        { onExplore && !invalid && entries.length > 0 && <Button onClick={ () => onExplore(interpretation) } sx={ { ...actionSx, mt: theme.editorial.createReading.groupGap } }>{ t('glyphMeaningSummary.exploreGlyphsWithThisMeaning') }</Button> }
       </Box>
-      { status === 'partial' && <Typography role="status" sx={ { mt: 1, typography: 'editorialMeta' } }>{ t('meaningReading.partial') }</Typography> }
-      <Typography sx={ { mt: 1.5, typography: 'editorialMeta', color: alpha(ink, 0.8) } }>{ t('meaningReading.disclaimer') }</Typography>
-      { onExplore && !invalid && entries.length > 0 && <Button onClick={ () => onExplore(interpretation) } sx={ { ...actionSx, mt: 1.5 } }>{ t('glyphMeaningSummary.exploreGlyphsWithThisMeaning') }</Button> }
     </Box>;
   }
   return (
@@ -88,7 +93,7 @@ export default function GlyphMeaningSummary({ interpretation, compact = false, v
         <Typography component="p" variant="editorialMeta" sx={ { display: 'block', mt: 2, color: alpha(ink, 0.8) } }>{ t('glyphMeaningSummary.thisIsTheProjectSInterpretationOf') }{ interpretation?.meaningVersion && t('glyphMeaningSummary.meaningRulesV', { p0: interpretation.meaningVersion }) }
           { interpretation?.morphologyVersion && t('glyphMeaningSummary.morphologyV', { p0: interpretation.morphologyVersion }) }
         </Typography>
-        { onExplore && !invalid && interpretation?.meaningIds?.length > 0 && <Button variant="outlined" onClick={ () => onExplore(interpretation) } sx={ { ...actionSx, mt: 2 } }>{ t('glyphMeaningSummary.exploreGlyphsWithThisMeaning') }</Button> }
+          { onExplore && !invalid && interpretation?.meaningIds?.length > 0 && <Button variant="outlined" onClick={ () => onExplore(interpretation) } sx={ { ...actionSx, mt: 2 } }>{ t('glyphMeaningSummary.exploreGlyphsWithThisMeaning') }</Button> }
       </> }
     </Box>
   );

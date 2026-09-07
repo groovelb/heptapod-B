@@ -11,7 +11,7 @@ export default {
     showMotto: { control: 'boolean', description: '한마디를 처음에 인용문으로 표시. 제목 아래 별도로 표시하는 부모에서는 false' },
     showFamily: { control: 'boolean', description: '피드에서 이미 소개한 상위 군집의 반복 표시 여부' },
     variant: { control: 'select', options: ['full', 'compact'], description: 'full은 특징·상황·긴장·질문·관계·차이·한마디까지 표시, compact는 조합과 핵심 서사' },
-    spacing: { control: 'select', options: ['default', 'archive', 'archiveDetail'], description: 'archive는 목록 간격, archiveDetail은 구역 안쪽 패딩과 소제목·본문 간격을 확장. Create 기본 간격과 독립적' },
+    spacing: { control: 'select', options: ['default', 'archive', 'archiveDetail', 'createAnalysis'], description: 'archive는 목록 간격, archiveDetail은 구역 안쪽 패딩과 소제목·본문 간격을 확장. createAnalysis는 Create 전용 문단·구역 간격 토큰 사용' },
     sx: { control: 'object', description: 'MUI sx 추가 스타일' },
   },
   args: { archetype: ARCHETYPE_CATALOG['meaning-v1:reciprocity:simultaneity+openness+trace'], showFamily: true, showIdentity: true, variant: 'full', sx: { maxWidth: (theme) => theme.editorial.measure, p: 2 } },

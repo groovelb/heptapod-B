@@ -9,7 +9,7 @@ import { archiveMeaningPath } from '../../utils/heptapod/shareArchive';
 /** Exact membership from the same interpretation as the archive feed.
  * <GlyphClusterLink interpretation={interpretation} compact />
  */
-export default function GlyphClusterLink({ interpretation, compact = false, sx = {} }) {
+export default function GlyphClusterLink({ interpretation, compact = false, showLink = true, sx = {} }) {
   const { t, localize } = useI18n();
   const routed = useInRouterContext();
   const archetype = getGlyphArchetype(interpretation);
@@ -19,7 +19,7 @@ export default function GlyphClusterLink({ interpretation, compact = false, sx =
     <Typography data-glyph-cluster-name sx={ { fontSize: compact ? 13 : 20, lineHeight: 1.6, overflowWrap: 'anywhere' } }>
       {archetype ? localize(archetype.title) : t('glyphCluster.unconfirmed')}
     </Typography>
-    {path && <Button data-glyph-cluster-link component={ routed ? Link : 'a' } { ...(routed ? { to: path } : { href: path }) }
+    {path && showLink && <Button data-glyph-cluster-link component={ routed ? Link : 'a' } { ...(routed ? { to: path } : { href: path }) }
       sx={ { minHeight: 44, px: 0, color: 'inherit', borderRadius: 0, fontSize: compact ? 12 : 14, textTransform: 'none', textDecoration: 'underline', textUnderlineOffset: '4px' } }>
       {t('glyphCluster.explore')}
     </Button>}
