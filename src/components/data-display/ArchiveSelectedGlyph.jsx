@@ -1,6 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import { alpha } from '@mui/material/styles';
 import { useI18n } from '../../i18n/useI18n';
 import { getGlyphArchetype } from '../../data/heptapodArchetypeCatalog';
 import { buildMeaningReading } from '../../utils/heptapod/buildMeaningReading';
@@ -70,9 +72,22 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
           <ArchiveGlyph glyph={ glyph } showName nameComponent="h1" maxSize={ 520 } analysis={ analysis } anchors={ selectedAnchors }
             sx={ { maxWidth: (theme) => ({ xs: '100%', md: theme.editorial.archiveFigure.maxWidth }) } } />
         </Box>
-        <Box ref={ controlsRef } data-archive-figure-controls sx={ { display: 'flow-root', p: (theme) => theme.editorial.visualizationControls.padding } }>
+        <Box ref={ controlsRef } data-archive-figure-controls sx={ { display: 'grid', justifyItems: 'center', gap: (theme) => theme.editorial.visualizationControls.gap, p: (theme) => theme.editorial.visualizationControls.padding } }>
+          <Button data-selected-analysis-toggle aria-pressed={ analysis } aria-controls={ analysisId }
+            onClick={ () => setAnalysis((open) => !open) } variant="text" fullWidth
+            sx={ (theme) => ({
+              typography: 'editorialAction', fontFamily: theme.typography.custom.mono.fontFamily,
+              minHeight: theme.editorial.observationChip.minHeight, borderRadius: 0,
+              color: 'custom.chamber.ink', border: '1px solid',
+              borderColor: alpha(theme.palette.custom.chamber.ink, analysis ? 0.5 : 0.2),
+              justifyContent: 'center', gap: theme.editorial.archivePage.introGap,
+              '&:hover': { bgcolor: alpha(theme.palette.custom.chamber.ink, 0.06), borderColor: alpha(theme.palette.custom.chamber.ink, 0.6) },
+            }) }>
+            <span>{ t('heptapodEncoderPage.analysis2') }</span>
+            <span>{ t(analysis ? 'heptapodEncoderPage.on' : 'heptapodEncoderPage.off') }</span>
+          </Button>
           <GlyphObservationChips entries={ entries } selectedIds={ selectedIds }
-            analysisToggle={ { active: analysis, onToggle: () => setAnalysis((open) => !open), controlsId: analysisId } }
+            sx={ { justifyContent: 'center' } }
             onToggle={ (entry) => setSelectedIds((ids) => ids.includes(entry.id) ? ids.filter((id) => id !== entry.id) : [...ids, entry.id]) } />
         </Box>
       </Box>

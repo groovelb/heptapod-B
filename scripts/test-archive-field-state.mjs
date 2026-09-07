@@ -183,7 +183,11 @@ try {
   controls.getBoundingClientRect = () => ({ height: 240 });
   controlsResize.callback();
   check(() => assert.equal(stickyFigure.style.getPropertyValue('--archive-figure-controls-height'), '240px', 'Wrapped chips reserve more space below the glyph'));
-  check(() => assert.equal(analysisButton.parentElement, readingMeaning.parentElement, 'Analysis and metadata share one toggle group'));
+  check(() => assert.equal(analysisButton.parentElement, controls, 'Analysis occupies its own row'));
+  check(() => assert.equal(chips.parentElement, controls, 'Metadata follows in the second row'));
+  check(() => assert.ok(analysisButton.compareDocumentPosition(chips) & Node.DOCUMENT_POSITION_FOLLOWING));
+  check(() => assert.equal(getComputedStyle(chips).justifyContent, 'center'));
+  check(() => assert.match(analysisButton.textContent, /분석하기.*OFF/));
   check(() => assert.equal(chips.querySelector('svg, p'), null, 'No decorative icons or helper copy in visualization controls'));
   const focusSearch = router.state.location.search;
   check(() => assert.ok(chips, 'Metadata toggles are visible before enabling analysis'));
