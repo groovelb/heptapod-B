@@ -48,7 +48,8 @@ export function createEditorialTokens({ typography, breakpoints }) {
       },
       archiveFigure: {
         top: `calc(80px + var(--archive-navigation-height, ${archiveNavigationHeight}px) + env(safe-area-inset-top, 0px) + ${archiveContentInset})`,
-        maxWidth: 'min(100%, max(10rem, calc(100svh - var(--archive-figure-top) - 5rem)))',
+        maxHeight: `calc(100svh - var(--archive-figure-top) - ${archiveContentInset})`,
+        maxWidth: 'min(100%, max(10rem, calc(100svh - var(--archive-figure-top) - var(--archive-figure-controls-height, 4rem) - 1rem)))',
       },
       observationChip: { borderRadius: '999px', minHeight: 44, height: 'auto', py: 0.75, px: 0.5 },
     },

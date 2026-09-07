@@ -17,7 +17,7 @@ function InteractiveChips(args) {
 export default {
   title: 'Custom Component/7. Input & Control/GlyphObservationChips',
   component: GlyphObservationChips, tags: ['autodocs'],
-  parameters: { docs: { description: { component: '각 메타데이터를 독립적으로 켜고 끄는 다중 토글 칩. 체크·채움색·aria-pressed로 상태를 표시하고, 선택 배열과 실제 시각화는 부모가 관리합니다. 분석 패널이나 서사를 만들지 않아 Archive의 기존 설명과 함께 사용할 수 있습니다.' } } },
+  parameters: { docs: { description: { component: '각 메타데이터를 독립적으로 켜고 끄는 다중 토글 칩. 열린 눈/가려진 눈 아이콘·채움색·aria-pressed로 상태를 표시하고, 선택 배열과 실제 시각화는 부모가 관리합니다. 분석 패널이나 서사를 만들지 않아 Archive의 기존 설명과 함께 사용할 수 있습니다.' } } },
   decorators: [(Story) => <Box sx={ { p: 3, bgcolor: 'custom.chamber.fog', color: 'custom.chamber.ink' } }>{ createElement(Story) }</Box>],
   argTypes: {
     entries: { control: 'object', description: 'buildMeaningReading으로 만든 현 언어의 관측 항목' },

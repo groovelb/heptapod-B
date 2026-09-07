@@ -2,8 +2,8 @@ import { useId } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
-import Add from '@mui/icons-material/Add';
-import Check from '@mui/icons-material/Check';
+import VisibilityOutlined from '@mui/icons-material/VisibilityOutlined';
+import VisibilityOffOutlined from '@mui/icons-material/VisibilityOffOutlined';
 import { alpha, useTheme } from '@mui/material/styles';
 import { useI18n } from '../../i18n/useI18n';
 
@@ -24,7 +24,7 @@ export default function GlyphObservationChips({ entries = [], selectedIds = [], 
             const foreground = active ? theme.palette.getContrastText(ink) : ink;
             return <Chip key={ entry.id } component="button" type="button" clickable disabled={ !onToggle }
               data-reading-meaning={ entry.meaningId } aria-pressed={ active }
-              icon={ active ? <Check /> : <Add /> } label={ entry.label }
+              icon={ active ? <VisibilityOutlined /> : <VisibilityOffOutlined /> } label={ entry.label }
               onClick={ () => onToggle?.(entry) }
               variant={ active ? 'filled' : 'outlined' }
               sx={ { ...theme.editorial.observationChip, typography: 'editorialAction', color: foreground,

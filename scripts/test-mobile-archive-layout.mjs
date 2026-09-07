@@ -57,7 +57,8 @@ try {
         assert.equal(style.getPropertyValue('--archive-figure-top'), theme.editorial.archiveFigure.top.replace('var(--archive-navigation-height, 48px)', style.getPropertyValue('--archive-navigation-height') || '48px')); checks += 1;
         const button = figure.querySelector('[data-selected-analysis-toggle]');
         assert.ok(button, 'Analysis button stays below the glyph in the sticky column'); checks += 1;
-        assert.equal(button.parentElement, figure); checks += 1;
+        assert.equal(button.closest('[data-archive-sticky-figure]'), figure); checks += 1;
+        assert.ok(figure.querySelector('[data-observation-chips]'), 'Metadata controls travel with the sticky glyph'); checks += 1;
         assert.ok(figure.querySelector('[data-glyph-centered-name]').compareDocumentPosition(button) & dom.Node.DOCUMENT_POSITION_FOLLOWING); checks += 1;
         assert.ok(figure.parentElement.contains(body), 'Sticky scope includes the full explanation'); checks += 1;
         assert.equal(figure.parentElement.querySelector('[data-same-type-glyph]'), null, 'Sticky stops before peer section'); checks += 1;

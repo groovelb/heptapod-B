@@ -19,6 +19,7 @@ const headingSx = { typography: 'editorialTitle' };
 export default function ArchiveSelectedGlyph({ glyph, interpretation, interpretations = {}, members = [], onSelect }) {
   const { locale, localize, t } = useI18n();
   const ref = useRef(null);
+  const controlsRef = useRef(null);
   const analysisId = useId();
   const [analysis, setAnalysis] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -32,6 +33,16 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
   const sampleReadings = samples.map((sample) => buildMeaningReading(sample.id === glyph.id ? interpretation : interpretations[sample.id], locale));
   const shared = entries.filter((entry) => entry.anchors.length && sampleReadings.every((reading) => reading.some((item) => item.meaningId === entry.meaningId && item.anchors.length)));
   useEffect(() => { ref.current?.focus({ preventScroll: true }); }, []);
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls) return undefined;
+    const figure = controls.parentElement;
+    const update = () => figure.style.setProperty('--archive-figure-controls-height', `${Math.ceil(controls.getBoundingClientRect().height)}px`);
+    update();
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null;
+    observer?.observe(controls);
+    return () => { observer?.disconnect(); figure.style.removeProperty('--archive-figure-controls-height'); };
+  }, []);
 
   return <Box ref={ ref } tabIndex={ -1 } component="section" aria-label={ t('archiveDepthExplorer.selectedGlyphDetail') } data-selected-glyph-detail
     sx={ { maxWidth: (theme) => theme.editorial.spread, mx: 'auto', pt: (theme) => theme.editorial.archivePage.contentInset, pb: (theme) => theme.editorial.archivePage.bottomInset, '&:focus': { outline: 'none' } } }>
@@ -54,20 +65,23 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
       </Box>
       <Box data-archive-sticky-figure sx={ { gridArea: 'figure', position: { xs: 'static', md: 'sticky' }, alignSelf: 'start', minWidth: 0,
         '--archive-figure-top': (theme) => theme.editorial.archiveFigure.top, top: 'var(--archive-figure-top)',
+        maxHeight: (theme) => ({ md: theme.editorial.archiveFigure.maxHeight }), overflowY: { md: 'auto' },
       } }>
         <Box id={ analysisId }>
           <ArchiveGlyph glyph={ glyph } showName nameComponent="h1" maxSize={ 520 } analysis={ analysis } anchors={ selectedAnchors }
             sx={ { maxWidth: (theme) => ({ xs: '100%', md: theme.editorial.archiveFigure.maxWidth }) } } />
         </Box>
-        <Button data-selected-analysis-toggle aria-pressed={ analysis } aria-controls={ analysisId }
-          onClick={ () => setAnalysis((open) => !open) }
-          sx={ { display: 'flex', mx: 'auto', color: 'inherit', typography: 'editorialAction', minHeight: 44, mt: (theme) => theme.editorial.paragraphGap, px: 0, borderBottom: '1px solid', borderRadius: 0, textTransform: 'none' } }>
-          { t(analysis ? 'archiveDepthExplorer.hideAnalysis' : 'archiveDepthExplorer.showAnalysis') }
-        </Button>
+        <Box ref={ controlsRef } data-archive-figure-controls sx={ { display: 'flow-root' } }>
+          <Button data-selected-analysis-toggle aria-pressed={ analysis } aria-controls={ analysisId }
+            onClick={ () => setAnalysis((open) => !open) }
+            sx={ { display: 'flex', mx: 'auto', color: 'inherit', typography: 'editorialAction', minHeight: 44, mt: (theme) => theme.editorial.paragraphGap, px: 0, borderBottom: '1px solid', borderRadius: 0, textTransform: 'none' } }>
+            { t(analysis ? 'archiveDepthExplorer.hideAnalysis' : 'archiveDepthExplorer.showAnalysis') }
+          </Button>
+          <GlyphObservationChips entries={ entries } selectedIds={ selectedIds }
+            onToggle={ (entry) => setSelectedIds((ids) => ids.includes(entry.id) ? ids.filter((id) => id !== entry.id) : [...ids, entry.id]) } />
+        </Box>
       </Box>
       <Box data-archive-reading-column sx={ { gridArea: 'reading', minWidth: 0, maxWidth: (theme) => theme.editorial.measure } }>
-        <GlyphObservationChips entries={ entries } selectedIds={ selectedIds }
-          onToggle={ (entry) => setSelectedIds((ids) => ids.includes(entry.id) ? ids.filter((id) => id !== entry.id) : [...ids, entry.id]) } />
         { type && <ArchetypeNarrative archetype={ type } showMotto={ false } spacing="archive" sx={ { mt: (theme) => theme.editorial.archivePage.groupGap } } /> }
       </Box>
     </Box>

@@ -172,6 +172,17 @@ try {
   check(() => assert.equal(selectedDetail.querySelectorAll('[data-narrative-field="motto"]').length, 1));
   const chips = selectedDetail.querySelector('[data-observation-chips]');
   const readingMeaning = chips.querySelector('[data-reading-meaning]');
+  const stickyFigure = selectedDetail.querySelector('[data-archive-sticky-figure]');
+  check(() => assert.ok(stickyFigure.contains(chips), 'Metadata toggles share the sticky glyph column'));
+  check(() => assert.equal(selectedDetail.querySelector('[data-archive-reading-column] [data-observation-chips]'), null));
+  const controls = selectedDetail.querySelector('[data-archive-figure-controls]');
+  const controlsResize = resizeObservers.find((observer) => observer.target === controls);
+  controls.getBoundingClientRect = () => ({ height: 188 });
+  controlsResize.callback();
+  check(() => assert.equal(stickyFigure.style.getPropertyValue('--archive-figure-controls-height'), '188px'));
+  controls.getBoundingClientRect = () => ({ height: 240 });
+  controlsResize.callback();
+  check(() => assert.equal(stickyFigure.style.getPropertyValue('--archive-figure-controls-height'), '240px', 'Wrapped chips reserve more space below the glyph'));
   const focusSearch = router.state.location.search;
   check(() => assert.ok(chips, 'Metadata toggles are visible before enabling analysis'));
   check(() => assert.equal(selectedDetail.querySelector('[data-meaning-reading]'), null, 'No duplicate reading panel'));
