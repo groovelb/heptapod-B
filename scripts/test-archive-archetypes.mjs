@@ -31,7 +31,7 @@ test('24 exact catalog keys preserve approved titles, order and narrative versio
     assert.equal(entry.order, index);
     assert.equal(entry.id, entry.meaningKey);
     assert.equal(entry.meaningVersion, 1);
-    assert.equal(entry.narrativeVersion, 2);
+    assert.equal(entry.narrativeVersion, 3);
     assert.equal(entry.meaningKey, key(entry.familyId, entry.modifierIds.join('+') || 'none'));
     assert.ok(Object.isFrozen(entry) && Object.isFrozen(entry.modifierIds));
   }
@@ -80,7 +80,7 @@ test('one type requires a complete supported interpretation with exact boolean c
 });
 
 test('all bilingual narrative messages localize from the shared source strings', () => {
-  assert.equal(Object.keys(archetypeKo).length, 336);
+  assert.equal(Object.keys(archetypeKo).length, 369);
   assert.deepEqual(Object.keys(archetypeKo), Object.keys(archetypeEn));
   for (const [messageKey, ko] of Object.entries(archetypeKo)) {
     assert.equal(localizeMessage(ko, 'en'), archetypeEn[messageKey]);

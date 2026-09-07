@@ -1,15 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ARCHETYPE_CATALOG, ARCHETYPE_NARRATIVE_VERSION } from '../src/data/heptapodArchetypeCatalog.js';
-import { narrativesKo } from '../src/i18n/locales/archetypeNarratives.ko.js';
-import { narrativesEn } from '../src/i18n/locales/archetypeNarratives.en.js';
+import { ARCHETYPE_CATALOG, ARCHETYPE_NARRATIVE_VERSION, ARCHETYPE_FAMILIES } from '../src/data/heptapodArchetypeCatalog.js';
+import narratives from '../src/data/archetypeNarratives.json' with { type: 'json' };
+const narrativesKo = Object.fromEntries(Object.entries(narratives.types).map(([id, value]) => [id, value.ko]));
+const narrativesEn = Object.fromEntries(Object.entries(narratives.types).map(([id, value]) => [id, value.en]));
 import { localizeMessage } from '../src/i18n/messages.js';
 
 const entries = Object.values(ARCHETYPE_CATALOG);
-const fields = ['reading', 'story', 'traits', 'moments', 'tension', 'question', 'motto', 'distinction', 'relations'];
+const fields = ['title', 'composition', 'reading', 'story', 'traits', 'moments', 'tension', 'question', 'motto', 'distinction', 'relations'];
 
 test('every existing combination has a complete bilingual editorial record', () => {
-  assert.equal(ARCHETYPE_NARRATIVE_VERSION, 2);
+  assert.equal(ARCHETYPE_NARRATIVE_VERSION, 3);
   assert.deepEqual(Object.keys(narrativesKo), entries.map((entry) => `${entry.familyId}.${entry.modifierIds.join('+') || 'none'}`));
   assert.deepEqual(Object.keys(narrativesEn), Object.keys(narrativesKo));
   assert.deepEqual([0, 1, 2, 3].map((count) => entries.filter((entry) => entry.modifierIds.length === count).length), [3, 9, 9, 3]);
@@ -68,5 +69,19 @@ test('editorial relationships name valid counterparts without changing classific
       .filter((id) => neighbor.modifierIds.includes(id) !== entry.modifierIds.includes(id));
     assert.equal(differences.length, 1, `${entry.id}: neighboring type must differ by exactly one observation`);
     assert.equal(entry.meaningVersion, 1);
+  }
+});
+
+test('all three family introductions and exact combination additions come from deployed JSON', () => {
+  assert.deepEqual(Object.keys(narratives.families), ['arrival', 'reception', 'reciprocity']);
+  for (const [id, family] of Object.entries(ARCHETYPE_FAMILIES)) {
+    assert.ok(Object.isFrozen(family));
+    for (const field of ['title', 'reading', 'story']) {
+      assert.equal(family[field], narratives.families[id].ko[field]);
+      assert.equal(localizeMessage(family[field], 'en'), narratives.families[id].en[field]);
+    }
+  }
+  for (const records of [narrativesKo, narrativesEn]) {
+    assert.equal(new Set(Object.values(records).map((record) => record.composition)).size, 24);
   }
 });

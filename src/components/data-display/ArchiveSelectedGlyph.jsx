@@ -8,6 +8,7 @@ import { buildMeaningReading } from '../../utils/heptapod/buildMeaningReading';
 import { glyphLabel } from '../../utils/heptapod/resonanceView';
 import ArchiveGlyph from './ArchiveGlyph';
 import GlyphMeaningSummary from './GlyphMeaningSummary';
+import ArchetypeNarrative from './ArchetypeNarrative';
 
 const SERIF = "'Cinzel', 'Noto Serif KR', Georgia, serif";
 const headingSx = { fontFamily: SERIF, fontSize: { xs: 22, md: 28 }, fontWeight: 400 };
@@ -39,12 +40,12 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
       <Box sx={ { pt: { xs: 0, md: 5 } } }>
         <Typography sx={ { fontSize: 11, letterSpacing: '0.16em' } }>{ t('archiveDepthExplorer.selectedGlyph') }</Typography>
         <Typography component="h2" sx={ { ...headingSx, mt: 1 } }>{ localize(type?.title || interpretation?.title) || t('glyphMeaningSummary.thisMeaningCannotBeReadYet') }</Typography>
-        { !analysis && type && <Typography sx={ { mt: 2, fontSize: 14, lineHeight: 1.85 } }>{ localize(type.story) }</Typography> }
         <Button data-selected-analysis-toggle aria-pressed={ analysis } aria-expanded={ analysis } aria-controls={ analysisId }
           onClick={ () => setAnalysis((open) => !open) }
           sx={ { color: 'inherit', minHeight: 44, mt: 2, px: 0, borderBottom: '1px solid', borderRadius: 0, textTransform: 'none' } }>
           { t(analysis ? 'archiveDepthExplorer.hideAnalysis' : 'archiveDepthExplorer.showAnalysis') }
         </Button>
+        { !analysis && type && <ArchetypeNarrative archetype={ type } sx={ { mt: 2 } } /> }
         <Box id={ analysisId } hidden={ !analysis } sx={ { mt: analysis ? 2 : 0 } }>
           { analysis && <GlyphMeaningSummary interpretation={ interpretation } variant="reading" selectedObservationId={ selectedId }
             onSelectObservation={ (entry) => setSelectedId(entry?.id || null) } /> }

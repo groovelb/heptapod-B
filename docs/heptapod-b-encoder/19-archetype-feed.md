@@ -76,3 +76,17 @@ Artifact sharding + 읽기 전용 공유 경로 조사. 유효 동시성 4(root 
 기존 24개 유형명·meaning-v1 키·분류 계약을 유지하고 narrativeVersion만 2로 올렸다. 카탈로그는 한 줄 reading 외에 story, traits[3], moments[2], tension, question, motto, distinction, relations[2]를 제공한다. relations는 편집용 상대 유형 키와 서사이며 공명/궁합 점수가 아니다. 피드·단일 공유는 reading을 사용하고 기존 상세·분석 설명은 story를 사용한다. 추가 화면 영역은 만들지 않았다.
 
 한영 전체 원고는 [서사 사전](24-archetype-narrative-dictionary.md), 60쌍의 차이와 이전 문구는 [편집 검토](25-archetype-narrative-review.md), 검사 결과는 [실행 기록](23-archetype-storytelling-plan.md)에 있다.
+
+
+## JSON 배포와 Archive 설명 확장 · Narrative v3 · 2026-09-07
+
+원고의 단일 배포 원본은 `src/data/archetypeNarratives.json`이다. `narrativeVersion`, `families`(도래·수용·상호성 각각 ko/en의 title·reading·story), `types`(24개 정확한 조합 각각 ko/en의 전체 원고와 composition)를 포함한다. 기존 JS 원고 파일을 제거했고 locale adapter와 카탈로그가 JSON을 직접 import한다. 수정한 JSON은 Vite 빌드에 포함되어 앱과 함께 배포되며 Markdown이나 DB에서 원고를 읽지 않는다.
+
+- 군집 선택: 각 원 아래 `families[id].reading` 대표 설명.
+- 군집 내부 / 정확한 유형 링크: 상위 `families[id].story` 다음에 각 유형의 `composition`과 `story`.
+- Archive 개인 상세 / Create 분석 초기 화면: 군집 → 조합 → 서사 → 특징·상황·긴장·질문·관계·차이·한마디. 기존 분석의 관측 선택 중에는 조합·서사와 해당 형태 근거를 읽는다.
+- 시간순 목록과 부분 판독에는 임의의 유형 설명을 붙이지 않는다. 시간순에서 완전 판독된 개인 상세를 열면 같은 JSON 설명을 사용한다.
+- 상위 군집 설명은 전체 군집의 공통 방향이다. composition은 단일 속성 문장을 이어 붙이지 않고 24조합별로 작성했다. 기본형도 별도 설명을 가진다.
+- `ArchetypeNarrative`를 재사용하며 분석 버튼은 장문 앞에 유지한다. 분류·UUID·DB·소셜 공유 계약은 동일하다.
+
+검증: 유형/서사 도메인 8+4개, 공유 456개, 한영 의미/상세 SSR 2,042개, Archive 상태 94개, 피드 인덱스 39개, 인코더 결과 175개, locale 2,402+21개, 의미 읽기 241개 검사 통과. 변경 파일 ESLint 및 프로덕션 빌드 통과. 기존 500 kB 청크 경고는 남아 있다. 브라우저 자동화 없이 검증했으며 픽셀 배치 검증은 하지 않았다. 저장소에는 `check-agent-rules` 스크립트가 없어 해당 검사는 실행할 수 없다.

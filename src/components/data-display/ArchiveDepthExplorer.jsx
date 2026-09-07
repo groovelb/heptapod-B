@@ -1,5 +1,5 @@
 import { useI18n } from '../../i18n/useI18n.js';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -15,9 +15,10 @@ import ArchiveArchetypeFeed from './ArchiveArchetypeFeed';
 import { glyphLabel } from '../../utils/heptapod/resonanceView.js';
 import { interpretGlyphMeaning } from '../../utils/heptapod/interpretGlyphMeaning.js';
 import { buildArchiveArchetypeFeed, buildArchiveTimeline } from '../../utils/heptapod/buildArchiveArchetypeFeed.js';
-import { ARCHETYPE_CATALOG, getGlyphArchetype } from '../../data/heptapodArchetypeCatalog.js';
+import { ARCHETYPE_CATALOG, ARCHETYPE_FAMILIES, getGlyphArchetype } from '../../data/heptapodArchetypeCatalog.js';
 import ArchiveFamilySymbol from './ArchiveFamilySymbol';
 import ArchiveSelectedGlyph from './ArchiveSelectedGlyph';
+import ArchetypeNarrative from './ArchetypeNarrative';
 
 const SERIF = "'Cinzel', 'Noto Serif KR', Georgia, serif";
 const MotionBox = motion.create(Box);
@@ -38,10 +39,12 @@ function ClusterPortal({ node, onSelect }) {
   const { localize, t } = useI18n();
   const theme = useTheme();
   const familySymbol = getArchiveFamilySymbol(node.id);
+  const introductionId = useId();
   return (
     <Box component="button" type="button" onClick={ () => onSelect(node.filter) }
       aria-label={ node.kind === 'timeline' ? t('archiveTimeline.allByTime') : familySymbol ? t('archiveDepthExplorer.familySymbolMeetGlyphs', { p0: localize(node.title), p1: localize(familySymbol.cue), p2: node.glyphs.length })
         : t('archiveDepthExplorer.enterTheGroupGlyphs', { p0: localize(node.title), p1: node.glyphs.length }) }
+      aria-describedby={ familySymbol ? introductionId : undefined }
       data-cluster-id={ node.id } data-archive-chronological={ node.kind === 'timeline' ? true : undefined }
       sx={ {
         position: 'relative', display: 'block', width: '100%', maxWidth: 390, mx: 'auto', p: 0, pb: 2,
@@ -64,6 +67,7 @@ function ClusterPortal({ node, onSelect }) {
         } }>{ localize(node.title) }</Typography>
       </Box>
       { (familySymbol || node.kind === 'timeline') && <Typography component="span" sx={ { display: 'block', mt: 1, fontSize: 13 } }>{ familySymbol ? localize(familySymbol.cue) : t('archiveTimeline.newest') }</Typography> }
+      { familySymbol && <Typography component="span" id={ introductionId } data-family-introduction={ node.id } sx={ { display: 'block', mt: 1.5, px: { xs: 0.5, md: 2 }, fontSize: { xs: 12, md: 14 }, lineHeight: 1.85 } }>{ localize(ARCHETYPE_FAMILIES[node.id].reading) }</Typography> }
       <Typography component="span" className="archive-cluster-invite" sx={ { display: 'block', mt: 0.5, fontSize: 12, opacity: 0.75 } }>
         { node.kind === 'timeline' ? t('archiveTimeline.allPublic') : `${node.glyphs.length}${t('archiveDepthExplorer.glyphsEnter')}` }</Typography>
     </Box>
@@ -173,8 +177,10 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
           letterSpacing: '0.06em', overflowWrap: 'anywhere', lineHeight: 1.6,
           '&:focus': { outline: 'none' },
         } }>{ localize(selectedArchetype?.title || scope.title) }</Typography>
-        { scope.subtitle && <Typography sx={ { mt: 1.5, fontSize: { xs: 13, md: 14 }, lineHeight: 1.8 } }>{ localize(scope.subtitle) }</Typography> }
+        { scope.subtitle && !scope.base && <Typography sx={ { mt: 1.5, fontSize: { xs: 13, md: 14 }, lineHeight: 1.8 } }>{ localize(scope.subtitle) }</Typography> }
       </Box>
+      { !root && !timeline && scope.base && <ArchetypeNarrative familyId={ scope.base }
+        sx={ { maxWidth: 760, mx: 'auto', mt: 2, px: { xs: 1, md: 0 } } } /> }
       <AnimatePresence mode="wait" custom={ direction }>
         <MotionBox key={ timeline ? 'timeline' : scope.scopeKey } data-archive-scope={ scope.scopeKey } custom={ direction } variants={ reducedMotion ? STILL_VARIANTS : DEPTH_VARIANTS }
           initial="enter" animate="present" exit="leave" transition={ transition }

@@ -12,7 +12,7 @@ import { compareGlyphMeanings, interpretGlyphMeaning } from '../src/utils/heptap
 import { relateGlyphs } from '../src/utils/heptapod/relateGlyphs.js';
 import { archiveMeaningPath, parseArchiveMeaningSearch } from '../src/utils/heptapod/shareArchive.js';
 import { isRenderableGlyphModel } from '../src/utils/heptapod/extractGlyphFeatures.js';
-import { ARCHETYPE_CATALOG } from '../src/data/heptapodArchetypeCatalog.js';
+import { ARCHETYPE_CATALOG, ARCHETYPE_FAMILIES } from '../src/data/heptapodArchetypeCatalog.js';
 import { getArchiveArchetypeSymbol } from '../src/data/archiveArchetypeSymbols.js';
 import { buildArchiveArchetypeFeed } from '../src/utils/heptapod/buildArchiveArchetypeFeed.js';
 import { glyphObservationMask } from '../src/utils/heptapod/glyphObservationMask.js';
@@ -47,6 +47,15 @@ try {
     const dto = groupArchiveMeanings([row]);
     const feedHtml = render(Feed, { feed: buildArchiveArchetypeFeed([row], dto) });
     const readingHtml = render(Summary, { interpretation: interpretGlyphMeaning(model), variant: 'reading' });
+    const family = ARCHETYPE_FAMILIES[archetype.familyId];
+    const depthHtml = render(Depth, { glyphs: [row], meanings: dto, filter: { base: archetype.familyId, modifiers: [], groupId: archetype.id, status: 'all' } });
+    check(() => assert.ok(depthHtml.includes(family.story)));
+    check(() => assert.ok(depthHtml.includes(archetype.composition)));
+    check(() => assert.ok(depthHtml.indexOf(family.story) < depthHtml.indexOf(archetype.composition)));
+    check(() => assert.ok(feedHtml.includes(archetype.composition)));
+    const rootHtml = render(Depth, { glyphs: [row], meanings: dto });
+    check(() => assert.ok(rootHtml.includes(family.reading)));
+    check(() => assert.ok(rootHtml.includes(`data-family-introduction="${family.id}"`)));
     const membershipHtml = render(ClusterLink, { interpretation: interpretGlyphMeaning(model) });
     check(() => assert.ok(membershipHtml.includes(archetype.title)));
     check(() => assert.ok(membershipHtml.includes(`group=${encodeURIComponent(archetype.id)}`)));
@@ -67,6 +76,12 @@ try {
           createElement(ThemeProvider, { theme }, createElement(Component, props))));
         check(() => assert.ok(html.includes(escaped(localizeMessage(archetype.story, locale))), `${archetype.id}: ${locale} full story`));
         check(() => assert.ok(html.includes(escaped(localizeMessage(archetype.title, locale))), `${archetype.id}: ${locale} title`));
+        for (const sentence of [family.story, archetype.composition, ...archetype.traits, ...archetype.moments,
+          archetype.tension, archetype.question, archetype.distinction, archetype.motto, ...archetype.relations.map((relation) => relation.reading)]) {
+          check(() => assert.ok(html.includes(escaped(localizeMessage(sentence, locale))), `${archetype.id}: ${locale} full JSON content`));
+        }
+        check(() => assert.ok(html.indexOf(escaped(localizeMessage(family.story, locale))) < html.indexOf(escaped(localizeMessage(archetype.composition, locale)))));
+
       }
     }
   }

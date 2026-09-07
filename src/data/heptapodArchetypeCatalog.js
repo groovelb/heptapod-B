@@ -1,10 +1,16 @@
+import narratives from './archetypeNarratives.json' with { type: 'json' };
 import { sourceText as t } from '../i18n/messages.js';
 import {
   MEANING_VERSION, MORPHOLOGY_VERSION, MEANING_BASE_IDS, MEANING_MODIFIER_IDS,
 } from './heptapodMeaningCatalog.js';
 
 /** Authored interpretations of exact measured keys, not encoder reachability. */
-export const ARCHETYPE_NARRATIVE_VERSION = 2;
+export const ARCHETYPE_NARRATIVE_VERSION = narratives.narrativeVersion;
+export const ARCHETYPE_FAMILIES = Object.freeze(Object.fromEntries(MEANING_BASE_IDS.map((id) => [id, Object.freeze({
+  id, title: t(`archetype.family.${id}.title`), reading: t(`archetype.family.${id}.reading`),
+  story: t(`archetype.family.${id}.story`),
+})])));
+
 const COMBINATIONS = Object.freeze([
   [], ['simultaneity'], ['openness'], ['trace'],
   ['simultaneity', 'openness'], ['simultaneity', 'trace'], ['openness', 'trace'],
@@ -23,7 +29,7 @@ export const ARCHETYPE_CATALOG = Object.freeze(Object.fromEntries(
       id: meaningKey, meaningKey, meaningVersion: MEANING_VERSION,
       narrativeVersion: ARCHETYPE_NARRATIVE_VERSION, familyId, modifierIds,
       title: t(`${prefix}.title`), reading: t(`${prefix}.reading`),
-      story: t(`${prefix}.story`),
+      story: t(`${prefix}.story`), composition: t(`${prefix}.composition`),
       traits: Object.freeze([0, 1, 2].map((part) => t(`${prefix}.traits.${part}`))),
       moments: Object.freeze([0, 1].map((part) => t(`${prefix}.moments.${part}`))),
       tension: t(`${prefix}.tension`), question: t(`${prefix}.question`),
