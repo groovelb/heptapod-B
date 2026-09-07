@@ -31,7 +31,7 @@ test('24 exact catalog keys preserve approved titles, order and narrative versio
     assert.equal(entry.order, index);
     assert.equal(entry.id, entry.meaningKey);
     assert.equal(entry.meaningVersion, 1);
-    assert.equal(entry.narrativeVersion, 3);
+    assert.equal(entry.narrativeVersion, 4);
     assert.equal(entry.meaningKey, key(entry.familyId, entry.modifierIds.join('+') || 'none'));
     assert.ok(Object.isFrozen(entry) && Object.isFrozen(entry.modifierIds));
   }

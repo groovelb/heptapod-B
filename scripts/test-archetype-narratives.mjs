@@ -10,7 +10,7 @@ const entries = Object.values(ARCHETYPE_CATALOG);
 const fields = ['title', 'composition', 'reading', 'story', 'traits', 'moments', 'tension', 'question', 'motto', 'distinction', 'relations'];
 
 test('every existing combination has a complete bilingual editorial record', () => {
-  assert.equal(ARCHETYPE_NARRATIVE_VERSION, 3);
+  assert.equal(ARCHETYPE_NARRATIVE_VERSION, 4);
   assert.deepEqual(Object.keys(narrativesKo), entries.map((entry) => `${entry.familyId}.${entry.modifierIds.join('+') || 'none'}`));
   assert.deepEqual(Object.keys(narrativesEn), Object.keys(narrativesKo));
   assert.deepEqual([0, 1, 2, 3].map((count) => entries.filter((entry) => entry.modifierIds.length === count).length), [3, 9, 9, 3]);

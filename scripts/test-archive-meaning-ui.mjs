@@ -76,6 +76,8 @@ try {
           createElement(ThemeProvider, { theme }, createElement(Component, props))));
         check(() => assert.ok(html.includes(escaped(localizeMessage(archetype.story, locale))), `${archetype.id}: ${locale} full story`));
         check(() => assert.ok(html.includes(escaped(localizeMessage(archetype.title, locale))), `${archetype.id}: ${locale} title`));
+        check(() => assert.ok(html.includes('data-narrative-identity')));
+        check(() => assert.ok(html.indexOf(escaped(localizeMessage(archetype.reading, locale))) < html.indexOf(escaped(localizeMessage(family.story, locale)))));
         for (const sentence of [family.story, archetype.composition, ...archetype.traits, ...archetype.moments,
           archetype.tension, archetype.question, archetype.distinction, archetype.motto, ...archetype.relations.map((relation) => relation.reading)]) {
           check(() => assert.ok(html.includes(escaped(localizeMessage(sentence, locale))), `${archetype.id}: ${locale} full JSON content`));

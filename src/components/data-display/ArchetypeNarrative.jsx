@@ -10,11 +10,12 @@ const labelSx = { fontSize: 11, lineHeight: 1.7, mb: 0.75 };
 /** The same deployed JSON narrative in Create and Archive. No classification,
  * fetching or local selection; only complete catalog types receive combination copy.
  */
-export default function ArchetypeNarrative({ archetype, familyId = archetype?.familyId, showFamily = true, variant = 'full', sx }) {
+export default function ArchetypeNarrative({ archetype, familyId = archetype?.familyId, showFamily = true, showIdentity = true, variant = 'full', sx }) {
   const { t, localize } = useI18n();
   const family = ARCHETYPE_FAMILIES[familyId];
   if (!family && !archetype) return null;
   return <Box data-narrative-type={ archetype?.id } sx={ { display: 'grid', gap: 2.5, minWidth: 0, ...sx } }>
+    { archetype && showIdentity && <Typography data-narrative-identity sx={ { ...textSx, fontSize: 16 } }>{ localize(archetype.reading) }</Typography> }
     { showFamily && family && <Box component="section" data-narrative-family={ family.id }>
       <Typography component="h3" sx={ labelSx }>{ t('archetypeNarrative.family') } · { localize(family.title) }</Typography>
       <Typography sx={ textSx }>{ localize(family.story) }</Typography>

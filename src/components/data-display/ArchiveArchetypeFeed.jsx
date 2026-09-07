@@ -70,7 +70,7 @@ export default function ArchiveArchetypeFeed({ feed, onSelect, sx }) {
             <Typography sx={ { mt: 1, fontSize: { xs: 12, md: 14 }, lineHeight: 1.9, overflowWrap: 'anywhere' } }>{ localize(archetype.reading) }</Typography>
           </Box>
         </Box>
-        <ArchetypeNarrative archetype={ archetype } showFamily={ false } variant="compact"
+        <ArchetypeNarrative archetype={ archetype } showFamily={ false } showIdentity={ false } variant="compact"
           sx={ { maxWidth: 760, mx: 'auto', mb: { xs: 3, md: 4 } } } />
         <Members glyphs={ glyphs } onSelect={ onSelect } />
       </Box>;
