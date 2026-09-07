@@ -10,7 +10,7 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Alert from '@mui/material/Alert';
 import GlyphClusterLink from '../data-display/GlyphClusterLink';
-import { archiveSharePath, archiveShareUrl, archiveSocialLinks, copyArchiveLink, shareArchive } from '../../utils/heptapod/shareArchive.js';
+import { archiveSharePath, archiveShareUrl, archiveSocialLinks, copyArchiveLink } from '../../utils/heptapod/shareArchive.js';
 
 /**
  * PublishDialog — 로고그램을 공개 아카이브에 게시하기 전 확인 다이얼로그
@@ -22,16 +22,14 @@ import { archiveSharePath, archiveShareUrl, archiveSocialLinks, copyArchiveLink,
  * @param {function} onPublish - 게시 실행 콜백 [Optional]
  * @param {'publish'|'share'} intent - 공개 후 공유할 의도. 기본 publish.
  * @param {'archive'|'stay'} completion - 완료 안내 문구. 두 모드 모두 링크 보관 및 페이지 열기 제공.
- * @param {function} onShare - 다른 앱 공유 콜백 (result, {copyFallback:false}). 링크 복사로 폴백하지 않는다.
  * @param {object} publishedResult - 이미 완료한 공개 결과. 다시 열어도 동의/등록을 반복하지 않음.
  * @param {function} onCopy - 공개 URL 복사 콜백. 기본 Clipboard API.
  * @param {object} interpretation - 소셜 공유에 사용할 현재 표식 해석.
- * @param {boolean} canShareWithApps - 기기 공유 지원 여부. Storybook 주입 가능.
  *
  * Example usage:
  * <PublishDialog open={ publishOpen } onClose={ () => setPublishOpen(false) } glyphName="Louise" model={ model } onPublish={ handlePublish } />
  */
-function PublishDialog({ open, onClose, glyphName, model, interpretation, onPublish, onPublished, publishedResult, intent = 'publish', completion = 'archive', onShare, onCopy, canShareWithApps = typeof globalThis.navigator?.share === 'function' }) {
+function PublishDialog({ open, onClose, glyphName, model, interpretation, onPublish, onPublished, publishedResult, intent = 'publish', completion = 'archive', onCopy }) {
   const { locale, localize, t } = useI18n();
   const theme = useTheme();
   const navigate = useNavigate();
@@ -39,13 +37,11 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
   const [consented, setConsented] = useState(false);
   const [error, setError] = useState('');
   const [published, setPublished] = useState(null);
-  const [shareStatus, setShareStatus] = useState('');
-  const [socialOpen, setSocialOpen] = useState(false);
-  const [sharing, setSharing] = useState(false);
+  const [socialExpanded, setSocialOpen] = useState(false);
+  const socialOpen = intent === 'share' || socialExpanded;
   const [copying, setCopying] = useState(false);
   const [copyStatus, setCopyStatus] = useState('');
   const pending = useRef(false);
-  const sharePending = useRef(false);
   const copyPending = useRef(false);
   const urlInput = useRef(null);
   const completed = published || publishedResult;
@@ -81,31 +77,11 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
     }
   };
 
-  // A new click preserves native-share user activation after asynchronous publication.
-  // Sharing failure stays in the done state: retry must never publish a second time.
-  const handleShare = async () => {
-    if (!glyphId || sharePending.current || copyPending.current) return;
-    sharePending.current = true;
-    setSharing(true);
-    setShareStatus('');
-    setError('');
-    try {
-      const result = onShare ? await onShare(completed, { copyFallback: false }) : await shareArchive(shareInput, { locale, copyFallback: false });
-      if (['shared', 'cancelled'].includes(result)) setShareStatus(result);
-    } catch (err) {
-      setError(err.message || t('encoderResult.shareFailed'));
-    } finally {
-      sharePending.current = false;
-      setSharing(false);
-    }
-  };
-
   const handleCopy = async () => {
-    if (!publicUrl || copyPending.current || sharePending.current) return;
+    if (!publicUrl || copyPending.current) return;
     copyPending.current = true;
     setCopying(true);
     setCopyStatus('');
-    setShareStatus('');
     setError('');
     try {
       if (onCopy) await onCopy(publicUrl);
@@ -122,12 +98,11 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
   };
 
   const handleClose = () => {
-    if (pending.current || sharePending.current || copyPending.current) return;
+    if (pending.current || copyPending.current) return;
     setStep('confirm');
     setConsented(false);
     setPublished(null);
     setError('');
-    setShareStatus('');
     setCopyStatus('');
     setSocialOpen(false);
     onClose();
@@ -137,7 +112,7 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
     <Dialog
       open={ open }
       onClose={ handleClose }
-      disableEscapeKeyDown={ currentStep === 'publishing' || sharing || copying }
+      disableEscapeKeyDown={ currentStep === 'publishing' || copying }
       aria-labelledby="archive-publish-title"
       maxWidth="sm"
       fullWidth
@@ -165,7 +140,7 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
           <Box
             component="button"
             onClick={ handleClose }
-            disabled={ currentStep === 'publishing' || sharing || copying }
+            disabled={ currentStep === 'publishing' || copying }
             aria-label={ t('publishDialog.closePublishingDialog') }
             sx={ { ...monoSx, background: 'none', border: 'none', cursor: 'pointer', color: fg, opacity: 0.6, fontSize: '0.7rem', '&:hover': { opacity: 1 },
               [theme.breakpoints.down('md')]: { minWidth: 44, minHeight: 44, flexShrink: 0 } } }
@@ -247,24 +222,22 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
               {copyStatus ? t(copyStatus === 'copied' ? 'encoderResult.copied' : 'publishDialog.copyManually') : ''}
             </Typography>
             {error && <Alert severity="error" sx={ { mb: 2 } }>{localize(error)}</Alert>}
-            {shareStatus && <Typography role="status" aria-live="polite" sx={ { fontSize: '0.8rem', mb: 2 } }>{t(`encoderResult.${shareStatus}`)}</Typography>}
             {socialOpen && <Box id="archive-social-share" role="group" aria-label={ t('publishDialog.socialShare') } sx={ { borderTop: `1px solid ${alpha(fg, 0.2)}`, pt: 2, mb: 3 } }>
               <Typography sx={ { ...monoSx, mb: 1.5 } }>{t('publishDialog.chooseSocial')}</Typography>
               <Box sx={ { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 1 } }>
                 {socialLinks.map(({ id, label, href }) => <Button key={ id } data-social-network={ id } component="a" href={ href } target="_blank" rel="noopener noreferrer"
                   sx={ { ...monoSx, minHeight: 44, color: fg, border: `1px solid ${alpha(fg, 0.4)}`, borderRadius: 0, px: 2 } }>{label}</Button>)}
-                {canShareWithApps && <Button data-publish-native-share onClick={ handleShare } disabled={ sharing || copying }
-                  sx={ { ...monoSx, minHeight: 44, color: fg, border: `1px solid ${alpha(fg, 0.4)}`, borderRadius: 0, px: 2 } }>{t(sharing ? 'encoderResult.sharing' : 'publishDialog.otherApps')}</Button>}
+
               </Box>
             </Box>}
             <Box sx={ { display: 'flex', gap: 1.5, flexWrap: 'wrap', justifyContent: 'center' } }>
-              <Button data-publish-copy onClick={ handleCopy } disabled={ sharing || copying } variant="outlined" sx={ { ...monoSx, minHeight: 44, color: fg, borderColor: alpha(fg, 0.5), borderRadius: 0, px: 3 } }>{t('publishDialog.copyLink')}</Button>
-              <Button data-publish-share onClick={ () => setSocialOpen((value) => !value) } aria-expanded={ socialOpen } aria-controls={ socialOpen ? 'archive-social-share' : undefined } disabled={ sharing || copying } variant="outlined" sx={ { ...monoSx, minHeight: 44, color: fg, borderColor: alpha(fg, 0.5), borderRadius: 0, px: 3 } }>
+              <Button data-publish-copy onClick={ handleCopy } disabled={ copying } variant="outlined" sx={ { ...monoSx, minHeight: 44, color: fg, borderColor: alpha(fg, 0.5), borderRadius: 0, px: 3 } }>{t('publishDialog.copyLink')}</Button>
+              { intent !== 'share' && <Button data-publish-share onClick={ () => setSocialOpen((value) => !value) } aria-expanded={ socialOpen } aria-controls={ socialOpen ? 'archive-social-share' : undefined } disabled={ copying } variant="outlined" sx={ { ...monoSx, minHeight: 44, color: fg, borderColor: alpha(fg, 0.5), borderRadius: 0, px: 3 } }>
                 {t('publishDialog.socialShare')}
-              </Button>
+              </Button> }
               { glyphId && (
                 <Button
-                  data-publish-open disabled={ sharing || copying }
+                  data-publish-open disabled={ copying }
                   onClick={ () => { const result = completed; handleClose(); if (onPublished) onPublished(result); else navigate(archiveSharePath(glyphId)); } }
                   variant="text"
                   sx={ {
@@ -274,7 +247,7 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
               ) }
               <Button
                 onClick={ handleClose }
-                disabled={ sharing || copying }
+                disabled={ copying }
                 variant="text"
                 sx={ {
                   ...monoSx, color: fg, opacity: 0.6, fontSize: '0.62rem', letterSpacing: '0.16em', borderRadius: 0, '&:hover': { opacity: 0.9 },

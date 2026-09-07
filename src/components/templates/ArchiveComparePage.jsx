@@ -16,11 +16,12 @@ import { buildArchiveModel, ARCHIVE_ENCODER_VERSION } from '../../utils/heptapod
 import { normalizeName } from '../../utils/heptapod/normalizeName';
 import { relateGlyphs } from '../../utils/heptapod/relateGlyphs';
 import { glyphLabel, getMorphologyObservations, isMorphologyRelation } from '../../utils/heptapod/resonanceView';
-import { exportPairCard, shareArchive, parseArchiveMeaningSearch } from '../../utils/heptapod/shareArchive';
+import { exportPairCard, archiveShareData, parseArchiveMeaningSearch } from '../../utils/heptapod/shareArchive';
 import { compareGlyphMeanings } from '../../utils/heptapod/interpretGlyphMeaning';
 import GlyphNode from '../data-display/GlyphNode';
 import GlyphPairComparison from '../data-display/GlyphPairComparison';
 import PublishDialog from '../overlay-feedback/PublishDialog';
+import SocialShareDialog from '../overlay-feedback/SocialShareDialog';
 
 /** Public pair links and private, local comparisons use the same rendered models. */
 export default function ArchiveComparePage({ client }) {
@@ -46,6 +47,7 @@ export default function ArchiveComparePage({ client }) {
   const [localName, setLocalName] = useState('');
   const [inputError, setInputError] = useState('');
   const [notice, setNotice] = useState('');
+  const [socialShare, setSocialShare] = useState(null);
   const [actionError, setActionError] = useState('');
   const [sharing, setSharing] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
@@ -114,8 +116,8 @@ export default function ArchiveComparePage({ client }) {
               <GlyphPairComparison leftGlyph={ left } rightGlyph={ right } relations={ comparison.relations }
                 meaningComparison={ unsupportedVersion ? undefined : meaningComparison } view={ readingView } initialView={ readingView } onViewChange={ changeReading }
                 onExplore={ (id) => id !== 'local' && navigate(`/field/${id}`) }
-                onShare={ !localGlyph ? (selection = {}) => runAction(() => shareArchive({ left, right, reason: selection.reason || selectedShareReason },
-                  { locale, reading: selection.reading || readingView, meaningVersion: 1 })) : undefined }
+                onShare={ !localGlyph ? (selection = {}) => runAction(() => setSocialShare(archiveShareData({ left, right, reason: selection.reason || selectedShareReason },
+                  { locale, reading: selection.reading || readingView, meaningVersion: 1 }))) : undefined }
                 sharing={ sharing } />
             ) : !right && <Box sx={ { display: 'flex', justifyContent: 'center', py: 2 } }><GlyphNode model={ left.model_data } size={ 240 } label={ glyphLabel(left) } /></Box>}
             {right && !comparison.error && <Box sx={ { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2, my: 2 } }>
@@ -140,6 +142,7 @@ export default function ArchiveComparePage({ client }) {
         {notice && <Typography role="status" sx={ { mt: 2, textAlign: 'center' } }>{localize(notice)}</Typography>}
         {actionError && <Alert severity="error" sx={ { mt: 2 } }>{localize(actionError)}</Alert>}
       </Box>
+      <SocialShareDialog payload={ socialShare } onClose={ () => setSocialShare(null) } />
       <PublishDialog key={ `${leftId}:${localName}` } open={ publishOpen } onClose={ () => setPublishOpen(false) } glyphName={ localName }
         model={ localGlyph?.model_data } onPublish={ ({ consented }) => publish({ displayName: localName, consented }) }
         onPublished={ ({ glyphId }) => { setLocalName(''); setNotice(''); navigate(`/compare/${leftId}/${glyphId}`); } } />

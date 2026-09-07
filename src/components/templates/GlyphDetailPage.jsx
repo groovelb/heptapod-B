@@ -18,13 +18,14 @@ import LogogramRendererCanvas from '../motion/LogogramRendererCanvas';
 import ResonanceList from '../data-display/ResonanceList';
 import RelationInspector from '../overlay-feedback/RelationInspector';
 import GlyphMeaningSummary from '../data-display/GlyphMeaningSummary';
+import SocialShareDialog from '../overlay-feedback/SocialShareDialog';
 import { buildMeaningReading } from '../../utils/heptapod/buildMeaningReading';
 import GlyphClusterLink from '../data-display/GlyphClusterLink';
 import GlyphObservationOverlay from '../overlay-feedback/GlyphObservationOverlay';
 import { interpretGlyphMeaning } from '../../utils/heptapod/interpretGlyphMeaning';
 import { isRenderableGlyphModel } from '../../utils/heptapod/extractGlyphFeatures';
 import { groupResonanceRows, glyphLabel } from '../../utils/heptapod/resonanceView';
-import { shareArchive, parseArchiveMeaningSearch } from '../../utils/heptapod/shareArchive';
+import { archiveShareData, parseArchiveMeaningSearch } from '../../utils/heptapod/shareArchive';
 import { createAmbientAudio } from '../../utils/heptapod/ambientAudio';
 import { createBackgroundMusic } from '../../utils/heptapod/backgroundMusic';
 
@@ -83,7 +84,7 @@ const GlyphDetailPage = ({ client }) => {
   const { glyph, loading, error, refetch } = useGlyph(id, { client });
   const { relations, loading: relLoading, error: relError, refetch: retryRelations, sampleSize, mappingStatus } = useGlyphRelations(id, { client });
   const [inspectedId, setInspectedId] = useState(null);
-  const [shareNotice, setShareNotice] = useState('');
+  const [socialShare, setSocialShare] = useState(null);
   const [shareError, setShareError] = useState('');
   const [sharing, setSharing] = useState(false);
   const [meaningSelection, setMeaningSelection] = useState(null);
@@ -146,13 +147,13 @@ const GlyphDetailPage = ({ client }) => {
   const handleNodeSelect = useCallback((neighborId) => navigate(`/field/${neighborId}`), [navigate]);
 
   const handleShare = async () => {
-    setSharing(true); setShareError(''); setShareNotice('');
+    setSharing(true); setShareError('');
     try {
       const hasMeaning = !unsupportedVersion && interpretation?.meaningIds.length > 0;
-      const result = await shareArchive({ left: glyph, interpretation: hasMeaning ? interpretation : undefined,
+      const payload = archiveShareData({ left: glyph, interpretation: hasMeaning ? interpretation : undefined,
         reason: hasMeaning ? t('glyphDetailPage.archiveInterpretationV1', { p0: localize(interpretation.title), p1: localize(interpretation.reading) }) : undefined },
         hasMeaning ? { locale, reading: 'meaning', meaningVersion: interpretation.meaningVersion } : { locale });
-      if (result === 'copied') setShareNotice(t('glyphDetailPage.shareLinkCopied'));
+      setSocialShare(payload);
     } catch (err) { setShareError(err.message); }
     finally { setSharing(false); }
   };
@@ -251,7 +252,6 @@ const GlyphDetailPage = ({ client }) => {
           <ShareIcon />
         </IconButton>
       </Box>
-      {shareNotice && <Alert severity="success" sx={ { maxWidth: 560, mx: 'auto', mb: 2 } }>{localize(shareNotice)}</Alert>}
       {shareError && <Alert severity="error" sx={ { maxWidth: 560, mx: 'auto', mb: 2 } }>{localize(shareError)}</Alert>}
 
       {neighbors.length > 0 && (
@@ -290,6 +290,7 @@ const GlyphDetailPage = ({ client }) => {
         />
         {!relLoading && !relError && neighbors.length === 0 && <Button component={ RouterLink } to={ `/compare/${id}` } sx={ { color: INK, mt: 2 } }>{ t('glyphDetailPage.compareWithAGlyphOfYourName') }</Button>}
       </Box>
+      <SocialShareDialog payload={ socialShare } onClose={ () => setSocialShare(null) } />
       <RelationInspector open={ !!inspected } relation={ inspected ? { ...inspected, leftGlyph: glyph, nameA: glyphLabel(glyph), nameB: inspected.name } : null }
         onClose={ () => setInspectedId(null) } onExplore={ handleNodeSelect }
         onCompare={ (neighborId) => navigate(`/compare/${id}/${neighborId}`) } />

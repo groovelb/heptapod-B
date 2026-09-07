@@ -34,7 +34,7 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
   useEffect(() => { ref.current?.focus({ preventScroll: true }); }, []);
 
   return <Box ref={ ref } tabIndex={ -1 } component="section" aria-label={ t('archiveDepthExplorer.selectedGlyphDetail') } data-selected-glyph-detail
-    sx={ { maxWidth: (theme) => theme.editorial.spread, mx: 'auto', pt: { xs: 2, md: 4 }, pb: { xs: 5, md: 10 }, '&:focus': { outline: 'none' } } }>
+    sx={ { maxWidth: (theme) => theme.editorial.spread, mx: 'auto', pt: (theme) => theme.editorial.archivePage.contentInset, pb: { xs: 5, md: 10 }, '&:focus': { outline: 'none' } } }>
     <Box sx={ { display: 'grid', gridTemplateColumns: (theme) => theme.editorial.detailColumns, gap: (theme) => theme.editorial.spreadGap, alignItems: 'start' } }>
       <Box data-archive-sticky-figure sx={ { position: { xs: 'static', md: 'sticky' }, alignSelf: 'start', minWidth: 0,
         '--archive-figure-top': (theme) => theme.editorial.archiveFigure.top, top: 'var(--archive-figure-top)',
@@ -49,7 +49,7 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
           { t(analysis ? 'archiveDepthExplorer.hideAnalysis' : 'archiveDepthExplorer.showAnalysis') }
         </Button>
       </Box>
-      <Box sx={ { pt: { xs: 0, md: 5 } } }>
+      <Box data-archive-reading-column sx={ { minWidth: 0 } }>
         <Typography sx={ { typography: 'editorialMeta' } }>{ t('archiveDepthExplorer.selectedGlyph') }</Typography>
         <Typography component="h2" sx={ { ...headingSx, mt: 1 } }>{ localize(type?.title || interpretation?.title) || t('glyphMeaningSummary.thisMeaningCannotBeReadYet') }</Typography>
         <ArchetypeMotto archetype={ type } />

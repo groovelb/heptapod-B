@@ -11,6 +11,7 @@ import { useTheme } from '@mui/material/styles';
 import { useArchiveGlyphs } from '../../hooks/data/useArchiveGlyphs';
 import { useArchiveMeanings } from '../../hooks/data/useArchiveMeanings';
 import ArchiveDepthExplorer from '../data-display/ArchiveDepthExplorer';
+import SocialShareDialog from '../overlay-feedback/SocialShareDialog';
 import { filterMeaningGlyphs } from '../../utils/heptapod/archiveDepthView';
 import { archiveDepthPath as depthPath, parseArchiveDepthSearch, glyphArchetypeShareCopy } from '../../utils/heptapod/shareArchive';
 import LogogramChamber from '../motion/LogogramChamber';
@@ -25,7 +26,7 @@ const actionSx = { color: 'custom.chamber.ink', minHeight: 44, fontSize: 13, tex
  * snapshot into depth. Sound defaults on; formation and the single Lenis survive.
  */
 export default function MyArchivePage({ client, meaningProvider, musicAutoplay = MUSIC_AUTOPLAY }) {
-  const { locale, localize, t } = useI18n();
+  const { locale, t } = useI18n();
   const theme = useTheme();
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -35,8 +36,7 @@ export default function MyArchivePage({ client, meaningProvider, musicAutoplay =
   const { glyphs, loading, error, refetch } = useArchiveGlyphs({ client, all: Boolean(order) });
   const ready = !loading && !error;
   const { meanings, loading: interpreting, error: meaningError, refetch: retryMeanings } = useArchiveMeanings(glyphs, { enabled: !order && ready && !unsupportedVersion && !invalidLocation, provider: meaningProvider });
-  const [shareNotice, setShareNotice] = useState('');
-  const [shareError, setShareError] = useState('');
+  const [socialShare, setSocialShare] = useState(null);
   const musicRef = useRef(null);
   const [isMusicOn, setIsMusicOn] = useState(musicAutoplay);
   const visibleGlyphs = useMemo(() => order ? glyphs : filterMeaningGlyphs(glyphs, meanings, meaningFilter), [glyphs, meanings, meaningFilter, order]);
@@ -71,30 +71,22 @@ export default function MyArchivePage({ client, meaningProvider, musicAutoplay =
   useArchiveScroll(viewPath, ready && !interpreting && !meaningError);
 
   const changeMeaningFilter = (filter) => {
-    setShareNotice(''); setShareError('');
+    setSocialShare(null);
     navigate(depthPath(filter)); // Push: browser Back retraces every layer.
   };
   const focusGlyph = (id) => {
     if (id !== null && !visibleGlyphs.some((glyph) => glyph.id === id)) return;
-    setShareNotice(''); setShareError('');
+    setSocialShare(null);
     navigate(depthPath(meaningFilter, id, { order }));
   };
   const shareSpace = async () => {
     if (!shareable) return;
-    setShareNotice(''); setShareError('');
+    setSocialShare(null);
     const url = new URL(depthPath(meaningFilter, focusedId, { order }), window.location.origin).href;
     const focusedGlyph = focusedId ? visibleGlyphs.find((glyph) => glyph.id === focusedId) : null;
     const copy = focusedGlyph && !unsupportedVersion
       ? glyphArchetypeShareCopy(focusedGlyph, meanings?.interpretations?.[focusedId], locale) : null;
-    try {
-      if (navigator.share) {
-        try { await navigator.share({ ...(copy || { title: t('myArchivePage.theResponseArchive'), text: t('myArchivePage.whichNamesWillYouMeetWithinThis') }), url }); return; }
-        catch (err) { if (err.name === 'AbortError') return; }
-      }
-      if (!navigator.clipboard?.writeText) throw new Error(t('myArchivePage.copyTheLinkFromTheAddressBar'));
-      await navigator.clipboard.writeText(url);
-      setShareNotice(t('myArchivePage.linkToThisSpaceCopied'));
-    } catch (err) { setShareError(err.message || t('myArchivePage.thisLinkCannotBeSharedRightNow')); }
+    setSocialShare({ ...(copy || { title: t('myArchivePage.theResponseArchive'), text: t('myArchivePage.whichNamesWillYouMeetWithinThis') }), url });
   };
 
   return (
@@ -118,9 +110,8 @@ export default function MyArchivePage({ client, meaningProvider, musicAutoplay =
           <Button sx={ { ...actionSx, mt: 3 } } onClick={ () => navigate(APP_PATHS.canvas) }>{ t('myArchivePage.startWithMyName') }</Button>
         </Box> : <ArchiveDepthExplorer order={ order } onOrderChange={ (next) => navigate(depthPath({}, null, { order: next })) } glyphs={ glyphs } meanings={ meanings } filter={ meaningFilter } focusedId={ focusedId }
           onFilterChange={ changeMeaningFilter } onFocusGlyph={ focusGlyph } onShare={ shareable ? shareSpace : undefined } /> }
-        { shareNotice && <Typography role="status" sx={ { textAlign: 'center', py: 2, fontSize: 13 } }>{ localize(shareNotice) }</Typography> }
-        { shareError && <Typography role="alert" sx={ { textAlign: 'center', py: 2, fontSize: 13 } }>{ localize(shareError) }</Typography> }
       </Box>
+      <SocialShareDialog payload={ socialShare } onClose={ () => setSocialShare(null) } />
     </Box>
   );
 }

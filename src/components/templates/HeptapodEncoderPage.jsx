@@ -24,7 +24,6 @@ import PublishDialog from '../overlay-feedback/PublishDialog';
 import { usePublish } from '../../hooks/data/usePublish';
 import { buildArchiveModel } from '../../utils/heptapod/archiveGlyph';
 import { validateName } from '../../utils/heptapod/validateName';
-import { shareArchive } from '../../utils/heptapod/shareArchive';
 import { buildModelReversible } from '../../utils/heptapod/reversibleModel';
 import { detectRenderTier, subscribeReducedMotion } from '../../utils/heptapod/detectRenderTier';
 import { createAmbientAudio } from '../../utils/heptapod/ambientAudio';
@@ -255,7 +254,7 @@ function ChildGrid({
  *   [Optional, 기본값: true — 단독 사용 시 기존처럼 default-on]
  */
 function HeptapodEncoderPage({ audioActive = true, client, initialName, initialEncoderVersion, session }) {
-  const { locale, localize, t } = useI18n();
+  const { localize, t } = useI18n();
   const theme = useTheme();
   const isMobileAnalysis = useMediaQuery(theme.breakpoints.down('md'));
   const readingDialogId = useId();
@@ -501,7 +500,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
   }, [handleEncode, isMobileAnalysis]);
 
   // Called on a fresh user click, including the post-publication Share button.
-  const handleShare = useCallback(async (result = published, shareOptions = {}) => {
+  const handleShare = useCallback(async (result = published) => {
     if (!model || encoderVersion !== 2 || sharePending.current) return null;
     if (!result?.glyphId) { setPublishIntent('share'); return null; }
     sharePending.current = true;
@@ -509,11 +508,8 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
     setShareError('');
     setShareStatus('');
     try {
-      const status = await shareArchive({ left: {
-        id: result.glyphId, canonical_name: model.meta.canonicalName, is_interrogative: Boolean(model.questionHook),
-      }, interpretation }, { ...shareOptions, locale });
-      setShareStatus(status);
-      return status;
+      setPublishIntent('share');
+      return 'social';
     } catch (error) {
       setShareError(error.message || t('encoderResult.shareFailed'));
       throw error;
@@ -521,7 +517,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
       sharePending.current = false;
       setSharing(false);
     }
-  }, [model, interpretation, encoderVersion, published, locale, t]);
+  }, [model, encoderVersion, published, t]);
 
   // edge: 분석 모드 스크림용 어두운 색.
   const ink = theme.palette.custom?.chamber?.ink || '#1c2226';
@@ -985,7 +981,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
       <PublishDialog key={ `${encodedName}:${encoderVersion}` } open={ !!publishIntent }
         intent={ publishIntent || 'publish' } completion="stay" onClose={ () => setPublishIntent(null) }
         publishedResult={ published }
-        glyphName={ encodedName } model={ model } interpretation={ interpretation } onShare={ handleShare }
+        glyphName={ encodedName } model={ model } interpretation={ interpretation }
         onPublish={ async ({ consented }) => {
           if (!model || !encodedName || encoderVersion !== 2) throw new Error(t('heptapodEncoderPage.createAV2GlyphFirst'));
           if (published?.glyphId) return published;

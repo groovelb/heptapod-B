@@ -142,3 +142,12 @@ buildMeaningReading의 번호는 표식 전체에서 고유하며 선택 순서�
 내 이름을 한마디로(motto)는 공용 ArchetypeMotto의 blockquote로 유형 제목 바로 아래에 배치했다. Archive 상세·Create 분석·공유 상세는 본문 하단에서 이 문구를 반복하지 않는다. ArchetypeNarrative는 showMotto=false로 중복을 방지하며, 독립 사용 시에는 한마디를 맨 앞에 표시한다. 기존 한영 JSON 문구와 editorialQuote 역할을 그대로 사용한다.
 
 간격 리듬: labelGap 6px, paragraphGap/itemGap 8px로 섹션 내부 요소를 묶고 sectionGap 56/80px, sectionBreak 80/112px(모바일/데스크톱)로 섹션 사이를 넓혔다. 구분선과 해당 소제목 사이(sectionPadding)는 12/16px로 줄였다. 모든 값은 theme.editorial 토큰의 MUI spacing 단위로 관리한다.
+
+
+## Archive 상단 여백 정리 · 2026-09-07
+
+GNB의 기존 spacer가 헤더 높이를 담당한다. 루트에서 비어 있는 내비게이션은 숨기고 높이도 0으로 전달한다. 루트 제목은 GNB 뒤 24/32px, 깊이 제목·개인 상세는 실제 내비게이션 뒤 16px에서 시작한다. 상세의 오른쪽 열에만 있던 40px 패딩을 없애 표식과 제목을 같은 상단선에 맞췄다. 내비게이션 폭도 상세 spread에 맞추고, 타임라인·피드 시작부의 추가 패딩을 16px으로 정리했다. sectionGap/sectionBreak의 넓은 본문 섹션 간격은 유지한다. theme.editorial.archivePage가 상단 여백을 소유하며 sticky 표식의 top도 같은 contentInset을 사용한다.
+
+공유 버튼은 X·Threads·Facebook을 고르는 SocialShareDialog를 연다. Archive 현재 군집·필터·정렬·표식 URL을 유지하고 소셜 작성 화면에는 기존 한영 유형 문구를 전달한다. 개인·비교 페이지도 같은 선택창을 사용한다. Create 공유는 PublishDialog의 소셜 선택으로 연결하고 기기 공유/다른 앱 옵션을 없앴다. OS 공유창은 어떤 UI 경로에서도 호출하지 않으며 링크 복사는 별도 명시적 액션이다.
+
+검증: 상단·모바일 CSSOM 69개, Archive 동작 115개(소셜 링크 내용·현재 경로·복사 실패·OS 공유 미호출 포함), Create 공유 199개 및 기존 유형/한영 검사 통과. 변경 코드 ESLint, 앱·Storybook 빌드 확인. 브라우저 자동화는 사용하지 않았다.

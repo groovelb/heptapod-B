@@ -95,6 +95,7 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
     return { ...scope, level: 'glyph', focusedGlyph, missingFocus: !focusedGlyph, title: focusedGlyph ? glyphLabel(focusedGlyph) : '' };
   }, [glyphs, meanings, filter, focusedId, scope, timeline]);
   const feed = useMemo(() => timeline || buildArchiveArchetypeFeed(scope.glyphs, meanings), [timeline, scope.glyphs, meanings]);
+  const hasNavigation = Boolean(focusedId || scope.level !== 'families' || order && onOrderChange);
   const selectedArchetype = ARCHETYPE_CATALOG[scope.selectedGroup?.id];
   const titleRef = useRef(null);
   const navigationRef = useRef(null);
@@ -121,12 +122,12 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
     const navigation = navigationRef.current;
     if (!navigation) return undefined;
     const surface = navigation.parentElement;
-    const update = () => surface.style.setProperty('--archive-navigation-height', `${Math.max(48, Math.ceil(navigation.getBoundingClientRect().height))}px`);
+    const update = () => surface.style.setProperty('--archive-navigation-height', `${hasNavigation ? Math.max(theme.editorial.archivePage.navigationHeight, Math.ceil(navigation.getBoundingClientRect().height)) : 0}px`);
     update();
     const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null;
     observer?.observe(navigation);
     return () => { observer?.disconnect(); surface.style.removeProperty('--archive-navigation-height'); };
-  }, []);
+  }, [hasNavigation, theme.editorial.archivePage.navigationHeight]);
   // Navigation handlers own direction; no per-frame React state.
   const enter = (next) => { setDirection(1); onFilterChange?.(next); };
   const back = (next) => { setDirection(-1); if (timeline && onOrderChange) onOrderChange(null); else onFilterChange?.(next); };
@@ -150,15 +151,16 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
   return (
     <Box component="section" aria-label={ t('archiveDepthExplorer.exploreGlyphGroupsInDepth') } data-archive-depth={ scene.level }
       onKeyDown={ (event) => { if (event.key === 'Escape' && (focusedId || !root)) { event.preventDefault(); if (focusedId) leaveDetail(); else back(scope.parentFilter); } } }
-      sx={ { color: 'custom.chamber.ink', '--archive-navigation-height': '48px' } }>
-      <Box component="nav" ref={ navigationRef } data-archive-navigation aria-label={ t('archiveDepthExplorer.yourPlaceInTheArchive') }
-        sx={ { position: 'sticky', top: { xs: 'calc(64px + env(safe-area-inset-top, 0px))', md: 'calc(80px + env(safe-area-inset-top, 0px))' },
+      sx={ { color: 'custom.chamber.ink', '--archive-navigation-height': hasNavigation ? `${theme.editorial.archivePage.navigationHeight}px` : '0px' } }>
+      <Box component="nav" ref={ navigationRef } hidden={ !hasNavigation } data-archive-navigation aria-label={ t('archiveDepthExplorer.yourPlaceInTheArchive') }
+        sx={ { position: 'sticky', top: theme.editorial.archivePage.navigationTop,
           zIndex: (theme) => theme.zIndex.appBar - 1, bgcolor: !root || focusedId ? 'custom.chamber.fog' : 'transparent',
-          minHeight: 48, display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' } }>
+          minHeight: theme.editorial.archivePage.navigationHeight, maxWidth: theme.editorial.spread, mx: 'auto',
+          display: hasNavigation ? 'flex' : 'none', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' } }>
         { (focusedId || !root) && <Button data-archive-back sx={ actionSx } onClick={ focusedId ? leaveDetail : () => back(scope.parentFilter) }>← { t(focusedId ? 'archiveDepthExplorer.backToList' : 'archiveDepthExplorer.oneLayerOut') }</Button> }
         { !root && scope.selectedGroup && <Button sx={ actionSx } onClick={ () => back(EMPTY_ARCHIVE_FILTER) }>{ t('archiveDepthExplorer.all') }</Button> }
         { scope.base && scope.selectedGroup && <><Typography aria-hidden="true">/</Typography><Button sx={ actionSx } onClick={ () => back({ ...EMPTY_ARCHIVE_FILTER, base: scope.base }) }>{ localize(MEANING_CATALOG[scope.base].label) }</Button></> }
-        { scope.selectedGroup && <Typography variant="caption" sx={ { overflowWrap: 'anywhere', py: 1 } }>/ { localize(selectedArchetype?.title || scope.selectedGroup.title) }</Typography> }
+        { scope.selectedGroup && <Typography sx={ { typography: 'editorialMeta', overflowWrap: 'anywhere', py: 1 } }>/ { localize(selectedArchetype?.title || scope.selectedGroup.title) }</Typography> }
         { order && !focusedId && onOrderChange && <Button data-archive-order sx={ actionSx } onClick={ () => onOrderChange(order === 'newest' ? 'oldest' : 'newest') }
           aria-label={ t(order === 'newest' ? 'archiveTimeline.switchOldest' : 'archiveTimeline.switchNewest') }>
           { t(order === 'newest' ? 'archiveTimeline.newest' : 'archiveTimeline.oldest') } ↕
@@ -169,7 +171,7 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
         </IconButton> }
       </Box>
       <Box data-archive-list-view hidden={ Boolean(focusedId) } inert={ Boolean(focusedId) } sx={ { display: focusedId ? 'none' : 'block' } }>
-      <Box sx={ { textAlign: 'center', pt: { xs: 3, md: 4 }, pb: { xs: 1, md: 2 } } }>
+      <Box component="header" data-archive-page-heading sx={ { textAlign: 'center', pt: root ? theme.editorial.archivePage.rootInset : theme.editorial.archivePage.contentInset } }>
         { root && <Typography sx={ { typography: 'editorialLabel', mb: 1.5 } }>{ t('archiveDepthExplorer.baseFamilySymbol') }</Typography> }
         <Typography ref={ titleRef } tabIndex={ -1 } component="h1" sx={ {
           m: 0, typography: root ? 'editorialDisplay' : 'editorialTitle',
@@ -178,14 +180,14 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
         { scope.subtitle && !scope.base && <Typography sx={ { mt: 1.5, typography: 'editorialBody' } }>{ localize(scope.subtitle) }</Typography> }
       </Box>
       { !root && !timeline && scope.base && <ArchetypeNarrative familyId={ scope.base }
-        sx={ { maxWidth: (theme) => theme.editorial.measure, mx: 'auto', mt: 2, px: { xs: 1, md: 0 } } } /> }
+        sx={ { maxWidth: (theme) => theme.editorial.measure, mx: 'auto', mt: theme.editorial.archivePage.introGap, px: { xs: 1, md: 0 } } } /> }
       <AnimatePresence mode="wait" custom={ direction }>
         <MotionBox key={ timeline ? 'timeline' : scope.scopeKey } data-archive-scope={ scope.scopeKey } custom={ direction } variants={ reducedMotion ? STILL_VARIANTS : DEPTH_VARIANTS }
           initial="enter" animate="present" exit="leave" transition={ transition }
           sx={ { transformOrigin: '50% 32%', minHeight: root ? '50svh' : 300 } }>
           { portals.length > 0 && <Box role="group" aria-label={ t('archiveDepthExplorer.parentGlyphGroup') } sx={ {
             display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-            columnGap: { xs: 1, md: 3 }, rowGap: 3, maxWidth: 1200, mx: 'auto', pt: { xs: 2, md: 3 }, pb: 4,
+            columnGap: { xs: 1, md: 3 }, rowGap: 3, maxWidth: 1200, mx: 'auto', pt: theme.editorial.archivePage.introGap, pb: 4,
             [theme.breakpoints.down('md')]: { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' },
           } }>{ portals.map((node) => <Box key={ node.id } data-archive-portal={ node.id } sx={ { minWidth: 0, ...(node.kind === 'timeline' ? { gridColumn: 2, gridRow: 2 } : {}) } }><ClusterPortal node={ node } onSelect={ node.kind === 'timeline' ? () => { setDirection(1); onOrderChange('newest'); } : enter } /></Box>) }</Box> }
 

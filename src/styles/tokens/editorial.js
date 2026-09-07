@@ -3,6 +3,8 @@
  */
 export function createEditorialTokens({ typography, breakpoints }) {
   const desktop = `@media (min-width:${breakpoints.values.md}px)`;
+  const archiveNavigationHeight = 48;
+  const archiveContentInset = '1rem';
   const sans = typography.fontFamily;
   const serif = "'Cinzel', 'Noto Serif KR', Georgia, serif";
   const role = (size, large, options = {}) => ({
@@ -31,8 +33,13 @@ export function createEditorialTokens({ typography, breakpoints }) {
       spreadGap: { xs: 4, md: 8 }, leadSpace: { xs: 1, md: 2 },
       readingViewport: 'min(30rem, 48svh)', railMeasure: 'clamp(18rem, 28vw, 24rem)',
       rule: { borderTop: 1, borderColor: 'currentColor' },
+      archivePage: {
+        navigationHeight: archiveNavigationHeight,
+        navigationTop: { xs: 'calc(64px + env(safe-area-inset-top, 0px))', md: 'calc(80px + env(safe-area-inset-top, 0px))' },
+        rootInset: { xs: '1.5rem', md: '2rem' }, contentInset: archiveContentInset, introGap: 2,
+      },
       archiveFigure: {
-        top: 'calc(80px + var(--archive-navigation-height, 48px) + env(safe-area-inset-top, 0px) + 1rem)',
+        top: `calc(80px + var(--archive-navigation-height, ${archiveNavigationHeight}px) + env(safe-area-inset-top, 0px) + ${archiveContentInset})`,
         maxWidth: 'min(100%, max(10rem, calc(100svh - var(--archive-figure-top) - 5rem)))',
       },
       observationChip: { borderRadius: '999px', minHeight: 44, height: 'auto', py: 0.75, px: 0.5 },

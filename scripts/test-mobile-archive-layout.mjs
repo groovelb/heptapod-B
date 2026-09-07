@@ -33,6 +33,15 @@ try {
       dom.happyDOM.setWindowSize({ width, height: 900 });
       dom.document.body.innerHTML = html;
       const desktop = `@media (min-width:${theme.breakpoints.values.md}px)`;
+      const navigation = dom.document.querySelector('[data-archive-navigation]');
+      assert.equal(dom.getComputedStyle(navigation).display, name === 'root' ? 'none' : 'flex'); checks += 1;
+      if (name === 'root') {
+        assert.equal(dom.getComputedStyle(dom.document.querySelector('[data-archive-page-heading]')).paddingTop, resolvedSize(theme.editorial.archivePage.rootInset.md)); checks += 1;
+      }
+      if (name === 'detail') {
+        assert.equal(dom.getComputedStyle(dom.document.querySelector('[data-selected-glyph-detail]')).paddingTop, resolvedSize(theme.editorial.archivePage.contentInset)); checks += 1;
+        assert.equal(parseFloat(dom.getComputedStyle(dom.document.querySelector('[data-archive-reading-column]')).paddingTop) || 0, 0); checks += 1;
+      }
       const title = dom.document.querySelector(name === 'root' ? 'h1' : name === 'feed' ? '[data-archetype-section] h2' : '[data-selected-glyph-detail] h2');
       const titleRole = name === 'root' ? 'editorialDisplay' : 'editorialTitle';
       assert.equal(dom.getComputedStyle(title).fontSize, resolvedSize(theme.typography[titleRole][desktop].fontSize), `${name}:${width}: heading consumes desktop role`); checks += 1;

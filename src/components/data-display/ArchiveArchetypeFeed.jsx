@@ -41,10 +41,10 @@ export default function ArchiveArchetypeFeed({ feed, onSelect, sx }) {
     ...sections.map(({ id, archetype, glyphs }, index) => ({ id, targetId: `${prefix}-type-${index}`, label: localize(archetype.title), count: glyphs.length })),
     ...(untypedGlyphs.length ? [{ id: 'untyped', targetId: `${prefix}-untyped`, label: t('archiveIndex.other'), count: untypedGlyphs.length }] : []),
   ], [sections, untypedGlyphs, prefix, localize, t]);
-  if (feed?.chronological) return <Box data-archive-timeline sx={ { maxWidth: 1440, mx: 'auto', py: { xs: 4, md: 7 }, ...sx } }>
+  if (feed?.chronological) return <Box data-archive-timeline sx={ { maxWidth: 1440, mx: 'auto', pt: theme.editorial.archivePage.introGap, pb: { xs: 4, md: 7 }, ...sx } }>
     <Members glyphs={ feed.glyphs } onSelect={ onSelect } showDate />
   </Box>;
-  return <Box data-archetype-feed="true" sx={ { maxWidth: 1440, mx: 'auto', pt: { xs: 4, md: 7 }, pb: { xs: 6, md: 10 },
+  return <Box data-archetype-feed="true" sx={ { maxWidth: 1440, mx: 'auto', pt: theme.editorial.archivePage.introGap, pb: { xs: 6, md: 10 },
     display: 'grid', gridTemplateColumns: items.length ? '44px minmax(0, 1fr)' : '1fr',
     gap: { xs: 1.5, sm: 3, md: 5 }, alignItems: 'start', ...sx } }>
     <ArchiveFeedIndex items={ items } />

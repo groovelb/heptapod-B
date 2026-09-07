@@ -180,7 +180,11 @@ export function archiveShareData({ left, right, reason, interpretation }, option
 
 /** Opens a compose screen only; choosing a network never posts on the user's behalf. */
 export function archiveSocialLinks(input, options = {}) {
-  const { title, text, url } = archiveShareData(input, options);
+  return socialShareLinks(archiveShareData(input, options));
+}
+
+/** The same social destinations for a public glyph, pair or Archive collection URL. */
+export function socialShareLinks({ title, text, url }) {
   const caption = [title, text].filter(Boolean).join('\n');
   return [
     { id: 'x', label: 'X', href: `https://twitter.com/intent/tweet?${new URLSearchParams({ text: caption, url })}` },
