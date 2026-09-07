@@ -79,6 +79,7 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
               typography: 'editorialAction', fontFamily: theme.typography.custom.mono.fontFamily,
               minHeight: theme.editorial.observationChip.minHeight, borderRadius: 0,
               width: 'fit-content',
+              px: theme.editorial.archiveReading.inset,
               color: 'custom.chamber.ink', border: '1px solid',
               borderColor: alpha(theme.palette.custom.chamber.ink, analysis ? 0.5 : 0.2),
               justifyContent: 'center', gap: theme.editorial.archivePage.introGap,
