@@ -74,10 +74,11 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
         </Box>
         <Box ref={ controlsRef } data-archive-figure-controls sx={ { display: 'grid', justifyItems: 'center', gap: (theme) => theme.editorial.visualizationControls.gap, p: (theme) => theme.editorial.visualizationControls.padding } }>
           <Button data-selected-analysis-toggle aria-pressed={ analysis } aria-controls={ analysisId }
-            onClick={ () => setAnalysis((open) => !open) } variant="text" fullWidth
+            onClick={ () => setAnalysis((open) => !open) } variant="text"
             sx={ (theme) => ({
               typography: 'editorialAction', fontFamily: theme.typography.custom.mono.fontFamily,
               minHeight: theme.editorial.observationChip.minHeight, borderRadius: 0,
+              width: 'fit-content',
               color: 'custom.chamber.ink', border: '1px solid',
               borderColor: alpha(theme.palette.custom.chamber.ink, analysis ? 0.5 : 0.2),
               justifyContent: 'center', gap: theme.editorial.archivePage.introGap,
