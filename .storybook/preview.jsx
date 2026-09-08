@@ -21,7 +21,7 @@ googleFonts.forEach((font) => {
   document.head.appendChild(link);
 });
 
-/** @type { import('@storybook/react-vite').Preview } */
+/** @type { import('@storybook/nextjs').Preview } */
 const preview = {
   initialGlobals: { locale: 'ko' },
   globalTypes: {

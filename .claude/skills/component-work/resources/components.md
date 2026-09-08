@@ -2,15 +2,21 @@
 
 Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테고리 번호.
 
+### 모바일 성능 보완 · 2026-09-08
+
+- 2026-09-09 사용자 요청으로 모바일 Lenis 재활성화. 터치 포인터는 Archive를 포함한 모든 경로에서 syncTouch 사용. prefers-reduced-motion에서는 네이티브 스크롤 유지. Landing/Canvas 뷰는 각각 lazy 로드.
+- HeptapodHeroIntro 모바일 영상은 전용 8컷 조립본 1080×1920·24fps·GOP 6. 같은 영상의 첫 프레임 포스터를 사용하고 선택된 영상과 함께 고정한다. PC Topaz 소스는 유지한다.
+- ResonanceFieldPage는 md 미만 기본 목록, 안전 영역·44px 버튼 적용. RelationInspector와 SocialShareDialog는 모바일 안전 영역/동적 높이 대응.
+
 ### 모바일 적용 기준 · 2026-09-06
 
 아래 기존 PC 배치 설명은 md(900px) 이상에서 유지한다. md 미만의 최신 동작은 다음과 같다.
 
 - HeptapodHeroIntro: PC 6.4셀 유지, 모바일 4.85셀·타이틀 분산 0.3셀. 영상/캡션/자동 재생은 실제 측정한 svh 트랙 좌표를 공유한다. VideoScrubbing의 optional `mobilePlayback=false`를 모바일만 켜서 seek/준비/제스처 복구와 실제 ended 상태 확인을 적용한다. 실제 완주 후 Canvas replace 계약 유지.
-- HeptapodEncoderPage: 모바일만 표식 → 입력 → 분석·등록 및 공유 두 44px 액션의 문서 흐름으로 배치. 하단 메타데이터·군집·Archive·추가 공개 링크는 PC에서만 표시하며 모바일 분석 Dialog와 공유 창은 유지. valid Enter/Done/form submit 후 blur, IME/invalid 입력은 유지. visualViewport의 가림을 확인해 입력을 스크롤로 노출하고 pinch 확대는 건드리지 않는다. PC 중앙 표식·우상단 4행·Enter 포커스는 유지.
+- HeptapodEncoderPage: 모바일만 표식 → 입력 → 분석·등록 및 공유 두 44px 액션의 문서 흐름으로 배치. 하단 메타데이터·군집·Archive·추가 공개 링크는 PC에서만 표시. 모바일 분석도 원본 표식 위 초록 라인·관측 부위 오버레이와 하단 투명 판독 패널을 사용하며 전체 화면 Dialog·중복 Canvas 없이 같은 버튼으로 OFF. 공유 창은 유지. valid Enter/Done/form submit 후 blur, IME/invalid 입력은 유지. visualViewport의 가림을 확인해 입력을 스크롤로 노출하고 pinch 확대는 건드리지 않는다. PC 중앙 표식·우상단 4행·Enter 포커스는 유지.
 - ArchetypeMotto: JSON 한마디를 editorialQuote blockquote로 표시. Archive/Create/공유 상세 유형 제목 바로 아래에 배치하고 본문에서 중복하지 않음 (`components/data-display/ArchetypeMotto.jsx`)
 - ArchetypeNarrative: showMotto로 부모 제목 아래 인용문과 중복 방지. 특징·상황 목록은 editorial.listItem 토큰의 테두리 원 불릿과 내어쓰기로 표시. spacing="archive"는 목록 간격, archiveDetail은 구역 안쪽 패딩·소제목·목록 간격 확장과 본문 크기 정체성 문장을 제공하며 Create의 default 간격은 유지. bold 페이지·섹션 제목, 20/24px editorialLead, editorialBody/Label/Quote 등 시맨틱 타이포와 measure/sectionGap/rule 레이아웃 토큰으로 읽기 위계를 구성. 배포 JSON v5에서 반복 도입을 덜고 이름 뜻과 행동을 직접 설명. createAnalysis는 Create 전용 문단·구역 간격 사용. showIdentity 기본 true, 이미 reading을 보여주는 피드는 false. full은 특징·상황·긴장·질문·관계·차이·한마디까지 표시하며 compact는 조합과 핵심 서사. Create/Archive 공용, 데이터·분류·네트워크 소유하지 않음 (`components/data-display/ArchetypeNarrative.jsx`)
-- ArchiveDepthExplorer: 루트의 빈 nav는 공간을 차지하지 않으며, 페이지 상단 여백은 archivePage 토큰으로 관리. 상단 sticky 내비게이션은 모든 탐색 단계에서 투명 배경. 진입 원 아래 군집 대표 설명, 내부 상단 군집 전체 설명을 표시. 모든 폭에서 군집 원 3개 첫 행·시간순 원 다음 행 중앙·제목 한 줄 유지. 모바일 군집 설명은 별도 전체 폭 행으로 배치. ArchiveArchetypeFeed는 상징과 텍스트 행을 분리하고 설명의 640px 읽기 축을 공유한다. MyArchivePage는 모바일 좌우/하단 안전영역을 확보한다.
+- ArchiveDepthExplorer: 루트의 빈 nav는 공간을 차지하지 않으며, 페이지 상단 여백은 archivePage 토큰으로 관리. 상단 sticky 내비게이션은 모든 탐색 단계에서 투명 배경. 진입 원 아래 군집 대표 설명, 내부 상단 군집 전체 설명을 표시. 모든 폭에서 군집 원 3개와 각각의 짧은 설명·개수를 한 그룹으로 배치. 시간순 전체 목록은 하단 텍스트 버튼으로 열며, 긴 군집 서사는 뎁스 안에 유지. ArchiveArchetypeFeed는 상징과 텍스트 행을 분리하고 설명의 640px 읽기 축을 공유한다. MyArchivePage는 모바일 좌우/하단 안전영역을 확보한다.
 - AppGNB·PublishDialog: 모바일 좌우 노치, 12px 다이얼로그 여백·동적 최대 높이·44px 닫기 영역. GlyphDetailPage는 긴 이름/지문 줄바꿈과 축소 가능한 메타 그리드, ArchiveComparePage는 세로 입력/유효 제출 blur, GlyphPairComparison은 손상 모델 대체 표시도 모바일 셀 너비에 맞춘다.
 - 각 상세 story와 `docs/heptapod-b-encoder/20-mobile-optimization.md`에 대응 범위·검증 한계를 기록한다. 브라우저 픽셀/실기기 키보드 검증을 수행한 것은 아니다.
 
@@ -26,7 +32,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 ### 지속 렌더링 보완
 
 - LogogramRendererCanvas의 `isPaused=false`는 isActive와 별개로 RAF만 멈춘다. 버퍼·형성 진행·완료 상태를 보존하고 화면 밖/숨긴 탭 조건과 함께 판정한다. 초기 pause와 반복 복귀도 형성을 재시작하지 않는다.
-- LogogramChamber의 `isPaused=false`는 여섯 drift·두 zoom·dive의 animationPlayState만 변경한다. 모바일 전체 화면 분석에 가려진 원본 Canvas·배경만 함께 정지하며, PC 분석·Dialog 안의 표식·반투명 공유 창 뒤는 유지한다.
+- LogogramChamber의 `isPaused=false`는 여섯 drift·두 zoom·dive의 animationPlayState만 변경한다. Create 분석은 모바일·PC 모두 원본 Canvas·챔버가 보이는 오버레이이므로 정지하지 않는다. 모바일 분석용 중복 Canvas는 제거했다.
 - paintVapor는 일회성 안개가 전부 만료된 뒤 순환 입자만 검사한다. 원본 인덱스/경계/되감기와 그리기 결과는 보존하며 입자 수·DPR·FPS는 낮추지 않는다.
 - VideoScrubbing은 자동 재생·숨김 상태의 불필요한 RAF 예약을 차단하고 의도적 숨김 정지에서 현재 위치를 복구한다. 검증된 히어로 소스만 `scrubFrameRate=24`로 같은 프레임 seek를 생략하며 일반 소스의 기본 시간 계약은 유지한다.
 - 작업 계약·검증 한계·후속 단계: `docs/heptapod-b-encoder/22-sustained-render-work.md`.
@@ -75,12 +81,12 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 - Table: MUI Table 컴포넌트 [MUI]
 - DataReadout: Heptapod B 로고그램 분석 패널. 모노스페이스 연구 장비 톤, 시드 해시·NFD·12슬롯 상태 표기, ScrambleText 값 전환 (`components/data-display/DataReadout.jsx`)
-- GlyphNode: 저장 모델의 실제 입자 기하를 재사용하는 정적 Canvas 표식, 키보드 선택·긴 이름 접근성 (`components/data-display/GlyphNode.jsx`)
+- GlyphNode: 저장 모델의 실제 입자 기하를 재사용하는 정적 Canvas 표식. 화면 200px 근처에서만 기하 생성·1회 그리기, 동일 잉크 스프라이트 공유, Observer 해제. 키보드 선택·긴 이름 접근성 (`components/data-display/GlyphNode.jsx`)
 - ArchiveGlyph: 입력 모델의 뷰포트 진입 Canvas 형성. 이름은 원 중앙에 크게 표시하며 긴 이름은 줄바꿈·크기 조절한다. analysis로 초록 mesh·스캔, anchors로 실제 관측 위치, fragmentAnchors로 원본 관측 부위만 드러낸다. nameComponent는 상세 h1 지원. 분석/의미 선택으로 Canvas를 다시 만들지 않고 숨긴 목록의 폭 0 보고도 기존 크기를 보존한다. 손상 모델 가드·Observer 해제·감소 모션 유지 (`components/data-display/ArchiveGlyph.jsx`)
 - ArchiveFamilySymbol: 도래/수용/상호성의 방향성을 각각 하나의 저작된 링 패턴으로 표시. 동일 외곽·질감에서 가지 방향만 차별화하며 추가 의미 없음 검증. 개인 이름/평균 표식이 아니고 공개 정체성·소속·개수에 포함하지 않음. ArchiveGlyph 생성 효과 재사용 (`components/data-display/ArchiveFamilySymbol.jsx`)
 - ArchetypeMotto: JSON 한마디를 editorialQuote blockquote로 표시. Archive/Create/공유 상세 유형 제목 바로 아래에 배치하고 본문에서 중복하지 않음 (`components/data-display/ArchetypeMotto.jsx`)
 - ArchetypeNarrative: showMotto로 부모 제목 아래 인용문과 중복 방지. 특징·상황 목록은 editorial.listItem 토큰의 테두리 원 불릿과 내어쓰기로 표시. spacing="archive"는 목록 간격, archiveDetail은 구역 안쪽 패딩·소제목·목록 간격 확장과 본문 크기 정체성 문장을 제공하며 Create의 default 간격은 유지. bold 페이지·섹션 제목, 20/24px editorialLead, editorialBody/Label/Quote 등 시맨틱 타이포와 measure/sectionGap/rule 레이아웃 토큰으로 읽기 위계를 구성. 배포 JSON v5에서 반복 도입을 덜고 이름 뜻과 행동을 직접 설명. createAnalysis는 Create 전용 문단·구역 간격 사용. showIdentity 기본 true, 이미 reading을 보여주는 피드는 false. full은 특징·상황·긴장·질문·관계·차이·한마디까지 표시하며 compact는 조합과 핵심 서사. Create/Archive 공용, 데이터·분류·네트워크 소유하지 않음 (`components/data-display/ArchetypeNarrative.jsx`)
-- ArchiveDepthExplorer: 루트의 빈 nav는 공간을 차지하지 않으며, 페이지 상단 여백은 archivePage 토큰으로 관리. 진입 원 아래 군집 대표 설명, 내부 상단 군집 전체 설명을 표시. 내부 뒤로 가기·경로·정렬·공유 바를 GNB 아래 sticky로 고정. ResizeObserver로 측정한 높이를 왼쪽 인덱스와 앵커 여백에 반영. 군집 3개 첫 행·시간순 원 둘째 행 중앙, 계열 → 유형별 피드 → 선택 상세 화면. 상세 시 목록을 hidden/inert로 유지하고 복귀 시 구성원 포커스 복원. 시간순 상세도 로드한 공개 모델 전체에서 같은 정확한 유형을 연결한다. 모달·Next·Compare·메타 탭·중간 유형 포털 없이 기존 group/AND/status 범위와 partial 표식을 유지 (`components/data-display/ArchiveDepthExplorer.jsx`)
+- ArchiveDepthExplorer: 루트의 빈 nav는 공간을 차지하지 않으며, 페이지 상단 여백은 archivePage 토큰으로 관리. 진입 원 아래 군집 대표 설명, 내부 상단 군집 전체 설명을 표시. 내부 뒤로 가기·경로·정렬·공유 바를 GNB 아래 sticky로 고정. ResizeObserver로 측정한 높이를 왼쪽 인덱스와 앵커 여백에 반영. 군집 원 3개에 각각 짧은 설명·개수를 붙이고 시간순 전체 목록은 하단 텍스트 버튼으로 제공. 긴 군집 서사는 뎁스 안에 유지하며, 계열 → 유형별 피드 → 선택 상세 화면으로 탐색. 상세 시 목록을 hidden/inert로 유지하고 복귀 시 구성원 포커스 복원. 독립 상세용 detailOnly=true는 숨긴 목록을 마운트하지 않고 동일 상세·내비게이션을 재사용. 시간순 상세도 로드한 공개 모델 전체에서 같은 정확한 유형을 연결한다. 모달·Next·Compare·메타 탭·중간 유형 포털 없이 기존 group/AND/status 범위와 partial 표식을 유지 (`components/data-display/ArchiveDepthExplorer.jsx`)
 - ArchiveSelectedGlyph: 모바일 설명 구간에서 단일 원본 표식·뒤로가기·공유만 배경 없이 내비게이션 대신 축소 고정. 분석·메타 시각화와 조작부는 축소 상태에서 숨기고 원위치 복귀 시 선택 상태 복원. 원래 높이를 유지하고 짧은 페이드·위치 이동으로 전환. 낮은 화면은 44px 표식, 설명 종료 시 고정 해제. archiveObservation 시멘틱 토큰과 useArchiveMobileObservation 훅 사용. 선택 상태 오버라인 없이 유형 제목부터 표시. 표식·제목 열 상단 정렬, 내비게이션 뒤 공통 contentInset 사용. 모바일은 제목·quote → 표식·분석 버튼 → 관측 칩·설명 순서의 단일 DOM, 공통 부위 비교는 한 열로 표시. JSON의 상위 군집·조합 및 유형 전체 원고를 표시. 원본 표식과 중앙 h1 이름, 설명 끝까지 sticky인 표식 열과 그 아래 Create형 사각 테두리·ON/OFF 분석 버튼 첫 행과 메타 시각화 칩 다음 행을 가운데 정렬(안내·아이콘 제거, 조작부 높이 실측으로 표식 크기 보정), 제목 아래 한마디 인용문, 자기 자신을 제외한 같은 유형 구성원 목록, 공통 의미별 실제 부위 그리드. 그리드는 선택 표식+최대 두 구성원을 원본 좌표에서 mask로 표시하며 유형별 동일 형태라고 주장하지 않는다. singleton/미확인 상태에는 공통성을 만들지 않음. 로컬 DTO 입력, URL/분류 소유권은 부모 (`components/data-display/ArchiveSelectedGlyph.jsx`)
 - ArchiveArchetypeFeed: chronological DTO에서는 군집 없이 전체 공개 표식·등록 시간을 표시. 실제 구성원이 있는 정확한 유형만 저작 상징·제목·정체성·JSON 조합 설명과 핵심 서사와 함께 세로 배열. 실제 표식 모바일 2열/데스크톱 3열, untyped는 유형을 강제하지 않고 뒤에 유지. API·라우팅·분류 계산 없이 projection DTO 소비 (`components/data-display/ArchiveArchetypeFeed.jsx`)
 - ResonanceList: 이웃 ID별 복수 근거 목록, 설명/중심 이동 분리, loading/error/empty 구분 (`components/data-display/ResonanceList.jsx`)
@@ -139,7 +145,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 - LanguageSwitcher: 지구본 아이콘으로 여는 시스템 설정/한국어/영어 메뉴. 모노크롬·직각·헤어라인·모노 타이포와 선택 체크 표시. OS 언어 초기화·선택 저장·기존 입력 보존, GNB와 앱 상단에서 공유 (`components/navigation/LanguageSwitcher.jsx`)
 
-- AppGNB: 사운드 상태 기본 켜짐. Story·Create·Archive 공통 fixed GNB. 모바일 64px·데스크톱 80px + 안전 영역, md 미만 전체 화면 Drawer·40–72px 메뉴 타이포, 활성 경로·언어·페이지별 사운드. Canvas 세션 및 Archive URL/스크롤 복원 연동. 헤더는 투명하고 overlay로 본문 간격 제어, tone 배경은 Drawer에 적용하고 dark overlay 헤더에만 그라데이션 사용 (`components/navigation/AppGNB.jsx`)
+- AppGNB: 사운드 상태 기본 켜짐. Story·Create·Archive 공통 fixed GNB. 모바일 64px·데스크톱 80px + 안전 영역, md 미만 전체 화면 Drawer·40–72px 메뉴 타이포, 활성 경로·언어·페이지별 사운드. Canvas 세션 복원 유지. Archive 메뉴는 항상 최상위 /archive에서 새 방문을 시작하며, 해당 방문의 내부 뒤로가기만 이전 뎁스/스크롤을 복원. 헤더는 투명하고 overlay로 본문 간격 제어, tone 배경은 Drawer에 적용하고 dark overlay 헤더에만 그라데이션 사용 (`components/navigation/AppGNB.jsx`)
 - GNB: isFixed·resetKey·drawerSx로 앱 헤더 재사용, Drawer 경로/화면폭 변경 닫기 및 Lenis 잠금 복원. 기본 언어 전환 표시(showLanguageSwitcher), 반응형 글로벌 네비게이션 바. 데스크탑 메뉴 / 모바일 Drawer (`components/navigation/GNB.jsx`)
 - NavMenu: 네비게이션 메뉴 (`components/navigation/NavMenu.jsx`)
 - SlidingHighlightMenu: 슬라이딩 하이라이트 메뉴. hover 시 layoutId 기반 인디케이터 이동, background/underline, horizontal/vertical (`components/navigation/SlidingHighlightMenu.jsx`)
@@ -185,10 +191,10 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - Placeholder: 스토리 예제용 FPO 플레이스홀더 시스템. Box/Image/Media/Text/Line/Paragraph/Card 서브컴포넌트 (`common/ui/Placeholder.jsx`)
 - FilterBar: 필터 바 (`components/templates/FilterBar.jsx`)
 - MyArchivePage: 배경음악 기본 켜짐, 자동재생 재시도는 첫 pointer/keyboard 제스처에서 수행하고 끄면 재시도 리스너 해제. musicAutoplay로 초기값 주입. `/archive` 기본 상징 → 유형별 실제 구성원 피드. 선택 UUID·공유·뒤로 가기 및 기존 group/AND/status 범위 유지. 신규 meta URL/탭 정렬 제거. 단일 공개 표식 공유 문구는 공통 유형 카탈로그 사용. 관측 Drawer·내 응답·미판독 메뉴 복원 없음. meaningProvider·Canvas 형성·전역 Lenis·공용 AppGNB 유지 (`components/templates/MyArchivePage.jsx`)
-- GlyphDetailPage: `/glyph/:id`에 실제 소속 군집명·군집 이동 링크, 의미 판독·근거 선택과 상위 정밀 연결3개 표시. 버전이 명시된 UUID 의미 공유 (`components/templates/GlyphDetailPage.jsx`)
+- GlyphDetailPage: `/glyph/:id`에서 아카이브의 ArchiveDepthExplorer(detailOnly)·ArchiveSelectedGlyph를 재사용. 같은 챔버 배경·gutter·타이포·중앙 이름·유형 서사·분석/관측 칩·정확히 같은 유형의 표식과 부위 비교·모바일 축소 관찰을 표시. UUID를 바꾸면 분석/관측 선택 초기화. 공개 UUID 공유·비교/관계 링크, 조회 실패/재시도와 의미 버전 미지원 처리 유지 (`components/templates/GlyphDetailPage.jsx`)
 - ResonanceFieldPage: `/field/:id` 가지/개구부/잉크/링/질문 변주 필터·현재 공개 표본·실제 관측 부위 선택·중심 이동, 모바일 기본 목록 (`components/templates/ResonanceFieldPage.jsx`)
 - ArchiveComparePage: `/compare/:leftId/:rightId?` 공개/로컬 입력의 의미·정밀 비교. URL reading으로 보기와 공유·PNG 문구 일치, 미지원 의미 버전 차단, 공개 동의 유지 (`components/templates/ArchiveComparePage.jsx`)
 - HeptapodHeroIntro: `/`의 독립 영상 인트로. 영상과 포스터는 v2(사용자 Topaz 3832×2160 업스케일본, C01–C07 원본 + 승인 C08 스크린 연기)로 고정하고 임시 비교 토글은 제거했다. 섹션 인디케이터는 트랙 밖 fixed 배치로 자동 재생 끝까지 위치를 유지하고 캡션 퇴장과 함께 사라진다. 준비 후 START로 스크롤 잠금을 해제하고 양방향 스크럽·비트 캡션·스크럽 사운드, 42초 지점부터 현재 프레임의 연속 재생을 유지한다. 실제 ended 후 마지막 캡션 퇴장·안개 전환을 마치면 onComplete를 한 번 호출하며 부모 라우트가 `/canvas`로 이동한다. children 인코더·audioActive 주입은 제거. 오류·모션 감소에서도 실제 완주가 필수이고 HeroAffordance가 각 재생 상태를 안내한다. 언마운트 시 영상·사운드·스크롤 구독 해제 (`components/templates/HeptapodHeroIntro.jsx`)
-- HeptapodEncoderPage: `/canvas`의 독립 생성 화면. 기존 풀스크린 챔버·중앙 표식·우상단 오버레이 유지. 덩어리 수·가닥 수·무게중심·링 상태를 고정 네 줄(32px×4)로 표시하며 ANALYSIS 전환으로 행·제목·액션 위치를 바꾸지 않음. 우측 기능 라벨은 분석하기 / Heptapod 등록 및 공유 / Heptapod 아카이빙으로 제공. ANALYSIS는 초록 삼각망·빨간 정점·순차 스캔·비프를 유지하며 의미 기반 설명과 실제 anchor 강조를 병용. 데스크톱 좌측 레일/모바일 Dialog는 같은 공통 어휘·정의·개별 배치를 읽음. 의미 선택은 스캔/Canvas를 재시작하지 않으며 모바일 닫기는 분석도 해제. SAVE·하단 의미 설명·의미군 링크·이름 비교는 제거. 문자 분해·타이핑 프리뷰·IME/검증·Canvas/Chamber·audioActive/음악 유지. 미공개는 동의·공개 후 새 Share 클릭으로 공유하며 공개 완료 뒤 같은 버튼은 재게시 없이 Share로 동작. 기존 v1 URL은 명시적 v2 재생성 후 공개. optional client/initialName/initialEncoderVersion으로 무네트워크 스토리 지원. 라우트에서 URL 진입값을 주입하고 랜딩 영상 수명과 분리 (`components/templates/HeptapodEncoderPage.jsx`)
+- HeptapodEncoderPage: `/canvas`의 독립 생성 화면. 기존 풀스크린 챔버·중앙 표식·우상단 오버레이 유지. 덩어리 수·가닥 수·무게중심·링 상태를 고정 네 줄(32px×4)로 표시하며 ANALYSIS 전환으로 행·제목·액션 위치를 바꾸지 않음. 우측 기능 라벨은 분석하기 / Heptapod 등록 및 공유 / Heptapod 아카이빙으로 제공. ANALYSIS는 초록 삼각망·빨간 정점·순차 스캔·비프를 유지하며 의미 기반 설명과 실제 anchor 강조를 병용. 데스크톱 좌측 레일/모바일 하단 투명 패널은 같은 공통 어휘·정의·개별 배치를 읽음. 모바일도 원본 표식 위에 분석선을 겹치며 별도 Dialog·중복 Canvas·원본 정지가 없다. 의미 선택은 스캔/Canvas를 재시작하지 않으며 같은 분석 버튼으로 OFF. SAVE·하단 의미 설명·의미군 링크·이름 비교는 제거. 문자 분해·타이핑 프리뷰·IME/검증·Canvas/Chamber·audioActive/음악 유지. 미공개는 동의·공개 후 새 Share 클릭으로 공유하며 공개 완료 뒤 같은 버튼은 재게시 없이 Share로 동작. 기존 v1 URL은 명시적 v2 재생성 후 공개. optional client/initialName/initialEncoderVersion으로 무네트워크 스토리 지원. 라우트에서 URL 진입값을 주입하고 랜딩 영상 수명과 분리 (`components/templates/HeptapodEncoderPage.jsx`)
 
-- Create 분석·등록 CTA: editorialCta 타이포와 createCta 높이(모바일 52px/PC 56px)·패딩·폭 토큰 사용. Create 좌측은 페이지 제목과 분석 레일을 같은 flex 칼럼에 배치하고 하단 입력 실측 높이를 확보하며 설명만 스크롤.
+- Create 분석·등록 CTA: 모바일은 기존 button 타이포(14px)와 createCta 높이 44px·간격 8px·최대 폭 17rem을 사용. PC는 기존 editorialCta 타이포(18px)·56px 높이·패딩·폭 유지. Create 좌측은 페이지 제목과 분석 레일을 같은 flex 칼럼에 배치하고 하단 입력 실측 높이를 확보하며 설명만 스크롤.

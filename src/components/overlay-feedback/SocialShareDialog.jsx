@@ -22,8 +22,14 @@ export default function SocialShareDialog({ payload, onClose, onCopy }) {
     finally { pending.current = false; }
   };
   const close = () => { setCopyStatus(''); onClose(); };
-  return <Dialog open={ Boolean(payload) } onClose={ close } aria-labelledby={ titleId } maxWidth="xs" fullWidth>
-    { payload && <Box sx={ { p: 3 } } data-social-share-dialog>
+  return <Dialog open={ Boolean(payload) } onClose={ close } aria-labelledby={ titleId } maxWidth="xs" fullWidth
+    slotProps={ { paper: { sx: (theme) => ({
+      [theme.breakpoints.down('md')]: {
+        m: '12px', width: 'calc(100% - 24px)',
+        maxHeight: 'calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))',
+      },
+    }) } } }>
+    { payload && <Box sx={ { p: { xs: 2, sm: 3 }, overflowWrap: 'anywhere' } } data-social-share-dialog>
       <Typography id={ titleId } component="h2" sx={ { typography: 'editorialTitle' } }>{ t('publishDialog.socialShare') }</Typography>
       <Typography sx={ { typography: 'editorialBody', mt: 1 } }>{ t('publishDialog.chooseSocial') }</Typography>
       <Box sx={ { display: 'flex', flexWrap: 'wrap', gap: 1, my: 3 } }>

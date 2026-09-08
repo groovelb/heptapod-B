@@ -5,7 +5,7 @@ import { buildArchiveModel } from '../../utils/heptapod/archiveGlyph';
 
 export default {
   title: 'Custom Component/5. Data Display/GlyphNode', component: GlyphNode, tags: ['autodocs'],
-  parameters: { docs: { description: { component: '메인 인코더의 실제 입자 기하를 정지 화면으로 재사용합니다. 네트워크와 애니메이션 없이 표식·선택·데이터 누락을 확인합니다.' } } },
+  parameters: { docs: { description: { component: '메인 인코더의 실제 입자 기하를 정지 화면으로 재사용합니다. 화면 200px 근처에서 기하 생성과 그리기를 한 번 실행하고 같은 잉크 스프라이트를 공유합니다. 네트워크와 애니메이션 없이 표식·선택·데이터 누락을 확인합니다.' } } },
   decorators: [(Story) => <Box sx={ { p: 3, bgcolor: 'custom.chamber.fog', display: 'inline-flex' } }>{ createElement(Story) }</Box>],
   argTypes: {
     model: { control: 'object', description: '실제 저장 모델' },

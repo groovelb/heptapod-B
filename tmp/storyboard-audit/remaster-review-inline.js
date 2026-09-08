@@ -1,0 +1,8 @@
+
+const viewer=document.getElementById('viewer');let opener=null;
+document.querySelectorAll('.frame-button').forEach(b=>b.addEventListener('click',()=>{opener=b;const img=b.querySelector('img');viewer.querySelector('img').src=img.src;viewer.querySelector('img').alt=img.alt;document.getElementById('caption').textContent=img.alt;viewer.querySelector('.image-scroll').classList.remove('actual');document.getElementById('actual').textContent='100%';viewer.showModal()}));
+document.querySelector('.close').addEventListener('click',()=>viewer.close());viewer.addEventListener('click',e=>{if(e.target===viewer)viewer.close()});viewer.addEventListener('close',()=>opener?.focus());
+document.getElementById('actual').addEventListener('click',e=>{const actual=viewer.querySelector('.image-scroll').classList.toggle('actual');e.target.textContent=actual?'화면에 맞춤':'100%'});
+document.getElementById('toggle').addEventListener('click',e=>{const on=document.body.classList.toggle('overlay-mode');e.target.textContent=on?'나란히 비교':'겹쳐 비교'});
+document.querySelectorAll('input[type=range]').forEach(input=>input.addEventListener('input',()=>{input.closest('.compare-overlay').querySelector('.after').style.opacity=Number(input.value)/100}));
+document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',async()=>{const pre=b.closest('details').querySelector('pre');try{await navigator.clipboard.writeText(pre.textContent);b.textContent='복사됨'}catch{const range=document.createRange();range.selectNodeContents(pre);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);b.textContent='선택됨 · ⌘/Ctrl+C'}setTimeout(()=>b.textContent='복사',2500)}));

@@ -87,12 +87,13 @@ try {
   check(() => assert.equal(mainBefore.dataset.testRendererPaused, 'false'));
   await act(async () => document.querySelector('[data-encoder-analysis]').click());
   check(() => assert.equal(main(), mainBefore));
-  check(() => assert.equal(main().dataset.testRendererPaused, 'true', 'Only the fully occluded mobile background renderer pauses'));
-  check(() => assert.equal(document.querySelector('[data-encoder-mobile-glyph] canvas').dataset.testRendererPaused, 'false', 'Visible analysis glyph keeps running'));
+  check(() => assert.equal(main().dataset.testRendererPaused, 'false', 'Visible original mobile glyph must keep running beneath the overlay'));
+  check(() => assert.equal(document.querySelector('[data-encoder-mobile-glyph]'), null, 'Analysis does not create a second canvas'));
   check(() => assert.equal(document.querySelector('[data-chamber-paused]'), chamberBefore));
-  check(() => assert.equal(chamberBefore.dataset.chamberPaused, 'true'));
-  check(() => assert.ok(document.querySelector('[role="dialog"] .hb-edge'), 'Visible green analysis mesh remains'));
-  await act(async () => [...document.querySelectorAll('[role="dialog"] button')].find((node) => node.textContent === ko.t('heptapodEncoderPage.close')).click());
+  check(() => assert.equal(chamberBefore.dataset.chamberPaused, 'false'));
+  check(() => assert.ok(document.querySelector('[data-encoder-meaning-anchors] .hb-edge'), 'Visible green analysis mesh remains'));
+  check(() => assert.equal(document.querySelector('[role="dialog"]'), null));
+  await act(async () => document.querySelector('[data-encoder-analysis]').click());
   check(() => assert.equal(main(), mainBefore, 'Closing retains the underlying Canvas element'));
   check(() => assert.equal(main().dataset.testRendererPaused, 'false'));
   check(() => assert.equal(chamberBefore.dataset.chamberPaused, 'false'));
@@ -108,7 +109,7 @@ try {
   check(() => assert.equal(main().dataset.testRendererPaused, 'false', 'Desktop analysis never occludes or pauses the main canvas'));
   check(() => assert.equal(document.querySelector('[data-chamber-paused]').dataset.chamberPaused, 'false'));
   check(() => assert.ok(document.querySelector('[data-encoder-meaning-anchors] .hb-edge')));
-  console.log(`Render occlusion: ${checks} checks passed; nine fog animations pause/resume in place, mobile analysis pauses only its opaque background, desktop/publication remain active. In-memory DOM only.`);
+  console.log(`Render occlusion: ${checks} checks passed; nine fog animations support pause/resume, mobile/desktop overlay analysis preserves the original running glyph and fog. In-memory DOM only.`);
 } finally {
   if (root) await act(async () => root.unmount());
   await server.close(); await dom.happyDOM.abort();

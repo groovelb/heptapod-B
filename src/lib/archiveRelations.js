@@ -3,6 +3,7 @@ import { assertComparableGlyph } from '../utils/heptapod/assertComparableGlyph.j
 import { extractGlyphFeatures } from '../utils/heptapod/extractGlyphFeatures.js';
 import { relateGlyphs, RELATION_ALGORITHM_VERSION } from '../utils/heptapod/relateGlyphs.js';
 import { groupResonanceRows } from '../utils/heptapod/resonanceView.js';
+import { publicEnv } from './publicEnv.js';
 
 /**
  * @typedef {Object} ArchiveRelationProvider
@@ -15,7 +16,7 @@ export function assertArchiveRequestActive(signal) {
 }
 
 /** Explicit injection wins; Storybook clients preserve their injected API behavior. */
-export function resolveArchiveRelationsMode({ mode, hasInjectedClient = false, env = import.meta.env || {} } = {}) {
+export function resolveArchiveRelationsMode({ mode, hasInjectedClient = false, env = { VITE_ARCHIVE_RELATIONS_MODE: publicEnv.relationsMode, DEV: publicEnv.development } } = {}) {
   const selected = mode ?? (hasInjectedClient ? 'api' : env.VITE_ARCHIVE_RELATIONS_MODE || (env.DEV ? 'local' : 'api'));
   if (!['local', 'api'].includes(selected)) throw new Error(t('archiveRelations.theRelationConnectionModeMustBeLocal'));
   return selected;

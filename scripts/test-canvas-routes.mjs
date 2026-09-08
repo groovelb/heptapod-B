@@ -49,6 +49,10 @@ const server = await createServer({ configFile: false, plugins: [react()], serve
 let root;
 let router;
 const settle = async () => act(async () => new Promise((resolve) => setTimeout(resolve, 80)));
+const waitFor = async (selector) => {
+  for (let attempt = 0; !document.querySelector(selector) && attempt < 100; attempt += 1) await settle();
+  assert.ok(document.querySelector(selector), `Loaded route: ${selector}`);
+};
 const input = () => document.querySelector('[data-encoder-result] input');
 const result = () => document.querySelector('[data-encoder-result]');
 try {
@@ -71,12 +75,15 @@ try {
     await act(async () => root.render(createElement(LocaleProvider, { initialMode: 'ko', syncDocument: false },
       createElement(ThemeProvider, { theme }, createElement(NavigationSessionProvider, null, createElement(RouterProvider, { router }))))));
     await settle();
+    // Route views are code-split; wait for the requested view, not a fixed import budget.
+    await waitFor('[data-hero-intro], [data-encoder-result]');
   };
   await mount('/');
   check(() => assert.ok(document.querySelector('[data-hero-intro]')));
   check(() => assert.equal(result(), null, 'Landing does not hide/pre-mount Canvas'));
   check(() => assert.equal(document.documentElement.style.overflow, 'hidden'));
   await act(async () => document.querySelector('header a[href="/canvas"]').click());
+  await waitFor('[data-encoder-result] input');
   check(() => assert.equal(document.querySelector('video'), null));
   check(() => assert.equal(document.querySelector('#hero-scrub-track'), null));
   check(() => assert.equal(document.documentElement.style.overflow, '', 'Leaving the landing releases the scroll lock'));
@@ -103,7 +110,8 @@ try {
   await act(async () => input().dispatchEvent(new dom.KeyboardEvent('keydown', { key: 'Enter', bubbles: true })));
   check(() => assert.ok(document.querySelector('[data-encoder-overlay]')));
   check(() => assert.equal(document.querySelector('[data-encoder-overlay]').querySelectorAll('button:not([data-glyph-cluster-link]), a:not([data-glyph-cluster-link])').length, 3));
-  check(() => assert.ok(document.querySelector('[data-encoder-overlay] [data-glyph-cluster-link]').getAttribute('href').includes('group=')));
+  check(() => assert.ok(document.querySelector('[data-encoder-overlay] [data-glyph-cluster-name]').textContent.trim(), 'Create retains its cluster name'));
+  check(() => assert.equal(document.querySelector('[data-encoder-overlay] [data-glyph-cluster-link]'), null, 'Create shows the cluster name without an explore link'));
   check(() => assert.equal(router.state.location.search, '', 'Local name input is not added to the URL'));
   const currentSession = result();
   await act(async () => router.navigate('/canvas?lang=en'));

@@ -1,5 +1,5 @@
 import { useI18n } from '../../i18n/useI18n.js';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -9,6 +9,8 @@ import {
 
 // Saved models are immutable. Share actual geometry without retaining records.
 const geometryCache = new WeakMap();
+let spriteInk;
+let sprites;
 
 /**
  * GlyphNode — 저장된 모델을 메인 Canvas와 같은 기하로 그리는 정적 표식.
@@ -25,27 +27,37 @@ export default function GlyphNode({ model, size = 64, label = '', isSelected = f
   const theme = useTheme();
   const ink = theme.palette.custom?.chamber?.ink || theme.palette.text.primary;
   const resolvedSize = Math.max(32, Number(size) || 64);
-  const particles = useMemo(() => {
-    if (!model?.harmonics || !model?.clusters || !model?.pressure) return null;
-    if (!geometryCache.has(model)) geometryCache.set(model, generateParticles(model).particles);
-    return geometryCache.get(model);
-  }, [model]);
+  const hasModel = Boolean(model?.harmonics && model?.clusters && model?.pressure);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !particles) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.round(resolvedSize * dpr);
-    canvas.height = Math.round(resolvedSize * dpr);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const scale = resolvedSize * dpr / SIZE0;
-    ctx.setTransform(scale, 0, 0, scale, 0, 0);
-    ctx.clearRect(0, 0, SIZE0, SIZE0);
-    paintStatic(ctx, particles, makeSprites(ink));
-  }, [particles, resolvedSize, ink]);
+    if (!canvas || !hasModel) return undefined;
+    let drawn = false;
+    const draw = () => {
+      if (drawn) return;
+      drawn = true;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(resolvedSize * dpr);
+      canvas.height = Math.round(resolvedSize * dpr);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      // Large lists allocate geometry and stamp ink only as they approach view.
+      if (!geometryCache.has(model)) geometryCache.set(model, generateParticles(model).particles);
+      if (!sprites || spriteInk !== ink) { sprites = makeSprites(ink); spriteInk = ink; }
+      const scale = resolvedSize * dpr / SIZE0;
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      ctx.clearRect(0, 0, SIZE0, SIZE0);
+      paintStatic(ctx, geometryCache.get(model), sprites);
+    };
+    if (typeof IntersectionObserver === 'undefined') { draw(); return undefined; }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { draw(); observer.disconnect(); }
+    }, { rootMargin: '200px' });
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, [model, hasModel, resolvedSize, ink]);
 
-  const accessibleName = t('glyphNode.sGlyph', { p0: label || model?.meta?.name || t('glyphNode.name'), p1: particles ? '' : t('glyphNode.noDisplayData') });
+  const accessibleName = t('glyphNode.sGlyph', { p0: label || model?.meta?.name || t('glyphNode.name'), p1: hasModel ? '' : t('glyphNode.noDisplayData') });
   return (
     <Box component={ onClick ? 'button' : 'div' } type={ onClick ? 'button' : undefined }
       onClick={ onClick } aria-label={ onClick ? accessibleName : undefined }
@@ -59,7 +71,7 @@ export default function GlyphNode({ model, size = 64, label = '', isSelected = f
         '&:focus-visible': { outline: `2px solid ${ink}`, outlineOffset: 3 }, ...sx,
       } }
     >
-      { particles ? (
+      { hasModel ? (
         <Box component="canvas" ref={ canvasRef } role={ onClick ? undefined : 'img' }
           aria-hidden={ onClick ? true : undefined } aria-label={ onClick ? undefined : accessibleName }
           sx={ { display: 'block', width: resolvedSize, height: resolvedSize, maxWidth: '100%' } }

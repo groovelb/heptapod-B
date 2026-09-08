@@ -81,6 +81,17 @@ try {
   check(() => assert.equal(controls.locale, 'ko'));
   if (storageDescriptor) Object.defineProperty(window, 'localStorage', storageDescriptor);
   else delete window.localStorage;
+  await act(async () => root.render(createElement(LocaleProvider, { urlLocale: 'en' }, createElement(Probe))));
+  check(() => assert.equal(controls.locale, 'en'));
+  check(() => assert.equal(mounts, 2));
+  check(() => assert.equal(document.querySelector('input').value, '도래 Louise'));
+  await act(async () => controls.setLanguageMode('ko'));
+  check(() => assert.equal(controls.locale, 'ko'));
+  await act(async () => root.render(createElement(LocaleProvider, { urlLocale: 'ko' }, createElement(Probe))));
+  check(() => assert.equal(controls.locale, 'ko'));
+  await act(async () => root.render(createElement(LocaleProvider, { urlLocale: 'en' }, createElement(Probe))));
+  check(() => assert.equal(controls.locale, 'en'));
+  check(() => assert.equal(mounts, 2));
   console.log(`Locale state: ${checks} checks passed; OS changes, saved preference, cross-tab updates, blocked storage, metadata and input preservation. In-memory DOM only.`);
 } finally {
   if (root) await act(async () => root.unmount());

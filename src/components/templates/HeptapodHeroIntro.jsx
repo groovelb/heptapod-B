@@ -30,6 +30,7 @@ import {
   HERO_VIDEO_SRC,
   HERO_VIDEO_SRC_MOBILE,
   HERO_POSTER_SRC,
+  HERO_POSTER_SRC_MOBILE,
   HERO_AUDIO_BED_SRC,
   HERO_AUDIO_CLIP_BASE,
   HERO_HANDOFF_VH,
@@ -368,6 +369,7 @@ function HeptapodHeroIntro({ onComplete }) {
 
   // 회전·리사이즈로 재생 중인 video를 다른 소스로 다시 로드하지 않는다.
   const [activeSrc] = useState(() => isMobile ? HERO_VIDEO_SRC_MOBILE : HERO_VIDEO_SRC);
+  const activePoster = activeSrc === HERO_VIDEO_SRC_MOBILE ? HERO_POSTER_SRC_MOBILE : HERO_POSTER_SRC;
   const affordanceState = videoEnded ? 'handoff'
     : playbackState === 'error' ? 'error'
       : !videoReady || playbackState === 'loading' ? 'loading'
@@ -407,7 +409,7 @@ function HeptapodHeroIntro({ onComplete }) {
         {/* 포스터 — 브라우저 poster 대신 자체 오버레이(되감기 시 재출현 방지). 준비되면 1회 페이드아웃 */}
         <Box
           component="img"
-          src={ HERO_POSTER_SRC }
+          src={ activePoster }
           fetchPriority="high"
           loading="eager"
           alt=""

@@ -21,10 +21,12 @@ import { sourceText as t } from '../i18n/messages.js';
 
 /** v2 Topaz 업스케일 영상 — PC 3832×2160, GOP 6, 24fps. 스크럽은 muted. */
 export const HERO_VIDEO_SRC = '/heptapod-b-encoder/hero-scrub-v2-topaz/hero-scrub-3832.mp4';
-/** 모바일(md 미만) 스크럽 영상 */
-export const HERO_VIDEO_SRC_MOBILE = '/heptapod-b-encoder/hero-scrub-v2-topaz/hero-scrub-960.mp4';
+/** 모바일(md 미만): 모바일 전용 8컷 조립본, 1080×1920 / 24fps / GOP 6. */
+export const HERO_VIDEO_SRC_MOBILE = '/heptapod-b-encoder/hero-scrub-v2-mobile/hero-scrub-1080x1920.mp4';
 /** 포스터(첫 프레임) — 영상 준비 전 오버레이 */
 export const HERO_POSTER_SRC = '/heptapod-b-encoder/hero-scrub-v2-topaz/hero-scrub-poster.jpg';
+/** 모바일 영상의 실제 첫 프레임. 영상 선택과 함께 고정한다. */
+export const HERO_POSTER_SRC_MOBILE = '/heptapod-b-encoder/hero-scrub-v2-mobile/hero-scrub-poster.jpg';
 
 /** 스크럽 사운드 — 베드 루프 / 비트 클립 디렉토리 (클립 파일명 = beat.id + .mp3) */
 export const HERO_AUDIO_BED_SRC = '/heptapod-b-encoder/audio/bed-loop.mp3';

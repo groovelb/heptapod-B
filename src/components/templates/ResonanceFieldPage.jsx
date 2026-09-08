@@ -25,7 +25,7 @@ export default function ResonanceFieldPage({ client }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
-  const mobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const mobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
   const reduced = useMediaQuery('(prefers-reduced-motion: reduce)');
   const { glyph, loading, error, refetch } = useGlyph(id, { client });
   const relationQuery = useGlyphRelations(id, { client });
@@ -41,7 +41,12 @@ export default function ResonanceFieldPage({ client }) {
   const explore = (neighborId) => { setInspectedId(null); navigate(`/field/${neighborId}`); };
 
   return (
-    <Box sx={ { minHeight: '100vh', bgcolor: 'custom.chamber.fog', color: 'custom.chamber.ink', px: { xs: 2, sm: 4 }, py: 4 } }>
+    <Box component="main" sx={ { minHeight: '100vh', bgcolor: 'custom.chamber.fog', color: 'custom.chamber.ink', px: { xs: 2, sm: 4 }, py: 4,
+      [theme.breakpoints.down('md')]: {
+        minHeight: '100dvh', overflowWrap: 'anywhere',
+        pl: 'max(16px, env(safe-area-inset-left, 0px))', pr: 'max(16px, env(safe-area-inset-right, 0px))',
+        pb: 'max(24px, env(safe-area-inset-bottom, 0px))', '& .MuiButton-root': { minHeight: 44 },
+      } } }>
       <AppGNB />
       <Box sx={ { maxWidth: 880, mx: 'auto' } }>
         <Box component="nav" aria-label={ t('resonanceFieldPage.formResonanceMapNavigation') } sx={ { display: 'flex', justifyContent: 'space-between', mb: 3 } }>

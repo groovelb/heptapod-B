@@ -84,11 +84,15 @@ try {
   router = createMemoryRouter([{ path: '/', element: h(LandingRoute) }, { path: '/canvas', element: h('div', { 'data-canvas': true }) }], { initialEntries: ['/'] });
   root = createRoot(document.getElementById('root'));
   await act(async () => root.render(h(ThemeProvider, { theme: defaultTheme }, h(LocaleProvider, null, h(RouterProvider, { router })))));
+  for (let attempt = 0; !document.querySelector('video') && attempt < 100; attempt += 1) {
+    await act(async () => new Promise((resolve) => setTimeout(resolve, 20)));
+  }
   const video = document.querySelector('video');
   check(() => assert.equal(document.querySelector('[data-hero-intro]').dataset.heroProfile, 'mobile'));
-  check(() => assert.match(video.querySelector('source').src, /960\.mp4$/));
+  check(() => assert.match(video.querySelector('source').src, /hero-scrub-1080x1920\.mp4$/));
   check(() => assert.equal(document.querySelector('[data-hero-intro]').dataset.heroVideoVersion, 'v2'));
-  check(() => assert.match(video.querySelector('source').src, /hero-scrub-v2-topaz/));
+  check(() => assert.match(video.querySelector('source').src, /hero-scrub-v2-mobile/));
+  check(() => assert.match(document.querySelector('[data-hero-intro] img').src, /hero-scrub-v2-mobile\/hero-scrub-poster\.jpg$/));
   check(() => assert.equal(document.querySelector('[data-hero-video-toggle]'), null, 'Production hero has no comparison UI'));
   video.readyState = 3;
   await emit(video, 'canplay');
@@ -113,7 +117,7 @@ try {
   await emit(dom, 'resize');
   await act(async () => pause(40));
   check(() => assert.ok(Math.abs(video.currentTime - checkpoint) < 1e-8, 'Rotation recomputes both clocks from the same track'));
-  check(() => assert.match(video.querySelector('source').src, /960\.mp4$/));
+  check(() => assert.match(video.querySelector('source').src, /hero-scrub-1080x1920\.mp4$/));
   video.holdSeek = true;
   await scroll(4.1 * cellHeight);
   const pendingFrame = video.currentTime;
@@ -154,7 +158,7 @@ try {
   const key = router.state.location.key;
   await emit(video, 'ended');
   check(() => assert.equal(router.state.location.key, key));
-  console.log(`Mobile hero: ${checks} checks passed; isolated timing, 960 source, chrome/rotation clocks, seek/readiness/gesture recovery, actual-ended-only Canvas replace (no browser).`);
+  console.log(`Mobile hero: ${checks} checks passed; isolated timing, portrait video/poster, chrome/rotation clocks, seek/readiness/gesture recovery, actual-ended-only Canvas replace (no browser).`);
 } finally {
   if (root) await act(async () => root.unmount());
   router?.dispose();

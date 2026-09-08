@@ -6,7 +6,7 @@ import { createArchiveStoryClient, ARCHIVE_STORY_GLYPHS, ARCHIVE_STORY_IDS } fro
 
 export default {
   title: 'Page/Response Archive/GlyphDetailPage', component: GlyphDetailPage, tags: ['autodocs'],
-  parameters: { layout: 'fullscreen', route: `/glyph/${ARCHIVE_STORY_IDS.left}`, docs: { description: { component: '모바일에서 긴 이름·메타데이터를 줄바꿈하고 동적 화면 높이·하단 안전영역을 반영합니다. PC 배치는 유지합니다. 공통 fixed GNB에서 Archive를 활성 표시하고 모바일 Drawer를 제공합니다. 본문의 문맥별 뒤로가기는 유지합니다. 저장된 표식의 소속 군집 이름과 해당 군집으로 이동하는 링크를 표시합니다. 의미 해석과 정밀 공명을 분리합니다. 의미 근거를 선택하면 실제 모델의 해당 부위를 표시하고 같은 의미군으로 이동할 수 있습니다. 동일한 판독기를 아카이브·로컬 비교와 공유합니다. 표식 없음·정밀 공명 없음·조회 실패는 별도 메모리 응답으로 재현합니다.' } } },
+  parameters: { layout: 'fullscreen', route: `/glyph/${ARCHIVE_STORY_IDS.left}`, docs: { description: { component: '아카이브와 동일한 ArchiveDepthExplorer·ArchiveSelectedGlyph를 사용합니다. 안개 배경, 중앙 이름 표식, 유형 제목·서사, 분석 토글·관측 칩, 같은 유형 목록과 공통 부위 비교, 모바일 축소 관찰 동작을 공유합니다. 독립 상세 경로에서는 숨겨진 전체 목록을 마운트하지 않습니다. UUID 공유·비교·관계 탐색 링크와 조회 실패·버전 미지원 처리를 유지합니다.' } } },
   decorators: [(Story, context) => (
     <MemoryRouter initialEntries={ [context.parameters.route] } key={ context.parameters.route }>
       <Routes><Route path="/glyph/:id" element={ createElement(Story) } /><Route path="*" element={ <Placeholder.Box label="선택한 비교 또는 관계 탐색 화면" /> } /></Routes>
@@ -20,4 +20,5 @@ export const Default = {};
 export const NoRelations = { args: { client: createArchiveStoryClient({ glyphs: ARCHIVE_STORY_GLYPHS.filter((glyph) => [ARCHIVE_STORY_IDS.left, ARCHIVE_STORY_IDS.unrelated].includes(glyph.id)) }) } };
 export const Unavailable = { parameters: { route: `/glyph/${ARCHIVE_STORY_IDS.hidden}` }, args: { client: createArchiveStoryClient() } };
 export const Loading = { args: { client: createArchiveStoryClient({ pending: ['glyphs', 'archive-relations'] }) } };
-export const RelationError = { args: { client: createArchiveStoryClient({ failures: { 'archive-relations': '연결을 불러오지 못했습니다.' } }) } };
+export const UnsupportedVersion = { parameters: { route: `/glyph/${ARCHIVE_STORY_IDS.left}?reading=meaning&mv=999` } };
+export const MobileDetail = { parameters: { viewport: { value: 'mobile1' } } };

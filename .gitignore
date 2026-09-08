@@ -26,11 +26,21 @@ CLAUDE.local.md
 *.sln
 *.sw?
 storybook-static
+.next
+out
 
 # env (로컬 설정 — .env.example만 추적)
 .env
 .env.local
 .env.*.local
+.vercel
+
+# Local web research cache
+.firecrawl/
 
 # Reconstructed byte-for-byte before dev/build from assets/heptapod-hero-v2.
 /public/heptapod-b-encoder/hero-scrub-v2-topaz/hero-scrub-3832.mp4
+
+# Local generation outputs and review caches (production media lives in public).
+/output/
+/tmp/

@@ -14,7 +14,7 @@ function NavigationDemo(args) {
 
 export default {
   title: 'Custom Component/10. Navigation/AppGNB', component: AppGNB, tags: ['autodocs'],
-  parameters: { layout: 'fullscreen', docs: { description: { component: '모바일 가로 화면의 좌우 노치 안전영역을 반영하며 PC 패딩은 유지합니다. Story·Create·Archive 공통 fixed GNB. 모바일 64px·데스크톱 80px와 안전 영역을 사용합니다. md 미만에서 링크는 오른쪽에서 열리는 전체 화면 Drawer로 이동하며 메뉴는 화면 너비에 따라 40–72px로 표시합니다. 언어·사운드 아이콘은 상단에 유지합니다. 기존 GNB의 Drawer·포커스·스크롤 잠금을 재사용하고 활성 경로와 동일 페이지 클릭을 처리합니다.' } } },
+  parameters: { layout: 'fullscreen', docs: { description: { component: '모바일 가로 화면의 좌우 노치 안전영역을 반영하며 PC 패딩은 유지합니다. Story·Create·Archive 공통 fixed GNB. 모바일 64px·데스크톱 80px와 안전 영역을 사용합니다. md 미만에서 링크는 오른쪽에서 열리는 전체 화면 Drawer로 이동하며 메뉴는 화면 너비에 따라 40–72px로 표시합니다. 언어·사운드 아이콘은 상단에 유지합니다. 기존 GNB의 Drawer·포커스·스크롤 잠금을 재사용합니다. Archive 메뉴는 항상 /archive 최상위와 새 스크롤 기록으로 진입하며, 내부 뒤로가기는 이전 뎁스 주소와 위치를 복원합니다. Create 입력 복원과 활성 최상위 클릭 억제는 유지합니다.' } } },
   decorators: [(Story, context) => <MemoryRouter initialEntries={ [context.parameters.route || '/canvas'] }><Story /></MemoryRouter>],
   argTypes: {
     overlay: { control: 'boolean', description: '콘텐츠 위에 겹침. false이면 본문 간격 확보. 헤더는 투명하며 dark overlay에서만 그라데이션 적용' },

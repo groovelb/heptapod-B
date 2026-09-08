@@ -1,6 +1,6 @@
 
 
-/** @type { import('@storybook/react-vite').StorybookConfig } */
+/** @type { import('@storybook/nextjs').StorybookConfig } */
 const config = {
   "stories": [
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
@@ -12,6 +12,6 @@ const config = {
     "@storybook/addon-docs",
     "@storybook/addon-onboarding"
   ],
-  "framework": "@storybook/react-vite"
+  "framework": "@storybook/nextjs"
 };
 export default config;

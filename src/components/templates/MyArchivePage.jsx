@@ -1,3 +1,4 @@
+import { localizedShareUrl } from '../../i18n/shareLocale.js';
 import AppGNB from '../navigation/AppGNB';
 import { useArchiveScroll } from '../../routes/useArchiveScroll';
 import { useI18n } from '../../i18n/useI18n.js';
@@ -18,7 +19,8 @@ import LogogramChamber from '../motion/LogogramChamber';
 import { createBackgroundMusic } from '../../utils/heptapod/backgroundMusic';
 import { APP_PATHS } from '../../routes/paths';
 
-const MUSIC_AUTOPLAY = import.meta.env.VITE_MUSIC_AUTOPLAY !== 'false';
+import { publicEnv } from '../../lib/publicEnv.js';
+const MUSIC_AUTOPLAY = publicEnv.musicAutoplay;
 const SERIF = "'Cinzel', 'Noto Serif KR', Georgia, serif";
 const actionSx = { color: 'custom.chamber.ink', minHeight: 44, fontSize: 13, textTransform: 'none' };
 
@@ -82,7 +84,7 @@ export default function MyArchivePage({ client, meaningProvider, musicAutoplay =
   const shareSpace = async () => {
     if (!shareable) return;
     setSocialShare(null);
-    const url = new URL(depthPath(meaningFilter, focusedId, { order }), window.location.origin).href;
+    const url = localizedShareUrl(new URL(depthPath(meaningFilter, focusedId, { order }), window.location.origin).href, locale);
     const focusedGlyph = focusedId ? visibleGlyphs.find((glyph) => glyph.id === focusedId) : null;
     const copy = focusedGlyph && !unsupportedVersion
       ? glyphArchetypeShareCopy(focusedGlyph, meanings?.interpretations?.[focusedId], locale) : null;

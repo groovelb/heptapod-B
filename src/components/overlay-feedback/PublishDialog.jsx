@@ -47,7 +47,7 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
   const completed = published || publishedResult;
   const glyphId = completed?.glyphId;
   const currentStep = glyphId ? 'done' : step;
-  const publicUrl = glyphId ? archiveShareUrl(glyphId, undefined, { endpoint: '' }) : '';
+  const publicUrl = glyphId ? archiveShareUrl(glyphId, undefined, { locale, endpoint: '' }) : '';
   const shareInput = { left: { id: glyphId, canonical_name: glyphName }, interpretation };
   const socialLinks = glyphId ? archiveSocialLinks(shareInput, { locale, endpoint: '' }) : [];
   const fg = '#e8e8e8';

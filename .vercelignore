@@ -1,0 +1,18 @@
+# Keep local test output, credentials, and build caches out of source uploads.
+node_modules
+.git
+.next
+dist
+dist-ssr
+out
+storybook-static
+tmp
+.env
+.env.*
+.claude
+.agents
+.codex
+.firecrawl
+
+# Local video processing and review artifacts.
+output

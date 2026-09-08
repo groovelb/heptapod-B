@@ -97,6 +97,21 @@ try {
     check(() => assert.equal(video.playStarts?.length ?? 0, 0, 'Autoplay waits for in-flight seek'));
     await act(async () => settle(video));
     check(() => assert.equal(video.playStarts.at(-1), beforePlay));
+    // A/B source replacement while the final segment is playing restores its checkpoint.
+    video._time = beforePlay + 1;
+    await emit(video, 'timeupdate');
+    const switchTime = video.currentTime;
+    const playCount = video.playStarts.length;
+    props.src = '/alternate.mp4';
+    await render(true);
+    video.duration = 50;
+    await emit(video, 'loadedmetadata');
+    check(() => assert.equal(video.currentTime, switchTime, 'Source toggle restores autoplay checkpoint'));
+    check(() => assert.equal(video.playStarts.length, playCount, 'Replacement does not play from zero before restore'));
+    await act(async () => settle(video));
+    video.readyState = 3;
+    await emit(video, 'canplay');
+    check(() => assert.equal(video.playStarts.at(-1), switchTime));
     await emit(video, 'ended');
     check(() => assert.equal(ended, 0, 'Event without actual native ended never completes'));
     video._time = 50; video.ended = false;

@@ -9,10 +9,11 @@ const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
 const gallery = readFileSync(new URL('../src/components/data-display/ArchiveGlyph.jsx', import.meta.url), 'utf8');
 const archive = readFileSync(new URL('../src/components/templates/MyArchivePage.jsx', import.meta.url), 'utf8');
 const depth = readFileSync(new URL('../src/components/data-display/ArchiveDepthExplorer.jsx', import.meta.url), 'utf8');
+const feed = readFileSync(new URL('../src/components/data-display/ArchiveArchetypeFeed.jsx', import.meta.url), 'utf8');
 const renderer = readFileSync(new URL('../src/components/motion/LogogramRendererCanvas.jsx', import.meta.url), 'utf8');
 const effect = app.match(/useEffect\(\(\) => \{([\s\S]*?)\n  \}, \[pathname\]\);/)?.[1];
 
-function mount(pathname, reduced = false) {
+function mount(pathname, reduced = false, coarse = false) {
   assert.ok(effect, 'route-dependent Lenis lifecycle must remain in App');
   const instances = []; const frames = new Map(); const cancelled = []; const positions = [];
   let frameId = 0; let state;
@@ -25,7 +26,7 @@ function mount(pathname, reduced = false) {
   }
   const cleanup = runInNewContext(`(() => {${effect}\n})()`, {
     pathname, APP_PATHS, isLanding: pathname === '/', Lenis: LenisStub,
-    window: { matchMedia: () => ({ matches: reduced }), scrollTo: (...position) => positions.push(position) },
+    window: { matchMedia: (query) => ({ matches: query.includes('pointer') ? coarse : reduced }), scrollTo: (...position) => positions.push(position) },
     setLenis: (value) => { state = value; },
     requestAnimationFrame: (callback) => { frames.set(++frameId, callback); return frameId; },
     cancelAnimationFrame: (id) => { cancelled.push(id); frames.delete(id); },
@@ -33,7 +34,7 @@ function mount(pathname, reduced = false) {
   return { instances, frames, cancelled, positions, cleanup, state: () => state };
 }
 
-test('Lenis runs on archive/detail/field/compare as well as the landing route', () => {
+test('Desktop Lenis runs on archive/detail/field/compare as well as the landing route', () => {
   for (const path of ['/', '/canvas', '/archive', '/archive/', '/glyph/test', '/field/test', '/compare/a/b', '/me']) {
     const mounted = mount(path);
     assert.equal(mounted.instances.length, 1, path);
@@ -48,6 +49,24 @@ test('Lenis runs on archive/detail/field/compare as well as the landing route', 
     assert.equal(instance.scroll.immediate, true);
     assert.equal(mounted.state(), instance);
     mounted.cleanup();
+  }
+});
+
+test('Touch devices run Lenis with touch smoothing and clean up on every route', () => {
+  for (const path of ['/', '/canvas', '/archive', '/glyph/test', '/field/test', '/compare/a/b']) {
+    const mounted = mount(path, false, true);
+    assert.equal(mounted.instances.length, 1, path);
+    const instance = mounted.instances[0];
+    assert.equal(instance.options.syncTouch, true, path);
+    assert.equal(instance.options.allowNestedScroll, true);
+    assert.equal(mounted.state(), instance);
+    assert.equal(mounted.frames.size, 1, path);
+    mounted.frames.get(1)(16);
+    assert.equal(instance.lastFrame, 16);
+    mounted.cleanup();
+    assert.equal(instance.destroyed, true);
+    assert.equal(mounted.state(), null);
+    assert.deepEqual(mounted.cancelled, [2]);
   }
 });
 
@@ -68,16 +87,19 @@ test('route cleanup cancels RAF and destroys the previous, potentially stopped L
 });
 
 test('reduced motion keeps native scrolling and does not start a Lenis RAF', () => {
-  const mounted = mount('/archive', true);
-  assert.equal(mounted.instances.length, 0);
-  assert.equal(mounted.frames.size, 0);
-  assert.deepEqual(mounted.positions, [[0, 0]]);
-  assert.equal(mounted.cleanup, undefined);
+  for (const coarse of [false, true]) {
+    const mounted = mount('/archive', true, coarse);
+    assert.equal(mounted.instances.length, 0);
+    assert.equal(mounted.frames.size, 0);
+    assert.deepEqual(mounted.positions, [[0, 0]]);
+    assert.equal(mounted.cleanup, undefined);
+  }
 });
 
 test('archive cards keep viewport-triggered formation rather than static thumbnails', () => {
   assert.match(archive, /<ArchiveDepthExplorer/);
-  assert.match(depth, /<ArchiveGlyph/);
+  assert.match(depth, /<ArchiveArchetypeFeed/);
+  assert.match(feed, /<ArchiveGlyph/);
   assert.match(gallery, /import LogogramRendererCanvas from/);
   assert.match(gallery, /<LogogramRendererCanvas model=\{ glyph\.model_data \} size=\{ canvasSize \} isActive=\{ visible \} \/>/);
   assert.match(gallery, /entry\.isIntersecting.*setVisible\(true\)/);

@@ -1,0 +1,19 @@
+{
+  "source": "output/heptapod-mobile-portrait-v2/video-run-01/staging/hero-portrait-raw.mp4",
+  "file": "hero-scrub-1080x1920.mp4",
+  "sha256": "7253b2d67cccaa64a034157e978c75c87a395e5a7018405be213891543792cc2",
+  "bytes": 53120461,
+  "width": 1080,
+  "height": 1920,
+  "fps": 24,
+  "frames": 1129,
+  "duration_seconds": 47.041666666666664,
+  "gop": 6,
+  "production_copy": "byte-identical to reviewed assembly",
+  "poster": {
+    "file": "hero-scrub-poster.jpg",
+    "source_frame": 0,
+    "sha256": "251bb7275ba86171074cc2aa775b8dcda7586cfabdba926ee10e61e5dc31d9f2"
+  },
+  "authorization": "User requested mobile integration and commit/push of all current code before further visual review."
+}

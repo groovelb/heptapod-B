@@ -93,7 +93,7 @@ try {
   const navSource = await readFile('src/components/navigation/AppGNB.jsx', 'utf8');
   check(() => assert.match(navSource, /\[theme\.breakpoints\.down\('md'\)\]: \{ pl: 'max\(16px, env\(safe-area-inset-left, 0px\)\)'/));
   const detailSource = await readFile('src/components/templates/GlyphDetailPage.jsx', 'utf8');
-  check(() => assert.match(detailSource, /gridTemplateColumns: '1fr 1fr', gap: 1,\s+\[theme\.breakpoints\.down\('md'\)\]: \{ gridTemplateColumns: 'minmax\(0, 1fr\) minmax\(0, 1fr\)'/));
+  check(() => assert.match(detailSource, /<ArchiveDepthExplorer key=\{ id \} detailOnly/, 'Public detail uses the same responsive Archive detail layout'));
   console.log(`Mobile shared: ${checks} checks passed; mobile success/invalid/IME, unchanged desktop focus, mobile-only style contracts. In-memory DOM, not browser rendering.`);
 } finally {
   await act(async () => root.unmount());

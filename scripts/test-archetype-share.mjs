@@ -23,13 +23,13 @@ for (const archetype of Object.values(ARCHETYPE_CATALOG)) {
     check(() => assert.equal(result, 'shared'));
     check(() => assert.equal(payload.title, `${left.display_name} · ${localize(archetype.title)}`));
     check(() => assert.equal(payload.text, localize(archetype.reading)));
-    check(() => assert.equal(payload.url, `${origin}/glyph/${left.id}`));
+    check(() => assert.equal(payload.url, `${origin}/glyph/${left.id}?lang=${locale}`));
     check(() => assert.deepEqual(glyphArchetypeShareCopy(left, interpretation, locale), { title: payload.title, text: payload.text }));
     await shareArchive({ left, interpretation }, { ...options, reading: 'meaning', meaningVersion: 1 });
-    check(() => assert.equal(new URL(payload.url).search, '?reading=meaning&mv=1'));
+    check(() => assert.equal(new URL(payload.url).search, `?reading=meaning&mv=1&lang=${locale}`));
     await shareArchive({ left, right, interpretation, reason: 'pair-only' }, options);
     check(() => assert.equal(payload.text, 'pair-only'));
-    check(() => assert.equal(payload.url, `${origin}/compare/${left.id}/${right.id}`));
+    check(() => assert.equal(payload.url, `${origin}/compare/${left.id}/${right.id}?lang=${locale}`));
   }
 }
 const interpretation = interpretGlyphMeaning(getArchiveArchetypeSymbol('meaning-v1:arrival:none').model);

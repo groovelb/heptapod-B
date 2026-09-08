@@ -7,13 +7,15 @@
  * @returns {Promise<import('@supabase/supabase-js').SupabaseClient | null>}
  */
 
+import { publicEnv } from './publicEnv.js';
+
 let cached = undefined;
 
 export async function getSupabase() {
   if (cached !== undefined) return cached;
 
-  const url = import.meta.env.VITE_SUPABASE_URL || '';
-  const key = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+  const url = publicEnv.supabaseUrl;
+  const key = publicEnv.supabaseAnonKey;
 
   if (!url || !key) {
     cached = null;

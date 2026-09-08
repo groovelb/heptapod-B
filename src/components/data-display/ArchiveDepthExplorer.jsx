@@ -9,13 +9,12 @@ import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import Typography from '@mui/material/Typography';
 import { buildArchiveDepthView, EMPTY_ARCHIVE_FILTER } from '../../utils/heptapod/archiveDepthView';
 import { MEANING_CATALOG, MEANING_VERSION, MORPHOLOGY_VERSION } from '../../data/heptapodMeaningCatalog';
-import { getArchiveFamilySymbol, ARCHIVE_TIMELINE_SYMBOL } from '../../data/archiveFamilySymbols';
-import ArchiveGlyph from './ArchiveGlyph';
+import { getArchiveFamilySymbol } from '../../data/archiveFamilySymbols';
 import ArchiveArchetypeFeed from './ArchiveArchetypeFeed';
 import { glyphLabel } from '../../utils/heptapod/resonanceView.js';
 import { interpretGlyphMeaning } from '../../utils/heptapod/interpretGlyphMeaning.js';
 import { buildArchiveArchetypeFeed, buildArchiveTimeline } from '../../utils/heptapod/buildArchiveArchetypeFeed.js';
-import { ARCHETYPE_CATALOG, ARCHETYPE_FAMILIES, getGlyphArchetype } from '../../data/heptapodArchetypeCatalog.js';
+import { ARCHETYPE_CATALOG, getGlyphArchetype } from '../../data/heptapodArchetypeCatalog.js';
 import ArchiveFamilySymbol from './ArchiveFamilySymbol';
 import ArchiveSelectedGlyph from './ArchiveSelectedGlyph';
 import ArchetypeNarrative from './ArchetypeNarrative';
@@ -34,23 +33,21 @@ const shareIconSx = {
   '&.Mui-focusVisible': { outline: '1px solid currentColor', outlineOffset: -2 },
 };
 
-function ClusterPortal({ node, index, onSelect }) {
+function ClusterPortal({ node, onSelect }) {
   const { localize, t } = useI18n();
   const theme = useTheme();
   const familySymbol = getArchiveFamilySymbol(node.id);
   const introductionId = useId();
-  const isTimeline = node.kind === 'timeline';
   return (
-    <Box data-archive-portal={ node.id } sx={ { display: 'contents' } }>
+    <Box data-archive-portal={ node.id } sx={ { minWidth: 0, textAlign: 'center' } }>
     <Box component="button" type="button" onClick={ () => onSelect(node.filter) }
-      aria-label={ node.kind === 'timeline' ? t('archiveTimeline.allByTime') : familySymbol ? t('archiveDepthExplorer.familySymbolMeetGlyphs', { p0: localize(node.title), p1: localize(familySymbol.cue), p2: node.glyphs.length })
+      aria-label={ familySymbol ? t('archiveDepthExplorer.familySymbolMeetGlyphs', { p0: localize(node.title), p1: localize(familySymbol.cue), p2: node.glyphs.length })
         : t('archiveDepthExplorer.enterTheGroupGlyphs', { p0: localize(node.title), p1: node.glyphs.length }) }
       aria-describedby={ familySymbol ? introductionId : undefined }
-      data-cluster-id={ node.id } data-archive-chronological={ node.kind === 'timeline' ? true : undefined }
+      data-cluster-id={ node.id }
       sx={ {
         position: 'relative', display: 'block', width: '100%', maxWidth: theme.editorial.archivePage.portalSize, mx: 'auto', p: 0,
-        minWidth: 0, alignSelf: 'start', gridColumn: isTimeline ? 2 : index + 1,
-        gridRow: isTimeline ? { xs: 2, md: 3 } : 1,
+        minWidth: 0,
         border: 0, background: 'transparent', color: 'custom.chamber.ink', cursor: 'pointer',
         '&:focus-visible': { outline: '2px solid', outlineColor: 'custom.chamber.ink', outlineOffset: 4 },
         '&:hover .archive-cluster-cloud, &:focus-visible .archive-cluster-cloud': { transform: 'scale(1.07)' },
@@ -62,25 +59,16 @@ function ClusterPortal({ node, index, onSelect }) {
         '@media (prefers-reduced-motion: reduce)': { transition: 'none', transform: 'none !important' },
       } }>
         { familySymbol && <ArchiveFamilySymbol familyId={ node.id } /> }
-        { node.kind === 'timeline' && <ArchiveGlyph glyph={ ARCHIVE_TIMELINE_SYMBOL } /> }
         <Typography component="span" data-cluster-title sx={ { position: 'absolute', top: '50%', left: '50%', width: 'max-content', transform: 'translate(-50%, -50%)',
           textAlign: 'center', typography: 'editorialPortalCompact',
           whiteSpace: 'nowrap', pointerEvents: 'none',
         } }>{ localize(node.title) }</Typography>
       </Box>
-      { isTimeline && <>
-        <Typography component="span" sx={ { display: 'block', mt: theme.editorial.paragraphGap, typography: 'editorialMeta' } }>{ t('archiveTimeline.newest') }</Typography>
-        <Typography component="span" className="archive-cluster-invite" sx={ { display: 'block', mt: theme.editorial.labelGap, typography: 'editorialMeta' } }>{ t('archiveTimeline.allPublic') }</Typography>
-      </> }
     </Box>
     { familySymbol && <Box id={ introductionId } data-family-introduction={ node.id } sx={ {
-      gridColumn: { xs: '1 / -1', md: index + 1 }, gridRow: { xs: index + 3, md: 2 },
       maxWidth: theme.editorial.measure, width: '100%', minWidth: 0, mx: 'auto',
-      textAlign: { xs: 'left', md: 'center' },
     } }>
-      <Typography component="h2" sx={ { display: { xs: 'block', md: 'none' }, m: 0, typography: 'editorialLabel' } }>{ localize(node.title) }</Typography>
-      <Typography sx={ { mt: { xs: theme.editorial.labelGap, md: 0 }, typography: 'editorialMeta' } }>{ localize(familySymbol.cue) }</Typography>
-      <Typography data-family-reading={ node.id } sx={ { mt: theme.editorial.paragraphGap, typography: 'editorialBody' } }>{ localize(ARCHETYPE_FAMILIES[node.id].reading) }</Typography>
+      <Typography data-family-reading={ node.id } sx={ { mt: theme.editorial.labelGap, typography: 'editorialBody', wordBreak: 'keep-all' } }>{ localize(familySymbol.cue) }</Typography>
       <Typography className="archive-cluster-invite" sx={ { mt: theme.editorial.labelGap, typography: 'editorialMeta' } }>{ `${node.glyphs.length}${t('archiveDepthExplorer.glyphsEnter')}` }</Typography>
     </Box> }
     </Box>
@@ -89,10 +77,11 @@ function ClusterPortal({ node, index, onSelect }) {
 
 /** Families open into type-based feeds. Detail replaces the visible feed while
  * its mounted glyphs retain formation state for return navigation.
+ * detailOnly skips that list for a standalone detail route with its own navigation.
  */
 export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = EMPTY_ARCHIVE_FILTER,
   focusedId = null, onFilterChange, onFocusGlyph, onShare,
-  order = null, onOrderChange }) {
+  order = null, onOrderChange, detailOnly = false }) {
   const { localize, t } = useI18n();
   const theme = useTheme();
   const reducedMotion = useReducedMotion();
@@ -159,7 +148,7 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
   const typeFeed = useMemo(() => timeline && focusedId ? buildArchiveArchetypeFeed(timeline.glyphs, detailMeanings) : feed,
     [timeline, focusedId, detailMeanings, feed]);
   const root = scope.level === 'families';
-  const portals = root && onOrderChange ? [...scope.nodes, { id: 'timeline', kind: 'timeline', title: t('archiveTimeline.allByTime') }] : scope.nodes;
+  const portals = scope.nodes;
   const selectedType = getGlyphArchetype(interpretation);
   const selectedMembers = selectedType ? (typeFeed.sections.find((section) => section.id === selectedType.id)?.glyphs || []) : [];
   const leaveDetail = () => focus(null);
@@ -187,7 +176,7 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
           <ShareOutlinedIcon sx={ { fontSize: 20 } } />
         </IconButton> }
       </Box>
-      <Box data-archive-list-view hidden={ Boolean(focusedId) } inert={ Boolean(focusedId) } sx={ { display: focusedId ? 'none' : 'block' } }>
+      { !detailOnly && <Box data-archive-list-view hidden={ Boolean(focusedId) } inert={ Boolean(focusedId) } sx={ { display: focusedId ? 'none' : 'block' } }>
       <Box component="header" data-archive-page-heading sx={ { textAlign: 'center', pt: root ? theme.editorial.archivePage.rootInset : theme.editorial.archivePage.contentInset } }>
         <Typography ref={ titleRef } tabIndex={ -1 } component="h1" sx={ {
           m: 0, typography: root ? 'editorialDisplay' : 'editorialTitle',
@@ -205,7 +194,12 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
             display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
             columnGap: { xs: 1, md: theme.editorial.archivePage.columnGap.md }, rowGap: theme.editorial.archivePage.groupGap,
             maxWidth: theme.editorial.spread, mx: 'auto', pt: theme.editorial.archivePage.introGap, pb: theme.editorial.archivePage.bottomInset,
-          } }>{ portals.map((node, index) => <ClusterPortal key={ node.id } node={ node } index={ index } onSelect={ node.kind === 'timeline' ? () => { setDirection(1); onOrderChange('newest'); } : enter } />) }</Box> }
+          } }>{ portals.map((node) => <ClusterPortal key={ node.id } node={ node } onSelect={ enter } />) }</Box> }
+          { root && onOrderChange && <Box sx={ { textAlign: 'center', pb: theme.editorial.archivePage.bottomInset } }>
+            <Button data-archive-chronological sx={ actionSx } onClick={ () => { setDirection(1); onOrderChange('newest'); } }>
+              { t('archiveTimeline.allByTime') } →
+            </Button>
+          </Box> }
 
           { !root && <ArchiveArchetypeFeed feed={ feed } onSelect={ focus } /> }
 
@@ -213,7 +207,7 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
           { !portals.length && scope.glyphs.length > 0 && root && <Typography role="status" sx={ { textAlign: 'center', py: 4 } }>{ t('archiveDepthExplorer.someResponsesHaveNotYetFormedA') }</Typography> }
         </MotionBox>
       </AnimatePresence>
-      </Box>
+      </Box> }
       { scene.focusedGlyph && <ArchiveSelectedGlyph key={ scene.focusedGlyph.id } glyph={ scene.focusedGlyph }
         interpretation={ interpretation } interpretations={ detailMeanings?.interpretations } members={ selectedMembers } onSelect={ focus }
         onBack={ leaveDetail } onShare={ onShare } navigationRef={ navigationRef } onObservationModeChange={ setObservationMode } /> }

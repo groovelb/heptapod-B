@@ -20,8 +20,8 @@ const RouteFallback = () => (
 );
 
 /** Route ownership is independent of the app's theme, locale and Lenis lifetime. */
-export default function AppRoutes() {
-  return <NavigationSessionProvider><Routes>
+export default function AppRoutes({ withSession = true }) {
+  const routes = <Routes>
     <Route path={ APP_PATHS.landing } element={ <LandingRoute /> } />
     <Route path={ APP_PATHS.canvas } element={ <CanvasRoute /> } />
     <Route path={ APP_PATHS.archive } element={ <Suspense fallback={ <RouteFallback /> }><MyArchivePage /></Suspense> } />
@@ -29,5 +29,6 @@ export default function AppRoutes() {
     <Route path="/field/:id" element={ <Suspense fallback={ <RouteFallback /> }><ResonanceFieldPage /></Suspense> } />
     <Route path="/compare/:leftId/:rightId?" element={ <Suspense fallback={ <RouteFallback /> }><ArchiveComparePage /></Suspense> } />
     <Route path="/me" element={ <Navigate to={ APP_PATHS.archive } replace /> } />
-  </Routes></NavigationSessionProvider>;
+  </Routes>;
+  return withSession ? <NavigationSessionProvider>{ routes }</NavigationSessionProvider> : routes;
 }

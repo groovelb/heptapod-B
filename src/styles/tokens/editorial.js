@@ -49,7 +49,10 @@ export function createEditorialTokens({ typography, breakpoints }) {
         itemGap: { xs: 1.25, md: 1.5 }, scrollInset: 1.5,
       },
       readingScrollbar: { size: 6 },
-      createCta: { minHeight: { xs: 52, md: 56 }, px: 2.5, py: 1.25, gap: 1.5, width: '17rem' },
+      createCta: {
+        minHeight: { xs: 44, md: 48 }, px: { xs: 1.5, md: 2 },
+        py: { xs: 0.75, md: 1 }, gap: { xs: 1, md: 1.5 }, width: '17rem',
+      },
       listItem: {
         position: 'relative', paddingInlineStart: '1.25em',
         '&::before': {

@@ -19,10 +19,12 @@ const YT_SCRIPT_SRC = 'https://www.youtube.com/iframe_api';
  * Jóhann Jóhannsson — Heptapod B (Arrival OST, UMG/Paramount 제공).
  * 환경변수(VITE_MUSIC_VIDEO_ID)로 교체 가능. 미설정 시 기본 ID.
  */
-const VIDEO_ID = import.meta.env.VITE_MUSIC_VIDEO_ID || 'KzaqrQuwr1k';
+import { publicEnv } from '../../lib/publicEnv.js';
+
+const VIDEO_ID = publicEnv.musicVideoId;
 
 /** 기본 음량(0~100) — VITE_MUSIC_VOLUME, 미설정/무효 시 20 */
-const DEFAULT_VOLUME = Number(import.meta.env.VITE_MUSIC_VOLUME) || 20;
+const DEFAULT_VOLUME = Number(publicEnv.musicVolume) || 20;
 
 /** IFrame API 로드 1회 공유 — 여러 컨트롤러가 같은 Promise를 재사용 */
 let apiPromise = null;

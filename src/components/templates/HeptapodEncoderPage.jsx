@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { APP_PATHS } from '../../routes/paths';
 import { useTheme, alpha } from '@mui/material/styles';
@@ -6,7 +6,6 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import AppGNB from '../navigation/AppGNB';
 import { useI18n } from '../../i18n/useI18n.js';
@@ -17,7 +16,6 @@ import FadeTransition from '../motion/FadeTransition';
 import AnalysisOverlay from '../overlay-feedback/AnalysisOverlay';
 import GlyphObservationOverlay from '../overlay-feedback/GlyphObservationOverlay';
 import GlyphMeaningSummary from '../data-display/GlyphMeaningSummary';
-import { readingScrollbarSx } from '../../styles/readingScrollbar';
 import { buildMeaningReading } from '../../utils/heptapod/buildMeaningReading';
 import GlyphClusterLink from '../data-display/GlyphClusterLink';
 import { interpretGlyphMeaning } from '../../utils/heptapod/interpretGlyphMeaning';
@@ -43,7 +41,8 @@ const RENDERER_BY_TIER = {
 const FULLSCREEN_FILL = 0.62;
 
 /** 배경음악 기본 재생 여부 — VITE_MUSIC_AUTOPLAY (기본 true, 'false'일 때만 끔) */
-const MUSIC_AUTOPLAY = import.meta.env.VITE_MUSIC_AUTOPLAY !== 'false';
+import { publicEnv } from '../../lib/publicEnv.js';
+const MUSIC_AUTOPLAY = publicEnv.musicAutoplay;
 
 
 /** 모노스페이스 토큰 폴백 — theme.typography.custom?.mono 미정의 환경 대비 */
@@ -258,7 +257,6 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
   const { localize, t } = useI18n();
   const theme = useTheme();
   const isMobileAnalysis = useMediaQuery(theme.breakpoints.down('md'));
-  const readingDialogId = useId();
   const { publish } = usePublish({ client });
   const monoSx = theme.typography.custom?.mono || MONO_FALLBACK;
 
@@ -305,7 +303,6 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
     setStack([]);
     setIsAnalysisOn((value) => !value);
   };
-  const handleCloseAnalysis = () => setIsAnalysisOn(false);
 
   // 깊이 내비게이션 (N레벨: 문단↔문장↔단어↔글자). stack = 드릴 경로(확장된 노드 텍스트).
   // [] = 루트 단일 뷰, [..] = 마지막 노드의 자식 격자.
@@ -335,7 +332,6 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
   const reducedMotion = !!renderConfig.reducedMotion;
   const TierRenderer = RENDERER_BY_TIER[renderConfig.tier] || LogogramRendererCanvas;
   const rendererSize = Math.max(200, Math.round(stageMin * (isMobileAnalysis ? 0.9 : FULLSCREEN_FILL)));
-  const mobileGlyphSize = Math.min(320, Math.max(200, stageMin - 48));
 
   // 형성 중 여부 — 렌더 시점 파생값 (모델 교체 즉시 반영)
   const isForming = !!model && !reducedMotion && formedModel !== model;
@@ -548,6 +544,14 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
   // HUD 전경색(텍스트·보더). 일반 모드는 밝은 안개 위라 어두운 쿨톤, 분석 모드는
   // 어두운 스크림 위라 흰색. (이전엔 어두운 비네트 전제로 항상 흰색이었음)
   const fg = analysisActive ? '#ffffff' : '#1c2731';
+  const actionButtonSx = {
+    typography: { xs: 'button', md: 'editorialAction' },
+    minHeight: theme.editorial.createCta.minHeight,
+    px: theme.editorial.createCta.px, py: theme.editorial.createCta.py,
+    color: fg, wordBreak: 'keep-all',
+    borderColor: alpha(fg, theme.palette.action.disabledOpacity),
+    '&:hover': { backgroundColor: alpha(fg, theme.palette.action.hoverOpacity), borderColor: fg },
+  };
 
   // 관측 가능한 형태 네 항목만 표시한다. ANALYSIS는 주석만 켜고 이 패널은 바꾸지 않는다.
   // 의미 설명은 별도의 분석 레일에서 읽으며 요약/버튼 위치를 바꾸지 않는다.
@@ -579,7 +583,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
     >
       {/* L0 — 화면 전체 안개 공간 (영화: 챔버 안에 들어와 있는 구도).
           diveKey 변경 시 안개가 화면 안쪽으로 가속 진입(Z-dive)한다. */}
-      <LogogramChamber isFullscreen isActive={ !reducedMotion } isPaused={ analysisActive && isMobileAnalysis } diveKey={ diveKey }>
+      <LogogramChamber isFullscreen isActive={ !reducedMotion } diveKey={ diveKey }>
         <Box
           ref={ stageRef }
           data-encoder-stage
@@ -623,7 +627,6 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
                 model={ model }
                 size={ rendererSize }
                 isActive
-                isPaused={ analysisActive && isMobileAnalysis }
                 onFormationComplete={ handleFormationComplete }
                 onContextLost={ handleContextLost }
               />
@@ -676,8 +679,13 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
       />
 
       {/* 초록 삼각망·정점·스캔은 유지하고, 선택한 의미의 실제 부위를 위에 겹친다. */}
-      { analysisActive && !isMobileAnalysis && <>
-        <Box data-encoder-meaning-anchors sx={ { position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none', display: 'grid', placeItems: 'center' } }>
+      { analysisActive && <>
+        <Box data-encoder-meaning-anchors sx={ {
+          position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none', display: 'grid', placeItems: 'center',
+          [theme.breakpoints.down('md')]: {
+            top: 'calc(116px + env(safe-area-inset-top, 0px))', bottom: 'auto', height: 'var(--encoder-mobile-stage)',
+          },
+        } }>
           <Box sx={ { position: 'relative', width: rendererSize, height: rendererSize } }>
             <AnalysisOverlay model={ model } size={ rendererSize } isVisible={ analysisActive }
               showFrame={ false } showReadout={ false }
@@ -704,7 +712,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
       <AppGNB overlay tone={ analysisActive ? 'dark' : 'light' } soundOn={ isMusicOn } onToggleSound={ handleToggleMusic } />
 
       {/* L2 — 플로팅 컨트롤 (전부 잉크 톤) */}
-      {/* 좌상단: 타이틀 */}
+      {/* 좌측: 표식 의미 분석 */}
       <Box data-encoder-left-column sx={ {
         position: 'absolute', top: { xs: 'calc(76px + env(safe-area-inset-top, 0px))', md: theme.editorial.createReading.railTop },
         left: { xs: 20, md: 36 }, zIndex: 3,
@@ -714,28 +722,6 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
           gap: theme.editorial.createReading.groupGap,
         } : {}),
       } }>
-        <Box component="header" sx={ { flexShrink: 0 } }>
-        <Typography
-          component="span"
-          sx={ { ...monoSx, color: fg, opacity: 0.55, letterSpacing: '0.4em', textTransform: 'uppercase', display: { xs: 'none', md: 'block' }, mb: 1, fontSize: '0.6rem' } }
-        >
-          { t('heptapodEncoderPage.semasiographicEncoder') }
-        </Typography>
-        <Typography
-          component="h1"
-          sx={ {
-            m: 0,
-            fontWeight: 300,
-            fontSize: { xs: 16, md: 20 },
-            letterSpacing: '0.5em',
-            textTransform: 'uppercase',
-            color: fg,
-            opacity: 0.95,
-          } }
-        >
-          { t('heptapodEncoderPage.heptapodB') }
-        </Typography>
-        </Box>
         { analysisActive && !isMobileAnalysis && <Box data-encoder-meaning-rail data-lenis-prevent sx={ {
           flex: '1 1 0', minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column',
         } }>
@@ -809,6 +795,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
             [theme.breakpoints.down('md')]: {
               position: 'relative', top: 'auto', right: 'auto', order: 2,
               width: 'min(540px, calc(100% - 40px))', mx: 'auto', mt: 3, mb: 3,
+              maxWidth: theme.editorial.createCta.width,
               '& a, & [data-encoder-public-link]': { minHeight: 44 },
             },
           } }
@@ -871,18 +858,13 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
                 aria-pressed={ isAnalysisOn }
                 onClick={ handleToggleAnalysis }
                 disabled={ isForming }
-                variant="text"
+                variant="outlined" color="inherit" size="medium"
                 fullWidth
                 sx={ {
-                  typography: 'editorialCta',
+                  ...actionButtonSx,
                   mt: theme.editorial.createCta.gap,
-                  minHeight: theme.editorial.createCta.minHeight, px: theme.editorial.createCta.px, py: theme.editorial.createCta.py,
                   justifyContent: 'space-between',
-                  color: fg,
-                  opacity: 1,
-                  borderRadius: 0,
-                  border: `1px solid ${alpha(fg, isAnalysisOn ? 0.5 : 0.2)}`,
-                  '&:hover': { backgroundColor: alpha(fg, 0.06), borderColor: alpha(fg, 0.6) },
+                  ...(isAnalysisOn && { backgroundColor: alpha(fg, theme.palette.action.selectedOpacity), borderColor: fg }),
                 } }
               >
                 <span>{ t('heptapodEncoderPage.analysis2') }</span>
@@ -896,10 +878,8 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
                     ? () => setPublishIntent('share')
                     : () => { handleShare().catch(() => {}); } }
                   disabled={ hasDraft || sharing }
-                  variant="text" fullWidth
-                  sx={ {
-                    typography: 'editorialCta', minHeight: theme.editorial.createCta.minHeight, px: theme.editorial.createCta.px, py: theme.editorial.createCta.py, color: fg, opacity: 1, wordBreak: 'keep-all', borderRadius: 0, border: `1px solid ${alpha(fg, 0.28)}`, '&:hover': { opacity: 0.95, backgroundColor: alpha(fg, 0.06), borderColor: alpha(fg, 0.5) },
-                  } }
+                  variant="outlined" color="inherit" size="medium" fullWidth
+                  sx={ actionButtonSx }
                 >
                   { t(encoderVersion === 1 ? 'encoderResult.recreate' : sharing ? 'encoderResult.sharing' : published ? 'encoderResult.share' : 'heptapodEncoderPage.publishAndShare') }
                 </Button>
@@ -1020,29 +1000,19 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
           setPublished(result);
           return result;
         } } />
-      {/* 모바일에서도 동일한 판독/선택 상태. 코덱·가역성에 관계없이 실제 모델을 읽는다. */}
-      <Dialog open={ analysisActive && isMobileAnalysis } onClose={ handleCloseAnalysis }
-        fullScreen aria-labelledby={ readingDialogId } data-lenis-prevent
-        transitionDuration={ reducedMotion ? 0 : theme.transitions.duration.shortest }
-        slotProps={ { paper: { sx: { bgcolor: 'background.default', backgroundImage: 'none', color: 'common.white', height: '100dvh', pt: 'env(safe-area-inset-top, 0px)', pb: 'env(safe-area-inset-bottom, 0px)', boxSizing: 'border-box' } } } }>
-        <Box sx={ { display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: theme.editorial.createReading.paragraphGap, px: theme.editorial.createReading.dialogInset, py: theme.editorial.createReading.labelGap } }>
-          <Typography id={ readingDialogId } component="h2" sx={ { typography: 'editorialLabel' } }>
-            { t('meaningReading.dialogTitle', { name: encodedName }) }
-          </Typography>
-          <Button onClick={ handleCloseAnalysis } sx={ { color: 'inherit', minWidth: 44, minHeight: 44, flexShrink: 0 } }>{ t('heptapodEncoderPage.close') }</Button>
-        </Box>
-        <Box data-encoder-analysis-scroll sx={ { ...readingScrollbarSx(theme), px: theme.editorial.createReading.dialogInset, pb: theme.editorial.createReading.sectionGap, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain' } }>
-          <Box data-encoder-mobile-glyph sx={ { position: 'relative', width: mobileGlyphSize, height: mobileGlyphSize, mx: 'auto' } }>
-            <LogogramRendererCanvas model={ model } size={ mobileGlyphSize } inkColor={ theme.palette.common.white } isActive />
-            <AnalysisOverlay model={ model } size={ mobileGlyphSize } isVisible={ analysisActive }
-              showFrame={ false } showReadout={ false }
-              onScan={ (info) => audioRef.current?.scanBeeps(info.count, info) } />
-            <GlyphObservationOverlay model={ model } anchors={ selectedAnchors } fg={ theme.palette.common.white } />
-          </Box>
-          <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fg={ theme.palette.common.white } sx={ { maxWidth: theme.editorial.measure, mx: 'auto', mt: theme.editorial.createReading.groupGap } }
-            selectedObservationIds={ selectedMeaningIds } onToggleObservation={ handleToggleMeaning } />
-        </Box>
-      </Dialog>
+      {/* 모바일도 원본 표식 위에서 분석하며, 판독 패널만 같은 챔버의 하단에 겹친다. */}
+      { analysisActive && isMobileAnalysis && <Box
+        component="section" aria-label={ t('meaningReading.dialogTitle', { name: encodedName }) }
+        data-encoder-mobile-reading data-lenis-prevent
+        sx={ {
+          position: 'relative', zIndex: 3, order: 3, minWidth: 0,
+          mx: theme.editorial.createReading.inset.xs, pb: theme.editorial.createReading.sectionGap,
+        } }
+      >
+        <GlyphMeaningSummary interpretation={ interpretation } variant="reading" fg={ fg }
+          sx={ { maxWidth: theme.editorial.measure, mx: 'auto' } }
+          selectedObservationIds={ selectedMeaningIds } onToggleObservation={ handleToggleMeaning } />
+      </Box> }
     </Box>
   );
 }

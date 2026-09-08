@@ -18,9 +18,10 @@ const linkSx = {
   '&.Mui-focusVisible': { outline: '1px solid currentColor', outlineOffset: -2 },
 };
 
-function NavigationLinks({ pathname, targets, routed }) {
+function NavigationLinks({ pathname, currentPath, targets, routed }) {
   const { t } = useI18n();
   const { isMobile, closeDrawer } = useGNB();
+  const session = useNavigationSession();
   const active = navigationSection(pathname);
   return <Box component="nav" aria-label={ t('appNav.navigation') } sx={ { display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 2, py: isMobile ? 3 : 0 } }>
     { ['story', 'create', 'archive'].map((section) => <Button key={ section }
@@ -30,7 +31,12 @@ function NavigationLinks({ pathname, targets, routed }) {
         if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         if (pathname === APP_PATHS.landing && section === 'story'
           || pathname === APP_PATHS.canvas && section === 'create'
-          || pathname === APP_PATHS.archive && section === 'archive') event.preventDefault();
+          || currentPath === APP_PATHS.archive && section === 'archive') event.preventDefault();
+        if (section === 'archive' && !event.defaultPrevented && session) {
+          // Start a new visit. The outgoing scroll effect may still save into its
+          // old map during cleanup; it must not repopulate this visit's positions.
+          session.archiveScroll = new Map();
+        }
         closeDrawer();
       } }
       sx={ { ...linkSx, justifyContent: isMobile ? 'flex-start' : 'center', px: 1,
@@ -42,7 +48,7 @@ function NavigationLinks({ pathname, targets, routed }) {
   </Box>;
 }
 
-function NavigationView({ pathname = '/', locationKey = 'preview', routed = false, targets, overlay = false, tone = 'light', soundOn = true, soundLoading = false, onToggleSound, children }) {
+function NavigationView({ pathname = '/', currentPath = pathname, locationKey = 'preview', routed = false, targets, overlay = false, tone = 'light', soundOn = true, soundLoading = false, onToggleSound, children }) {
   const { t } = useI18n();
   const theme = useTheme();
   const dark = tone === 'dark';
@@ -53,7 +59,7 @@ function NavigationView({ pathname = '/', locationKey = 'preview', routed = fals
         aria-label={ t('appNav.home') }
         onClick={ (event) => { if (pathname === '/' && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) event.preventDefault(); } }
         sx={ { ...linkSx, minWidth: 0, px: 0, fontSize: { xs: 12, sm: 14 }, letterSpacing: '0.12em', fontFamily: "'Cinzel', 'Noto Serif KR', Georgia, serif" } }>{ t('appNav.brand') }</Button> }
-      navContent={ <NavigationLinks pathname={ pathname } targets={ targets } routed={ routed } /> }
+      navContent={ <NavigationLinks pathname={ pathname } currentPath={ currentPath } targets={ targets } routed={ routed } /> }
       persistent={ <>
         { onToggleSound && <IconButton onClick={ onToggleSound } disabled={ soundLoading } aria-pressed={ soundOn }
           aria-label={ t(soundOn ? 'soundFab.muteSound' : 'soundFab.enableSound') } title={ t(soundOn ? 'soundFab.muteSound' : 'soundFab.enableSound') }
@@ -76,11 +82,10 @@ function RoutedNavigation(props) {
   const session = useNavigationSession();
   useEffect(() => {
     if (!session) return;
-    if (location.pathname === APP_PATHS.archive) session.lastPaths.set('archive', `${location.pathname}${location.search}${location.hash}`);
     if (location.pathname === APP_PATHS.canvas) session.lastPaths.set('create', `${location.pathname}${location.search}${location.hash}`);
   }, [location, session]);
-  return <NavigationView { ...props } routed pathname={ location.pathname } locationKey={ location.key }
-    targets={ { story: '/', create: session?.lastPaths.get('create') || '/canvas', archive: session?.lastPaths.get('archive') || '/archive' } } />;
+  return <NavigationView { ...props } routed pathname={ location.pathname } currentPath={ `${location.pathname}${location.search}${location.hash}` } locationKey={ location.key }
+    targets={ { story: '/', create: session?.lastPaths.get('create') || '/canvas', archive: APP_PATHS.archive } } />;
 }
 
 /** Shared fixed route navigation; standalone stories work without a router. */

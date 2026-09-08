@@ -1,0 +1,1 @@
+document.querySelectorAll('input[type=range]').forEach(input=>{input.addEventListener('input',()=>{input.closest('details').querySelector('.after').style.clipPath=`inset(0 ${100-Number(input.value)}% 0 0)`})});

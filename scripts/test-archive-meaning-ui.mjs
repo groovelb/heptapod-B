@@ -54,7 +54,7 @@ try {
     check(() => assert.ok(depthHtml.indexOf(family.story) < depthHtml.indexOf(archetype.composition)));
     check(() => assert.ok(feedHtml.includes(archetype.composition)));
     const rootHtml = render(Depth, { glyphs: [row], meanings: dto });
-    check(() => assert.ok(rootHtml.includes(family.reading)));
+    check(() => assert.ok(!rootHtml.includes(family.reading), 'Root keeps the short cue; full family narrative stays in its depth'));
     check(() => assert.ok(rootHtml.includes(`data-family-introduction="${family.id}"`)));
     const membershipHtml = render(ClusterLink, { interpretation: interpretGlyphMeaning(model) });
     check(() => assert.ok(membershipHtml.includes(archetype.title)));
@@ -235,9 +235,9 @@ try {
   check(() => assert.doesNotMatch(archiveSource, /if \(!entered\)|<AnalysisOverlay/));
   check(() => assert.doesNotMatch(archiveSource, /<Drawer|observationOpen|useArchiveClusters|setObserving/));
   check(() => assert.doesNotMatch(depthSource, /partialCount|invalidCount|partialFilter|invalidFilter|tracesStillBeingRead/));
-  check(() => assert.match(detailSource, /interpretGlyphMeaning\(glyph\.model_data\)/));
-  check(() => assert.match(detailSource, /isRenderableGlyphModel\(glyph\?\.model_data\)/));
-  check(() => assert.match(detailSource, /anchors=\{ selectedMeaningAnchors \}/));
+  check(() => assert.match(detailSource, /<ArchiveDepthExplorer key=\{ id \} detailOnly/));
+  check(() => assert.match(detailSource, /useArchiveMeanings\(glyphs/));
+  check(() => assert.match(selectedSource, /anchors=\{ compact \? \[\] : selectedAnchors \}/));
   check(() => assert.match(compareSource, /compareGlyphMeanings\(left\.model_data, right\.model_data\)/));
   check(() => assert.match(compareSource, /view=\{ readingView \}/));
   check(() => assert.equal(parseArchiveMeaningSearch('?reading=meaning&mv=999').unsupportedVersion, true));

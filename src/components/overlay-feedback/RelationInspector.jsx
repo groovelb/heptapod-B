@@ -37,7 +37,12 @@ export default function RelationInspector({ relation, open, onClose, onExplore, 
         sx: { width: { xs: '100%', sm: canCompare ? 600 : 400 }, maxWidth: '100vw', bgcolor: fog, color: ink, backgroundImage: 'none' },
       },
     } }>
-      <Box sx={ { p: { xs: 2.5, sm: 3 }, display: 'flex', flexDirection: 'column', minHeight: '100%', boxSizing: 'border-box' } }>
+      <Box sx={ { p: { xs: 2.5, sm: 3 }, display: 'flex', flexDirection: 'column', minHeight: '100%', boxSizing: 'border-box',
+        [theme.breakpoints.down('md')]: {
+          pt: 'max(20px, env(safe-area-inset-top, 0px))', pb: 'max(20px, env(safe-area-inset-bottom, 0px))',
+          pl: 'max(20px, env(safe-area-inset-left, 0px))', pr: 'max(20px, env(safe-area-inset-right, 0px))',
+          overflowWrap: 'anywhere',
+        } } }>
         <Box sx={ { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 2 } }>
           <Typography component="h2" id={ titleId } sx={ { fontSize: '1.1rem', fontWeight: 500 } }>{ t('relationInspector.resonanceFoundInGlyphs') }</Typography>
           <IconButton onClick={ onClose } aria-label={ t('relationInspector.closeFormObservations') } sx={ { color: ink, minWidth: 44, minHeight: 44 } }><CloseIcon /></IconButton>

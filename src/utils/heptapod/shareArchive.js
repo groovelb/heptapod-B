@@ -1,3 +1,4 @@
+import { localizedShareUrl } from '../../i18n/shareLocale.js';
 import { createTranslator, sourceText as t } from '../../i18n/messages.js';
 import { generateParticles, makeSprites, paintStatic, SIZE0 } from './logogramParticles.js';
 import { glyphLabel } from './resonanceView.js';
@@ -49,6 +50,7 @@ export function parseArchiveMeaningSearch(search = '') {
   const empty = (unsupportedVersion = false) => ({ filter: EMPTY_MEANING_FILTER(), unsupportedVersion });
   if (typeof search !== 'string' || search.length > 4096) return empty();
   const params = new URLSearchParams(search);
+  params.delete('lang');
   const versions = params.getAll('mv');
   const meaningIntent = ['view', 'reading'].some((key) => params.getAll(key).includes('meaning'));
   // Detail/pair reading links use the same version gate as archive filters.
@@ -79,6 +81,7 @@ export function parseArchiveDepthSearch(search = '') {
   const invalid = () => ({ filter: EMPTY_MEANING_FILTER(), focusedId: null, meta: null, unsupportedVersion: false, invalidLocation: true });
   if (typeof search !== 'string' || search.length > 4096) return invalid();
   const params = new URLSearchParams(search);
+  params.delete('lang');
   const keys = ['view', 'mv', 'base', 'modifiers', 'group', 'status', 'glyph', 'meta', 'order'];
   if ([...params.keys()].some((key) => !keys.includes(key) || params.getAll(key).length !== 1)) return invalid();
   const focusedId = params.get('glyph');
@@ -116,7 +119,7 @@ export function archiveSharePath(leftId, rightId) {
   return rightId ? `/compare/${leftId}/${rightId}` : `/glyph/${leftId}`;
 }
 
-/** Optional edge endpoint serves OG metadata; app links also work without it. */
+/** Next.js app URLs serve OG metadata directly; explicit legacy endpoints remain supported. */
 export function archiveShareUrl(leftId, rightId, options = {}) {
   const path = archiveSharePath(leftId, rightId);
   const origin = options.origin || globalThis.location?.origin;
@@ -126,21 +129,21 @@ export function archiveShareUrl(leftId, rightId, options = {}) {
     const url = new URL(path, origin);
     url.searchParams.set('reading', isMeaning ? 'meaning' : 'precision');
     if (isMeaning) url.searchParams.set('mv', String(MEANING_VERSION));
-    return url.href;
+    return localizedShareUrl(url.href, options.locale);
   }
-  const endpoint = options.endpoint ?? import.meta.env?.VITE_ARCHIVE_SHARE_URL;
+  const endpoint = options.endpoint;
   if (endpoint) {
     const url = new URL(endpoint);
     const local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
     if ((url.protocol !== 'https:' && !(local && url.protocol === 'http:')) || url.username || url.password || url.search || url.hash) throw new Error(t('shareArchive.checkTheShareUrlConfiguration'));
     // Hosted Supabase shared domains rewrite HTML to text/plain. Keep a usable
     // app URL until an HTML-capable custom-domain endpoint is configured.
-    if (/(^|\.)supabase\.(co|in)$/.test(url.hostname)) return new URL(path, origin).href;
+    if (/(^|\.)supabase\.(co|in)$/.test(url.hostname)) return localizedShareUrl(new URL(path, origin).href, options.locale);
     url.searchParams.set('left', leftId);
     if (rightId) url.searchParams.set('right', rightId);
-    return url.href;
+    return localizedShareUrl(url.href, options.locale);
   }
-  return new URL(path, origin).href;
+  return localizedShareUrl(new URL(path, origin).href, options.locale);
 }
 
 /** Single public response copy. Names stay literal; only authored copy is localized.

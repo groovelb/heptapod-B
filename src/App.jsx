@@ -15,7 +15,7 @@ import LocaleProvider from './i18n/LocaleProvider';
 /** Shared providers and the route-dependent scroll lifetime.
  * Landing and Canvas mount independently through AppRoutes.
  */
-function AppContent() {
+export function AppContent({ children }) {
   const { pathname } = useLocation();
   // Lenis 인스턴스를 상태로 보관 → 컨텍스트로 내려 인트로가 스크롤 잠금/해제에 사용.
   const [lenis, setLenis] = useState(null);
@@ -30,15 +30,16 @@ function AppContent() {
       window.scrollTo(0, 0);
       return undefined;
     }
-    // Archive is a reading surface: less wheel lag and native touch scrolling.
+    // Enable touch smoothing on mobile, including the Archive reading surface.
     // Query-based archive depths share this instance and the same scroll profile.
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
     const isArchive = pathname.replace(/\/+$/, '') === APP_PATHS.archive;
     const instance = new Lenis({
       lerp: isArchive ? 0.25 : 0.05,
       wheelMultiplier: isArchive ? 1 : 0.65,
       touchMultiplier: isArchive ? 1 : 0.9,
       smoothWheel: true,
-      syncTouch: !isArchive,
+      syncTouch: isTouch || !isArchive,
       syncTouchLerp: 0.075, // 플릭 관성 감쇠 — 데스크톱보다 약간 높게(모바일 플릭 관성 유지)
       // Dialog/Drawer 내부는 네이티브 스크롤, 문서 전체는 기존 Lenis 감쇠 유지.
       allowNestedScroll: true,
@@ -71,7 +72,7 @@ function AppContent() {
         } }
       />
       <LenisContext.Provider value={ lenis }>
-        <AppRoutes />
+        { children ?? <AppRoutes /> }
       </LenisContext.Provider>
     </ThemeProvider>
   );

@@ -113,7 +113,15 @@ try {
     check(() => assert.equal(overlay().querySelector('[data-encoder-public-link]'), null));
     check(() => assert.ok(overlay().querySelector('[data-encoder-analysis]')));
     check(() => assert.ok(overlay().querySelector('[data-encoder-actions] button')));
-    check(() => assert.ok([...overlay().querySelectorAll('button')].every((item) => getComputedStyle(item).minHeight === '52px')));
+    for (const item of overlay().querySelectorAll('button')) {
+      const style = getComputedStyle(item);
+      check(() => assert.equal(style.minHeight, '44px'));
+      check(() => assert.equal(style.fontSize, '14px', 'Mobile reuses the standard button typography'));
+      check(() => assert.equal(style.paddingTop, '6px'));
+      check(() => assert.equal(style.paddingLeft, '12px'));
+    }
+    check(() => assert.equal(getComputedStyle(overlay()).maxWidth, '272px', 'Mobile caps its actions at the existing 17rem Create width'));
+    check(() => assert.equal(getComputedStyle(overlay().querySelector('[data-encoder-actions]')).marginTop, '8px'));
   };
   checkMobileActions();
   check(() => assert.equal(overlay().querySelector('[data-encoder-actions] button').textContent, createTranslator('ko').t('heptapodEncoderPage.publishAndShare')));
@@ -130,10 +138,23 @@ try {
   check(() => assert.equal(scrolled, 1, 'Pinch zoom is not mistaken for a keyboard scroll request'));
   viewport.scale = 1;
   await enter();
+  const originalCanvas = document.querySelector('[data-encoder-stage] canvas');
   await act(async () => document.querySelector('[data-encoder-analysis]').click());
-  check(() => assert.ok(document.querySelector('[role="dialog"] .hb-edge'), 'Mobile analysis keeps the green mesh'));
-  check(() => assert.ok(document.querySelector('[data-encoder-mobile-glyph]')));
-  await act(async () => [...document.querySelectorAll('[role="dialog"] button')].find((item) => item.textContent === createTranslator('ko').t('heptapodEncoderPage.close')).click());
+  check(() => assert.equal(document.querySelector('[role="dialog"]'), null, 'Analysis must not open an opaque full-screen dialog'));
+  check(() => assert.equal(document.querySelector('[data-encoder-stage] canvas'), originalCanvas, 'Analysis reuses the visible original glyph'));
+  check(() => assert.equal(document.querySelector('[data-encoder-mobile-glyph]'), null, 'No duplicate renderer'));
+  const anchors = document.querySelector('[data-encoder-meaning-anchors]');
+  check(() => assert.ok(anchors.querySelector('.hb-edge'), 'Mobile analysis overlays the same green mesh as PC'));
+  check(() => assert.equal(getComputedStyle(anchors).top, getComputedStyle(document.querySelector('[data-encoder-stage]')).top));
+  check(() => assert.equal(getComputedStyle(anchors).bottom, 'auto', 'Mobile mesh must not stretch across the expanded reading page'));
+  check(() => assert.ok(document.querySelector('[data-encoder-mobile-reading] [data-meaning-reading]')));
+  await act(async () => document.querySelector('[data-reading-meaning="openness"]').click());
+  check(() => assert.ok(anchors.querySelector('[data-kind="opening"]'), 'Meaning selection highlights the original glyph'));
+  checkMobileActions();
+  await act(async () => document.querySelector('[data-encoder-analysis]').click());
+  check(() => assert.equal(document.querySelector('[data-encoder-mobile-reading]'), null));
+  check(() => assert.equal(document.querySelector('[data-encoder-meaning-anchors]'), null));
+  check(() => assert.equal(document.querySelector('[data-encoder-stage] canvas'), originalCanvas));
   dom.happyDOM.setWindowSize({ width: 844, height: 390 });
   await act(async () => dom.dispatchEvent(new dom.Event('resize')));
   check(() => assert.equal(getComputedStyle(page).height, 'auto', 'Landscape content remains scroll-reachable'));
@@ -155,6 +176,13 @@ try {
   check(() => assert.equal(getComputedStyle(document.querySelector('[data-encoder-overlay]')).position, 'absolute'));
   check(() => assert.equal(getComputedStyle(document.querySelector('[data-encoder-overlay]')).width, '272px'));
   check(() => assert.equal(getComputedStyle(document.querySelector('[data-encoder-metadata]')).gridTemplateRows, 'repeat(4, 32px)'));
+  for (const item of overlay().querySelectorAll('[data-encoder-analysis], [data-encoder-actions] > button')) {
+    const style = getComputedStyle(item);
+    check(() => assert.equal(style.minHeight, '48px', 'Desktop CTA uses the compact action height'));
+    check(() => assert.equal(style.fontSize, '17px'));
+    check(() => assert.equal(style.paddingTop, '8px'));
+    check(() => assert.equal(style.paddingLeft, '16px'));
+  }
   await act(async () => input().focus());
   await setName('Ian'); await enter();
   check(() => assert.equal(session.snapshot.encodedName, 'Ian'));

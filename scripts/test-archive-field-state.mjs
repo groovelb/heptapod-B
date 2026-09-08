@@ -248,11 +248,11 @@ try {
   check(() => assert.equal(document.querySelector('[role="dialog"]'), null, 'Legacy observation URL cannot reopen the removed Drawer'));
   check(() => assert.doesNotMatch(document.body.textContent, /이 공간의 관측 기록|내가 남긴 응답|아직 읽고 있는 흔적|모습을 기다리는 응답/));
   check(() => assert.ok(!client.calls.some((key) => ['auth', 'glyph_contributions', 'archive-relations'].includes(key)), 'Archive must not load personal records or precision relations'));
-  // Time is an equal circle portal, not a view tab.
-  for (let i = 0; i < 20 && !document.querySelector('[data-cluster-id="timeline"]'); i += 1) await settle();
-  const timelinePortal = document.querySelector('[data-cluster-id="timeline"]');
-  check(() => assert.ok(timelinePortal?.querySelector('.archive-cluster-cloud [data-cluster-title]')));
-  check(() => assert.ok(timelinePortal.parentElement.parentElement.querySelector('[data-cluster-id="arrival"]')));
+  // The complete chronological collection has one text action below the families.
+  for (let i = 0; i < 20 && !document.querySelector('[data-archive-chronological]'); i += 1) await settle();
+  const timelinePortal = document.querySelector('[data-archive-chronological]');
+  check(() => assert.ok(timelinePortal && !timelinePortal.querySelector('.archive-cluster-cloud')));
+  check(() => assert.ok(document.querySelector('[data-cluster-id="arrival"]')));
   check(() => assert.equal(document.querySelector('[data-archive-grouped], [role="tablist"]'), null));
   // Whole-archive order includes unreadable models and survives focus and Back.
   await act(async () => document.querySelector('[data-archive-chronological]').click());
@@ -293,7 +293,7 @@ try {
   await settle();
   check(() => assert.equal(new URLSearchParams(router.state.location.search).get('order'), 'oldest'));
   await act(async () => document.querySelector('[data-archive-back]').click());
-  for (let i = 0; i < 20 && !document.querySelector('[data-cluster-id="timeline"]'); i += 1) await settle();
+  for (let i = 0; i < 20 && !document.querySelector('[data-archive-chronological]'); i += 1) await settle();
   await settle();
   check(() => assert.equal(document.querySelector('[data-archive-timeline]'), null));
   check(() => assert.equal(document.querySelector('[data-archive-navigation]').hidden, true));

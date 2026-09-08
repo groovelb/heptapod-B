@@ -1,5 +1,22 @@
 # Vibe Design Starter Kit v1.0
 
+현재 프로젝트는 **Next.js 16 App Router 기반의 Heptapod B / RESPONSE**입니다.
+기존 화면·테마·표식 렌더러는 `src/`에 유지하며, `app/`이 페이지와 서버 OG를 제공합니다.
+전환 구성과 검증 내역은 [Next.js 전환 기록](docs/heptapod-b-encoder/25-next-migration.md)을 참고하세요.
+
+```bash
+pnpm dev                 # Next 개발 서버 (기본 3000)
+pnpm build
+pnpm start               # 프로덕션 빌드 실행
+pnpm test:next-og        # 실제 표식 기반 OG 검증
+pnpm test:next-migration # 실행 중인 서버 HTTP 검증
+```
+
+배포 시 `.env.example`의 `SITE_URL`과 공개 Supabase 설정을 적용합니다.
+기존 `VITE_*` 설정은 명시적 허용 목록을 통해 호환되며, 신규 설정은 `NEXT_PUBLIC_*`를 사용합니다.
+동적 공개 표식 OG를 위해 서버 실행 환경이 필요합니다. Vercel 설정은 Next.js로 전환되어 있습니다.
+Vite는 기존 독립 컴포넌트 테스트를 실행하는 용도로 남아 있습니다.
+
 바이브 코딩으로 **예측 가능하고 퀄리티 높은 UI**를 만들기 위한 스타터킷.
 디자인을 잘 모르는 개발자, 코딩이 처음인 디자이너 모두를 위해 설계되었습니다.
 

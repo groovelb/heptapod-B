@@ -53,8 +53,11 @@ try {
   const { default: LocaleProvider } = await server.ssrLoadModule('/src/i18n/LocaleProvider.jsx');
   const { default: theme } = await server.ssrLoadModule('/src/styles/themes/default.js');
   const { LenisContext } = await server.ssrLoadModule('/src/utils/lenisContext.js');
+  const { useNavigationSession } = await server.ssrLoadModule('/src/routes/navigationSession.js');
+  let navigationSession;
   const lenis = { isStopped: false, stops: 0, starts: 0, stop() { this.isStopped = true; this.stops++; }, start() { this.isStopped = false; this.starts++; } };
   function Page() {
+    navigationSession = useNavigationSession();
     const [soundOn, setSoundOn] = useState(false);
     return h(AppGNB, { soundOn, onToggleSound: () => setSoundOn((value) => !value) });
   }
@@ -77,7 +80,24 @@ try {
   await act(async () => router.navigate('/glyph/example'));
   await settle();
   check(() => assert.equal(navLink('Archive').getAttribute('aria-current'), 'page'));
-  check(() => assert.equal(navLink('Archive').getAttribute('href'), '/archive?group=echo', 'Archive destination retains scope'));
+  check(() => assert.equal(navLink('Archive').getAttribute('href'), '/archive', 'Archive menu always opens the root, never a remembered depth'));
+  await act(async () => router.navigate(-1));
+  await settle();
+  check(() => assert.equal(router.state.location.search, '?group=echo', 'Browser Back retains the actual prior archive URL'));
+  navigationSession.archiveScroll.set('/archive', 380);
+  navigationSession.archiveScroll.set('/archive?group=echo', 570);
+  const oldVisitPositions = navigationSession.archiveScroll;
+  const modifiedClick = new dom.MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true, button: 0 });
+  navLink('Archive').dispatchEvent(modifiedClick);
+  check(() => assert.equal(navigationSession.archiveScroll, oldVisitPositions, 'Opening another tab does not reset this visit'));
+  await click(navLink('Archive'));
+  check(() => assert.equal(router.state.location.search, '', 'Archive menu also leaves the current archive depth for root'));
+  check(() => assert.notEqual(navigationSession.archiveScroll, oldVisitPositions));
+  oldVisitPositions.set('/archive', 999); // Outgoing effect cleanup must not restore the old root position.
+  check(() => assert.equal(navigationSession.archiveScroll.size, 0, 'Fresh visit starts without stale positions'));
+  const rootKey = router.state.location.key;
+  await click(navLink('Archive'));
+  check(() => assert.equal(router.state.location.key, rootKey, 'Active root link does not create duplicate history'));
   await click(navLink('Create'));
   check(() => assert.equal(router.state.location.search, '?name=Louise&v=2', 'Create resumes last URL session'));
 
@@ -93,6 +113,7 @@ try {
   check(() => assert.equal(document.body.style.overflow, 'hidden'));
   await click(navLink('Archive'));
   check(() => assert.equal(router.state.location.pathname, '/archive'));
+  check(() => assert.equal(router.state.location.search, '', 'Mobile Archive entry also starts at root'));
   check(() => assert.equal(document.querySelector('[role="dialog"]'), null));
   check(() => assert.equal(lenis.isStopped, false));
   check(() => assert.equal(document.body.style.overflow, ''));
@@ -151,6 +172,11 @@ try {
   check(() => assert.equal(scrollCalls.at(-1), 0, 'Unvisited scope starts at the top'));
   await renderScroll({ scope: '/archive', ready: true });
   check(() => assert.equal(scrollCalls.at(-1), 570, 'Returning to a scope restores its position'));
+  const priorVisit = scrollSession.archiveScroll;
+  scrollSession.archiveScroll = new Map();
+  await renderScroll({ scope: '/archive', ready: true });
+  check(() => assert.equal(scrollCalls.at(-1), 0, 'New Archive entry starts at top even when its canonical scope URL is unchanged'));
+  check(() => assert.equal(priorVisit.get('/archive'), 570, 'Cleanup saves only to the prior visit'));
   console.log(`App navigation: ${checks} checks passed; desktop/mobile, active links, saved destinations, sound, Drawer, focus, scroll and Back (no browser).`);
 } finally {
   await act(async () => root.unmount());

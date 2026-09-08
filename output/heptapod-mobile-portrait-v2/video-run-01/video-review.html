@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Heptapod · 모바일 세로 영상 검토</title>
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #111214; color: #e5e7eb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 1440px; margin: auto; padding: 36px 24px 56px; }
+    h1 { margin: 0 0 12px; font-size: clamp(24px, 3vw, 34px); letter-spacing: -.03em; font-weight: 600; }
+    p { margin: 0; color: #a7acb6; line-height: 1.65; font-size: 14px; }
+    .notice { display: inline-block; margin-top: 14px; padding: 7px 10px; border: 1px solid #454850; border-radius: 5px; color: #c7cbd2; font-size: 13px; }
+    .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin: 24px 0; }
+    button { color: #e7e9ed; background: #25272c; border: 1px solid #4c5059; border-radius: 5px; padding: 8px 12px; cursor: pointer; font: inherit; font-size: 13px; }
+    button:focus-visible, a:focus-visible, video:focus-visible { outline: 2px solid #b9cce8; outline-offset: 4px; }
+    #message { font-size: 12px; }
+    h2 { font-size: 18px; margin: 0 0 12px; font-weight: 550; }
+    .assembly { display: grid; grid-template-columns: minmax(240px, 360px) minmax(220px, 1fr); gap: 24px; margin-bottom: 36px; padding: 20px; background: #1a1c20; border: 1px solid #35383f; border-radius: 8px; align-items: start; }
+    .assembly-text { padding: 10px 0; }
+    .assembly-text p + p { margin-top: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+    .card { min-width: 0; padding: 12px; border: 1px solid #35383f; border-radius: 7px; background: #1a1c20; }
+    .card-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+    .clip-status { margin-left: auto; padding: 3px 7px; border-radius: 4px; background: #2d3037; color: #b7beca; font-size: 11px; }
+    .clip-status[data-ready="true"] { background: #243440; color: #bdd4e6; }
+    .clip-status[data-error="true"] { background: #422b30; color: #dfbac1; }
+    .card h3 { margin: 0; font-size: 15px; font-weight: 550; }
+    .screen { width: 100%; aspect-ratio: 9 / 16; background: #08090b; position: relative; display: grid; place-items: center; }
+    video { display: block; width: 100%; height: 100%; object-fit: contain; position: absolute; inset: 0; }
+    .placeholder { padding: 20px; text-align: center; font-size: 13px; color: #848b97; }
+    .meta { margin-top: 10px; min-height: 40px; font-size: 12px; font-variant-numeric: tabular-nums; }
+    a { color: #bacce3; text-underline-offset: 3px; font-size: 12px; }
+    .links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; }
+    #native-spec { font-variant-numeric: tabular-nums; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 28px; color: #7c838e; font-size: 12px; line-height: 1.7; }
+    @media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 600px) { main { padding: 24px 14px 40px; } .assembly { grid-template-columns: 1fr; padding: 14px; } .assembly .screen { max-width: 360px; margin: auto; } .grid { gap: 10px; } .card { padding: 9px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>모바일 세로 영상 검토</h1>
+      <p>완성된 모바일 클립부터 C01–C08 개별 원본을 재생할 수 있습니다. 전체 조립본은 완성 후 표시됩니다. 9:16 검토 영역 안에서 전체 화면이 보이며 크롭하지 않습니다.</p>
+      <p class="notice">제작 후보 검토용 · 실제 영상 및 랜딩 UI에 적용되지 않았습니다.</p>
+    </header>
+    <div class="toolbar"><button id="refresh" type="button">파일 상태 새로고침</button><p id="message" role="status">클립 생성 및 조립 대기</p></div>
+    <section class="assembly" aria-labelledby="assembly-title">
+      <div id="assembly-player"></div>
+      <div class="assembly-text">
+        <h2 id="assembly-title">모바일 조립본</h2>
+        <p id="assembly-status">조립 대기</p>
+        <p id="native-spec">원생 해상도 확인 대기</p>
+        <p>조립 계약: 24fps · 1,129프레임 · 영상 트랙 47.041667초.<br>C01은 전체, C02–C08은 첫 프레임만 제외합니다.</p>
+        <p>인물의 연속성, 공간 연결, 스크린 확대와 마지막 화면을 별도로 검수해야 합니다.</p>
+        <p id="audio-status">음원 연결 여부 확인 대기</p>
+        <div class="links"><a href="staging/assembly-validation.json" target="_blank" rel="noopener">기술 검사 기록 ↗</a></div>
+      </div>
+    </section>
+    <h2>모바일 생성 원본 8편</h2>
+    <div class="grid" id="clips"></div>
+    <noscript><p>클립 목록을 보려면 JavaScript를 켜 주세요.</p></noscript>
+    <footer>원본 파일을 직접 재생합니다. 이 페이지는 보정·보간·전환 효과를 적용하지 않습니다. 파일을 읽을 수 있다는 사실이나 기술 검사 통과는 시각 검수 통과를 뜻하지 않습니다. 상태는 15초마다 확인하며 재생 중인 동일 파일은 다시 불러오지 않습니다. 로컬 파일 열기에서 상태 읽기가 제한되면 HTTP로 열어 주세요.</footer>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const durations = [4, 8, 5, 6, 6, 6, 6, 6];
+      const counts = [97, 193, 121, 145, 145, 145, 145, 145];
+      const readyStates = new Set(['ready', 'completed', 'complete', 'downloaded', 'candidate', 'generated', 'succeeded', 'success', 'done', 'rejected']);
+      const statusLabels = {
+        pending: '생성 대기', waiting: '생성 대기', queued: '대기열', submitted: '생성 요청됨',
+        running: '생성 중', processing: '생성 중', generating: '생성 중', downloading: '다운로드 중',
+        ready: '생성 완료', completed: '생성 완료', complete: '생성 완료', downloaded: '생성 완료',
+        candidate: '후보 · 검토 필요', generated: '생성 완료', succeeded: '생성 완료', success: '생성 완료',
+        done: '생성 완료', rejected: '반려 후보', failed: '생성 실패', error: '오류', cancelled: '취소됨'
+      };
+      const clipPlayers = new Map();
+      let busy = false;
+      function element(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+      function relativeVideo(value) {
+        if (typeof value !== 'string') return null;
+        const path = value.trim().replace(/^\.\//, '');
+        return /^[A-Za-z0-9_.\/-]+\.mp4$/i.test(path) && !path.startsWith('/') && !path.split('/').includes('..') ? path : null;
+      }
+      function statusText(value) {
+        return statusLabels[value] || (value ? `상태: ${value}` : '생성 대기');
+      }
+      function positive(value) { return Number.isFinite(value) && value > 0; }
+      function updateMetadata(state) {
+        const info = state.info || {};
+        const parts = [];
+        if (state.loaded && state.video.videoWidth && state.video.videoHeight) {
+          parts.push(`${state.video.videoWidth} × ${state.video.videoHeight}`);
+          if (Number.isFinite(state.video.duration)) parts.push(`${state.video.duration.toFixed(6)}초`);
+        } else if (positive(info.width) && positive(info.height)) {
+          parts.push(`${info.width} × ${info.height}`);
+          if (positive(info.duration_seconds)) parts.push(`${info.duration_seconds.toFixed(6)}초`);
+        }
+        parts.push(positive(info.frames) ? `${info.frames.toLocaleString('ko-KR')}프레임` : state.contract);
+        state.meta.textContent = parts.join(' · ');
+      }
+      function player(label, contract) {
+        const box = element('div');
+        const screen = element('div', 'screen');
+        const placeholder = element('p', 'placeholder', '생성 대기');
+        const video = element('video');
+        video.controls = true;
+        video.playsInline = true;
+        video.preload = 'metadata';
+        video.hidden = true;
+        video.setAttribute('aria-label', label);
+        const meta = element('p', 'meta', contract);
+        const links = element('div', 'links');
+        const link = element('a', '', '원본 열기 ↗');
+        link.target = '_blank'; link.rel = 'noopener'; link.hidden = true;
+        const download = element('a', '', '다운로드');
+        download.setAttribute('download', ''); download.hidden = true;
+        links.append(link, download);
+        screen.append(video, placeholder); box.append(screen, meta, links);
+        const state = { path: null, video, placeholder, meta, link, download, loaded: false, box, contract, info: null };
+        video.addEventListener('loadedmetadata', () => {
+          if (!state.path) return;
+          state.loaded = true;
+          video.hidden = false; placeholder.hidden = true;
+          updateMetadata(state);
+        });
+        video.addEventListener('error', () => {
+          if (!state.path) return;
+          state.loaded = false;
+          video.hidden = true; placeholder.hidden = false;
+          placeholder.textContent = '파일을 재생할 수 없습니다. 원본 열기로 확인해 주세요.';
+          updateMetadata(state);
+        });
+        return state;
+      }
+      function setPlayer(state, path, info, placeholderText) {
+        state.info = info;
+        updateMetadata(state);
+        if (!path) {
+          if (state.path !== null) {
+            state.video.pause();
+            state.video.removeAttribute('src');
+            state.video.load();
+          }
+          state.path = null;
+          state.loaded = false;
+          state.video.hidden = true;
+          state.placeholder.hidden = false;
+          state.placeholder.textContent = placeholderText;
+          state.link.hidden = state.download.hidden = true;
+          state.link.removeAttribute('href'); state.download.removeAttribute('href');
+          updateMetadata(state);
+          return;
+        }
+        state.link.href = state.download.href = path;
+        state.link.hidden = state.download.hidden = false;
+        // Never reset an already assigned source, including manual status refresh.
+        if (state.path === path) return;
+        state.path = path;
+        state.loaded = false;
+        state.video.hidden = true;
+        state.placeholder.hidden = false;
+        state.placeholder.textContent = '완료된 영상 불러오는 중';
+        state.video.src = path;
+        state.video.load();
+      }
+      const assembly = player('모바일 세로 조립본', '예정 1,129프레임');
+      document.getElementById('assembly-player').append(assembly.box);
+      durations.forEach((duration, i) => {
+        const id = `C${String(i + 1).padStart(2, '0')}`;
+        const card = element('section', 'card');
+        const head = element('div', 'card-head');
+        const badge = element('span', 'clip-status', '생성 대기');
+        badge.setAttribute('role', 'status');
+        head.append(element('h3', '', `${id} · 요청 ${duration}초`), badge);
+        const item = player(`${id} 모바일 생성 원본`, `예정 ${counts[i]}프레임`);
+        item.badge = badge;
+        item.qaNote = element('p', 'muted');
+        item.qaNote.hidden = true;
+        clipPlayers.set(id, item);
+        card.append(head, item.qaNote, item.box); document.getElementById('clips').append(card);
+      });
+      function render(report) {
+        if (!report || !Array.isArray(report.clips)) throw new Error('Invalid status.json');
+        const entries = new Map(report.clips.filter(item => item && typeof item.id === 'string').map(item => [item.id, item]));
+        let available = 0;
+        for (const [id, state] of clipPlayers) {
+          const item = entries.get(id) || {};
+          const phase = typeof item.status === 'string' ? item.status.toLowerCase() : 'pending';
+          const path = readyStates.has(phase) ? relativeVideo(item.output_relative) : null;
+          if (path) available++;
+          state.badge.textContent = statusText(phase);
+          state.badge.dataset.ready = String(Boolean(path));
+          state.badge.dataset.error = String(['rejected', 'failed', 'error', 'cancelled'].includes(phase));
+          state.qaNote.textContent = item.error || '';
+          state.qaNote.hidden = !item.error;
+          setPlayer(state, path, item, readyStates.has(phase) ? '완료 파일 경로 확인 대기' : statusText(phase));
+        }
+        const assembled = report.assembled;
+        const path = assembled && relativeVideo(assembled.path);
+        setPlayer(assembly, path || null, assembled || {}, '전체 조립 대기');
+        const issues = report.clips.filter(item => item.status === 'rejected');
+        document.getElementById('assembly-status').textContent = path ? (issues.length ? `검토용 조립본 · 수정 필요 ${issues.map(item => item.id).join(', ')} · 랜딩 교체 보류` : '전체 조립 완료 · 시각 검수 별도') : '전체 조립 대기';
+        document.getElementById('native-spec').textContent = path && positive(assembled.width) && positive(assembled.height) ? `원생 ${assembled.width} × ${assembled.height}${positive(assembled.frames) ? ` · ${assembled.frames.toLocaleString('ko-KR')}프레임` : ''}` : '원생 해상도 확인 대기';
+        document.getElementById('audio-status').textContent = path ? '음원 연결 여부는 기술 검사 기록에서 확인해 주세요.' : '음원 연결 여부 확인 대기';
+        document.getElementById('message').textContent = `원본 재생 가능 ${available}/8편 · 총 생성 요청 ${report.video_requests || 0}건 · ${path ? '검토 합본 완료' : '합본 대기'} · ${new Date().toLocaleTimeString('ko-KR')} 확인`;
+      }
+      async function refresh() {
+        if (busy) return;
+        busy = true;
+        try {
+          const response = await fetch(`status.json?review=${Date.now()}`, { cache: 'no-store' });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          render(await response.json());
+        } catch (_) {
+          document.getElementById('message').textContent = location.protocol === 'file:' ? '로컬 파일 열기에서 상태 읽기가 제한됩니다. HTTP로 열어 주세요.' : '생성 상태 확인 대기 · 기존 재생 화면을 유지합니다.';
+        } finally { busy = false; }
+      }
+      document.getElementById('refresh').addEventListener('click', refresh);
+      refresh();
+      setInterval(() => { if (!document.hidden) refresh(); }, 15000);
+    })();
+  </script>
+</body>
+</html>

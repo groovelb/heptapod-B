@@ -7,10 +7,11 @@ export function useArchiveScroll(scopePath, ready) {
   const session = useNavigationSession();
   const lenis = useContext(LenisContext);
   const localPositions = useRef(new Map());
+  const sessionPositions = session?.archiveScroll;
   useEffect(() => {
     if (!ready) return undefined;
+    const positions = sessionPositions || localPositions.current;
     let restored = false;
-    const positions = session?.archiveScroll || localPositions.current;
     let top = positions.get(scopePath) ?? 0;
     const frame = requestAnimationFrame(() => {
       if (lenis) lenis.scrollTo(top, { immediate: true, force: true });
@@ -28,5 +29,5 @@ export function useArchiveScroll(scopePath, ready) {
       window.removeEventListener('scroll', save);
       if (restored) positions.set(scopePath, top);
     };
-  }, [scopePath, ready, lenis, session]);
+  }, [scopePath, ready, lenis, sessionPositions]);
 }

@@ -1,0 +1,456 @@
+{
+  "version": 1,
+  "status": "paused_resolution_investigation",
+  "target_dimensions": [
+    3840,
+    2160
+  ],
+  "target_is_assumption": true,
+  "execution_route": "builtin_image_gen_only_no_external_api",
+  "source_of_truth": "final selected clips and their submitted input images; not HTML preview JPEGs",
+  "frames": [
+    {
+      "id": "K01",
+      "name": "exterior-scale",
+      "source_paths": [
+        "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/start.png"
+      ],
+      "source_sha256": "e2035a53f441b76f5f62b6f6351cda8c61a50610336f682df134ec522d40f3d5",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "uses": [
+        "C01.start"
+      ],
+      "owner": "exterior",
+      "planned_output": "output/heptapod-remaster/stills/K01-exterior-scale-v001.png",
+      "status": "candidate_resolution_target_unmet",
+      "actual_output_dimensions": [
+        1672,
+        941
+      ],
+      "candidate_output": "output/heptapod-remaster/stills/K01-exterior-scale-v001.png"
+    },
+    {
+      "id": "K02",
+      "name": "underside-opening",
+      "source_paths": [
+        "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/underside-surface-opening-v3.png"
+      ],
+      "source_sha256": "5d8e9f34e8708bf4b61037f316f5b374fe18bdd9a3d7c463f9fe05e824a6b3b5",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "uses": [
+        "C01.end",
+        "C02.start"
+      ],
+      "owner": "exterior",
+      "planned_output": "output/heptapod-remaster/stills/K02-underside-opening-v001.png",
+      "status": "candidate_resolution_target_unmet",
+      "actual_output_dimensions": [
+        1672,
+        941
+      ],
+      "candidate_output": "output/heptapod-remaster/stills/K02-underside-opening-v001.png"
+    },
+    {
+      "id": "K03",
+      "name": "aperture-lift-target",
+      "source_paths": [
+        "public/heptapod-b-encoder/hero-scenes/s01-exterior-scale/pure-aperture-lift-entry-v3.png"
+      ],
+      "source_sha256": "17846d21f9b253794094cc691b703c5f8946daa36d4d39c59fdb935e00f8b8c6",
+      "source_dimensions": [
+        1672,
+        941
+      ],
+      "uses": [
+        "C02.end"
+      ],
+      "owner": "exterior",
+      "planned_output": "output/heptapod-remaster/stills/K03-aperture-lift-target-v001.png",
+      "status": "candidate_resolution_target_unmet",
+      "actual_output_dimensions": [
+        1672,
+        941
+      ],
+      "candidate_output": "output/heptapod-remaster/stills/K03-aperture-lift-target-v001.png"
+    },
+    {
+      "id": "K04",
+      "name": "aperture-lift-actual-end",
+      "source_paths": [
+        "tmp/heptapod-motion-frames/kling-02-03-last-frame-for-04.png"
+      ],
+      "source_sha256": "6dc4b5f5564ea7c6a88bb1b59da7502d94b5835fc709699b26b3a35704c37f5a",
+      "source_dimensions": [
+        1916,
+        1080
+      ],
+      "uses": [
+        "C03.start"
+      ],
+      "owner": "root",
+      "planned_output": "output/heptapod-remaster/stills/K04-aperture-lift-actual-end-v001.png",
+      "status": "candidate_resolution_target_unmet",
+      "actual_output_dimensions": [
+        1672,
+        941
+      ],
+      "report": "output/heptapod-remaster/reports/K04-v001.json",
+      "candidate_output": "output/heptapod-remaster/stills/K04-aperture-lift-actual-end-v002.png"
+    },
+    {
+      "id": "K05",
+      "name": "dark-entry-target",
+      "source_paths": [
+        "tmp/heptapod-motion-frames/shot-05-entry-into-darkness-1916x1080.png"
+      ],
+      "source_sha256": "bde3eae4038feca3d0324cbe84cd9ee48033e1e791fef5bf2e0ea9d1160e414f",
+      "source_dimensions": [
+        1916,
+        1080
+      ],
+      "uses": [
+        "C03.end"
+      ],
+      "owner": "ascent",
+      "planned_output": "output/heptapod-remaster/stills/K05-dark-entry-target-v001.png",
+      "status": "candidate_resolution_target_unmet",
+      "actual_output_dimensions": [
+        1672,
+        941
+      ],
+      "candidate_output": "output/heptapod-remaster/stills/K05-dark-entry-target-v001.png"
+    },
+    {
+      "id": "K06",
+      "name": "dark-entry-actual-end",
+      "source_paths": [
+        "tmp/heptapod-motion-frames/05-07-direct/shot-05-last-from-corrected-01-05.png"
+      ],
+      "source_sha256": "a53a2ddb6fe6310cd14dc9d52b2130597d0502c939ed633a4493b267b54967ae",
+      "source_dimensions": [
+        1916,
+        1080
+      ],
+      "uses": [
+        "C04.start"
+      ],
+      "owner": "ascent",
+      "planned_output": "output/heptapod-remaster/stills/K06-dark-entry-actual-end-v001.png",
+      "status": "candidate_resolution_target_unmet",
+      "actual_output_dimensions": [
+        1670,
+        941
+      ],
+      "candidate_output": "output/heptapod-remaster/stills/K06-dark-entry-actual-end-v001.png"
+    },
+    {
+      "id": "K07",
+      "name": "ascent-target",
+      "source_paths": [
+        "tmp/heptapod-motion-frames/05-07-direct/shot-07-distant-ceiling-reveal-1916x1080.png"
+      ],
+      "source_sha256": "a67e2d9e95855fcde616a9186300163084ec53a4b7f792b99eb630879231d38e",
+      "source_dimensions": [
+        1916,
+        1080
+      ],
+      "uses": [
+        "C04.end"
+      ],
+      "owner": "ascent",
+      "planned_output": "output/heptapod-remaster/stills/K07-ascent-target-v001.png",
+      "status": "planned",
+      "actual_output_dimensions": null
+    },
+    {
+      "id": "K08",
+      "name": "ascent-actual-end",
+      "source_paths": [
+        "tmp/heptapod-motion-frames/07-09-direct/shot-07-last-from-01-07-direct.png"
+      ],
+      "source_sha256": "db873304f4385379c4d0adf34997e972ace5b3c9f060367d93e8a8c3faeb9dc9",
+      "source_dimensions": [
+        1916,
+        1080
+      ],
+      "uses": [
+        "C05.start"
+      ],
+      "owner": "ascent",
+      "planned_output": "output/heptapod-remaster/stills/K08-ascent-actual-end-v001.png",
+      "status": "planned",
+      "actual_output_dimensions": null
+    },
+    {
+      "id": "K09",
+      "name": "distant-ceiling",
+      "source_paths": [
+        "tmp/heptapod-motion-frames/07-09-direct/shot-09-distant-wide-wall-ascent-ceiling-far-1916x1080.png"
+      ],
+      "source_sha256": "125e87fc4fc3cb1aa15bad28b6f34bceac420ef2b164400d26220a6244031abd",
+      "source_dimensions": [
+        1916,
+        1080
+      ],
+      "uses": [
+        "C05.end",
+        "C06.start"
+      ],
+      "owner": "ascent",
+      "planned_output": "output/heptapod-remaster/stills/K09-distant-ceiling-v001.png",
+      "status": "planned",
+      "actual_output_dimensions": null
+    },
+    {
+      "id": "K10",
+      "name": "prewalk-landing-end",
+      "source_paths": [
+        "tmp/heptapod-motion-frames/09-10-gravity/shot-10-prewalk-landing-wide-wall-1916x1080.png"
+      ],
+      "source_sha256": "523ed85dcb952fdd9d54f4a14f45e14f68f57e0a825de141251312ce6019fe5c",
+      "source_dimensions": [
+        1916,
+        1080
+      ],
+      "uses": [
+        "C06.end"
+      ],
+      "owner": "root",
+      "planned_output": "output/heptapod-remaster/stills/K10-prewalk-landing-end-v001.png",
+      "status": "candidate_resolution_target_unmet",
+      "actual_output_dimensions": [
+        1670,
+        941
+      ],
+      "candidate_output": "output/heptapod-remaster/stills/K10-prewalk-landing-end-v001.png"
+    },
+    {
+      "id": "K11",
+      "name": "prewalk-landing-start",
+      "source_paths": [
+        "tmp/heptapod-motion-frames/10-11-walk/shot-10-prewalk-landing-wide-wall-1916x1080.png"
+      ],
+      "source_sha256": "a9795fab6df9e64b3e10356d68ca932b51a8957cc70016e3833d4e44495971d6",
+      "source_dimensions": [
+        1916,
+        1080
+      ],
+      "uses": [
+        "C07.start"
+      ],
+      "owner": "contact",
+      "planned_output": "output/heptapod-remaster/stills/K11-prewalk-landing-start-v001.png",
+      "status": "candidate_resolution_target_unmet",
+      "actual_output_dimensions": [
+        1670,
+        941
+      ],
+      "candidate_output": "output/heptapod-remaster/stills/K11-prewalk-landing-start-v001.png"
+    },
+    {
+      "id": "K12",
+      "name": "walking-to-wall",
+      "source_paths": [
+        "tmp/heptapod-motion-frames/10-11-walk/shot-11-walking-to-wide-wall-1916x1080.png",
+        "tmp/heptapod-motion-frames/11-whiteout/shot-11-walking-to-wide-wall-1916x1080.png"
+      ],
+      "source_sha256": "d9e8b4cc868a19490116587f9c1249f17a3fc1ae4415d8b3a868e2990baa74c1",
+      "source_dimensions": [
+        1916,
+        1080
+      ],
+      "uses": [
+        "C07.end",
+        "C08.start"
+      ],
+      "owner": "contact",
+      "planned_output": "output/heptapod-remaster/stills/K12-walking-to-wall-v001.png",
+      "status": "candidate_resolution_target_unmet",
+      "actual_output_dimensions": [
+        1670,
+        941
+      ],
+      "candidate_output": "output/heptapod-remaster/stills/K12-walking-to-wall-v001.png"
+    }
+  ],
+  "clips": [
+    {
+      "id": "C01",
+      "shot": "01 → 02",
+      "source_video": "public/heptapod-b-encoder/hero-motion/kling-audio-v2-01-03/kling-audio-v2-01-02-fast-lowwind-no-cut.mp4",
+      "source_submission": "public/heptapod-b-encoder/hero-motion/kling-audio-v2-01-03/submissions-01-02-fast-lowwind.json",
+      "generation_id": "kling-audio-v2-01-02-fast-lowwind-no-cut",
+      "duration_seconds": 4,
+      "frame_ids": {
+        "start": "K01",
+        "end": "K02"
+      },
+      "motion_prompt_original": "Kling first-last-frame motion with generated audio. One continuous take, preserving the original 01 to 02 tone, lighting, color grade, exposure, fog density, black level, and camera feel. Make a fast physical approach from frame 01, driven by real camera movement and fog parallax, arriving exactly at frame 02 framing and composition. Preserve the same matte-black ovoid, foggy field scale, support crew, pale grey suits, black lift hardware, low-contrast 35mm documentary look. Audio must be cinematic but restrained: deep low wind, soft sub-bass air pressure, and a smooth low-frequency pressure hush only, gently swelling with the camera approach. No gunshot-like transient, no bullet sound, no clicking, no metallic hit, no percussion, no sharp attack, no loud impact, no trailer boom, no music, no voices. No cuts, no UFO lighting, no random new scene, no extra objects.",
+      "negative_prompt_original": "hard cut, edit, shot change, jump cut, camera teleport, sudden snap zoom, random insert shot, extra UFO lights, glowing UFO lamps, interior lights turning on, portal, tractor beam, blue laser, ramp, bridge, stairs, soldiers walking in, researchers walking in, glossy sci-fi panels, clean CG, game render, neon, orange suits, red suits, orange lift, red lift, readable text, subtitles, logos, watermark, distorted geometry, morphing vessel, gunshot sound, bullet sound, click sound, clicking, metallic hit, metal impact, percussion, drum hit, sharp transient, sharp attack, loud impact, trailer boom, alarm, siren, music, voices, dialogue",
+      "generation_settings_original": {
+        "duration": "4",
+        "cfg_scale": 0.45,
+        "generate_audio": true
+      }
+    },
+    {
+      "id": "C02",
+      "shot": "02 → 03",
+      "source_video": "public/heptapod-b-encoder/hero-motion/kling-audio-01-03/kling-audio-02-03-slow-lift-hole-only-no-cut.mp4",
+      "source_submission": "public/heptapod-b-encoder/hero-motion/kling-audio-01-03/submissions-02-03-slow-lift-hole-only.json",
+      "generation_id": "kling-audio-02-03-slow-lift-hole-only-no-cut",
+      "duration_seconds": 8,
+      "frame_ids": {
+        "start": "K02",
+        "end": "K03"
+      },
+      "motion_prompt_original": "Kling first-last-frame motion with usable minimal audio. Single continuous locked shot from Shot 02 to Shot 03: no internal cuts, no cutaways, no angle changes. Camera, surrounding underside surface, UFO body, lights, fog, field equipment, and people stay fixed in place except for natural micro movement. Lock the color grade, exposure, fog density, and black level. Only the black rounded-rectangle entrance aperture slowly expands, like a simple black hole growing in the fixed matte-black underside, with no bending, warping, redesign, deformation, stretching, or relighting around it. The dark industrial lift rises slowly and smoothly beneath it with the same pale grey suited researchers and black equipment. Allow only subtle natural fog drift, tiny equipment vibration, minimal human micro-movement, and lift mechanics. Audio is minimal but usable: low lift motor hum, soft air-pressure hiss, faint fog ambience. No music, no dialogue, no cuts, no acceleration, no new scene, no UFO light change, no structural redesign, no surface bending, no spatial distortion, no teleport, no portal, no tractor beam, no ramp, no bridge, no stairs, no walking entry, no glossy CG.",
+      "negative_prompt_original": "hard cut, edit, shot change, jump cut, camera teleport, sudden snap zoom, random insert shot, space warp, warped surface, bending hull, stretching hull, morphing vessel, geometry distortion, aperture rim warping, surrounding surface deformation, extra UFO lights, glowing UFO lamps, interior lights turning on, bright aperture lamps, portal, tractor beam, blue laser, ramp, bridge, stairs, soldiers walking in, researchers walking in, fast lift, lift jumping upward, glossy sci-fi panels, clean CG, game render, neon, orange suits, red suits, orange lift, red lift, readable text, subtitles, logos, watermark, music, voices, dialogue, dramatic sound effect, loud hit, trailer boom",
+      "generation_settings_original": {
+        "duration": "8",
+        "cfg_scale": 0.35,
+        "generate_audio": true
+      }
+    },
+    {
+      "id": "C03",
+      "shot": "03 → 05",
+      "source_video": "public/heptapod-b-encoder/hero-motion/kling-audio-03-05-direct/kling-audio-03-05-direct-lift-up-camera-zoom-v1.mp4",
+      "source_submission": "public/heptapod-b-encoder/hero-motion/kling-audio-03-05-direct/submissions-03-05-direct-lift-up-camera-zoom.json",
+      "generation_id": "kling-audio-03-05-direct-lift-up-camera-zoom-v1",
+      "duration_seconds": 5,
+      "frame_ids": {
+        "start": "K04",
+        "end": "K05"
+      },
+      "motion_prompt_original": "Kling first-last-frame motion with generated audio. Continue directly from the approved 02-03 final frame into Shot 05 entry-into-darkness close. Do not go through Shot 04. The matte-black ovoid vessel is an absolute fixed structure in world space: it does not move, translate, descend, rise, drift, slide, rotate, resize, warp, relight, or change shape. The lift stays under the same aperture and has no horizontal travel: no side sliding, no rolling, no swinging, no detaching, no redesign. The only physical story motion is the same dark industrial scissor lift rising straight upward in place into the fixed black rounded-rectangle aperture, carrying the same four pale grey-suited researchers and compact black equipment cases. The only camera motion is a same-axis push-in or lens zoom toward the lift and aperture, with no pan, no orbit, no reverse angle, no lateral drift, and no background-sideways slide. Background vehicles and field equipment disappear only because the camera/lens moves tighter and crops them out of frame, not because the vessel or lift travels across the field. Keep the aperture fixed in the same underside location while it grows in frame through camera zoom and lift ascent. The four researchers remain standing or lightly bracing on the lift; nobody walks, steps off, descends from the opening, floats, duplicates, or changes costume. Preserve pale grey suits, dark boots, dark gloves, muted backpacks, black rails, dark lift color, matte rough black vessel texture, low contrast, crushed readable blacks, fog, and the desaturated green-grey/blue-grey 35mm film grade. The aperture interior remains pure black and featureless with no lights, no panels, no texture, no glowing rectangle, and no new interior architecture. Audio is restrained and continuous: low wind fading, soft pressure hush, faint smooth lift motor, and subtle rail vibration only. No music, no dialogue, no clicks, no sharp hits, no metallic impacts.",
+      "negative_prompt_original": "hard cut, edit, shot change, jump cut, camera teleport, side pan, lateral camera move, orbit, reverse angle, off-axis drift, background sliding sideways, UFO moving, UFO translating, UFO descending, UFO rising, UFO drifting, UFO sliding, UFO rotating, UFO scaling itself, vessel moving, vessel warping, lift moving sideways, lift sliding, lift rolling, lift swinging, lift detaching, lift redesign, lift color change, orange lift, red lift, orange suits, red suits, black tactical suits, suit color change, people walking, people stepping off, people descending from opening, people teleporting, people duplicating, floating bodies, second doorway, new entrance, hallway, horizontal corridor, ramp, bridge, stairs, gangway, walkway, soldiers walking in, tractor beam, portal, blue laser, new UFO lights, interior lights turning on, bright aperture lamps, glowing rectangle, glossy sci-fi panels, clean CG, game render, neon, surface warping, bending hull, stretching hull, morphing vessel, geometry distortion, aperture rim warping, relighting, color shift, increased saturation, readable text, subtitles, logos, watermark, gunshot sound, bullet sound, click sound, metallic hit, percussion, sharp transient, loud impact, trailer boom, music, dialogue",
+      "generation_settings_original": {
+        "duration": "5",
+        "cfg_scale": 0.3,
+        "generate_audio": true
+      }
+    },
+    {
+      "id": "C04",
+      "shot": "05 → 07",
+      "source_video": "public/heptapod-b-encoder/hero-motion/kling-audio-05-07-direct/kling-audio-05-07-direct-same-axis-ascent-v2.mp4",
+      "source_submission": "public/heptapod-b-encoder/hero-motion/kling-audio-05-07-direct/submissions-05-07-direct-same-axis-ascent-v2.json",
+      "generation_id": "kling-audio-05-07-direct-same-axis-ascent-v2",
+      "duration_seconds": 6,
+      "frame_ids": {
+        "start": "K06",
+        "end": "K07"
+      },
+      "motion_prompt_original": "Kling first-last-frame motion with generated audio. Skip Shot 06 completely. Continue directly from Shot 05 to Shot 07 on the exact same upward camera axis. There is no look back, no reverse view, no camera turn-around, no viewpoint handoff, and no exterior aperture seen from inside. The camera is already aimed upward toward the matte black lower opening and the occupied dark industrial lift; keep that same direction and travel straight upward with the lift into the dark vessel interior. The vessel is fixed in world space and never moves or changes shape. The lift rises vertically in place through the same opening with no horizontal travel. The camera follows on the same vertical axis with a restrained upward push and slow zoom only, as if riding with the lift. The outside field simply falls out of view below and is replaced by a very tall matte black interior with rough striated surfaces. The distant pale ceiling contact point remains far above and grows only slightly from real upward travel, preserving huge scale. The same four researchers in pale grey protective suits remain on the dark lift behind black rails with compact black cases, subtly bracing; nobody walks, steps off, jumps, teleports, duplicates, floats, falls, or changes costume. Preserve desaturated green grey and blue grey 35mm film grade, low contrast, readable dark shadows, natural fog, rough matte material, dark lift color, pale grey suits, no orange or red shift, no clean CG look. Do not add new lights, glowing panels, portal effects, corridors, ramps, or walkways. Audio is only restrained low wind pressure and deep interior air resonance, soft and continuous, with no music, no dialogue, no sharp transients.",
+      "negative_prompt_original": "shot 06, reverse view, looking back outside, exterior aperture seen from inside, view back to the field, camera direction change, camera yaw, camera turn-around, viewpoint handoff, visible cut, edit, jump cut, camera teleport, perspective flip, side pan, lateral camera move, orbit, background sliding sideways, vessel moving, vessel translating, vessel descending, vessel rising, vessel drifting, vessel sliding, vessel rotating, vessel resizing itself, vessel relighting, aperture warping, hull stretching, geometry distortion, lift moving sideways, lift sliding, lift rolling, lift swinging, lift detaching, lift redesign, orange lift, red lift, people walking, people stepping off, people jumping, people teleporting, people duplicating, floating bodies, falling bodies, orange suits, red suits, costume change, new doorway, hallway, horizontal corridor, ramp, bridge, stairs, gangway, walkway, tractor beam, portal, blue laser, new interior lights, bright aperture lamps, glowing panels, small bright rectangle becoming a light source, clean CG, game render, neon, increased saturation, readable text, subtitles, logos, watermark, sharp percussive sound, metallic hit, loud impact, music, dialogue",
+      "generation_settings_original": {
+        "duration": "6",
+        "cfg_scale": 0.28,
+        "generate_audio": true
+      }
+    },
+    {
+      "id": "C05",
+      "shot": "07 → 09",
+      "source_video": "public/heptapod-b-encoder/hero-motion/kling-audio-07-09-direct/kling-audio-07-09-direct-ceiling-far-v4-still-workers.mp4",
+      "source_submission": "public/heptapod-b-encoder/hero-motion/kling-audio-07-09-direct/submissions-07-09-direct-ceiling-far-v4-still-workers.json",
+      "generation_id": "kling-audio-07-09-direct-ceiling-far-v4-still-workers",
+      "duration_seconds": 6,
+      "frame_ids": {
+        "start": "K08",
+        "end": "K09"
+      },
+      "motion_prompt_original": "Kling first-last-frame motion with generated audio. Skip Shot 08 completely. Transform directly from Shot 07 to the revised far Shot 09 as one continuous uninterrupted 6 second take. This is a vertical lift ascent before gravity reorientation: the lift rises straight upward along the same vertical shaft axis only, with zero horizontal travel. Do not move toward a wall, do not pan sideways, do not rotate the camera, do not reverse the viewpoint, and do not cut internally. The camera rides with the dark industrial lift on the same vertical axis, using only a restrained upward push and slow zoom while the vessel interior stays fixed in world space. The lift never slides, swings, rolls, changes color, detaches, or redesigns itself. The four researchers in pale grey protective suits remain standing on the lift behind the black railings with compact black cases. They are still passengers: feet planted, no walking, no stepping, no leg swing, no leaving the lift, no teleporting, no large pose change. Only tiny natural balance corrections and slight bracing from vertical acceleration are allowed. Keep their silhouettes and spacing consistent. The distant contact point above Shot 07 gradually reads as a wide overhead ceiling membrane in Shot 09, but it stays far away, clearly farther from the camera than the luminous membrane wall in Shot 10. Shot 09 is still before the 90 degree gravity change, so show no landing, no corridor, no forward floor, no walkway, and no reoriented wall/floor relationship. Preserve the desaturated green grey and blue grey 35mm film grade, low contrast, readable black shadows, rough striated matte black surfaces, dark lift color, pale grey suits, and natural haze. Avoid orange or red shift, clean CG, neon, glowing panels, portals, ramps, bridges, or new lights. Audio is soft continuous low-frequency wind pressure and deep interior air resonance only, with no music, no dialogue, no sharp transient, no pop, no click, and no metallic hit.",
+      "negative_prompt_original": "shot 08, intermediate frame, visible cut, edit, jump cut, scene cut, internal cut, match cut, camera teleport, viewpoint teleport, perspective flip, camera direction change, reverse view, look back, side pan, lateral camera move, horizontal camera move, orbit, dolly sideways, forward hallway move, background sliding sideways, parallax drift sideways, gravity reorientation in shot 09, ninety degree rotation, destination stop, landing, prewalk landing, floor path, hallway, horizontal corridor, ramp, bridge, stairs, gangway, walkway, vessel moving, vessel translating, vessel descending, vessel rising, vessel drifting, vessel sliding, vessel rotating, vessel resizing itself, vessel relighting, aperture warping, hull stretching, geometry distortion, lift moving sideways, lift sliding, lift rolling, lift swinging, lift detaching, lift redesign, orange lift, red lift, people walking, people stepping, footstep, gait cycle, leg swing, people stepping off, disembarking, boarding, jumping, kneeling, crouching, turning around, waving arms, large pose change, people teleporting, people duplicating, floating bodies, falling bodies, orange suits, red suits, costume change, portal, blue laser, new interior lights, bright lamps, glowing panels, contact membrane closer than Shot 10, wall rushing toward camera, fog wall rushing forward, clean CG, game render, neon, increased saturation, readable text, subtitles, logos, watermark, sharp percussive sound, pop sound, click sound, metallic hit, loud impact, music, dialogue",
+      "generation_settings_original": {
+        "duration": "6",
+        "cfg_scale": 0.25,
+        "generate_audio": true
+      }
+    },
+    {
+      "id": "C06",
+      "shot": "09 → 10",
+      "source_video": "public/heptapod-b-encoder/hero-motion/kling-audio-09-10-gravity/kling-audio-09-10-gravity-reorientation-v1.mp4",
+      "source_submission": "public/heptapod-b-encoder/hero-motion/kling-audio-09-10-gravity/submissions-09-10-gravity-reorientation-v1.json",
+      "generation_id": "kling-audio-09-10-gravity-reorientation-v1",
+      "duration_seconds": 6,
+      "frame_ids": {
+        "start": "K09",
+        "end": "K10"
+      },
+      "motion_prompt_original": "Kling first-last-frame motion with generated audio. Continue from Shot 09 to Shot 10 as one uninterrupted 6 second gravity reorientation inside the same matte black chamber. The small bright ceiling membrane in Shot 09 gradually becomes the wide forward membrane wall in Shot 10. Treat this as the riders' gravity reference changing, not as a new room or a new doorway. The camera stays tied to the lift and slowly eases through one controlled 90 degree roll and tilt across the full duration, changing from an upward-looking view to a level forward-looking landing view. The motion is calm, weighted, and readable, never a spin or whip pan. The dark lift arrives at the landing plane and stabilizes. It may settle slightly, but it does not drive forward, slide sideways, swing, change shape, or change color. Keep the same four crew members in pale grey coveralls on the lift behind the black railings with the compact black cases. They stay on the platform through the final frame, feet planted, hands low, with only tiny balance corrections. No walking, no stepping down, no leaving the lift. End prewalk, with everyone still on the lift facing the wide luminous membrane. Preserve the dark lift, black railings, pale grey clothing, black cases, desaturated green grey and blue grey 35mm film grade, low contrast, readable black shadows, rough striated matte black surfaces, and natural haze. Do not add orange or red light, new light panels, glowing strips, ramp, bridge, stairs, or walkway. Audio is soft low-frequency wind pressure, deep interior air resonance, and a very low gravity transition tone only. Keep it continuous and restrained with no music, no dialogue, no clicks, no pops, and no sharp sounds.",
+      "negative_prompt_original": "visible cut, edit, jump cut, internal cut, camera teleport, sudden perspective flip, chaotic spin, fast roll, tumble, whip pan, shaky camera, rapid rotation, orbit, side pan, lateral camera move, hallway travel, fast forward dolly, wall rushing toward camera, lift sliding across the floor, lift driving away, lift swinging, lift redesign, lift color change, orange lighting, red lighting, crew walking, crew stepping down, crew off platform, large pose change, duplicate crew, outfit color change, cases sliding away, new doorway, second opening, new light strips, bright panels, ramp, bridge, stairs, walkway, handrail redesign, vessel moving, vessel relighting, aperture warping, hull stretching, geometry distortion, clean CG, game render, neon, increased saturation, readable text, subtitles, logos, watermark, sharp sound, pop sound, click sound, impact sound, trailer boom, music, dialogue, alarm, siren",
+      "generation_settings_original": {
+        "duration": "6",
+        "cfg_scale": 0.3,
+        "generate_audio": true
+      }
+    },
+    {
+      "id": "C07",
+      "shot": "10 → 11",
+      "source_video": "public/heptapod-b-encoder/hero-motion/kling-audio-10-11-walk/kling-audio-10-11-walk-to-wide-wall-v2.mp4",
+      "source_submission": "public/heptapod-b-encoder/hero-motion/kling-audio-10-11-walk/submissions-10-11-walk-to-wide-wall-v2.json",
+      "generation_id": "kling-audio-10-11-walk-to-wide-wall-v2",
+      "duration_seconds": 6,
+      "frame_ids": {
+        "start": "K11",
+        "end": "K12"
+      },
+      "motion_prompt_original": "Kling first-last-frame motion with generated audio. Continue from Shot 10 to Shot 11 as one uninterrupted 6 second take after gravity has stabilized. At the start, the same four researchers are still standing on the stopped dark industrial lift behind black railings, wearing pale grey protective suits with compact black cases, facing the broad fixed white fog membrane. Hold them steady for a brief moment, then let them carefully step down from the lift and begin the first slow grounded walk of the sequence toward the wide white membrane. The movement is quiet and measured: small cautious steps, subtle weight shifts, restrained arms, natural fabric movement, no sudden pose changes, and no change in identity or costume. Keep the same four researchers, pale grey suits, black cases, dark lift, black rails, chamber scale, and color grade. The wide white membrane is a fixed physical wall in the chamber. It does not move, expand, open, or behave like a portal. The people grow slightly only because they walk forward. The camera remains calm and continuous, nearly locked or drifting forward very slightly behind them. Preserve the desaturated blue grey and green grey 35mm film look, low contrast, readable black shadows, matte striated dark interior surfaces, natural haze, and broad white contact membrane. Do not add orange or red lighting, new lights, ramps, bridges, stairs, glossy sci-fi panels, text, logos, or CG-looking surfaces. Audio is restrained: deep low indoor pressure, soft room air, barely audible cloth movement, and gentle footfalls only. No music, no dialogue, and no sharp transient sounds.",
+      "negative_prompt_original": "visible cut, edit, jump cut, internal cut, camera teleport, viewpoint jump, fast camera move, wall rushing toward camera, contact wall moving, portal effect, new doorway, new light strips, bright panels, laser, orange lighting, red lighting, neon, lift sliding, lift driving forward, lift swinging, lift redesign, lift color change, duplicated workers, disappearing workers, extra people, exaggerated gait, large pose change, suit color change, orange suits, red suits, cases sliding away, cases disappearing, ramp, bridge, stairs, handrail redesign, glossy sci-fi set, clean CG, game render, readable text, subtitles, logos, watermark, sharp sound, loud step, hard impact, music, dialogue",
+      "generation_settings_original": {
+        "duration": "6",
+        "cfg_scale": 0.28,
+        "generate_audio": true
+      }
+    },
+    {
+      "id": "C08",
+      "shot": "11 → SCREEN",
+      "source_video": "public/heptapod-b-encoder/hero-motion/kling-audio-11-screen-fill/kling-audio-11-screen-fill-camera-push-v4.mp4",
+      "source_submission": "public/heptapod-b-encoder/hero-motion/kling-audio-11-screen-fill/submissions-11-screen-fill-camera-push-v4.json",
+      "generation_id": "kling-audio-11-screen-fill-camera-push-v4",
+      "duration_seconds": 6,
+      "frame_ids": {
+        "start": "K12",
+        "end": null
+      },
+      "motion_prompt_original": "Kling image-to-video motion with generated audio, using only the provided Shot 11 start image as the source. Create one uninterrupted 6 second final hero ending with no cut, no angle change, and no extra event. The four researchers keep walking slowly toward the fixed wide luminous contact membrane while the camera performs a single smooth forward push or optical zoom straight into that same fixed membrane. The membrane stays locked in place on the wall; it never moves toward camera, opens, emits anything, creates a portal, or changes shape. The image becomes white only because the camera gets physically closer until the luminous membrane surface itself fills the lens. Workers, lift rails, floor, side walls, wall frame, membrane border, and chamber edges must be cropped out by the forward camera approach only. The final 2 seconds are mandatory screen-only frames: only the luminous membrane surface fills the entire image edge to edge, with no floor at the bottom, no people or silhouettes, no wall frame, no rails, no side walls, no visible border, and no chamber geometry anywhere. Hold those final screen-only frames as a clean full-frame luminous membrane plate with subtle cold white texture and very soft blue grey halation. Preserve the 35mm film look, low contrast, desaturated blue grey and green grey grade at the start, and restrained cinematic motion. No mist, no smoke, no fog, no haze, no particles, no emission, no sudden lighting, no flash, no whiteout cloud, no UI, no text, no symbols, no logos, no portal, no beams, and no aggressive zoom. Audio is restrained low indoor pressure, soft room tone, gentle fabric movement, and very quiet footsteps fading into the membrane tone. No music, no dialogue, and no sharp transient sounds.",
+      "negative_prompt_original": "smoke, fog, mist, haze, whiteout cloud, smoke plume, sprayed fog, fog machine, aerosol, vapor, dust, particles, floating particles, cloud burst, smoke blowing from screen, screen emitting smoke, emission, portal effect, vortex, tunnel, beam, laser, explosion, hard flash, sudden white wipe, sudden lighting change, cut, angle change, camera pan, camera tilt, wall rushing forward, membrane moving toward camera, final two seconds showing people, final two seconds showing heads, final two seconds showing bodies, final two seconds showing floor, final two seconds showing chamber walls, final two seconds showing wall frame, final two seconds showing membrane border, final two seconds showing rails, final frame showing people, final frame showing heads, final frame showing floor, final frame showing chamber walls, final frame showing wall frame, final frame showing membrane border, final frame showing rails, new UI, interface graphics, readable text, subtitles, logos, watermark, new doorway, new room, corridor change, wall redesign, extra people, duplicate people, people disappearing abruptly, large pose change, sharp contrast, saturated color, orange lighting, red lighting, clean CG, game render, music, dialogue, loud impact, sharp sound",
+      "generation_settings_original": {
+        "duration": "6",
+        "cfg_scale": 0.32,
+        "generate_audio": true
+      }
+    }
+  ],
+  "joins_requiring_comparison": [
+    [
+      "K03",
+      "K04"
+    ],
+    [
+      "K05",
+      "K06"
+    ],
+    [
+      "K07",
+      "K08"
+    ],
+    [
+      "K10",
+      "K11"
+    ]
+  ],
+  "generated_unique_count": 9,
+  "uhd_accepted_count": 0
+}

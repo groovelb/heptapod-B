@@ -126,6 +126,9 @@ try {
     root = createRoot(document.getElementById('root'));
     await act(async () => root.render(createElement(ThemeProvider, { theme: defaultTheme },
       createElement(LocaleProvider, null, createElement(RouterProvider, { router })))));
+    for (let attempt = 0; !document.querySelector('video') && attempt < 100; attempt += 1) {
+      await act(async () => pause(20));
+    }
     return document.querySelector('video');
   }
   const start = async () => {

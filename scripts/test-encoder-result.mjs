@@ -8,6 +8,9 @@ import react from '@vitejs/plugin-react';
 const dom = new Window({ url: 'http://localhost/', settings: {
   disableCSSFileLoading: true, disableJavaScriptFileLoading: true, disableIframePageLoading: true,
 } });
+// State assertions use Motion's JS fallback; happy-dom's partial native animation
+// implementation rejects its finished promise during otherwise valid teardown.
+dom.Element.prototype.animate = undefined;
 // Reduced motion lets the analysis controls be tested without a real rendering surface.
 const matchMedia = dom.matchMedia.bind(dom);
 dom.matchMedia = (query) => query === '(prefers-reduced-motion: reduce)'
@@ -26,6 +29,7 @@ const globals = {
   window: dom, document: dom.document, navigator: dom.navigator, location: dom.location,
   HTMLElement: dom.HTMLElement, Element: dom.Element, Node: dom.Node, DocumentFragment: dom.DocumentFragment,
   MutationObserver: dom.MutationObserver, getComputedStyle: dom.getComputedStyle.bind(dom),
+  IntersectionObserver: class { constructor(callback) { this.callback = callback; } observe(target) { this.callback([{ target, isIntersecting: true }]); } disconnect() {} },
   ResizeObserver: class { constructor(callback) { this.callback = callback; } observe() { this.callback([{ contentRect: { width: dom.innerWidth, height: dom.innerHeight } }]); } disconnect() {} },
   requestAnimationFrame: dom.requestAnimationFrame.bind(dom), cancelAnimationFrame: dom.cancelAnimationFrame.bind(dom),
   fetch: () => { requests += 1; throw new Error('No network allowed in encoder tests'); }, IS_REACT_ACT_ENVIRONMENT: true,
@@ -141,8 +145,8 @@ try {
   check(() => assert.equal(getComputedStyle(reading()).display, 'flex'));
   const leftColumn = document.querySelector('[data-encoder-left-column]');
   const rail = document.querySelector('[data-encoder-meaning-rail]');
-  check(() => assert.equal(leftColumn.firstElementChild.tagName, 'HEADER'));
-  check(() => assert.equal(leftColumn.firstElementChild.nextElementSibling, rail, 'Page title and reading occupy successive flex rows'));
+  check(() => assert.equal(leftColumn.querySelector('header'), null));
+  check(() => assert.equal(leftColumn.firstElementChild, rail, 'Reading starts without the removed page title'));
   check(() => assert.equal(getComputedStyle(leftColumn).flexDirection, 'column'));
   check(() => assert.equal(getComputedStyle(rail).position, '', 'The reading rail no longer overlaps the absolutely positioned page title'));
   check(() => assert.equal(getComputedStyle(rail).minHeight, '0'));
@@ -215,7 +219,7 @@ try {
   check(() => assert.ok(button(ko.t('encoderResult.share'), actions())));
   check(() => assert.equal(currentPath, '/', 'Publish remains on the encoder'));
   check(() => assert.ok(dialog().querySelector('[data-publish-open]')));
-  const savedUrl = `http://localhost/glyph/${ARCHIVE_STORY_IDS.left}`;
+  const savedUrl = `http://localhost/glyph/${ARCHIVE_STORY_IDS.left}?lang=ko`;
   check(() => assert.equal(dialog().querySelector('#archive-published-url').value, savedUrl));
   check(() => assert.match(dialog().textContent, /다시 방문하려면 이 링크를 저장/));
   let nativeCopyCalls = 0;
@@ -249,7 +253,7 @@ try {
   Object.defineProperty(dom.navigator, 'clipboard', { configurable: true, value: { writeText: async (url) => { copied = url; } } });
   await click(dialog().querySelector('[data-publish-copy]'));
   check(() => assert.match(dialog().textContent, /링크를 복사했어요/));
-  check(() => assert.ok(copied.endsWith(`/glyph/${ARCHIVE_STORY_IDS.left}`)));
+  check(() => assert.ok(copied.endsWith(`/glyph/${ARCHIVE_STORY_IDS.left}?lang=ko`)));
   check(() => assert.doesNotMatch(copied, /Louise|name=/));
   await click(button(ko.t('publishDialog.close'), dialog()));
   check(() => assert.equal(document.querySelector('[role="status"]').textContent, ''));
@@ -276,7 +280,7 @@ try {
   check(() => assert.ok(dialog().querySelector('[data-publish-complete]')));
   check(() => assert.equal(dialog().querySelectorAll('[data-social-network]').length, 3));
   const socialX = new URL(dialog().querySelector('[data-social-network="x"]').href);
-  check(() => assert.ok(socialX.searchParams.get('url').endsWith(`/glyph/${ARCHIVE_STORY_IDS.left}`)));
+  check(() => assert.ok(socialX.searchParams.get('url').endsWith(`/glyph/${ARCHIVE_STORY_IDS.left}?lang=en`)));
   check(() => assert.equal(socialX.searchParams.get('text'), `Louise · ${en.localize(louiseType.title)}\n${en.localize(louiseType.reading)}`));
   check(() => assert.equal(dialog().querySelector('[data-publish-native-share]'), null));
   check(() => assert.equal(nativeShares, 0));
@@ -285,7 +289,7 @@ try {
   await click(document.querySelector('[data-encoder-public-link]'));
   check(() => assert.ok(dialog().querySelector('[data-publish-complete]')));
   check(() => assert.equal(dialog().querySelector('input[type="checkbox"]'), null));
-  check(() => assert.equal(dialog().querySelector('#archive-published-url').value, savedUrl));
+  check(() => assert.equal(dialog().querySelector('#archive-published-url').value, savedUrl.replace('lang=ko', 'lang=en')));
   check(() => assert.equal(dialog().querySelectorAll('[data-social-network]').length, 3));
   check(() => assert.equal(nativeShares, 0));
   await click(button(en.t('publishDialog.close'), dialog()));
@@ -349,23 +353,26 @@ try {
   check(() => assert.equal(overlay().querySelector('[data-glyph-cluster-name]'), null));
   await click(analysis());
   check(() => assert.equal(analysis().getAttribute('aria-pressed'), 'true'));
-  check(() => assert.match(dialog().textContent, /Louise의 표식 읽기.*Archive의 공통 언어/));
-  check(() => assert.equal(dialog().querySelector('[data-reading-archetype]').dataset.readingArchetype, louiseType.id));
-  check(() => assert.ok(dialog().querySelector('.hb-edge')));
-  check(() => assert.ok(dialog().querySelector('.hb-vtx')));
+  check(() => assert.equal(dialog(), null));
+  const mobileReading = () => document.querySelector('[data-encoder-mobile-reading]');
+  const mobileAnchors = () => document.querySelector('[data-encoder-meaning-anchors]');
+  check(() => assert.match(mobileReading().textContent, /Archive의 공통 언어/));
+  check(() => assert.equal(mobileReading().querySelector('[data-reading-archetype]').dataset.readingArchetype, louiseType.id));
+  check(() => assert.ok(mobileAnchors().querySelector('.hb-edge')));
+  check(() => assert.ok(mobileAnchors().querySelector('.hb-vtx')));
   await click(meaningButton('reciprocity'));
-  check(() => assert.match(dialog().textContent, /바깥을 향한 초점 1곳과 안쪽을 향한 초점 2곳/));
-  check(() => assert.equal(dialog().querySelectorAll('[data-kind="branch"]').length, 3));
+  check(() => assert.match(mobileReading().textContent, /바깥을 향한 초점 1곳과 안쪽을 향한 초점 2곳/));
+  check(() => assert.equal(mobileAnchors().querySelectorAll('[data-kind="branch"]').length, 3));
   await click(meaningButton('openness'));
-  check(() => assert.equal(dialog().querySelectorAll('[data-reading-meaning][aria-pressed="true"]').length, 2));
-  check(() => assert.equal(dialog().querySelectorAll('[data-kind="branch"]').length, 3));
-  check(() => assert.equal(dialog().querySelectorAll('[data-kind="opening"]').length, 1));
+  check(() => assert.equal(mobileReading().querySelectorAll('[data-reading-meaning][aria-pressed="true"]').length, 2));
+  check(() => assert.equal(mobileAnchors().querySelectorAll('[data-kind="branch"]').length, 3));
+  check(() => assert.equal(mobileAnchors().querySelectorAll('[data-kind="opening"]').length, 1));
   await click(meaningButton('reciprocity'));
-  check(() => assert.equal(dialog().querySelectorAll('[data-kind="branch"]').length, 0));
-  check(() => assert.equal(dialog().querySelectorAll('[data-kind="opening"]').length, 1));
-  check(() => assert.doesNotMatch(dialog().textContent, /문자 단위 분할|정수 → 형태/));
+  check(() => assert.equal(mobileAnchors().querySelectorAll('[data-kind="branch"]').length, 0));
+  check(() => assert.equal(mobileAnchors().querySelectorAll('[data-kind="opening"]').length, 1));
+  check(() => assert.doesNotMatch(mobileReading().textContent, /문자 단위 분할|정수 → 형태/));
   check(() => assert.deepEqual(layoutStyles(), mobileLayout));
-  await click(button(ko.t('heptapodEncoderPage.close'), dialog()));
+  await click(analysis());
   await act(async () => new Promise((resolve) => setTimeout(resolve, 250)));
   check(() => assert.equal(dialog(), null));
   check(() => assert.equal(analysis().getAttribute('aria-pressed'), 'false'));
@@ -393,21 +400,78 @@ try {
   await mount(createElement(Routes, null,
     createElement(Route, { path: '/glyph/:id', element: createElement(GlyphDetailPage, { client: createArchiveStoryClient() }) }),
     createElement(Route, { path: '/archive', element: createElement('div', null, 'Archive destination') })));
-  check(() => assert.equal(document.querySelector('[data-glyph-cluster-name]').textContent, louiseType.title));
-  await click(meaningButton('reciprocity'));
-  await click(meaningButton('openness'));
-  check(() => assert.equal(reading().querySelectorAll('[data-reading-meaning][aria-pressed="true"]').length, 2, 'Shared page supports simultaneous chips'));
-  check(() => assert.equal(reading().querySelectorAll('[data-reading-selected]').length, 2));
-  await click(meaningButton('reciprocity'));
-  check(() => assert.equal(meaningButton('openness').getAttribute('aria-pressed'), 'true'));
-  check(() => assert.equal(reading().querySelector('[data-reading-selected]').dataset.readingSelected, 'openness'));
-  await click(document.querySelector('[data-glyph-cluster-link]'));
+  const waitForDetail = async (name = 'louise') => {
+    for (let i = 0; i < 100 && document.querySelector('[data-selected-glyph-detail] h1')?.textContent !== name; i += 1) {
+      await act(async () => new Promise((resolve) => setTimeout(resolve, 20)));
+    }
+    assert.equal(document.querySelector('[data-selected-glyph-detail] h1')?.textContent, name);
+  };
+  await waitForDetail();
+  const selectedDetail = () => document.querySelector('[data-selected-glyph-detail]');
+  const detailChip = (id) => selectedDetail().querySelector(`[data-reading-meaning="${id}"]`);
+  const snapshot = () => ({
+    heading: selectedDetail().querySelector('[data-archive-detail-heading]').textContent,
+    name: selectedDetail().querySelector('h1').textContent,
+    reading: selectedDetail().querySelector('[data-archive-reading-column]').textContent,
+    controls: selectedDetail().querySelector('[data-archive-figure-controls]').textContent,
+    peers: [...selectedDetail().querySelectorAll('[data-same-type-glyph]')].map((node) => node.textContent).sort(),
+    columns: getComputedStyle(selectedDetail().querySelector('[data-archive-detail-layout]')).gridTemplateColumns,
+  });
+  const publicSnapshot = snapshot();
+  check(() => assert.equal(selectedDetail().querySelector('[data-archive-detail-heading] h2').textContent, louiseType.title));
+  check(() => assert.equal(document.querySelector('[data-archive-list-view]'), null, 'Independent detail never mounts the hidden archive feed'));
+  check(() => assert.ok(selectedDetail().querySelector('[data-archetype-narrative]')));
+  await click(detailChip('reciprocity'));
+  await click(detailChip('openness'));
+  check(() => assert.equal(selectedDetail().querySelectorAll('[data-reading-meaning][aria-pressed="true"]').length, 2, 'Shared Archive controls support simultaneous observations'));
+  check(() => assert.ok(selectedDetail().querySelector('[data-archive-sticky-figure] [data-glyph-observations] g[data-kind="branch"]')));
+  check(() => assert.ok(selectedDetail().querySelector('[data-archive-sticky-figure] [data-glyph-observations] g[data-kind="opening"]')));
+  await click(detailChip('reciprocity'));
+  check(() => assert.equal(detailChip('openness').getAttribute('aria-pressed'), 'true'));
+  check(() => assert.equal(selectedDetail().querySelector('[data-archive-sticky-figure] [data-glyph-observations] g[data-kind="branch"]'), null));
+  const detailAnalysis = selectedDetail().querySelector('[data-selected-analysis-toggle]');
+  await click(detailAnalysis);
+  check(() => assert.equal(detailAnalysis.getAttribute('aria-pressed'), 'true'));
+  check(() => assert.ok(selectedDetail().querySelector('[data-glyph-analysis="on"]')));
+  await click(document.querySelector('[data-archive-navigation] button[title]'));
+  check(() => assert.ok(dialog().querySelector('input').value.includes(`/glyph/${ARCHIVE_STORY_IDS.left}`), 'Standalone sharing retains the public glyph UUID'));
+  await click(dialog().querySelector('[data-social-close]'));
+  const peer = selectedDetail().querySelector('[data-same-type-glyph]');
+  assert.ok(peer, 'Real same-type peer is available');
+  const peerId = peer.dataset.sameTypeGlyph;
+  const peerName = peer.querySelector('[data-glyph-centered-name]').textContent;
+  await click(peer.querySelector('button'));
+  await waitForDetail(peerName);
+  check(() => assert.equal(currentPath, `/glyph/${peerId}`));
+  check(() => assert.equal(selectedDetail().querySelector('[data-selected-analysis-toggle]').getAttribute('aria-pressed'), 'false', 'A new UUID resets analysis'));
+  check(() => assert.equal(selectedDetail().querySelectorAll('[data-reading-meaning][aria-pressed="true"]').length, 0, 'A new UUID resets observation selection'));
+  await click(document.querySelector('[data-archive-back]'));
   check(() => assert.equal(currentPath, '/archive'));
-  check(() => assert.equal(new URLSearchParams(currentSearch).get('group'), louiseType.id));
+
+  // Compare the actual Archive route's detail against the independent public route.
+  const { default: MyArchivePage } = await server.ssrLoadModule('/src/components/templates/MyArchivePage.jsx');
+  const { archiveDepthPath } = await server.ssrLoadModule('/src/utils/heptapod/shareArchive.js');
+  initialPath = archiveDepthPath({}, ARCHIVE_STORY_IDS.left);
+  await mount(createElement(MyArchivePage, { client: createArchiveStoryClient(), musicAutoplay: false }));
+  await waitForDetail();
+  check(() => assert.deepEqual(snapshot(), publicSnapshot, 'Public detail and Archive detail share heading, name, narrative, controls, peers and grid columns'));
+
+  initialPath = `/glyph/${ARCHIVE_STORY_IDS.left}?reading=meaning&mv=999`;
+  await mount(createElement(Routes, null, createElement(Route, { path: '/glyph/:id', element: createElement(GlyphDetailPage, { client: createArchiveStoryClient() }) })));
+  await waitForDetail();
+  check(() => assert.ok(document.querySelector('[role="alert"]'), 'Unsupported meaning version keeps its notice'));
+  check(() => assert.equal(selectedDetail().querySelectorAll('[data-reading-meaning]').length, 0, 'Unsupported meaning version never exposes current interpretation controls'));
+  check(() => assert.equal(selectedDetail().querySelector('[data-archetype-narrative]'), null, 'Unsupported version does not silently use current narrative'));
+
+  initialPath = `/glyph/${ARCHIVE_STORY_IDS.hidden}`;
+  await mount(createElement(Routes, null, createElement(Route, { path: '/glyph/:id', element: createElement(GlyphDetailPage, { client: createArchiveStoryClient() }) })));
+  for (let i = 0; i < 100 && !document.querySelector('main h1'); i += 1) await act(async () => new Promise((resolve) => setTimeout(resolve, 20)));
+  check(() => assert.equal(selectedDetail(), null, 'Private glyph cannot be exposed by the archive sample'));
+  check(() => assert.equal(document.querySelector('main h1')?.textContent, ko.t('glyphDetailPage.signalNotFound')));
 
   const source = await readFile(new URL('../src/components/templates/HeptapodEncoderPage.jsx', import.meta.url), 'utf8');
   check(() => assert.match(source, /data-encoder-overlay[\s\S]*?position: 'absolute',[\s\S]*?top: \{ xs: 'calc\(120px \+ env\(safe-area-inset-top, 0px\)\)', md: 'calc\(100px \+ env\(safe-area-inset-top, 0px\)\)' \},[\s\S]*?right: \{ xs: 16, md: 36 \}/));
-  check(() => assert.match(source, /<LogogramRendererCanvas model=\{ model \}/));
+  check(() => assert.match(source, /<TierRenderer\s+model=\{ model \}/));
   check(() => assert.match(source, /observer\.disconnect\(\)/));
   check(() => assert.doesNotMatch(source, /exportLogogramPng|handleSavePng/));
   check(() => assert.match(source, /<GlyphObservationOverlay model=\{ model \}/));
