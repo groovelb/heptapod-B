@@ -12,7 +12,7 @@ dom.document.body.innerHTML = '<div id="root"></div>';
 let canvasCalls = 0; let workerCalls = 0;
 const observers = [];
 class Observer { constructor(callback) { this.callback = callback; observers.push(this); } observe(target) { this.target = target; } disconnect() { this.disconnected = true; } }
-class ForbiddenWorker { constructor() { workerCalls += 1; throw new Error('Precomputed mobile forms must not generate images'); } }
+class ForbiddenWorker { constructor() { workerCalls += 1; throw new Error('Offscreen forms must not generate images'); } }
 dom.HTMLCanvasElement.prototype.getContext = () => { canvasCalls += 1; return null; };
 const globals = { window: dom, document: dom.document, navigator: dom.navigator, HTMLElement: dom.HTMLElement,
   Element: dom.Element, Node: dom.Node, DocumentFragment: dom.DocumentFragment, MutationObserver: dom.MutationObserver,
@@ -73,11 +73,51 @@ try {
   await act(async () => root.render(wrap(h(ArchiveGlyph, { glyph, showName: true }))));
   equal(document.querySelectorAll('img').length, 1, 'Returning from detail restores image list');
   equal(canvasCalls, 0, 'Mobile list and offscreen live surfaces perform zero Canvas work');
-  equal(workerCalls, 0, 'Precomputed DB and authored forms never start Worker');
+  equal(workerCalls, 0, 'Offscreen public forms and prebuilt authored assets never start Worker');
   // Simulate image failure without network: no Canvas fallback, layout persists.
   await act(async () => document.querySelector('img').dispatchEvent(new dom.Event('error')));
-  equal(document.querySelector('[data-image-state]').dataset.imageState, 'unavailable', 'Image failure is stable');
+  equal(document.querySelector('[data-image-state]').dataset.imageState, 'pending', 'Saved image failure still allows the frontend preview to arrive');
   equal(document.querySelectorAll('canvas').length, 0, 'Failure never silently restores Canvas');
+  // Frontend-first display: produce the actual model before the slow saved PNG.
+  let previewPosts = 0;
+  globalThis.Worker = class {
+    postMessage({ id, size }) {
+      previewPosts += 1;
+      equal(size, 256, 'Public preview uses the fast thumbnail resolution');
+      queueMicrotask(() => this.onmessage({ data: { id, bytes: new Uint8Array([1, 2]), mimeType: 'image/png' } }));
+    }
+    terminate() {}
+  };
+  const publicObservers = observers.length;
+  await act(async () => root.render(wrap(h(ArchiveGlyph, { key: 'progressive', glyph, showName: true }))));
+  equal(previewPosts, 0, 'Offscreen public glyph does not generate a preview');
+  await act(async () => {
+    for (const observer of observers.slice(publicObservers)) observer.callback([{ target: observer.target, isIntersecting: true }]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+  equal(previewPosts, 1, 'Visible public model generates one frontend preview');
+  equal(document.querySelector('[data-image-state]').dataset.imageState, 'preview', 'Frontend image is displayed before the saved image loads');
+  equal(document.querySelectorAll('[data-glyph-local-preview]').length, 1, 'Preview is an actual image of this model');
+  equal(canvasCalls, 0, 'Frontend preview never mounts main-thread Canvas');
+  const savedImage = document.querySelector('[data-glyph-saved-image]');
+  let finishDecode;
+  savedImage.decode = () => new Promise((resolve) => { finishDecode = resolve; });
+  await act(async () => savedImage.dispatchEvent(new dom.Event('load')));
+  equal(document.querySelector('[data-image-state]').dataset.imageState, 'preview', 'Preview remains until saved image decode completes');
+  await act(async () => finishDecode());
+  equal(document.querySelector('[data-image-state]').dataset.imageState, 'ready', 'Decoded saved image replaces the preview');
+  equal(document.querySelectorAll('[data-glyph-local-preview]').length, 0, 'Only the saved image remains after handoff');
+  equal(document.querySelector('[data-glyph-centered-name]').textContent, glyph.display_name, 'Name remains stable across the handoff');
+  await act(async () => savedImage.dispatchEvent(new dom.Event('error')));
+  equal(document.querySelector('[data-image-state]').dataset.imageState, 'preview', 'A failed saved image does not erase the frontend image');
+  const returnedObservers = observers.length;
+  await act(async () => root.render(wrap(h(ArchiveGlyph, { key: 'return-progressive', glyph, showName: true }))));
+  await act(async () => {
+    for (const observer of observers.slice(returnedObservers)) observer.callback([{ target: observer.target, isIntersecting: true }]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+  equal(previewPosts, 1, 'Returning to the same glyph reuses its frontend preview');
+  equal(document.querySelector('[data-image-state]').dataset.imageState, 'preview', 'Reused preview is available while the next saved request waits');
   // Local models remain on this device. Work starts only near the viewport and
   // canonical duplicates share the worker result without any Canvas mounting.
   let localPosts = 0;
@@ -86,7 +126,8 @@ try {
     terminate() {}
   };
   const previousObserverCount = observers.length;
-  const localList = (label) => h('div', null, ...Array.from({ length: 8 }, (_, key) => h(GlyphNode, { key, model, label })));
+  const localModel = buildArchiveModel('Local-only fixture');
+  const localList = (label) => h('div', null, ...Array.from({ length: 8 }, (_, key) => h(GlyphNode, { key, model: localModel, label })));
   await act(async () => root.render(wrap(localList('Local'))));
   equal(localPosts, 0, 'Offscreen unsaved models do not start Worker');
   await act(async () => {

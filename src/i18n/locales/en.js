@@ -372,6 +372,7 @@ export default Object.freeze({
   "publishDialog.saveLink": "Save this link to visit your page again.",
   "publishDialog.publicUrl": "Public page address",
   "publishDialog.copyLink": "Copy link",
+  "publishDialog.share": "Share",
   "publishDialog.socialShare": "Share to social",
   "glyphCluster.label": "Glyph group",
   "glyphCluster.explore": "Explore this group",

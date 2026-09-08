@@ -543,9 +543,6 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
   // edge: 분석 모드 스크림용 어두운 색.
   const ink = theme.palette.custom?.chamber?.ink || '#1c2226';
   const edge = theme.palette.background.default || '#0c100f';
-  // L1 외곽 비네트 전용 — 영상 마지막 프레임처럼 가장자리를 블루블랙이 아닌
-  // 쿨 블루슬레이트로 "아주 살짝만" 눌러 균일한 밝은 안개를 유지한다.
-  const vignette = '#33505f';
   // HUD 전경색(텍스트·보더). 일반 모드는 밝은 안개 위라 어두운 쿨톤, 분석 모드는
   // 어두운 스크림 위라 흰색. (이전엔 어두운 비네트 전제로 항상 흰색이었음)
   const fg = analysisActive ? '#ffffff' : '#1c2731';
@@ -577,7 +574,7 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
         position: 'relative',
         height: '100vh',
         overflow: 'hidden',
-        backgroundColor: 'background.default',
+        backgroundColor: { xs: 'custom.chamber.mobile.fog', md: 'custom.chamber.fog' },
         [theme.breakpoints.down('md')]: {
           '--encoder-mobile-stage': 'clamp(200px, 72vw, 360px)',
           height: 'auto', minHeight: '100svh', overflow: 'clip visible',
@@ -699,20 +696,6 @@ function HeptapodEncoderPage({ audioActive = true, client, initialName, initialE
           </Box>
         </Box>
       </> }
-
-      {/* L1 — 외곽 비네트 (영상 마지막 프레임 정렬). 블루블랙 크러시가 아니라 쿨 블루슬레이트로
-          가장자리만 아주 살짝 눌러 균일한 밝은 안개를 유지한다(이전보다 훨씬 약하고 좁게). */}
-      <Box
-        sx={ {
-          position: 'absolute',
-          inset: 0,
-          pointerEvents: 'none',
-          zIndex: 2,
-          background:
-            `radial-gradient(ellipse 94% 90% at 50% 45%, ${alpha(vignette, 0)} 60%, ${alpha(vignette, 0.08)} 84%, ${alpha(vignette, 0.2)} 100%)`,
-          boxShadow: `inset 0 0 140px 8px ${alpha(vignette, 0.12)}`,
-        } }
-      />
 
       <AppGNB overlay tone={ analysisActive ? 'dark' : 'light' } soundOn={ isMusicOn } onToggleSound={ handleToggleMusic } />
 

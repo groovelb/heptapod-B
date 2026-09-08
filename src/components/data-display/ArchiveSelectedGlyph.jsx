@@ -121,6 +121,12 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
             } } />
         </Box>
         <Box ref={ controlsRef } data-archive-figure-controls inert={ compact } aria-hidden={ compact || undefined } sx={ { display: compact ? 'none' : 'grid', justifyItems: 'center', gap: (theme) => theme.editorial.visualizationControls.gap, p: (theme) => theme.editorial.visualizationControls.padding } }>
+          {onShare && <Button data-selected-share onClick={ onShare } fullWidth variant="contained"
+            aria-label={ t('publishDialog.share') } startIcon={ <ShareOutlinedIcon /> }
+            sx={ { typography: 'editorialAction', minHeight: 56, borderRadius: 0, boxShadow: 'none',
+              bgcolor: 'custom.chamber.ink', color: 'custom.chamber.fog',
+              '&:hover': { bgcolor: 'custom.chamber.ink', boxShadow: 'none' },
+            } }>{ t('publishDialog.share') }</Button>}
           <Button data-selected-analysis-toggle aria-pressed={ analysis } aria-controls={ analysisId }
             onClick={ () => setAnalysis((open) => !open) } variant="text"
             sx={ (theme) => ({
@@ -140,8 +146,7 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
             sx={ { justifyContent: 'center' } }
             onToggle={ (entry) => setSelectedIds((ids) => ids.includes(entry.id) ? ids.filter((id) => id !== entry.id) : [...ids, entry.id]) } />
         </Box>
-        <IconButton data-observation-share aria-label={ t('archiveDepthExplorer.shareThisSpace') } onClick={ onShare }
-          disabled={ !onShare } sx={ { ...dockActionSx, gridColumn: 3, gridRow: 1, justifySelf: 'end' } }><ShareOutlinedIcon /></IconButton>
+
         </Box>
       </Box>
       <Box ref={ readingRef } tabIndex={ -1 } data-archive-reading-column sx={ { gridArea: 'reading', minWidth: 0, '&:focus': { outline: 'none' }, maxWidth: (theme) => theme.editorial.measure } }>

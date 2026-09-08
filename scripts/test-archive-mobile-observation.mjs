@@ -82,6 +82,10 @@ try {
   const glyph = panel.querySelector('[data-glyph-analysis]').parentElement;
   const mode = () => panel.dataset.archiveObservation;
   check(() => assert.equal(mode(), 'expanded'));
+  const share = panel.querySelector('[data-selected-share]');
+  check(() => assert.equal(share.parentElement.firstElementChild, share));
+  await act(async () => share.click());
+  check(() => assert.equal(shares, 1));
   check(() => assert.equal(getComputedStyle(analysis).gridColumn, '', 'Expanded analysis does not create implicit columns'));
   check(() => assert.equal(document.querySelectorAll('[data-selected-analysis-toggle]').length, 1));
   await act(async () => { analysis.click(); metadata[0].click(); metadata[1]?.click(); analysis.focus(); });
@@ -105,8 +109,7 @@ try {
   check(() => assert.equal(panel.querySelector('[data-archive-figure-controls]').hasAttribute('inert'), true));
   check(() => assert.equal(panel.querySelector('[data-glyph-analysis]').dataset.glyphAnalysis, 'off', 'Compact glyph has no analysis overlay'));
   check(() => assert.equal(explicitScrolls.length, 0, 'Compacting never scrolls the reader'));
-  await act(async () => panel.querySelector('[data-observation-share]').click());
-  check(() => assert.equal(shares, 1));
+  check(() => assert.equal(panel.querySelector('[data-observation-share]'), null, 'Old compact share button is removed'));
   await scrollTo(730);
   check(() => assert.equal(mode(), 'compact', 'Hysteresis prevents boundary flicker'));
   await scrollTo(715);

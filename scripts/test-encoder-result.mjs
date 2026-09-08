@@ -211,6 +211,8 @@ try {
 
   await click(button(ko.t('heptapodEncoderPage.publishAndShare'), actions()));
   await click(dialog().querySelector('input[type="checkbox"]'));
+  const automaticCopies = [];
+  Object.defineProperty(dom.navigator, 'clipboard', { configurable: true, value: { writeText: async (url) => { automaticCopies.push(url); } } });
   const publishButton = button(ko.t('publishDialog.publish'), dialog());
   await act(async () => { publishButton.click(); publishButton.click(); });
   check(() => assert.equal(client.calls.filter((call) => call === 'archive-publish').length, 1));
@@ -221,6 +223,15 @@ try {
   check(() => assert.ok(dialog().querySelector('[data-publish-open]')));
   const savedUrl = `http://localhost/glyph/${ARCHIVE_STORY_IDS.left}?lang=ko`;
   check(() => assert.equal(dialog().querySelector('#archive-published-url').value, savedUrl));
+  check(() => assert.deepEqual(automaticCopies, [savedUrl], 'Publication automatically copies the public link exactly once'));
+  check(() => assert.match(document.querySelector('[data-publish-copy-notice]').textContent, /링크를 복사했어요/));
+  check(() => assert.equal(getComputedStyle(dialog().querySelector('[data-publish-open]')).width, '100%'));
+  const shareRow = dialog().querySelector('[data-publish-share-row]');
+  check(() => assert.equal(getComputedStyle(shareRow).flexWrap, 'nowrap'));
+  check(() => assert.equal(shareRow.querySelectorAll('button, a').length, 4));
+  check(() => assert.ok([...shareRow.querySelectorAll('button, a')].every((node) => node.querySelector('svg') && node.getAttribute('aria-label') && !node.textContent.trim())));
+  check(() => assert.ok(dialog().querySelector('[data-publish-open]').compareDocumentPosition(shareRow) & Node.DOCUMENT_POSITION_FOLLOWING));
+
   check(() => assert.match(dialog().textContent, /다시 방문하려면 이 링크를 저장/));
   let nativeCopyCalls = 0;
   Object.defineProperty(dom.navigator, 'share', { configurable: true, value: async () => { nativeCopyCalls += 1; } });
@@ -241,7 +252,7 @@ try {
   Object.defineProperty(dom.navigator, 'share', { configurable: true, value: undefined });
   let socialCopies = 0;
   Object.defineProperty(dom.navigator, 'clipboard', { configurable: true, value: { writeText: async () => { socialCopies += 1; } } });
-  check(() => assert.deepEqual([...dialog().querySelectorAll('[data-social-network]')].map((node) => node.textContent), ['X', 'Threads', 'Facebook']));
+  check(() => assert.deepEqual([...dialog().querySelectorAll('[data-social-network]')].map((node) => node.getAttribute('aria-label')), ['X', 'Threads', 'Facebook']));
   check(() => assert.equal(dialog().querySelector('[data-publish-native-share]'), null));
   check(() => assert.equal(socialCopies, 0));
   check(() => assert.equal(dialog().querySelector('[data-glyph-cluster-name]').textContent, louiseType.title));
@@ -252,7 +263,7 @@ try {
   let copied;
   Object.defineProperty(dom.navigator, 'clipboard', { configurable: true, value: { writeText: async (url) => { copied = url; } } });
   await click(dialog().querySelector('[data-publish-copy]'));
-  check(() => assert.match(dialog().textContent, /링크를 복사했어요/));
+  check(() => assert.match(document.querySelector('[data-publish-copy-notice]').textContent, /링크를 복사했어요/));
   check(() => assert.ok(copied.endsWith(`/glyph/${ARCHIVE_STORY_IDS.left}?lang=ko`)));
   check(() => assert.doesNotMatch(copied, /Louise|name=/));
   await click(button(ko.t('publishDialog.close'), dialog()));
@@ -381,11 +392,16 @@ try {
 
   // Default dialog consumer still receives onPublished only on its view action.
   let viewed = null;
+  let deniedCopies = 0;
+  Object.defineProperty(dom.navigator, 'clipboard', { configurable: true, value: { writeText: async () => { deniedCopies += 1; throw new Error('Clipboard denied'); } } });
   await mount(createElement(PublishDialog, { open: true, onClose() {}, glyphName: 'Louise', model: buildArchiveModel('Louise'),
     onPublish: async () => ({ glyphId: ARCHIVE_STORY_IDS.left }), onPublished: (result) => { viewed = result; } }));
   await click(dialog().querySelector('input[type="checkbox"]'));
   await click(button(ko.t('publishDialog.publish'), dialog()));
   check(() => assert.equal(viewed, null));
+  check(() => assert.equal(deniedCopies, 1));
+  check(() => assert.match(dialog().querySelector('#archive-published-copy-status').textContent, /직접 복사/));
+  check(() => assert.equal(document.querySelector('[data-publish-copy-notice]'), null, 'Denied automatic copy never reports success'));
   await click(dialog().querySelector('[data-publish-open]'));
   check(() => assert.equal(viewed.glyphId, ARCHIVE_STORY_IDS.left));
 
@@ -433,7 +449,12 @@ try {
   await click(detailAnalysis);
   check(() => assert.equal(detailAnalysis.getAttribute('aria-pressed'), 'true'));
   check(() => assert.ok(selectedDetail().querySelector('[data-glyph-analysis="on"]')));
-  await click(document.querySelector('[data-archive-navigation] button[title]'));
+  check(() => assert.equal(document.querySelector('[data-archive-navigation] button[title]'), null, 'Detail navigation has no duplicate share button'));
+  const detailShare = selectedDetail().querySelector('[data-selected-share]');
+  check(() => assert.equal(detailShare.parentElement.firstElementChild, detailShare, 'Share is the first control directly below the glyph'));
+  check(() => assert.equal(getComputedStyle(detailShare).minHeight, '56px'));
+  check(() => assert.equal(document.querySelector('[data-observation-share]'), null));
+  await click(detailShare);
   check(() => assert.ok(dialog().querySelector('input').value.includes(`/glyph/${ARCHIVE_STORY_IDS.left}`), 'Standalone sharing retains the public glyph UUID'));
   await click(dialog().querySelector('[data-social-close]'));
   const peer = selectedDetail().querySelector('[data-same-type-glyph]');

@@ -103,7 +103,6 @@ export default function GlyphDetailPage({ client }) {
           : unsupportedVersion ? <>
             <Box sx={ { display: 'flex', justifyContent: 'space-between' } }>
               <Button sx={ actionSx } onClick={ back }>← { t('archiveDepthExplorer.backToList') }</Button>
-              <Button sx={ actionSx } onClick={ share }>{ t('archiveDepthExplorer.shareThisSpace') }</Button>
             </Box>
             <Alert severity="info">{ t('glyphDetailPage.theMeaningRulesInThisLinkAre') }</Alert>
             <ArchiveSelectedGlyph key={ id } glyph={ glyph } onBack={ back } onShare={ share } />

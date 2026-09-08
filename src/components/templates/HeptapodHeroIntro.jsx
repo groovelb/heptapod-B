@@ -13,6 +13,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 
 import { LenisContext } from '../../utils/lenisContext';
+import { chamberSurfaceSx } from '../../styles/chamberSurface';
 import VideoScrubbing from '../scroll/VideoScrubbing';
 import ScrubHud from '../scroll/ScrubHud';
 import useScrubSoundEngine from '../scroll/useScrubSoundEngine';
@@ -443,7 +444,7 @@ function HeptapodHeroIntro({ onComplete }) {
       {/* Outgoing fog match-cut only. No hidden Canvas or encoder effects here. */}
       <Box component={ motion.div } data-hero-handoff aria-hidden
         style={ { opacity: captionExitProgress } }
-        sx={ { position: 'fixed', inset: 0, zIndex: 2, bgcolor: 'custom.chamber.fog', pointerEvents: 'none' } } />
+        sx={ [chamberSurfaceSx, { position: 'fixed', inset: 0, zIndex: 2, pointerEvents: 'none' }] } />
 
 
       { (!videoEnded || playToEnd) && (

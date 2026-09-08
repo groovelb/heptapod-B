@@ -372,6 +372,7 @@ export default Object.freeze({
   "publishDialog.saveLink": "다시 방문하려면 이 링크를 저장해 주세요.",
   "publishDialog.publicUrl": "공개 페이지 주소",
   "publishDialog.copyLink": "링크 복사",
+  "publishDialog.share": "공유하기",
   "publishDialog.socialShare": "소셜 공유",
   "glyphCluster.label": "소속 군집",
   "glyphCluster.explore": "이 군집 보기",

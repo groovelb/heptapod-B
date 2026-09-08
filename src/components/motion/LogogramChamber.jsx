@@ -1,5 +1,7 @@
 import Box from '@mui/material/Box';
+import { useTheme } from '@mui/material/styles';
 import { RatioContainer } from '../container/RatioContainer';
+import { chamberSurfaceSx } from '../../styles/chamberSurface';
 
 /**
  * feTurbulence를 data URI로 구운 저해상 안개 노이즈 텍스처.
@@ -16,9 +18,8 @@ function fogNoiseSvg(baseFrequency, numOctaves, seed) {
     '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240">',
     '<filter id="n">',
     `<feTurbulence type="fractalNoise" baseFrequency="${baseFrequency}" numOctaves="${numOctaves}" seed="${seed}" stitchTiles="stitch"/>`,
-    // 1차 완전 탈채도 후, 미세 쿨 틴트(R↓·B↑·소량 시안 오프셋)로 그레인을 영상 그레이딩에 정렬
+    // Neutral grain: the shared surface supplies the sampled video color.
     '<feColorMatrix type="saturate" values="0"/>',
-    '<feColorMatrix type="matrix" values="0.92 0 0 0 0  0 0.97 0 0 0.01  0 0 1.04 0 0.02  0 0 0 1 0"/>',
     '</filter>',
     '<rect width="240" height="240" filter="url(#n)"/>',
     '</svg>',
@@ -106,8 +107,8 @@ function fogStack(layerBaseSx, isActive, isPaused) {
           ...layerBaseSx,
           backgroundImage: `url("${FOG_LAYER_LARGE}")`,
           backgroundSize: '420px 420px',
-          opacity: 0.5,
-          mixBlendMode: 'multiply',
+          opacity: 0.18,
+          mixBlendMode: 'soft-light',
           filter: 'blur(14px)',
           animation: isActive ? 'chamberDriftA 40s linear infinite alternate' : 'none',
           animationPlayState: isPaused ? 'paused' : 'running',
@@ -120,8 +121,8 @@ function fogStack(layerBaseSx, isActive, isPaused) {
           ...layerBaseSx,
           backgroundImage: `url("${FOG_LAYER_MID}")`,
           backgroundSize: '300px 300px',
-          opacity: 0.32,
-          mixBlendMode: 'multiply',
+          opacity: 0.1,
+          mixBlendMode: 'soft-light',
           filter: 'blur(8px)',
           animation: isActive ? 'chamberDriftB 31s linear infinite alternate' : 'none',
           animationPlayState: isPaused ? 'paused' : 'running',
@@ -134,7 +135,7 @@ function fogStack(layerBaseSx, isActive, isPaused) {
           ...layerBaseSx,
           backgroundImage: `url("${FOG_LAYER_FINE}")`,
           backgroundSize: '180px 180px',
-          opacity: 0.14,
+          opacity: 0.035,
           mixBlendMode: 'overlay',
           filter: 'blur(2px)',
           animation: isActive ? 'chamberDriftC 24s linear infinite alternate' : 'none',
@@ -198,10 +199,10 @@ function renderLayers(layerBaseSx, isActive, diveKey = 0, isPaused = false) {
  * 로고그램 렌더러를 children으로 받아 정방형 무대 위에 올린다.
  *
  * 안개 구현 (CSS 전용 — Three.js GradientOverlay와 무관, 03-visual-direction 기획 결정):
- * 색은 히어로 영상 매치컷 끝(whiteout) 실측 그레이딩에 정렬(쿨 시안-화이트 막 + 블루블랙 외곽).
- * 1. custom.chamber.fog(#d6e8ed) 밝은 쿨 시안 안개 베이스 위에 SVG feTurbulence 노이즈 3장(쿨 틴트)을 겹친다
+ * 색은 현재 히어로 영상 마지막 프레임의 PC·모바일 실측 팔레트를 공유한다.
+ * 1. chamberSurfaceSx의 블루그레이 명암 위에 중성 SVG feTurbulence 노이즈 3장을 약하게 겹친다.
  * 2. 각 레이어는 blur + 느린 transform drift(주기 24~40s, linear 무한 루프)로 미세하게 살아 움직인다
- * 3. 중심 글로우(fogHi #e6f1f5) + 약한 radial 비네트로 가장자리를 fogDeep(#bcd7e2)대 밝은 쿨 블루그레이로 살짝만 눌러 영상 마지막 프레임의 균일한 안개에 맞춘다(블루블랙 크러시 없음)
+ * 3. 밝은 상단·중앙과 어두운 하단·오른쪽을 공통 표면에서 처리하며 추가 비네트를 중첩하지 않는다.
  * 4. prefers-reduced-motion 시 모든 drift가 정지한다 (CSS @media)
  *
  * Props:
@@ -232,6 +233,7 @@ function LogogramChamber({
   diveKey = 0,
   sx = {},
 }) {
+  const theme = useTheme();
   /** 레이어 공통 — 절대 위치로 무대 전체를 덮고, 동작 시에만 drift 애니메이션 부착 */
   const layerBaseSx = {
     position: 'absolute',
@@ -243,24 +245,7 @@ function LogogramChamber({
   /** 공통 챔버 표면 스타일 — 정방형/풀스크린 양쪽에서 동일 */
   const chamberSx = {
     ...driftKeyframes,
-    backgroundColor: 'custom.chamber.fog',
-    // 영상 마지막 프레임 정렬 — 거의 균일한 밝은 쿨 시안 안개. 가장자리는 블루블랙 크러시가
-    // 아니라 밝은 쿨 블루그레이로 아주 살짝만 어두워진다(약한 비네트).
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      inset: 0,
-      pointerEvents: 'none',
-      background: [
-        // 막 중심 글로우 (fogHi) — 약하게
-        'radial-gradient(ellipse at 50% 45%, rgba(230,241,245,0.22) 0%, rgba(230,241,245,0) 52%)',
-        // 외곽 — 투명 → 밝은 쿨 블루그레이(fogDeep대)로 살짝만. 블루블랙 없음, 약한 overlay.
-        'radial-gradient(ellipse at 50% 45%, rgba(150,178,196,0) 55%, rgba(150,178,196,0.22) 100%)',
-      ].join(', '),
-      // 가장자리 비네트 — 쿨 블루그레이, 약하게(이전 블루블랙 0.55 → 0.16)
-      boxShadow: 'inset 0 0 90px 6px rgba(140,170,188,0.16)',
-      zIndex: 2,
-    },
+    ...chamberSurfaceSx(theme),
     '@media (prefers-reduced-motion: reduce)': {
       '& .chamber-fog-layer': {
         animation: 'none',

@@ -103,15 +103,25 @@ const palette = {
 
   // 챔버 전용 커스텀 네임스페이스 (밝은 안개 + 잉크 — UI 다크와 분리)
   custom: {
-    // 챔버 색 — 히어로 영상 마지막 프레임(whiteout) 영역별 실측에 정렬.
-    // 프레임은 거의 균일한 밝은 쿨 시안 안개: 중심 #d6e8ed, 가장 어두운 코너도 #c1d9e4로
-    // 살짝만 어두워진다(블루블랙 크러시 아님) → 가장자리를 밝게 두고 쿨톤만 강화.
+    // 현재 랜딩 영상의 마지막 프레임(1128) 실측. PC와 모바일의 밝기 차이를 유지한다.
     chamber: {
-      fog: '#d6e8ed',      // 막 베이스 — 프레임 중심 쿨 시안 안개
-      fogHi: '#e6f1f5',    // 막 중심 글로우 하이라이트(살짝 위)
-      fogDeep: '#bcd7e2',  // 가장자리 — 프레임 코너(#c1d9e4)대 밝은 쿨 블루그레이
-      edge: '#aecfdb',     // 외곽 — 블루블랙 아님, 부드러운 쿨 블루그레이
-      ink: '#1c2226',      // 잉크 — 이미 쿨, 유지
+      fog: '#c6cdd9',
+      fogHi: '#e0e5ef',
+      fogDeep: '#abb4c1',
+      fogTop: '#d4dae5',
+      fogCenter: '#ced5e1',
+      fogBottom: '#b5bcc8',
+      edge: '#afb8c5',
+      ink: '#1c2226',
+      mobile: {
+        fog: '#cfd8e8',
+        fogHi: '#e5edfa',
+        fogDeep: '#b9c4d7',
+        fogTop: '#dbe3f1',
+        fogCenter: '#d6dfef',
+        fogBottom: '#bbc7d9',
+        edge: '#c0cadc',
+      },
     },
   },
 };

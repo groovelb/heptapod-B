@@ -92,7 +92,7 @@ export default function MyArchivePage({ client, meaningProvider, musicAutoplay =
   };
 
   return (
-    <Box sx={ { position: 'relative', isolation: 'isolate', minHeight: '100svh', bgcolor: 'custom.chamber.fog', color: 'custom.chamber.ink', overflowX: 'clip' } }>
+    <Box sx={ { position: 'relative', isolation: 'isolate', minHeight: '100svh', bgcolor: { xs: 'custom.chamber.mobile.fog', md: 'custom.chamber.fog' }, color: 'custom.chamber.ink', overflowX: 'clip' } }>
       <Box aria-hidden="true" sx={ { position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none' } }><LogogramChamber isFullscreen /></Box>
       <AppGNB soundOn={ isMusicOn } onToggleSound={ handleToggleMusic } />
 

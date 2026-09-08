@@ -213,7 +213,7 @@ export default function ArchiveDepthExplorer({ glyphs = [], meanings, filter = E
           aria-label={ t(order === 'newest' ? 'archiveTimeline.switchOldest' : 'archiveTimeline.switchNewest') }>
           { t(order === 'newest' ? 'archiveTimeline.newest' : 'archiveTimeline.oldest') } ↕
         </Button> }
-        { (!root || focusedId) && onShare && <IconButton sx={ { ...shareIconSx, ml: 'auto' } } onClick={ onShare }
+        { !root && !focusedId && onShare && <IconButton sx={ { ...shareIconSx, ml: 'auto' } } onClick={ onShare }
           aria-label={ t('archiveDepthExplorer.shareThisSpace') } title={ t('archiveDepthExplorer.shareThisSpace') }>
           <ShareOutlinedIcon sx={ { fontSize: 20 } } />
         </IconButton> }

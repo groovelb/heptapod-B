@@ -1,5 +1,5 @@
 import { useI18n } from '../../i18n/useI18n.js';
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -9,6 +9,12 @@ import Typography from '@mui/material/Typography';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import SvgIcon from '@mui/material/SvgIcon';
+import LinkIcon from '@mui/icons-material/Link';
+import XIcon from '@mui/icons-material/X';
+import FacebookIcon from '@mui/icons-material/Facebook';
 import GlyphClusterLink from '../data-display/GlyphClusterLink';
 import { archiveSharePath, archiveShareUrl, archiveSocialLinks, copyArchiveLink } from '../../utils/heptapod/shareArchive.js';
 
@@ -37,8 +43,8 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
   const [consented, setConsented] = useState(false);
   const [error, setError] = useState('');
   const [published, setPublished] = useState(null);
-  const [socialExpanded, setSocialOpen] = useState(false);
-  const socialOpen = intent === 'share' || socialExpanded;
+  const [copyNotice, setCopyNotice] = useState(false);
+  const autoCopiedIds = useRef(new Set());
   const [copying, setCopying] = useState(false);
   const [copyStatus, setCopyStatus] = useState('');
   const pending = useRef(false);
@@ -77,25 +83,34 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
     }
   };
 
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async (automatic = false) => {
     if (!publicUrl || copyPending.current) return;
     copyPending.current = true;
     setCopying(true);
     setCopyStatus('');
+    setCopyNotice(false);
     setError('');
     try {
       if (onCopy) await onCopy(publicUrl);
       else await copyArchiveLink(publicUrl, { locale });
-      setCopyStatus('copied');
+      setCopyNotice(true);
     } catch {
       setCopyStatus('manual');
-      urlInput.current?.focus();
-      urlInput.current?.select();
+      if (!automatic) {
+        urlInput.current?.focus();
+        urlInput.current?.select();
+      }
     } finally {
       copyPending.current = false;
       setCopying(false);
     }
-  };
+  }, [publicUrl, locale, onCopy]);
+
+  useEffect(() => {
+    if (!open || !glyphId || autoCopiedIds.current.has(glyphId)) return;
+    autoCopiedIds.current.add(glyphId);
+    void handleCopy(true);
+  }, [open, glyphId, handleCopy]);
 
   const handleClose = () => {
     if (pending.current || copyPending.current) return;
@@ -104,7 +119,7 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
     setPublished(null);
     setError('');
     setCopyStatus('');
-    setSocialOpen(false);
+    setCopyNotice(false);
     onClose();
   };
 
@@ -219,32 +234,33 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
               onFocus={ (event) => event.target.select() }
               sx={ { ...monoSx, boxSizing: 'border-box', width: '100%', minWidth: 0, minHeight: 44, p: 1.5, mb: 2, color: fg, bgcolor: 'transparent', border: `1px solid ${alpha(fg, 0.4)}`, borderRadius: 0, '&:focus-visible': { outline: `2px solid ${fg}`, outlineOffset: 2 } } } />
             <Typography id="archive-published-copy-status" role="status" aria-live="polite" sx={ { fontSize: '0.8rem', mb: copyStatus ? 2 : 0 } }>
-              {copyStatus ? t(copyStatus === 'copied' ? 'encoderResult.copied' : 'publishDialog.copyManually') : ''}
+              {copyStatus ? t('publishDialog.copyManually') : ''}
             </Typography>
             {error && <Alert severity="error" sx={ { mb: 2 } }>{localize(error)}</Alert>}
-            {socialOpen && <Box id="archive-social-share" role="group" aria-label={ t('publishDialog.socialShare') } sx={ { borderTop: `1px solid ${alpha(fg, 0.2)}`, pt: 2, mb: 3 } }>
-              <Typography sx={ { ...monoSx, mb: 1.5 } }>{t('publishDialog.chooseSocial')}</Typography>
-              <Box sx={ { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 1 } }>
-                {socialLinks.map(({ id, label, href }) => <Button key={ id } data-social-network={ id } component="a" href={ href } target="_blank" rel="noopener noreferrer"
-                  sx={ { ...monoSx, minHeight: 44, color: fg, border: `1px solid ${alpha(fg, 0.4)}`, borderRadius: 0, px: 2 } }>{label}</Button>)}
-
+            <Button
+              data-publish-open disabled={ copying } fullWidth
+              onClick={ () => { const result = completed; handleClose(); if (onPublished) onPublished(result); else navigate(archiveSharePath(glyphId)); } }
+              variant="contained"
+              sx={ { ...monoSx, minHeight: 56, fontSize: '0.9rem', borderRadius: 0, bgcolor: fg, color: '#0c100f', boxShadow: 'none',
+                '&:hover': { bgcolor: '#fff', boxShadow: 'none' } } }
+            >{ t('publishDialog.openMyGlyph') }</Button>
+            <Box id="archive-social-share" role="group" aria-label={ t('publishDialog.share') } sx={ { mt: 3, pt: 2, borderTop: `1px solid ${alpha(fg, 0.2)}` } }>
+              <Typography sx={ { ...monoSx, mb: 1 } }>{t('publishDialog.share')}</Typography>
+              <Box data-publish-share-row sx={ { display: 'flex', flexWrap: 'nowrap', justifyContent: 'center', gap: 1 } }>
+                <IconButton data-publish-copy onClick={ () => handleCopy() } disabled={ copying }
+                  aria-label={ t('publishDialog.copyLink') } title={ t('publishDialog.copyLink') }
+                  sx={ { color: 'common.white', width: 48, height: 48 } }><LinkIcon /></IconButton>
+                {socialLinks.map(({ id, label, href }) => <IconButton key={ id } data-social-network={ id } component="a" href={ href }
+                  target="_blank" rel="noopener noreferrer" aria-label={ label } title={ label }
+                  sx={ { color: 'common.white', width: 48, height: 48 } }>
+                  {id === 'x' ? <XIcon /> : id === 'facebook' ? <FacebookIcon /> : <SvgIcon viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+                      d="M19.4 7.3C18.3 3.8 15.9 2 12 2 5.5 2 3 6.2 3 12s2.5 10 9 10c5.5 0 8.8-3.3 8.8-7.1 0-3.7-3.3-5.8-7.2-5.8-3.2 0-5.1 1.5-5.1 3.5 0 1.8 1.4 2.8 3.2 2.8 2.7 0 4.1-2 4.1-5.3 0-2.8-1.4-4.2-3.6-4.2-1.5 0-2.7.6-3.5 1.7" />
+                  </SvgIcon>}
+                </IconButton>)}
               </Box>
-            </Box>}
-            <Box sx={ { display: 'flex', gap: 1.5, flexWrap: 'wrap', justifyContent: 'center' } }>
-              <Button data-publish-copy onClick={ handleCopy } disabled={ copying } variant="outlined" sx={ { ...monoSx, minHeight: 44, color: fg, borderColor: alpha(fg, 0.5), borderRadius: 0, px: 3 } }>{t('publishDialog.copyLink')}</Button>
-              { intent !== 'share' && <Button data-publish-share onClick={ () => setSocialOpen((value) => !value) } aria-expanded={ socialOpen } aria-controls={ socialOpen ? 'archive-social-share' : undefined } disabled={ copying } variant="outlined" sx={ { ...monoSx, minHeight: 44, color: fg, borderColor: alpha(fg, 0.5), borderRadius: 0, px: 3 } }>
-                {t('publishDialog.socialShare')}
-              </Button> }
-              { glyphId && (
-                <Button
-                  data-publish-open disabled={ copying }
-                  onClick={ () => { const result = completed; handleClose(); if (onPublished) onPublished(result); else navigate(archiveSharePath(glyphId)); } }
-                  variant="text"
-                  sx={ {
-                    ...monoSx, minHeight: 44, color: fg, opacity: 0.95, fontSize: '0.75rem', borderRadius: 0, border: `1px solid ${alpha(fg, 0.5)}`, px: 3, '&:hover': { backgroundColor: alpha(fg, 0.08), borderColor: alpha(fg, 0.7) },
-                  } }
-                >{ t('publishDialog.openMyGlyph') }</Button>
-              ) }
+            </Box>
+            <Box sx={ { mt: 2 } }>
               <Button
                 onClick={ handleClose }
                 disabled={ copying }
@@ -257,6 +273,12 @@ function PublishDialog({ open, onClose, glyphName, model, interpretation, onPubl
           </Box>
         ) }
       </Box>
+    <Snackbar open={ copyNotice } autoHideDuration={ 4000 } onClose={ (_, reason) => { if (reason !== 'clickaway') setCopyNotice(false); } }
+      anchorOrigin={ { vertical: 'bottom', horizontal: 'center' } }>
+      <Alert data-publish-copy-notice severity="success" variant="filled" onClose={ () => setCopyNotice(false) } sx={ { width: '100%' } }>
+        {t('encoderResult.copied')}
+      </Alert>
+    </Snackbar>
     </Dialog>
   );
 }

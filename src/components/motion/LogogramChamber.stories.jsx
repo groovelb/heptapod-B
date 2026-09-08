@@ -29,6 +29,7 @@ export default {
     },
   },
   parameters: {
+    docs: { description: { component: '현재 랜딩 영상 마지막 프레임에서 추출한 색과 명암을 Create·Archive가 함께 사용합니다. 모바일 평균 #CFD8E8, PC 평균 #C6CDD9를 기준으로 상단·중앙은 밝고 하단·오른쪽은 어두운 블루그레이 표면입니다. 중성 안개 레이어는 낮은 강도로 움직이며 배경을 여러 번 어둡게 하지 않습니다.' } },
     backgrounds: {
       default: 'chamber-dark',
       values: [{ name: 'chamber-dark', value: '#0c100f' }],
