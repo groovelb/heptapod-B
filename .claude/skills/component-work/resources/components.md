@@ -18,7 +18,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 ### 성능 보완 · 2026-09-06
 
-- VideoScrubbing: 오류 재로드의 `emptied/loadstart`에서 취소된 seek 잠금과 대기 목표를 초기화한다. 마지막 완료 위치 복원 중에는 스크롤 seek를 차단하며 실제 ended·PC/모바일 타이밍 계약은 유지한다.
+- VideoScrubbing: `bufferAheadSeconds=0`·`playbackBufferSeconds=0`은 기존 준비 동작을 유지하며 히어로는 각각 3초·6초의 연속 버퍼를 확인한다. 마지막 buffered.end 값으로 전체 로딩을 완료 처리하지 않으며 시작 준비율과 미로딩 seek의 waiting 상태를 전달한다. 브라우저 paused-preload 제한 시 준비된 프레임으로 시작을 허용하고 파일 전체를 Blob으로 복제하지 않는다. 오류 재로드의 `emptied/loadstart`에서 취소된 seek 잠금과 대기 목표를 초기화한다. 마지막 완료 위치 복원 중에는 스크롤 seek를 차단하며 실제 ended·PC/모바일 타이밍 계약은 유지한다.
 - HeptapodEncoderPage: 하위 표식 모델은 실제 분해 진입 시 생성하고, 타이핑 프리뷰는 마지막 글자별로 memoize한다. 유효성 검사는 기존 validateName을 직접 사용해 버리는 완성 모델을 만들지 않는다. 모바일 가림 보정 RAF는 blur 후 스크롤하지 않는다. 배치·분석·형성은 유지한다.
 - LogogramRendererCanvas: 불변 모델 객체별 WeakMap으로 결정론적 입자·vapor 기하만 재사용한다. 일반/감소 모션 입자는 분리하고 Canvas·색상 스프라이트·형성 시간·가시성 상태는 개별 인스턴스에 유지한다. 형태를 바꿀 때는 새 모델 객체를 전달한다.
 - 점검 근거와 브라우저 평가 게이트: `docs/heptapod-b-encoder/21-performance-audit.md`.
@@ -147,6 +147,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 ## 11. KineticTypography (Interactive) — 텍스트 애니메이션 효과
 
 - RandomRevealText: 랜덤 순서 blur 리빌 타이포그래피. Fisher-Yates 셔플 기반 (`components/kinetic-typography/RandomRevealText.jsx`)
+- ScrambleCaption: 결정론적 24단계 기호 변환. MotionValue는 외부 저장소로 읽고 React 알림을 다음 애니메이션 프레임에 전달하여 부모 렌더 중 상태 변경을 방지한다. 역스크롤·모션 감소 전환과 구독 해제를 지원한다 (`components/kinetic-typography/scrub/ScrambleCaption.jsx`)
 - TypeCaption: 마지막 씬의 blur 등장·타자 효과. `exitProgress` 지정 시 본문을 유지하다 글자별 랜덤 blur/opacity로 퇴장한다. InkLetters의 선택적 퇴장 MotionValue를 공유하며, ScrubCaption·CaptionFrame의 sticky 모드로 중앙 고정 (`components/kinetic-typography/scrub/TypeCaption.jsx`)
 - ScrambleText: 텍스트 스크램블 전환 효과. requestAnimationFrame 기반 (`components/kinetic-typography/ScrambleText.jsx`)
 - ScrollRevealText: 스크롤 진행에 따른 텍스트 순차 리빌 (`components/kinetic-typography/ScrollRevealText.jsx`)
@@ -187,7 +188,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 - GlyphDetailPage: `/glyph/:id`에 실제 소속 군집명·군집 이동 링크, 의미 판독·근거 선택과 상위 정밀 연결3개 표시. 버전이 명시된 UUID 의미 공유 (`components/templates/GlyphDetailPage.jsx`)
 - ResonanceFieldPage: `/field/:id` 가지/개구부/잉크/링/질문 변주 필터·현재 공개 표본·실제 관측 부위 선택·중심 이동, 모바일 기본 목록 (`components/templates/ResonanceFieldPage.jsx`)
 - ArchiveComparePage: `/compare/:leftId/:rightId?` 공개/로컬 입력의 의미·정밀 비교. URL reading으로 보기와 공유·PNG 문구 일치, 미지원 의미 버전 차단, 공개 동의 유지 (`components/templates/ArchiveComparePage.jsx`)
-- HeptapodHeroIntro: `/`의 독립 영상 인트로. 준비 후 START로 스크롤 잠금을 해제하고 양방향 스크럽·비트 캡션·스크럽 사운드, 42초 지점부터 현재 프레임의 연속 재생을 유지한다. 실제 ended 후 마지막 캡션 퇴장·안개 전환을 마치면 onComplete를 한 번 호출하며 부모 라우트가 `/canvas`로 이동한다. children 인코더·audioActive 주입은 제거. 오류·모션 감소에서도 실제 완주가 필수이고 HeroAffordance가 각 재생 상태를 안내한다. 언마운트 시 영상·사운드·스크롤 구독 해제 (`components/templates/HeptapodHeroIntro.jsx`)
+- HeptapodHeroIntro: `/`의 독립 영상 인트로. 영상과 포스터는 v2(사용자 Topaz 3832×2160 업스케일본, C01–C07 원본 + 승인 C08 스크린 연기)로 고정하고 임시 비교 토글은 제거했다. 섹션 인디케이터는 트랙 밖 fixed 배치로 자동 재생 끝까지 위치를 유지하고 캡션 퇴장과 함께 사라진다. 준비 후 START로 스크롤 잠금을 해제하고 양방향 스크럽·비트 캡션·스크럽 사운드, 42초 지점부터 현재 프레임의 연속 재생을 유지한다. 실제 ended 후 마지막 캡션 퇴장·안개 전환을 마치면 onComplete를 한 번 호출하며 부모 라우트가 `/canvas`로 이동한다. children 인코더·audioActive 주입은 제거. 오류·모션 감소에서도 실제 완주가 필수이고 HeroAffordance가 각 재생 상태를 안내한다. 언마운트 시 영상·사운드·스크롤 구독 해제 (`components/templates/HeptapodHeroIntro.jsx`)
 - HeptapodEncoderPage: `/canvas`의 독립 생성 화면. 기존 풀스크린 챔버·중앙 표식·우상단 오버레이 유지. 덩어리 수·가닥 수·무게중심·링 상태를 고정 네 줄(32px×4)로 표시하며 ANALYSIS 전환으로 행·제목·액션 위치를 바꾸지 않음. 우측 기능 라벨은 분석하기 / Heptapod 등록 및 공유 / Heptapod 아카이빙으로 제공. ANALYSIS는 초록 삼각망·빨간 정점·순차 스캔·비프를 유지하며 의미 기반 설명과 실제 anchor 강조를 병용. 데스크톱 좌측 레일/모바일 Dialog는 같은 공통 어휘·정의·개별 배치를 읽음. 의미 선택은 스캔/Canvas를 재시작하지 않으며 모바일 닫기는 분석도 해제. SAVE·하단 의미 설명·의미군 링크·이름 비교는 제거. 문자 분해·타이핑 프리뷰·IME/검증·Canvas/Chamber·audioActive/음악 유지. 미공개는 동의·공개 후 새 Share 클릭으로 공유하며 공개 완료 뒤 같은 버튼은 재게시 없이 Share로 동작. 기존 v1 URL은 명시적 v2 재생성 후 공개. optional client/initialName/initialEncoderVersion으로 무네트워크 스토리 지원. 라우트에서 URL 진입값을 주입하고 랜딩 영상 수명과 분리 (`components/templates/HeptapodEncoderPage.jsx`)
 
 - Create 분석·등록 CTA: editorialCta 타이포와 createCta 높이(모바일 52px/PC 56px)·패딩·폭 토큰 사용. Create 좌측은 페이지 제목과 분석 레일을 같은 flex 칼럼에 배치하고 하단 입력 실측 높이를 확보하며 설명만 스크롤.

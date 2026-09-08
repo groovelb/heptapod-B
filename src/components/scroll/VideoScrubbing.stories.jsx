@@ -30,14 +30,18 @@ export default {
 
 ### 핵심 기능
 - 스크롤 기반 재생: 페이지 스크롤에 따라 비디오 프레임 이동
-- 성능 최적화: IntersectionObserver + requestAnimationFrame (~60fps)
+- 성능 최적화: 보이는 상태의 스크롤 이벤트에서만 requestAnimationFrame 예약
 - 진행도 콜백: onProgressChange로 외부에서 진행도(0-1) 활용 가능
+- 버퍼 준비: 선택한 소스의 연속 시작 버퍼와 자동 재생 버퍼를 확인. 미로딩 구간 seek는 네이티브 Range 로딩과 waiting 안내로 처리
 - 재시도 복구: 로드가 진행 중 seek를 취소해도 잠금을 해제하고, 마지막 완료 위치를 복원한 뒤 스크롤 탐색을 재개
         `,
       },
     },
   },
   argTypes: {
+    bufferAheadSeconds: { control: { type: 'number', min: 0 }, description: '시작/재로드 위치에서 준비할 연속 버퍼(초). 기본 0=canplay. 히어로는 3초; 브라우저의 사전 로딩 중단 정책에서는 준비된 프레임으로 시작 허용' },
+    playbackBufferSeconds: { control: { type: 'number', min: 0 }, description: '자동 재생 전 연속 버퍼(초, 남은 길이로 제한). 기본 0=즉시 시도. 히어로는 6초' },
+    onLoadProgress: { action: 'load-progress', description: 'bufferAheadSeconds 지정 시 시작 구간 준비율(0~1). 전체 파일 다운로드율이 아님' },
     scrubFrameRate: { control: { type: 'number', min: 1 }, description: '검증된 CFR 영상의 프레임률만 지정. 동일 프레임 seek 생략, 원래 타임코드·진행도 유지. 기본 미지정' },
     mobilePlayback: { control: 'boolean', description: '모바일 canplay/seek/제스처 복구. 실제 ended 이후에만 완료하며 PC 기본값은 false' },
     mediaRef: { control: false, description: '사용자 제스처에서 재시도할 video 요소 ref' },

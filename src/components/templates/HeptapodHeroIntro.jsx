@@ -70,15 +70,16 @@ const pad = (value) => String(Math.max(0, value)).padStart(2, '0');
 /**
  * BeatCounter (내부)
  *
- * 우하단 비트 카운터("01 — 06") + 얇은 진행바. 트랙 안에서 sticky 로 뷰포트 하단에 머문다.
+ * 우하단 비트 카운터("01 — 06") + 얇은 진행바. 마지막 자동 재생까지 뷰포트 하단에 고정한다.
  * 카운터는 ref.textContent 갱신, 진행바는 MotionValue scaleX 직결 — 리렌더 없음.
  *
  * @param {import('framer-motion').MotionValue<number>} progress - 영상 진행도 [Required]
  * @param {Array<object>} clips - 타임라인 클립 [Required]
  * @param {string} monoFont - 모노 폰트 스택 [Required]
  */
-function BeatCounter({ progress, clips, monoFont, titleProgress }) {
-  const hudOpacity = useTransform(titleProgress, [0.35, 0.7], [0, 1], { ease: EASE.in });
+function BeatCounter({ progress, clips, monoFont, titleProgress, exitProgress }) {
+  const entryOpacity = useTransform(titleProgress, [0.35, 0.7], [0, 1], { ease: EASE.in });
+  const hudOpacity = useTransform([entryOpacity, exitProgress], ([entry, exit]) => entry * (1 - exit));
   const counterRef = useRef(null);
   const total = clips.length;
   const labelFor = (p) => `${pad(findClipIndex(clips, p) + 1)} — ${pad(total)}`;
@@ -92,9 +93,9 @@ function BeatCounter({ progress, clips, monoFont, titleProgress }) {
       align="right"
       bottomPx={ 72 }
       hasHeroGap={ false }
-      sx={ { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1, pointerEvents: 'none' } }
+      sx={ { position: 'fixed', left: 0, right: 0, zIndex: 4, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1, pointerEvents: 'none' } }
     >
-      <Box component={ motion.div } style={ { opacity: hudOpacity } } sx={ { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 } }>
+      <Box component={ motion.div } data-hero-beat-counter style={ { opacity: hudOpacity } } sx={ { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 } }>
         <Box
           component="span"
           ref={ counterRef }
@@ -320,12 +321,13 @@ function HeptapodHeroIntro({ onComplete }) {
     setVideoEnded(true);
   }, []);
   const handleLoadProgress = useCallback(
-    (fraction) => setLoadProgress((prev) => (fraction > prev ? fraction : prev)),
+    (fraction) => setLoadProgress(fraction),
     [],
   );
   const handlePlaybackStateChange = useCallback((state) => {
     setPlaybackState(state);
     if (state === 'loading') {
+      setVideoReady(false);
       setLoadProgress(0);
     }
   }, []);
@@ -345,7 +347,7 @@ function HeptapodHeroIntro({ onComplete }) {
 
   /** START — 클릭(=오디오 언락 제스처)에서 엔진 enable + 스크롤 잠금 해제만. 자동 이동 없음(스크롤은 사용자 손에) */
   const handleStart = useCallback(() => {
-    if (!videoReady || playbackState === 'error' || playbackState === 'loading') return;
+    if (!videoReady || playbackState !== 'ready') return;
     if (soundOn) soundRef.current.enable();
     setStarted(true);
   }, [soundOn, videoReady, playbackState]);
@@ -370,10 +372,10 @@ function HeptapodHeroIntro({ onComplete }) {
     : playbackState === 'error' ? 'error'
       : !videoReady || playbackState === 'loading' ? 'loading'
         : playToEnd ? (playbackState === 'playing' ? 'playing' : 'waiting')
-          : started ? 'scroll' : null;
+          : playbackState === 'waiting' ? 'waiting' : started ? 'scroll' : null;
 
   return (
-    <Box data-hero-intro data-hero-profile={ isMobile ? 'mobile' : 'desktop' } sx={ {
+    <Box data-hero-intro data-hero-profile={ isMobile ? 'mobile' : 'desktop' } data-hero-video-version="v2" sx={ {
       position: 'relative', backgroundColor: 'background.default',
       ...(isMobile ? {
         '--hero-cell-height': '100vh',
@@ -397,6 +399,8 @@ function HeptapodHeroIntro({ onComplete }) {
           playbackRequestedRef={ playToEndRef }
           mobilePlayback={ isMobile }
           scrubFrameRate={ 24 }
+          bufferAheadSeconds={ 3 }
+          playbackBufferSeconds={ 6 }
           onEnded={ handleVideoEnded }
           sx={ MEDIA_FIT }
         />
@@ -404,6 +408,8 @@ function HeptapodHeroIntro({ onComplete }) {
         <Box
           component="img"
           src={ HERO_POSTER_SRC }
+          fetchPriority="high"
+          loading="eager"
           alt=""
           aria-hidden
           sx={ {
@@ -461,12 +467,13 @@ function HeptapodHeroIntro({ onComplete }) {
       ) }
       <AppGNB overlay tone="dark" soundOn={ soundOn } soundLoading={ sound.isLoading }
         onToggleSound={ videoEnded ? undefined : toggleSound } />
+      <BeatCounter progress={ progress } clips={ timeline.clips } monoFont={ monoFont }
+        titleProgress={ titleProgress } exitProgress={ captionExitProgress } />
 
       {/* 스크롤 콘텐츠 (자연 흐름, 영상 위) */}
       <Box sx={ { position: 'relative', zIndex: 1 } }>
         {/* 스크럽 트랙 — 타이틀 셀 + 비트 셀(가중치). 이 요소의 스크롤 진행도가 영상을 스크럽한다.
-            display:flow-root — 첫 in-flow 자식(HUD)의 mt:100dvh 가 트랙 밖으로 상쇄되어 콘텐츠 전체가
-            한 화면 아래로 밀리는 것을 막는다(oneir 는 absolute 콘텐츠 레이어라 BFC 가 자동으로 생겼다). */}
+            캡션은 이 트랙의 절대 좌표를 사용하고, 섹션 인디케이터는 트랙 밖에서 뷰포트에 고정된다. */}
         <Box
           id={ TRACK_ID }
           ref={ trackRef }
@@ -519,7 +526,7 @@ function HeptapodHeroIntro({ onComplete }) {
               { !started && (
                 <Button
                   onClick={ handleStart }
-                  disabled={ !videoReady || playbackState === 'error' || playbackState === 'loading' }
+                  disabled={ !videoReady || playbackState !== 'ready' }
                   variant="outlined"
                   sx={ {
                     fontFamily: monoFont,
@@ -555,8 +562,6 @@ function HeptapodHeroIntro({ onComplete }) {
             />
           )) }
 
-          {/* HUD — 비트 카운터 + 진행바 (sticky, 타이틀 셀 제외) */}
-          <BeatCounter progress={ progress } clips={ timeline.clips } monoFont={ monoFont } titleProgress={ titleProgress } />
         </Box>
 
         {/* 스크럽 끝까지 도달할 여유 거리. 전환은 이 위치가 아닌 실제 video ended가 결정한다. */}

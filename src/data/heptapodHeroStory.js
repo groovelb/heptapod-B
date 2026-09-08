@@ -19,12 +19,12 @@ import { sourceText as t } from '../i18n/messages.js';
  * 상세 기획: docs/heptapod-b-encoder/06-hero-storyline.md (비트·카피), 07 (스크럽·사운드)
  */
 
-/** 스크럽 영상 (scripts/build-hero-scrub.mjs 산출물 — GOP 6, 오디오 포함이나 스크럽은 muted) */
-export const HERO_VIDEO_SRC = '/heptapod-b-encoder/hero-scrub/hero-scrub-1920.mp4';
+/** v2 Topaz 업스케일 영상 — PC 3832×2160, GOP 6, 24fps. 스크럽은 muted. */
+export const HERO_VIDEO_SRC = '/heptapod-b-encoder/hero-scrub-v2-topaz/hero-scrub-3832.mp4';
 /** 모바일(md 미만) 스크럽 영상 */
-export const HERO_VIDEO_SRC_MOBILE = '/heptapod-b-encoder/hero-scrub/hero-scrub-960.mp4';
+export const HERO_VIDEO_SRC_MOBILE = '/heptapod-b-encoder/hero-scrub-v2-topaz/hero-scrub-960.mp4';
 /** 포스터(첫 프레임) — 영상 준비 전 오버레이 */
-export const HERO_POSTER_SRC = '/heptapod-b-encoder/hero-scrub/hero-scrub-poster.jpg';
+export const HERO_POSTER_SRC = '/heptapod-b-encoder/hero-scrub-v2-topaz/hero-scrub-poster.jpg';
 
 /** 스크럽 사운드 — 베드 루프 / 비트 클립 디렉토리 (클립 파일명 = beat.id + .mp3) */
 export const HERO_AUDIO_BED_SRC = '/heptapod-b-encoder/audio/bed-loop.mp3';

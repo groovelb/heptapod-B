@@ -10,6 +10,31 @@ function needsScrubSeek(current, target, duration, frameRate) {
   return Math.floor(current * frameRate) !== Math.floor(target * frameRate);
 }
 
+// Count only the contiguous range containing the requested frame. A buffered
+// tail says nothing about gaps before it (seekable is not downloaded data).
+function bufferAhead(video, time) {
+  for (let i = 0; i < video.buffered.length; i += 1) {
+    if (video.buffered.start(i) <= time + 0.01 && video.buffered.end(i) > time) {
+      return video.buffered.end(i) - time;
+    }
+  }
+  return 0;
+}
+
+function bufferFraction(video, time, seconds) {
+  if (!Number.isFinite(video.duration) || video.duration <= 0) return 0;
+  const required = Math.min(seconds, Math.max(0, video.duration - time));
+  return required > 0 ? Math.min(1, bufferAhead(video, time) / required) : 1;
+}
+
+function canStartBuffered(video, time, seconds) {
+  if (video.readyState < 3 || video.seeking || video.error) return false;
+  return seconds <= 0 || bufferFraction(video, time, seconds) >= 0.99
+    // Safari/data-saving browsers may deliberately suspend a paused preload.
+    // Let native playback request more data instead of permanently locking START.
+    || (video.networkState === 1 && bufferAhead(video, time) > 0);
+}
+
 /**
  * VideoScrubbing Component
  * 스크롤 위치에 따라 비디오를 프레임 단위로 재생(스크러빙)하는 컴포넌트입니다.
@@ -21,8 +46,8 @@ function needsScrubSeek(current, target, duration, frameRate) {
  * @param {function} onProgressChange - 진행도 변경 콜백 (progress: 0-1) [Optional]
  * @param {function} mapProgress - 스크롤 진행도(0-1)를 비디오 진행도(0-1)로 재매핑 [Optional, 기본값: 선형]
  * @param {string} poster - 영상 로드 전 표시할 포스터 이미지 URL(첫 프레임) [Optional]
- * @param {function} onReady - 영상이 재생 가능(첫 프레임 확보)해지면 호출 [Optional]
- * @param {function} onLoadProgress - 버퍼 진행도 콜백 (fraction: 0-1) [Optional]
+ * @param {function} onReady - 첫 프레임과 설정된 연속 버퍼가 준비되면 로드당 한 번 호출 [Optional]
+ * @param {function} onLoadProgress - 시작 구간 준비율 (fraction: 0-1); bufferAheadSeconds 미지정 시 처음부터 연속 버퍼 비율 [Optional]
  * @param {boolean} playToEnd - true이면 스크럽 중단, 현재 위치에서 끝까지 자동 재생 [Optional, 기본값: false]
  * @param {function} onEnded - 비디오가 끝까지 재생 완료 시 호출 [Optional]
  * @param {React.RefObject} mediaRef - 재시도 등 사용자 제스처에서 사용할 video 요소 ref [Optional]
@@ -30,6 +55,8 @@ function needsScrubSeek(current, target, duration, frameRate) {
  * @param {React.RefObject<boolean>} playbackRequestedRef - React 커밋 전에도 스크럽 seek를 차단하는 재생 요청 ref [Optional]
  * @param {boolean} mobilePlayback - 모바일 준비/제스처 재시도와 실제 종료 상태 복구 [Optional, 기본값: false]
  * @param {number} scrubFrameRate - 검증된 CFR 영상만 동일 프레임 seek 생략. 시각/진행도는 양자화하지 않음 [Optional]
+ * @param {number} bufferAheadSeconds - 시작/재로드 위치의 연속 버퍼 준비량. 0이면 기존 canplay 사용 [Optional]
+ * @param {number} playbackBufferSeconds - 자동 재생 시작 전 준비량(남은 길이로 제한). 0이면 즉시 시도 [Optional]
  */
 const VideoScrubbing = ({
   src,
@@ -48,6 +75,8 @@ const VideoScrubbing = ({
   playbackRequestedRef,
   mobilePlayback = false,
   scrubFrameRate,
+  bufferAheadSeconds = 0,
+  playbackBufferSeconds = 0,
   ...props
 }) => {
   const internalVideoRef = useRef(null);
@@ -65,6 +94,9 @@ const VideoScrubbing = ({
   const restoringRef = useRef(false);
   const hiddenPauseRef = useRef(false);
   const resumeAfterHiddenRef = useRef(false);
+  const readyRef = useRef(false);
+  const scrubWaitingRef = useRef(false);
+  const checkReadinessRef = useRef(() => {});
   const [isInView, setIsInView] = useState(false);
 
   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
@@ -122,28 +154,56 @@ const VideoScrubbing = ({
     const video = videoRef.current;
     if (!video) return undefined;
 
-    const reportProgress = () => {
-      if (!onLoadProgress) return;
-      const d = video.duration;
-      const buffered = video.buffered;
-      if (d && buffered.length) {
-        onLoadProgress(Math.min(1, buffered.end(buffered.length - 1) / d));
+    let loadFrom = resumeTimeRef.current;
+    const reportReady = () => {
+      if (video.error) return;
+      if (readyRef.current && bufferAheadSeconds <= 0) {
+        onLoadProgress?.(bufferFraction(video, 0, video.duration));
+      }
+      if (!readyRef.current) {
+        let fraction = bufferFraction(video, loadFrom, bufferAheadSeconds || video.duration);
+        const ready = canStartBuffered(video, loadFrom, bufferAheadSeconds);
+        // The bar describes startup readiness, not a promise of a full download.
+        if (bufferAheadSeconds > 0 && ready) fraction = 1;
+        onLoadProgress?.(fraction);
+        if (!ready) return;
+        readyRef.current = true;
+        onReady?.();
+        if (!playingRef.current) onPlaybackStateChange?.('ready');
+      }
+      if (scrubWaitingRef.current && !video.seeking && !seekingRef.current && video.readyState >= 3) {
+        scrubWaitingRef.current = false;
+        if (!playingRef.current) onPlaybackStateChange?.('ready');
       }
     };
-    const reportReady = () => {
-      onReady?.();
-      if (!playingRef.current) onPlaybackStateChange?.('ready');
-      reportProgress();
-    };
+    checkReadinessRef.current = reportReady;
     const reportLoading = () => {
       // load() can abort a seek without emitting seeked. Its old lock/target cannot
       // survive into the new resource; keep only the last completed checkpoint.
       seekingRef.current = false;
       pendingTimeRef.current = null;
       restoringRef.current = resumeTimeRef.current > 0;
+      loadFrom = resumeTimeRef.current;
+      readyRef.current = false;
+      scrubWaitingRef.current = false;
       onPlaybackStateChange?.('loading');
+      onLoadProgress?.(0);
     };
-    const reportWaiting = () => { if (playingRef.current) onPlaybackStateChange?.('waiting'); };
+    const reportWaiting = () => {
+      if (video.error) return;
+      if (playingRef.current) onPlaybackStateChange?.('waiting');
+      else if (readyRef.current && bufferAheadSeconds > 0 && video.seeking) {
+        scrubWaitingRef.current = true;
+        onPlaybackStateChange?.('waiting');
+      }
+    };
+    const reportSeeking = () => {
+      if (video.error) return;
+      if (bufferAheadSeconds > 0 && readyRef.current && !playingRef.current && bufferAhead(video, video.currentTime) === 0) {
+        scrubWaitingRef.current = true;
+        onPlaybackStateChange?.('waiting');
+      }
+    };
     const reportPlaying = () => {
       // A queued playing event can arrive after the document intentionally paused.
       if (document.visibilityState === 'hidden' || video.paused) return;
@@ -169,11 +229,13 @@ const VideoScrubbing = ({
     video.addEventListener('emptied', reportLoading);
     video.addEventListener('loadedmetadata', reportMetadata);
     video.addEventListener('waiting', reportWaiting);
+    video.addEventListener('seeking', reportSeeking);
     video.addEventListener('playing', reportPlaying);
     video.addEventListener('pause', reportPause);
     video.addEventListener('error', reportError, true);
-    video.addEventListener('progress', reportProgress);
-    video.addEventListener('loadeddata', reportProgress);
+    video.addEventListener('progress', reportReady);
+    video.addEventListener('loadeddata', reportReady);
+    video.addEventListener('suspend', reportReady);
     video.addEventListener('canplay', reportReady);
     // 이미 재생 가능한 상태(캐시 등)면 즉시 보고
     if (video.readyState >= 3) reportReady();
@@ -183,14 +245,17 @@ const VideoScrubbing = ({
       video.removeEventListener('emptied', reportLoading);
       video.removeEventListener('loadedmetadata', reportMetadata);
       video.removeEventListener('waiting', reportWaiting);
+      video.removeEventListener('seeking', reportSeeking);
       video.removeEventListener('playing', reportPlaying);
       video.removeEventListener('pause', reportPause);
       video.removeEventListener('error', reportError, true);
-      video.removeEventListener('progress', reportProgress);
-      video.removeEventListener('loadeddata', reportProgress);
+      video.removeEventListener('progress', reportReady);
+      video.removeEventListener('loadeddata', reportReady);
+      video.removeEventListener('suspend', reportReady);
       video.removeEventListener('canplay', reportReady);
+      checkReadinessRef.current = () => {};
     };
-  }, [onReady, onLoadProgress, onPlaybackStateChange, videoRef]);
+  }, [onReady, onLoadProgress, onPlaybackStateChange, videoRef, bufferAheadSeconds]);
 
   // 브라우저가 src를 바꾸어도 동일 <video> 인스턴스에서 재생이 꼬이지 않게 강제 리로드
   useEffect(() => {
@@ -231,14 +296,14 @@ const VideoScrubbing = ({
       restoringRef.current = false;
       resumeTimeRef.current = video.currentTime;
       if (video.duration) onProgressChange?.(video.currentTime / video.duration);
-      if (playingRef.current || playbackRequestedRef?.current) return;
-      if (document.visibilityState === 'hidden') return;
       const target = pendingTimeRef.current;
-      if (target == null || !video.duration) return;
-      if (needsScrubSeek(video.currentTime, target, video.duration, scrubFrameRate)) {
+      if (!playingRef.current && !playbackRequestedRef?.current && document.visibilityState !== 'hidden'
+        && target != null && video.duration && needsScrubSeek(video.currentTime, target, video.duration, scrubFrameRate)) {
         seekingRef.current = true;
         video.currentTime = target;
+        return;
       }
+      checkReadinessRef.current();
     };
     video.addEventListener('seeked', onSeeked);
     return () => video.removeEventListener('seeked', onSeeked);
@@ -256,7 +321,11 @@ const VideoScrubbing = ({
         resumeAfterHiddenRef.current = !video.ended;
         return;
       }
-      if (mobilePlayback && (attempting || video.ended)) return;
+      if (attempting || video.ended) return;
+      if (playbackBufferSeconds > 0 && !canStartBuffered(video, video.currentTime, playbackBufferSeconds)) {
+        onPlaybackStateChange?.('waiting');
+        return;
+      }
       resumeAfterHiddenRef.current = false;
       attempting = true;
       const playEpoch = suspensionEpoch;
@@ -295,11 +364,13 @@ const VideoScrubbing = ({
       if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = 0; }
       onPlaybackStateChange?.('waiting');
       // 고정 타임코드로 seek하지 않는다. 진행 중인 seek가 끝나면 그 프레임에서 이어 재생한다.
-      if (mobilePlayback) {
+      if (mobilePlayback || playbackBufferSeconds > 0) {
         // WebKit may resolve metadata/readiness after the seek or interrupt play on backgrounding.
         // Retry only from the actual current frame; never seek to the end or manufacture completion.
         video.addEventListener('seeked', resume);
         video.addEventListener('canplay', resume);
+        video.addEventListener('progress', resume);
+        video.addEventListener('suspend', resume);
         window.addEventListener('pointerup', resume);
         window.addEventListener('touchend', resume);
         window.addEventListener('keydown', resume);
@@ -314,19 +385,21 @@ const VideoScrubbing = ({
       resumeAfterHiddenRef.current = false;
       hiddenPauseRef.current = false;
       if (!video.paused) video.pause();
-      if (!video.error && video.readyState >= 3) onPlaybackStateChange?.('ready');
+      if (!video.error && readyRef.current && !scrubWaitingRef.current) onPlaybackStateChange?.('ready');
     }
     return () => {
       cancelled = true;
       video.removeEventListener('seeked', play);
       video.removeEventListener('seeked', resume);
       video.removeEventListener('canplay', resume);
+      video.removeEventListener('progress', resume);
+      video.removeEventListener('suspend', resume);
       document.removeEventListener('visibilitychange', visibility);
       window.removeEventListener('pointerup', resume);
       window.removeEventListener('touchend', resume);
       window.removeEventListener('keydown', resume);
     };
-  }, [playToEnd, src, onPlaybackStateChange, videoRef, mobilePlayback]);
+  }, [playToEnd, src, onPlaybackStateChange, videoRef, mobilePlayback, playbackBufferSeconds]);
 
   useEffect(() => {
     const video = videoRef.current;

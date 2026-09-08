@@ -40,6 +40,11 @@ const proto = dom.HTMLMediaElement.prototype;
 for (const [key, value] of Object.entries({ duration: 47.09, readyState: 0, paused: true, seeking: false, ended: false, error: null })) {
   Object.defineProperty(proto, key, { configurable: true, get() { return this[`_${key}`] ?? value; }, set(v) { this[`_${key}`] = v; } });
 }
+// These navigation scenarios use fully downloaded media; buffering is covered separately.
+Object.defineProperty(proto, 'buffered', { configurable: true, get() {
+  const end = Number.isFinite(this.duration) && this.readyState >= 3 ? this.duration : 0;
+  return { length: end ? 1 : 0, start: () => 0, end: () => end };
+} });
 Object.defineProperty(proto, 'currentTime', { configurable: true,
   get() { return this._time ?? 0; },
   set(value) { this._time = value; this.seeking = true; (this.seekWrites ??= []).push(value); if (!this.holdSeek) queueMicrotask(() => settle(this)); },
@@ -53,7 +58,12 @@ proto.play = function () {
   return Promise.resolve();
 };
 proto.pause = function () { this.paused = true; };
-proto.load = function () {};
+proto.load = function () {
+  this.readyState = 0; this.duration = NaN; this.error = null; this.ended = false;
+  this._time = 0; this.seeking = false; this.paused = true;
+  this.dispatchEvent(new dom.Event('emptied'));
+  this.dispatchEvent(new dom.Event('loadstart'));
+};
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const emit = (target, name) => act(async () => target.dispatchEvent(new dom.Event(name)));
 const scroll = (value) => act(async () => { y = value; dom.dispatchEvent(new dom.Event('scroll')); await pause(35); });
@@ -77,6 +87,9 @@ try {
   const video = document.querySelector('video');
   check(() => assert.equal(document.querySelector('[data-hero-intro]').dataset.heroProfile, 'mobile'));
   check(() => assert.match(video.querySelector('source').src, /960\.mp4$/));
+  check(() => assert.equal(document.querySelector('[data-hero-intro]').dataset.heroVideoVersion, 'v2'));
+  check(() => assert.match(video.querySelector('source').src, /hero-scrub-v2-topaz/));
+  check(() => assert.equal(document.querySelector('[data-hero-video-toggle]'), null, 'Production hero has no comparison UI'));
   video.readyState = 3;
   await emit(video, 'canplay');
   const start = [...document.querySelectorAll('button')].find((b) => b.textContent.includes('START'));
@@ -85,7 +98,12 @@ try {
   await act(async () => start.click());
   await scroll(2200);
   check(() => assert.ok(Math.abs(video.currentTime / video.duration - mapTrackToVideo(mobile, 2200 / 3395)) < 1e-8));
+  const counter = document.querySelector('[data-hero-beat-counter]');
+  check(() => assert.ok(counter));
+  check(() => assert.equal(counter.closest('#hero-scrub-track'), null, 'Indicator is outside the ending scroll track'));
+  check(() => assert.equal(getComputedStyle(counter.parentElement).position, 'fixed', 'Indicator stays anchored to the viewport'));
   const checkpoint = video.currentTime;
+  check(() => assert.equal(document.querySelectorAll('video').length, 1));
   viewportHeight = 900; // Browser chrome changes, but stable svh track does not.
   await emit(dom, 'resize');
   await act(async () => pause(40));
@@ -102,6 +120,7 @@ try {
   const writes = [...video.seekWrites];
   await scroll(4.6 * cellHeight);
   check(() => assert.equal(state(), 'waiting'));
+  check(() => assert.equal(getComputedStyle(counter.parentElement).position, 'fixed', 'Last-section scrolling cannot release the indicator'));
   check(() => assert.deepEqual(video.seekWrites, writes, 'Autoplay never writes a later queued seek'));
   video.rejectPlay = true;
   await act(async () => settle(video));
@@ -131,6 +150,7 @@ try {
   check(() => assert.equal(router.state.historyAction, 'REPLACE'));
   check(() => assert.ok(document.querySelector('[data-canvas]')));
   check(() => assert.equal(document.querySelector('video'), null));
+  check(() => assert.equal(document.querySelector('[data-hero-beat-counter]'), null, 'Indicator leaves with the completed hero'));
   const key = router.state.location.key;
   await emit(video, 'ended');
   check(() => assert.equal(router.state.location.key, key));

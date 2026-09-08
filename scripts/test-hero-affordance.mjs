@@ -46,6 +46,12 @@ const proto = window.HTMLMediaElement.prototype;
 for (const [name, value] of Object.entries({ readyState: 0, duration: NaN, paused: true, error: null, ended: false, seeking: false })) {
   Object.defineProperty(proto, name, { configurable: true, get() { return this[`_${name}`] ?? value; }, set(v) { this[`_${name}`] = v; } });
 }
+// These navigation scenarios use fully downloaded media; buffering is covered separately.
+Object.defineProperty(proto, 'buffered', { configurable: true, get() {
+  const end = Number.isFinite(this.duration) && this.readyState >= 3 ? this.duration : 0;
+  const ranges = this._ranges ?? (end ? [[0, end]] : []);
+  return { length: ranges.length, start: (i) => ranges[i][0], end: (i) => ranges[i][1] };
+} });
 Object.defineProperty(proto, 'currentTime', {
   configurable: true,
   get() { return this._currentTime ?? 0; },
@@ -134,13 +140,29 @@ try {
   check(() => assert.equal(hasArrow(), false));
   check(() => assert.equal(button('START').disabled, true));
   check(() => assert.equal(getComputedStyle(finalCaption().firstElementChild).position, 'sticky'));
+  video._ranges = [[0, 1], [44, 47.08]];
   await ready(video);
+  check(() => assert.equal(button('START').disabled, true, 'A playable frame plus a buffered tail cannot open START'));
+  check(() => assert.equal(state(), 'loading'));
+  video._ranges = [[0, 3]];
+  await event(video, 'progress');
   check(() => assert.equal(button('START').disabled, false));
+  video._ranges = undefined; // Remaining route tests use a fully downloaded file.
   await start();
   await scroll(500);
   check(() => assert.equal(state(), 'scroll'));
   check(() => assert.equal(cue().dataset.visible, 'true'));
   check(() => assert.ok(hasArrow()));
+  video._ranges = [[0, 3]];
+  video.holdSeek = true;
+  await scroll(1000);
+  await event(video, 'seeking');
+  check(() => assert.equal(state(), 'waiting', 'An unbuffered scrub shows loading instead of the scroll cue'));
+  check(() => assert.equal(hasArrow(), false));
+  video._ranges = undefined;
+  video.holdSeek = false;
+  await act(async () => settleSeek(video));
+  check(() => assert.equal(state(), 'scroll', 'Completed scrub restores the scroll cue'));
   await scroll(5450);
   check(() => assert.equal(state(), 'scroll')); // Spacer visibility must not jump 37s -> 42s.
   check(() => assert.ok(video.currentTime > 37 && video.currentTime < 38));

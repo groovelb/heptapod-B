@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import Box from '@mui/material/Box';
-import { motion, useMotionValueEvent, useTransform } from 'framer-motion';
+import { cancelFrame, frame, motion, useTransform } from 'framer-motion';
 import { bodySx, headlineSx } from './captionStyles';
 import { EASE, LINEAR, quantize, seededUnit, useBlurFilter, useInkReveal } from './inkMotion';
 import InkLetters from './InkLetters';
@@ -67,12 +67,14 @@ function ScrambleCaption({ f, progress, total, beat, reduced = false }) {
     return parts.length >= 2 ? [`${parts[0]},`, parts.slice(1).join(', ')] : [beat.headline, ''];
   }, [beat.headline]);
 
-  const [q, setQ] = useState(reduced ? STEPS : 0);
-  useMotionValueEvent(f, 'change', (v) => {
-    if (reduced) return;
-    const next = quantize(v, STEPS);
-    setQ((prev) => (prev === next ? prev : next)); // 같은 단계면 리렌더 없음
-  });
+  const subscribe = useCallback((notify) => {
+    // useTransform can update f during the parent render. Notify React after render,
+    // as TypeCaption does, and cancel pending notifications when unmounting.
+    const unsubscribe = f.on('change', () => frame.update(notify));
+    return () => { unsubscribe(); cancelFrame(notify); };
+  }, [f]);
+  const getStep = useCallback(() => reduced ? STEPS : quantize(f.get(), STEPS), [f, reduced]);
+  const q = useSyncExternalStore(subscribe, getStep, getStep);
 
   const key = `heptapod:${beat.id}`;
   const left = reduced ? leftText : dissolve(leftText, q, key);

@@ -1,0 +1,22 @@
+{
+  "output": "public/heptapod-b-encoder/hero-scrub-v2-topaz/hero-scrub-3832.mp4",
+  "bytes": 120338412,
+  "sha256": "f73b63b47e6e08cead38db0b08764a004328d4fc3d29e4295820b666b2a4212b",
+  "parts": [
+    {
+      "file": "hero-scrub-3832.part01",
+      "bytes": 50331648,
+      "sha256": "1d8c7f4e17deb6632a0df5868f3d2c826a57c2e5c8d4deb3b1bd0ad9a9f6913f"
+    },
+    {
+      "file": "hero-scrub-3832.part02",
+      "bytes": 50331648,
+      "sha256": "c9ea9ee306e19b28af5747b9d18c560752e5bade4f4dfafd5b986ed9a45fcab7"
+    },
+    {
+      "file": "hero-scrub-3832.part03",
+      "bytes": 19675116,
+      "sha256": "a504ca07c52dbf508368293b7bc94c02f20e09d0d65d63288ed46412ee67bd5b"
+    }
+  ]
+}

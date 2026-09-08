@@ -31,3 +31,6 @@ storybook-static
 .env
 .env.local
 .env.*.local
+
+# Reconstructed byte-for-byte before dev/build from assets/heptapod-hero-v2.
+/public/heptapod-b-encoder/hero-scrub-v2-topaz/hero-scrub-3832.mp4
