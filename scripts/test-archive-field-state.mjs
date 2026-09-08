@@ -248,10 +248,10 @@ try {
   check(() => assert.equal(document.querySelector('[role="dialog"]'), null, 'Legacy observation URL cannot reopen the removed Drawer'));
   check(() => assert.doesNotMatch(document.body.textContent, /이 공간의 관측 기록|내가 남긴 응답|아직 읽고 있는 흔적|모습을 기다리는 응답/));
   check(() => assert.ok(!client.calls.some((key) => ['auth', 'glyph_contributions', 'archive-relations'].includes(key)), 'Archive must not load personal records or precision relations'));
-  // The complete chronological collection has one text action below the families.
+  // The complete chronological collection restores its original ring portal.
   for (let i = 0; i < 20 && !document.querySelector('[data-archive-chronological]'); i += 1) await settle();
   const timelinePortal = document.querySelector('[data-archive-chronological]');
-  check(() => assert.ok(timelinePortal && !timelinePortal.querySelector('.archive-cluster-cloud')));
+  check(() => assert.ok(timelinePortal?.querySelector('[data-archive-timeline-symbol]')));
   check(() => assert.ok(document.querySelector('[data-cluster-id="arrival"]')));
   check(() => assert.equal(document.querySelector('[data-archive-grouped], [role="tablist"]'), null));
   // Whole-archive order includes unreadable models and survives focus and Back.
@@ -298,7 +298,23 @@ try {
   check(() => assert.equal(document.querySelector('[data-archive-timeline]'), null));
   check(() => assert.equal(document.querySelector('[data-archive-navigation]').hidden, true));
   check(() => assert.equal(document.querySelector('[data-archive-depth]').style.getPropertyValue('--archive-navigation-height'), '0px'));
-  check(() => assert.ok(document.querySelector('[data-cluster-title]').closest('.archive-cluster-cloud'), 'Cluster title is inside its circle'));
+  check(() => assert.ok(document.querySelector('[data-cluster-title]').closest('.archive-cluster-cloud'), 'Desktop restores the original title inside the full-size symbol'));
+  check(() => assert.ok(document.querySelector('[data-cluster-title]').closest('button[data-cluster-id]'), 'Title and symbol share one clickable family row'));
+  // Cross the breakpoint on the same mounted page: neither layout may leave
+  // duplicate symbols or the other layout's positioning behind.
+  for (const width of [390, 899, 900, 1440]) {
+    await act(async () => dom.happyDOM.setWindowSize({ width, height: 900 }));
+    await settle();
+    for (const portal of document.querySelectorAll('[data-archive-portal]')) {
+      const button = portal.querySelector('[data-cluster-id]');
+      const title = portal.querySelector('[data-cluster-title]');
+      const cue = portal.querySelector('[data-family-reading]');
+      check(() => assert.equal(portal.querySelectorAll('[data-family-symbol], [data-archive-timeline-symbol]').length, 1));
+      check(() => assert.equal(getComputedStyle(button).display, 'block'));
+      check(() => assert.equal(Boolean(title.closest('.archive-cluster-cloud')), width >= 900));
+      if (cue) check(() => assert.equal(button.contains(cue), width < 900));
+    }
+  }
   check(() => assert.equal(requests, 0));
   console.log(`Archive type feed: ${checks} checks passed; centered names, separate detail, live analysis selection, exact-type peers/fragments, focus/Back restore list and scroll. In-memory DOM only.`);
 } finally {

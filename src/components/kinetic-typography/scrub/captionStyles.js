@@ -69,6 +69,8 @@ export const instrumentSx = (monoFont, onLight = false) => ({
   lineHeight: 1.6,
   color: onLight ? alpha(INK_DARK, 0.7) : alpha(INK_LIGHT, 0.6),
   textShadow: onLight ? 'none' : COPY_SHADOW,
-  whiteSpace: 'pre',
+  maxWidth: '100%',
+  whiteSpace: { xs: 'pre-wrap', md: 'pre' },
+  overflowWrap: { xs: 'anywhere', md: 'normal' },
   m: 0,
 });

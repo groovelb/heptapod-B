@@ -28,6 +28,7 @@ function CaptionFrame({ clip, scrubCells, placement = 'left', captionAt = 0.5, a
           position: 'sticky', top: 0, height: '100vh', '@supports (height: 1dvh)': { height: '100dvh' },
           display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
           width: '100%', px: { xs: 3, md: 6 }, textAlign: 'center',
+          '& > *': { minWidth: 0, maxWidth: '100%' },
         } }>
           { children }
         </Box>
@@ -44,6 +45,7 @@ function CaptionFrame({ clip, scrubCells, placement = 'left', captionAt = 0.5, a
         width: place.width,
         px: { xs: 3, md: placement === 'center' ? 6 : 0 },
         minWidth: 0,
+        '& > *': { minWidth: 0, maxWidth: '100%' },
         display: 'flex',
         flexDirection: 'column',
         alignItems: place.alignItems,

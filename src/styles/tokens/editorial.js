@@ -18,6 +18,10 @@ export function createEditorialTokens({ typography, breakpoints }) {
       editorialLead: role('1.25rem', '1.5rem', { lineHeight: 1.65, letterSpacing: '-0.01em' }),
       editorialTitle: role('1.875rem', '2.5rem', { fontFamily: serif, fontWeight: typography.fontWeightBold, lineHeight: 1.3, letterSpacing: '-0.02em' }),
       editorialDisplay: role('2.25rem', '3.5rem', { fontFamily: serif, fontWeight: typography.fontWeightBold, lineHeight: 1.25, letterSpacing: '-0.025em' }),
+      editorialArchiveHomeTitle: role('1.75rem', '2.5rem', { fontFamily: serif, fontWeight: typography.fontWeightBold, lineHeight: 1.3, letterSpacing: '-0.02em' }),
+      editorialArchiveHomeLabel: role('1.125rem', '1.5rem', { fontFamily: serif, fontWeight: typography.fontWeightBold, lineHeight: 1.4 }),
+      editorialArchiveHomeCue: role('0.875rem', '1rem', { lineHeight: 1.6 }),
+      editorialArchiveHomeCount: role('0.75rem', '0.8125rem', { lineHeight: 1.5 }),
       editorialPortal: role('1.25rem', '1.875rem', { fontFamily: serif, fontWeight: typography.fontWeightBold, lineHeight: 1.4 }),
       editorialPortalCompact: role('1rem', '1.875rem', { fontFamily: serif, fontWeight: typography.fontWeightBold, lineHeight: 1.4 }),
       editorialLabel: role('1rem', '1.0625rem', { fontWeight: typography.fontWeightBold, lineHeight: 1.5 }),
@@ -49,6 +53,11 @@ export function createEditorialTokens({ typography, breakpoints }) {
         itemGap: { xs: 1.25, md: 1.5 }, scrollInset: 1.5,
       },
       readingScrollbar: { size: 6 },
+      // Only consumed below md; desktop Archive uses its existing page tokens.
+      archiveHome: {
+        measure: '48rem', glyphMaxSize: '12rem', columnGap: 2, rowGap: 3,
+        headingGap: { xs: 2 }, labelGap: 0.5,
+      },
       createCta: {
         minHeight: { xs: 44, md: 48 }, px: { xs: 1.5, md: 2 },
         py: { xs: 0.75, md: 1 }, gap: { xs: 1, md: 1.5 }, width: '17rem',

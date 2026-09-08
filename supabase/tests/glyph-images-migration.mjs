@@ -1,0 +1,80 @@
+/** Ephemeral PostgreSQL only; no remote writes. */
+import { PGlite } from 'npm:@electric-sql/pglite@0.3.14';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+const db = new PGlite();
+const id = '11111111-1111-4111-8111-111111111111';
+const scalar = async (sql, params=[]) => (await db.query(sql,params)).rows[0];
+try {
+  await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS;
+    CREATE TABLE public.glyphs(id uuid PRIMARY KEY,model_data jsonb,is_public boolean);
+    GRANT SELECT ON public.glyphs TO anon,authenticated; GRANT ALL ON public.glyphs TO service_role;
+    CREATE SCHEMA storage; CREATE TABLE storage.buckets(id text PRIMARY KEY,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+    CREATE TABLE storage.objects(id uuid DEFAULT gen_random_uuid(),bucket_id text,name text); ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+    GRANT USAGE ON SCHEMA storage TO anon,authenticated; GRANT SELECT ON storage.objects TO anon,authenticated;
+    INSERT INTO public.glyphs VALUES ('${id}','{"test":1}',true);`);
+  await db.exec(await readFile(new URL('../migrations/20260909100000_glyph_static_images.sql',import.meta.url),'utf8'));
+  assert.equal((await scalar('select count(*)::int n from glyph_image_jobs')).n,1);
+  assert.equal((await scalar('select model_data from glyphs')).model_data.test,1);
+  for (const role of ['anon','authenticated']) {
+    await db.exec(`SET ROLE ${role}`);
+    assert.equal((await scalar('select status from glyph_image_jobs')).status,'pending');
+    await assert.rejects(()=>db.query('select lease_token from glyph_image_jobs'), /permission denied/);
+    await assert.rejects(()=>db.query('select * from claim_glyph_image_jobs(2)'), /permission denied/);
+    await db.exec('RESET ROLE');
+  }
+  await db.exec('SET ROLE service_role');
+  const claimed=await scalar('select * from claim_glyph_image_jobs(2)');
+  assert.equal(claimed.status,'processing'); assert.equal(claimed.attempts,1); assert.ok(claimed.lease_token);
+  assert.equal((await db.query('select * from claim_glyph_image_jobs(2)')).rows.length,0);
+  await db.exec('RESET ROLE');
+  await db.query('update glyphs set model_data=$1 where id=$2',[{test:2},id]);
+  assert.equal((await scalar('select status from glyph_image_jobs')).status,'pending');
+  assert.equal((await db.query('update glyph_image_jobs set status=$1 where glyph_id=$2 and lease_token=$3 returning glyph_id',['ready',id,claimed.lease_token])).rows.length,0);
+  await db.query(`update glyph_image_jobs set status='ready', variants=$1`,[{256:{path:`${id}/good.png`}}]);
+  await db.query('insert into storage.objects(bucket_id,name) values ($1,$2),($1,$3)',['glyph-images',`${id}/good.png`,`${id}/old.png`]);
+  await db.exec('SET ROLE anon');
+  assert.equal((await db.query('select * from storage.objects')).rows.length,1);
+  await db.exec('RESET ROLE');
+  await db.query('update glyphs set is_public=false where id=$1',[id]);
+  assert.equal((await scalar('select count(*)::int n from glyph_image_jobs')).n,0);
+  await db.exec('SET ROLE anon');
+  assert.equal((await db.query('select * from storage.objects')).rows.length,0);
+  await db.exec('RESET ROLE');
+  await db.query('update glyphs set is_public=true where id=$1',[id]);
+  assert.equal((await scalar('select status from glyph_image_jobs')).status,'pending');
+  await db.exec(`UPDATE glyph_image_jobs SET status='processing',lease_until=now()-interval '1 second',attempts=1;
+    SET ROLE service_role;`);
+  assert.equal((await scalar('select * from claim_glyph_image_jobs(2)')).attempts,2);
+  await db.exec(`RESET ROLE; UPDATE glyph_image_jobs SET status='processing',attempts=5,lease_until=now()-interval '1 second'; SET ROLE service_role;`);
+  assert.equal((await db.query('select * from claim_glyph_image_jobs(2)')).rows.length,0);
+  await db.exec('RESET ROLE');
+  assert.equal((await scalar('select status from glyph_image_jobs')).status,'failed');
+  await db.exec(`
+    CREATE SCHEMA vault; CREATE TABLE vault.secrets(id uuid DEFAULT gen_random_uuid(),secret text,name text);
+    CREATE VIEW vault.decrypted_secrets AS SELECT id,name,secret AS decrypted_secret FROM vault.secrets;
+    CREATE FUNCTION vault.create_secret(new_secret text,new_name text) RETURNS uuid LANGUAGE sql AS $$ INSERT INTO vault.secrets(secret,name) VALUES(new_secret,new_name) RETURNING id $$;
+    CREATE FUNCTION vault.update_secret(secret_id uuid,new_secret text) RETURNS void LANGUAGE sql AS $$ UPDATE vault.secrets SET secret=new_secret WHERE id=secret_id $$;
+    CREATE SCHEMA cron; CREATE TABLE cron.job(jobname text PRIMARY KEY,schedule text,command text);
+    CREATE FUNCTION cron.schedule(jobname text,schedule text,command text) RETURNS bigint LANGUAGE sql AS $$ INSERT INTO cron.job VALUES(jobname,schedule,command) ON CONFLICT(jobname) DO UPDATE SET schedule=excluded.schedule,command=excluded.command RETURNING 1::bigint $$;
+    CREATE SCHEMA net; CREATE TABLE net.calls(url text,headers jsonb,body jsonb);
+    CREATE FUNCTION net.http_post(url text,headers jsonb,body jsonb,timeout_milliseconds integer) RETURNS bigint LANGUAGE sql AS $$ INSERT INTO net.calls VALUES(url,headers,body) RETURNING 1::bigint $$;`);
+  const scheduler = await readFile(new URL('../migrations/20260909101000_glyph_image_scheduler.sql',import.meta.url),'utf8');
+  // Extension installation is remote-specific; validate the actual functions against local extension API stubs.
+  await db.exec(scheduler.replace(/^CREATE EXTENSION.*$/gm,''));
+  await db.exec('SET ROLE anon');
+  await assert.rejects(()=>db.query('select configure_glyph_image_worker($1,$2)',['https://example.supabase.co/functions/v1/archive-glyph-image-worker','x'.repeat(48)]),/permission denied/);
+  await db.exec('SET ROLE service_role');
+  await assert.rejects(()=>db.query('select configure_glyph_image_worker($1,$2)',[null,null]),/Invalid worker/);
+  await db.query('select configure_glyph_image_worker($1,$2)',['https://example.supabase.co/functions/v1/archive-glyph-image-worker','x'.repeat(48)]);
+  await db.query('select configure_glyph_image_worker($1,$2)',['https://example.supabase.co/functions/v1/archive-glyph-image-worker','y'.repeat(48)]);
+  assert.equal((await scalar('select dispatch_glyph_image_jobs() id')).id,null,'Empty/terminal queue does not invoke worker');
+  await db.exec("RESET ROLE; UPDATE glyph_image_jobs SET status='pending',attempts=0; SET ROLE service_role;");
+  assert.equal((await scalar('select dispatch_glyph_image_jobs() id')).id,1);
+  await db.exec('RESET ROLE');
+  assert.equal((await scalar('select count(*)::int n from cron.job')).n,1);
+  assert.equal((await scalar('select count(*)::int n from vault.secrets')).n,2);
+  await db.query('INSERT INTO public.glyphs VALUES ($1,$2,true)', ['22222222-2222-4222-8222-222222222222',{newPublication:true}]);
+  assert.equal((await scalar("select status from glyph_image_jobs where glyph_id='22222222-2222-4222-8222-222222222222'")).status,'pending');
+  console.log('Glyph image migration: queue, RLS, lease invalidation/recovery, variants access and unpublish checks passed.');
+} finally {await db.close();}

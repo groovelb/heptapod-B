@@ -17,6 +17,7 @@ export default {
   title: 'Custom Component/5. Data Display/ResonanceMap', component: ResonanceMap, tags: ['autodocs'],
   parameters: { docs: { description: { component: '여러 이름을 실제로 변환한 뒤 형태 공명이 발견된 표식만 표시합니다. 최대 12개(좁은 화면 6개)의 이웃을 배치하며 선 무늬는 관측 부위를 뜻합니다. 노드 거리는 유사도나 공명의 강도를 나타내지 않습니다.' } } },
   argTypes: {
+    centerGlyphId: { control: 'text', description: '공개 중심 표식 UUID. 모바일 이미지 API에 전달' },
     centerModel: { control: 'object', description: '실제 중심 표식 모델' },
     centerName: { control: 'text', description: '중심 이름' },
     relations: { control: 'object', description: 'ID별 이웃과 v3 실제 형태 관측' },

@@ -3,6 +3,8 @@ import { useEffect, useRef } from 'react';
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import StaticGlyphImage from './StaticGlyphImage';
+import { useStaticGlyphRendering } from './GlyphRenderScope';
 import {
   generateParticles, makeSprites, paintStatic, SIZE0,
 } from '../../utils/heptapod/logogramParticles';
@@ -13,16 +15,18 @@ let spriteInk;
 let sprites;
 
 /**
- * GlyphNode — 저장된 모델을 메인 Canvas와 같은 기하로 그리는 정적 표식.
+ * GlyphNode — 모바일 이미지 / PC·개인 상세 정지 Canvas 표식.
  * @param {object} model - 저장되거나 로컬에서 생성한 실제 표식 모델
+ * @param {string} glyphId - 공개 DB UUID. 미저장 모델에는 생략
  * @param {number} size - 표식 정방형 크기 (기본 64px)
  * @param {string} label - 이름. 긴 이름은 접근성 이름으로 전체 보존
  * @param {boolean} isSelected - 선택 상태
  * @param {function} onClick - 선택 동작. 제공하면 기본 키보드 동작이 있는 button 사용
  * @param {object} sx - 추가 MUI sx
  */
-export default function GlyphNode({ model, size = 64, label = '', isSelected = false, onClick, sx = {} }) {
+export default function GlyphNode({ model, glyphId, size = 64, label = '', isSelected = false, onClick, sx = {} }) {
   const { t } = useI18n();
+  const isStatic = useStaticGlyphRendering();
   const canvasRef = useRef(null);
   const theme = useTheme();
   const ink = theme.palette.custom?.chamber?.ink || theme.palette.text.primary;
@@ -30,6 +34,7 @@ export default function GlyphNode({ model, size = 64, label = '', isSelected = f
   const hasModel = Boolean(model?.harmonics && model?.clusters && model?.pressure);
 
   useEffect(() => {
+    if (isStatic) return undefined;
     const canvas = canvasRef.current;
     if (!canvas || !hasModel) return undefined;
     let drawn = false;
@@ -55,7 +60,7 @@ export default function GlyphNode({ model, size = 64, label = '', isSelected = f
     }, { rootMargin: '200px' });
     observer.observe(canvas);
     return () => observer.disconnect();
-  }, [model, hasModel, resolvedSize, ink]);
+  }, [model, hasModel, resolvedSize, ink, isStatic]);
 
   const accessibleName = t('glyphNode.sGlyph', { p0: label || model?.meta?.name || t('glyphNode.name'), p1: hasModel ? '' : t('glyphNode.noDisplayData') });
   return (
@@ -71,7 +76,10 @@ export default function GlyphNode({ model, size = 64, label = '', isSelected = f
         '&:focus-visible': { outline: `2px solid ${ink}`, outlineOffset: 3 }, ...sx,
       } }
     >
-      { hasModel ? (
+      { hasModel && isStatic ? (
+        <StaticGlyphImage model={ model } glyphId={ glyphId } size={ resolvedSize }
+          alt={ onClick ? '' : accessibleName } sx={ { width: resolvedSize, height: resolvedSize, maxWidth: '100%' } } />
+      ) : hasModel ? (
         <Box component="canvas" ref={ canvasRef } role={ onClick ? undefined : 'img' }
           aria-hidden={ onClick ? true : undefined } aria-label={ onClick ? undefined : accessibleName }
           sx={ { display: 'block', width: resolvedSize, height: resolvedSize, maxWidth: '100%' } }

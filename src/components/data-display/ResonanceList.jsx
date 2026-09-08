@@ -70,7 +70,7 @@ export default function ResonanceList({
                 display: 'block', p: 2, borderBottom: '1px solid', borderColor: alpha(ink, 0.12), '&:last-child': { borderBottom: 0 },
               } }>
                 <Box sx={ { display: 'flex', alignItems: 'center', gap: 1.5 } }>
-                  <GlyphNode model={ neighbor.model } size={ 56 } />
+                  <GlyphNode glyphId={ neighbor.id } model={ neighbor.model } size={ 56 } />
                   <Box sx={ { flex: 1, minWidth: 0 } }>
                     <Typography sx={ { fontFamily: "'Cinzel', 'Noto Serif KR', Georgia, serif", overflowWrap: 'anywhere' } }>{ neighbor.name }</Typography>
                     <Typography variant="caption" sx={ { display: 'block', mt: 0.5, color: alpha(ink, 0.8) } }>{ localize([levelLabel, ...labels].join(' · ')) }</Typography>

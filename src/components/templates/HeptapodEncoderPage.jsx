@@ -12,6 +12,8 @@ import { useI18n } from '../../i18n/useI18n.js';
 
 import LogogramChamber from '../motion/LogogramChamber';
 import LogogramRendererCanvas from '../motion/LogogramRendererCanvas';
+import StaticGlyphImage from '../data-display/StaticGlyphImage';
+import { useStaticGlyphRendering } from '../data-display/GlyphRenderScope';
 import FadeTransition from '../motion/FadeTransition';
 import AnalysisOverlay from '../overlay-feedback/AnalysisOverlay';
 import GlyphObservationOverlay from '../overlay-feedback/GlyphObservationOverlay';
@@ -111,6 +113,7 @@ function splitText(text) {
  * @returns {JSX.Element|null} 단일 프리뷰 칩
  */
 function TypingPreview({ text, size, ink, monoSx }) {
+  const isStatic = useStaticGlyphRendering();
   const { localize } = useI18n();
   const chars = Array.from(text.replace(/[?？]/g, '')).filter((ch) => !/\s/.test(ch));
   const last = chars[chars.length - 1];
@@ -127,14 +130,14 @@ function TypingPreview({ text, size, ink, monoSx }) {
         { localize('Preview') }
       </Box>
       <Box sx={ { width: size, height: size } }>
-        <LogogramRendererCanvas
+        { isStatic ? <StaticGlyphImage model={ previewModel } size={ size } /> : <LogogramRendererCanvas
           key={ `${last}-${chars.length}` } // 키 입력마다 remount → 재형성
           model={ previewModel }
           size={ size }
           inkColor={ alpha(ink, 0.8) }
           isActive
           timeScale={ 4 } // 레이턴시 없이 즉각 반응 (형성 빠르게 감김)
-        />
+        /> }
       </Box>
     </Box>
   );
@@ -150,6 +153,7 @@ function TypingPreview({ text, size, ink, monoSx }) {
 function ChildGrid({
   nodes, stageMin, ink, fg, onSelect,
 }) {
+  const isStatic = useStaticGlyphRendering();
   const n = nodes.length;
   // 행·열 모두 고려해 정사각 영역(stageMin)에 항상 맞춤 → 스크롤 없음, 일정 비율
   const cols = Math.ceil(Math.sqrt(n));
@@ -187,7 +191,8 @@ function ChildGrid({
           } }
         >
           <Box sx={ { position: 'relative', width: glyph, height: glyph } }>
-            <LogogramRendererCanvas model={ node.model } size={ glyph } inkColor={ ink } isActive />
+            { isStatic ? <StaticGlyphImage model={ node.model } size={ glyph } />
+              : <LogogramRendererCanvas model={ node.model } size={ glyph } inkColor={ ink } isActive /> }
             <Box
               className="hb-childchar"
               sx={ {

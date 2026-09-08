@@ -1,0 +1,14 @@
+# 실행 계약 — 2026-09-09
+
+- 900px 미만 정적 이미지, PC live 보존. ArchiveSelectedGlyph 전체 하위와 개인 생성 결과/분석은 live 예외. 기타 ArchiveGlyph/GlyphNode/encoder 주변 예시 정적.
+- 투명 PNG 256/512, 720-space 원형 중심/여백 보존, ink #1c2226. 기존 WebP 후보 대신 Node/Deno/Worker 공통 무의존 PNG 사용; 크기/품질은 A가 검증.
+- contract.js가 키·상태·해시 단일 규격. 렌더러 `renderGlyphImage(model,{size=512,ink='#1c2226'})` → Promise `{bytes,width,height,mimeType,checksum}`. Node 전용 import 금지.
+- Worker request `{id,model,size,ink}` → `{id,bytes,width,height,mimeType}` 또는 `{id,error}`. bytes Uint8Array transferable. C 캐시는 bounded/refcount+URL revoke.
+- DB UUID가 있는 공개 표식은 glyphImageUrl 경유. authored/local 모델은 A가 생성한 manifest(형식 A→C 공유) 우선, 나머지는 로컬 Worker. model.meta.hash는 해시 키로 사용 금지.
+- DB table glyph_image_jobs: glyph_id PK FK, status, model_hash text nullable, renderer_version int default1, variants jsonb default{}, attempts int default0, lease_token uuid nullable, lease_until timestamptz nullable, next_attempt_at timestamptz defaultnow, error text nullable, updated_at timestamptz. images private bucket glyph-images. variant map `{256:{path,width,height,mimeType,checksum},512:{...}}`.
+- Root RPC `claim_glyph_image_jobs(p_limit integer default2)` service_role only → SETOF glyph_image_jobs. processing lease5min, limit<=4, max attempts5, expired lease reclaim. Completion worker CAS glyph_id+lease_token+status then fresh public/model check. Root trigger on glyph insert/model_data/is_public change resets queue or deletes inaccessible job; no original model changes.
+- B implements Supabase adapter jobs + API using server anon/public env where possible, private storage RLS anon SELECT only currently public ready variants; Root writes SQL. API rechecks public/model + ready key, Cache-Control private,no-store, failure no-store. No browser storage key signing.
+- B may additionally own `supabase/functions/archive-glyph-image-worker/index.ts` and handler.js: Deno using service_role env, secret x-glyph-worker-secret from GLYPH_IMAGE_WORKER_SECRET, constant-time auth, process bounded jobs. Root deploy/configure cron+vault after local integration. C/B do not deploy. Root owns SQL, secrets, scheduler wiring.
+- Public insert transaction trigger durably queues. Root sets pg_cron→pg_net to invoke bounded Edge consumer each minute, only if platform verified. Initial backfill via B CLI admin environment (never print keys). B defaults dry-run, explicit --apply for mutations.
+- DB image missing yields stable accessible placeholder+retry (no Canvas fallback). API can return Retry-After for pending. Feature final activation after generated coverage. Authored/time symbols must work with empty clusters. Legacy/partial bounded models preserved; unsupported explicit.
+- Other workers share workspace; edit only owned paths and preserve current mobile2×2/PC restoration. No browser automation, no extra agents.

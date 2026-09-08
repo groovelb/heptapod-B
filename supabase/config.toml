@@ -405,3 +405,7 @@ verify_jwt = false
 verify_jwt = false
 [functions.archive-share]
 verify_jwt = false
+
+# Only the scheduled worker secret authorizes this endpoint; no public jobs.
+[functions.archive-glyph-image-worker]
+verify_jwt = false

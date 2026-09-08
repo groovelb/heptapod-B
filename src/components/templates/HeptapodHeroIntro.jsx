@@ -379,6 +379,9 @@ function HeptapodHeroIntro({ onComplete }) {
   return (
     <Box data-hero-intro data-hero-profile={ isMobile ? 'mobile' : 'desktop' } data-hero-video-version="v2" sx={ {
       position: 'relative', backgroundColor: 'background.default',
+      // Rotating caption bounds must not enlarge the document. Unlike hidden,
+      // clip does not create a scroll container that would trap the final sticky caption.
+      overflowX: { xs: 'clip', md: 'visible' },
       ...(isMobile ? {
         '--hero-cell-height': '100vh',
         '@supports (height: 1svh)': { '--hero-cell-height': '100svh' },

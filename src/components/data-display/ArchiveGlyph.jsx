@@ -2,6 +2,8 @@ import { useI18n } from '../../i18n/useI18n.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import StaticGlyphImage from './StaticGlyphImage';
+import { useStaticGlyphRendering } from './GlyphRenderScope';
 import LogogramRendererCanvas from '../motion/LogogramRendererCanvas';
 import GlyphObservationOverlay from '../overlay-feedback/GlyphObservationOverlay';
 import AnalysisOverlay from '../overlay-feedback/AnalysisOverlay';
@@ -9,19 +11,22 @@ import { glyphObservationMask } from '../../utils/heptapod/glyphObservationMask'
 import { isRenderableGlyphModel } from '../../utils/heptapod/extractGlyphFeatures';
 import { glyphLabel } from '../../utils/heptapod/resonanceView';
 
-/** Shared live glyph surface. Formation starts near the viewport; the renderer
- * owns its animation, visibility pause and reduced-motion static fallback.
+/** Shared responsive glyph surface. Mobile lists use precomputed images; details
+ * opt into the original live surface through GlyphRenderScope. Live formation
+ * starts near the viewport; the renderer owns animation and visibility pause.
  * Decorative cluster samples have no controls; people are real, labelled buttons.
  */
 export default function ArchiveGlyph({ glyph, onSelect, showName = false, nameComponent = 'span', maxSize = 420,
   anchors = [], analysis = false, fragmentAnchors = null, sx }) {
   const { t } = useI18n();
+  const isStatic = useStaticGlyphRendering();
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   const [canvasSize, setCanvasSize] = useState(0);
   const hasModel = useMemo(() => isRenderableGlyphModel(glyph.model_data), [glyph.model_data]);
   const mask = useMemo(() => fragmentAnchors ? glyphObservationMask(glyph.model_data, fragmentAnchors) : 'none', [glyph.model_data, fragmentAnchors]);
   useEffect(() => {
+    if (isStatic) return undefined;
     const element = ref.current;
     if (!element) return undefined;
     const io = new IntersectionObserver(([entry]) => {
@@ -34,7 +39,7 @@ export default function ArchiveGlyph({ glyph, onSelect, showName = false, nameCo
     });
     io.observe(element); ro.observe(element);
     return () => { io.disconnect(); ro.disconnect(); };
-  }, [maxSize]);
+  }, [maxSize, isStatic]);
 
   return (
     <Box component={ onSelect ? 'button' : 'div' } type={ onSelect ? 'button' : undefined }
@@ -49,7 +54,10 @@ export default function ArchiveGlyph({ glyph, onSelect, showName = false, nameCo
         ...sx,
       } }>
       <Box ref={ ref } aria-hidden="true" sx={ { position: 'relative', width: '100%', aspectRatio: '1', display: 'grid', placeItems: 'center' } }>
-        { visible && hasModel && canvasSize > 0 && (
+        { isStatic && hasModel && <Box data-glyph-fragment={ fragmentAnchors ? true : undefined } sx={ { width: '100%', aspectRatio: '1', maskImage: mask, WebkitMaskImage: mask } }>
+          <StaticGlyphImage model={ glyph.model_data } glyphId={ glyph.is_local ? undefined : glyph.id } size={ maxSize } />
+        </Box> }
+        { !isStatic && visible && hasModel && canvasSize > 0 && (
           <Box data-glyph-fragment={ fragmentAnchors ? true : undefined } sx={ { position: 'relative', width: canvasSize, height: canvasSize, maskImage: mask, WebkitMaskImage: mask } }>
             <LogogramRendererCanvas model={ glyph.model_data } size={ canvasSize } isActive={ visible } />
           </Box>

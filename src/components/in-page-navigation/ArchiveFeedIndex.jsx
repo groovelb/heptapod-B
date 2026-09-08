@@ -108,7 +108,7 @@ export default function ArchiveFeedIndex({ items = [], sx }) {
       maxHeight: { xs: 'none', md: 'calc(100svh - var(--archive-index-top, 128px) - 1rem)' },
       overflowX: { xs: 'auto', md: 'hidden' }, overflowY: { xs: 'hidden', md: 'auto' },
       overscrollBehavior: 'contain', scrollbarWidth: 'thin',
-      bgcolor: { xs: 'custom.chamber.fog', md: 'transparent' },
+      bgcolor: 'transparent',
       color: 'custom.chamber.ink', width: { xs: '100%', md: theme.editorial.archivePage.indexSize }, ...sx } }>
     <Box component="ol" sx={ { display: 'flex', flexDirection: { xs: 'row', md: 'column' }, flexShrink: 0, listStyle: 'none', m: 0, p: 0 } }>
       { items.map((item, index) => <Box component="li" key={ item.id }>

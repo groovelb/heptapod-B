@@ -12,6 +12,7 @@ import { getGlyphArchetype } from '../../data/heptapodArchetypeCatalog';
 import { buildMeaningReading } from '../../utils/heptapod/buildMeaningReading';
 import { glyphLabel } from '../../utils/heptapod/resonanceView';
 import ArchiveGlyph from './ArchiveGlyph';
+import GlyphRenderScope from './GlyphRenderScope';
 import GlyphObservationChips from '../input/GlyphObservationChips';
 import ArchetypeNarrative from './ArchetypeNarrative';
 import ArchetypeMotto from './ArchetypeMotto';
@@ -65,7 +66,7 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
     return () => { observer?.disconnect(); figure.style.removeProperty('--archive-figure-controls-height'); };
   }, []);
 
-  return <Box ref={ ref } tabIndex={ -1 } component="section" aria-label={ t('archiveDepthExplorer.selectedGlyphDetail') } data-selected-glyph-detail
+  return <GlyphRenderScope mode="live"><Box ref={ ref } tabIndex={ -1 } component="section" aria-label={ t('archiveDepthExplorer.selectedGlyphDetail') } data-selected-glyph-detail
     sx={ { maxWidth: (theme) => theme.editorial.spread, mx: 'auto', pt: (theme) => theme.editorial.archivePage.contentInset, pb: (theme) => theme.editorial.archivePage.bottomInset, '&:focus': { outline: 'none' } } }>
     <Box ref={ topRef } data-archive-observation-top aria-hidden="true" sx={ { position: 'fixed', top: theme.editorial.archivePage.navigationTop, width: 0, height: 0, pointerEvents: 'none' } } />
     <Box data-archive-detail-layout sx={ {
@@ -179,5 +180,5 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
         </Box>
       </Box>) }
     </Box> }
-  </Box>;
+  </Box></GlyphRenderScope>;
 }

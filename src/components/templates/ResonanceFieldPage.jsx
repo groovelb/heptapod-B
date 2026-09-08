@@ -72,7 +72,7 @@ export default function ResonanceFieldPage({ client }) {
                 error={ relationQuery.error } onRetry={ relationQuery.refetch } onInspect={ (neighbor) => setInspectedId(neighbor.id) } onNodeSelect={ explore }
                 emptyMessage={ filter === 'ALL' ? t('resonanceFieldPage.noExplainableResonanceInFormWasFound') : t('resonanceFieldPage.noGlyphsResonateInThisFeatureWithin') } />
             ) : (
-              <ResonanceMap key={ `${id}:${filter}` } centerModel={ glyph.model_data } centerName={ glyphLabel(glyph) } relations={ neighbors }
+              <ResonanceMap key={ `${id}:${filter}` } centerGlyphId={ glyph.id } centerModel={ glyph.model_data } centerName={ glyphLabel(glyph) } relations={ neighbors }
                 onInspect={ (neighbor) => setInspectedId(neighbor.id) } onNodeSelect={ explore } width={ 720 } height={ 640 } sx={ { mx: 'auto' } } />
             )}
             <Typography variant="caption" sx={ { display: 'block', mt: 2, opacity: 0.8 } }>{ t('resonanceFieldPage.wholeFormResonanceAndLocalStructureResonance') }</Typography>

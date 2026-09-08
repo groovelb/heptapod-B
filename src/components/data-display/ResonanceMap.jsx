@@ -41,7 +41,7 @@ function observationOf(neighbor) {
  * @param {number} height - 지도 비율 기준 높이 (기본 480px)
  * @param {object} sx - 추가 MUI sx
  */
-export default function ResonanceMap({ centerModel, centerName, relations = [], onNodeSelect, onInspect, width = 480, height = 480, sx = {} }) {
+export default function ResonanceMap({ centerModel, centerGlyphId, centerName, relations = [], onNodeSelect, onInspect, width = 480, height = 480, sx = {} }) {
   const { localize, t } = useI18n();
   const theme = useTheme();
   const ink = theme.palette.custom?.chamber?.ink || theme.palette.text.primary;
@@ -86,11 +86,11 @@ export default function ResonanceMap({ centerModel, centerName, relations = [], 
             </Box>
             { visible.map((neighbor, index) => (
               <Box key={ neighbor.id } sx={ { position: 'absolute', left: `${positions[index].x}%`, top: `${positions[index].y}%`, transform: 'translate(-50%, -50%)' } }>
-                <GlyphNode model={ neighbor.model } label={ neighbor.name } size={ nodeSize } isSelected={ selectedId === neighbor.id } onClick={ () => inspect(neighbor) } sx={ { bgcolor: fog } } />
+                <GlyphNode glyphId={ neighbor.id } model={ neighbor.model } label={ neighbor.name } size={ nodeSize } isSelected={ selectedId === neighbor.id } onClick={ () => inspect(neighbor) } sx={ { bgcolor: fog } } />
               </Box>
             )) }
             <Box sx={ { position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' } }>
-              <GlyphNode model={ centerModel } label={ centerName } size={ compact ? 80 : 96 } sx={ { bgcolor: fog } } />
+              <GlyphNode glyphId={ centerGlyphId } model={ centerModel } label={ centerName } size={ compact ? 80 : 96 } sx={ { bgcolor: fog } } />
               <Typography variant="caption" sx={ { display: 'block', color: alpha(ink, 0.8) } }>{ t('resonanceMap.currentGlyph') }</Typography>
             </Box>
           </Box>

@@ -22,7 +22,8 @@
     "test:next-navigation": "node --test src/routes/nextNavigator.test.mjs",
     "test:next-og": "node --test scripts/test-next-og.mjs",
     "test:next-migration": "node scripts/test-next-migration.mjs",
-    "prepare:hero-video": "node scripts/prepare-hero-video.mjs"
+    "prepare:hero-video": "node scripts/prepare-hero-video.mjs",
+    "test:static-glyphs": "node scripts/test-static-glyph-renderer.mjs && node scripts/test-glyph-image-pipeline.mjs && node scripts/test-static-glyph-ui.mjs"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.4.0",

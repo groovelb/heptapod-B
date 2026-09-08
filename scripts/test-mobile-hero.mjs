@@ -94,6 +94,17 @@ try {
   check(() => assert.match(video.querySelector('source').src, /hero-scrub-v2-mobile/));
   check(() => assert.match(document.querySelector('[data-hero-intro] img').src, /hero-scrub-v2-mobile\/hero-scrub-poster\.jpg$/));
   check(() => assert.equal(document.querySelector('[data-hero-video-toggle]'), null, 'Production hero has no comparison UI'));
+  const hero = document.querySelector('[data-hero-intro]');
+  check(() => assert.equal(getComputedStyle(hero).overflowX, 'clip', 'Caption transforms cannot widen the document or create a nested scroll container'));
+  const finalCaption = document.querySelector('[data-sticky-caption] > div');
+  check(() => assert.equal(getComputedStyle(finalCaption).position, 'sticky', 'Horizontal containment preserves the ending caption sticky positioning'));
+  const instruments = [...hero.querySelectorAll('p')].filter((p) => p.textContent.startsWith('SHOT '));
+  check(() => assert.equal(instruments.length, 2, 'Both the seed and ending readouts are covered'));
+  for (const instrument of instruments) {
+    check(() => assert.equal(getComputedStyle(instrument).whiteSpace, 'pre-wrap', 'Long instrument readouts may wrap on mobile'));
+    check(() => assert.equal(getComputedStyle(instrument).maxWidth, '100%'));
+  }
+  check(() => assert.equal(getComputedStyle(finalCaption.firstElementChild).maxWidth, '100%', 'Final caption content is bounded by its padded frame'));
   video.readyState = 3;
   await emit(video, 'canplay');
   const start = [...document.querySelectorAll('button')].find((b) => b.textContent.includes('START'));
