@@ -32,6 +32,7 @@ import { getLogogramGeometry } from '../../utils/heptapod/logogramGeometryCache'
  * @param {string} inkColor - 잉크 색 [Optional, 기본값: theme custom.chamber.ink → '#15171a' 폴백]
  * @param {boolean} isActive - 형성 애니메이션 시작 여부 (false면 빈 무대) [Optional, 기본값: true]
  * @param {boolean} isPaused - 화면과 형성 시계를 보존하며 RAF만 정지 [Optional, 기본값: false]
+ * @param {function} onFormationStart - 첫 활성 형성 프레임에 호출. 감소 모션에서는 생략 [Optional]
  * @param {function} onFormationComplete - 형성 완료 시 호출 [Optional]
  *
  * Example usage:
@@ -45,12 +46,14 @@ function LogogramRendererCanvas({
   isActive = true,
   isPaused = false,
   timeScale = 1,
+  onFormationStart,
   onFormationComplete,
 }) {
   const { t } = useI18n();
   const theme = useTheme();
   const canvasRef = useRef(null);
   const completeRef = useRef(onFormationComplete);
+  const startRef = useRef(onFormationStart);
   const pausedRef = useRef(isPaused);
   const visibilityGateRef = useRef(null);
 
@@ -69,6 +72,8 @@ function LogogramRendererCanvas({
   useEffect(() => {
     completeRef.current = onFormationComplete;
   }, [onFormationComplete]);
+
+  useEffect(() => { startRef.current = onFormationStart; }, [onFormationStart]);
 
   // Pause changes must not tear down the drawing effect or clear its surfaces.
   useEffect(() => {
@@ -120,9 +125,11 @@ function LogogramRendererCanvas({
 
     let raf = 0;
     let done = false;
+    let started = false;
     let t0 = performance.now();
 
     const tick = (now) => {
+      if (!started) { started = true; startRef.current?.(); }
       const t = (now - t0) * timeScale; // timeScale>1이면 형성이 빠르게 감김 (프리뷰용)
 
       // ── L1 vapor: 소산(잔상 fade) → 분출 ──────────────────────────

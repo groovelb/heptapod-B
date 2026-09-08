@@ -451,8 +451,12 @@ try {
   check(() => assert.ok(selectedDetail().querySelector('[data-glyph-analysis="on"]')));
   check(() => assert.equal(document.querySelector('[data-archive-navigation] button[title]'), null, 'Detail navigation has no duplicate share button'));
   const detailShare = selectedDetail().querySelector('[data-selected-share]');
-  check(() => assert.equal(detailShare.parentElement.firstElementChild, detailShare, 'Share is the first control directly below the glyph'));
+  check(() => assert.equal(detailShare.parentElement.firstElementChild, detailShare, 'Share is the first button in the CTA row'));
   check(() => assert.equal(getComputedStyle(detailShare).minHeight, '56px'));
+  check(() => assert.equal(detailShare.parentElement, detailAnalysis.parentElement, 'Share and analysis occupy the same row'));
+  check(() => assert.equal(getComputedStyle(detailShare.parentElement).gridTemplateColumns, 'repeat(2, minmax(0, 1fr))'));
+  check(() => assert.equal(getComputedStyle(detailShare).height, getComputedStyle(detailAnalysis).height));
+  check(() => assert.equal(detailAnalysis.textContent.trim(), ko.t('heptapodEncoderPage.analysis2'), 'Analysis label has no ON/OFF suffix'));
   check(() => assert.equal(document.querySelector('[data-observation-share]'), null));
   await click(detailShare);
   check(() => assert.ok(dialog().querySelector('input').value.includes(`/glyph/${ARCHIVE_STORY_IDS.left}`), 'Standalone sharing retains the public glyph UUID'));

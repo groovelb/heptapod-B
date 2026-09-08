@@ -102,7 +102,7 @@ try {
   check(() => assert.equal(panel.querySelector('[data-glyph-analysis]').parentElement, glyph, 'Same live glyph surface'));
   check(() => assert.equal(panel.querySelector('[data-selected-analysis-toggle]'), analysis));
   check(() => assert.equal(analysis.getAttribute('aria-pressed'), 'true'));
-  check(() => assert.match(analysis.textContent, /분석하기.*ON/));
+  check(() => assert.match(analysis.textContent, /^분석하기$/));
   check(() => assert.equal(metadata[0].getAttribute('aria-pressed'), 'true'));
   check(() => assert.equal(getComputedStyle(panel).backgroundColor, 'transparent', 'No sticky background'));
   check(() => assert.equal(getComputedStyle(panel.querySelector('[data-archive-figure-controls]')).display, 'none'));
@@ -164,7 +164,7 @@ try {
   await render({}, { scrollTo: (top, options) => { calls.push([top, options]); dom.scrollTo({ top }); } }, 'en');
   const restored = document.querySelector('[data-archive-observation]');
   check(() => assert.equal(restored.dataset.archiveObservation, 'compact', 'Restored URL scroll initializes directly in compact mode'));
-  check(() => assert.match(restored.querySelector('[data-selected-analysis-toggle]').textContent, /Analyze.*OFF/));
+  check(() => assert.match(restored.querySelector('[data-selected-analysis-toggle]').textContent, /^Analyze$/));
   await act(async () => restored.querySelector('[data-observation-expand]').click());
   await settle();
   check(() => assert.deepEqual(calls.at(-1), [172, { immediate: true, force: true }]));

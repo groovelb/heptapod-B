@@ -25,13 +25,12 @@ function NavigationLinks({ pathname, currentPath, targets, routed }) {
   const active = navigationSection(pathname);
   return <Box component="nav" aria-label={ t('appNav.navigation') } sx={ { display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 2, py: isMobile ? 3 : 0 } }>
     { ['story', 'create', 'archive'].map((section) => <Button key={ section }
-      component={ routed ? Link : 'a' } { ...(routed ? { to: targets[section] } : { href: targets[section] }) }
+      component={ routed ? Link : 'a' } { ...(routed ? { to: targets[section], replace: section === 'archive' && currentPath === APP_PATHS.archive } : { href: targets[section] }) }
       aria-current={ active === section ? 'page' : undefined }
       onClick={ (event) => {
         if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         if (pathname === APP_PATHS.landing && section === 'story'
-          || pathname === APP_PATHS.canvas && section === 'create'
-          || currentPath === APP_PATHS.archive && section === 'archive') event.preventDefault();
+          || pathname === APP_PATHS.canvas && section === 'create') event.preventDefault();
         if (section === 'archive' && !event.defaultPrevented && session) {
           // Start a new visit. The outgoing scroll effect may still save into its
           // old map during cleanup; it must not repopulate this visit's positions.

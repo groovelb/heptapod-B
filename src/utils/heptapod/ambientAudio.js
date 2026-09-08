@@ -114,7 +114,7 @@ export function createAmbientAudio() {
     voices = [];
   }
 
-  function encodeStart() {
+  function encodeStart({ requireRunning = false } = {}) {
     if (!enabled) {
       return;
     }
@@ -122,7 +122,9 @@ export function createAmbientAudio() {
     if (!ctx) {
       return;
     }
-    ctx.resume();
+    ctx.resume()?.catch(() => {});
+    // Archive formation must not queue a stale sound behind autoplay blocking.
+    if (requireRunning && ctx.state !== 'running') return;
     stopVoices();
     const t = ctx.currentTime;
     const HIT = 0.3; // 도착(임팩트) 시각 — 짧게: 빠르게 몰려와 바로 터진다
@@ -251,7 +253,7 @@ export function createAmbientAudio() {
     if (on) {
       ensure();
       if (ctx) {
-        ctx.resume();
+        ctx.resume()?.catch(() => {});
         master.gain.value = 1;
       }
     } else if (ctx) {

@@ -24,6 +24,7 @@ export function createEditorialTokens({ typography, breakpoints }) {
       editorialArchiveHomeCount: role('0.75rem', '0.8125rem', { lineHeight: 1.5 }),
       editorialPortal: role('1.25rem', '1.875rem', { fontFamily: serif, fontWeight: typography.fontWeightBold, lineHeight: 1.4 }),
       editorialPortalCompact: role('1rem', '1.875rem', { fontFamily: serif, fontWeight: typography.fontWeightBold, lineHeight: 1.4 }),
+      editorialSectionTitle: role('1.25rem', '1.375rem', { fontWeight: typography.fontWeightBold, lineHeight: 1.5 }),
       editorialLabel: role('1rem', '1.0625rem', { fontWeight: typography.fontWeightBold, lineHeight: 1.5 }),
       editorialMeta: role('0.9375rem', '1rem', { lineHeight: 1.6 }),
       editorialQuote: role('1.5rem', '2rem', { fontFamily: serif, lineHeight: 1.5 }),
@@ -40,10 +41,12 @@ export function createEditorialTokens({ typography, breakpoints }) {
       readingViewport: 'min(30rem, 48svh)', railMeasure: 'clamp(18rem, 28vw, 24rem)',
       rule: { borderTop: 1, borderColor: 'currentColor' },
       archiveReading: {
+        gridGap: 24, // LineGrid gap in pixels; separators sit at its midpoint.
+        cellSize: { xs: 12, lg: 6 },
         inset: { xs: 2, md: 3 }, padding: { xs: 3, md: 4 },
-        labelGap: { xs: 2, md: 2.5 }, itemGap: { xs: 2, md: 2.5 },
+        labelGap: { xs: 1, md: 1 }, itemGap: { xs: 2, md: 2.5 },
       },
-      visualizationControls: { gap: 1.5, padding: { xs: 2, md: 3 } },
+      visualizationControls: { canvasBottomOverlap: 0.14, gap: 1.5, actionGap: { xs: 5, md: 6 }, padding: { xs: 2, md: 3 } },
       createReading: {
         inset: { xs: 2, md: 2.5 }, dialogInset: 3, compactHeight: 480,
         railTop: 'calc(100px + env(safe-area-inset-top, 0px))', railBottom: 172, controlsBottom: 44, controlsGap: 3,

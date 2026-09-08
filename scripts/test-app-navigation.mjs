@@ -96,8 +96,13 @@ try {
   oldVisitPositions.set('/archive', 999); // Outgoing effect cleanup must not restore the old root position.
   check(() => assert.equal(navigationSession.archiveScroll.size, 0, 'Fresh visit starts without stale positions'));
   const rootKey = router.state.location.key;
+  const rootVisitPositions = navigationSession.archiveScroll;
+  rootVisitPositions.set('/archive', 420);
   await click(navLink('Archive'));
-  check(() => assert.equal(router.state.location.key, rootKey, 'Active root link does not create duplicate history'));
+  check(() => assert.notEqual(router.state.location.key, rootKey, 'Active Archive menu starts a fresh visit even at root'));
+  check(() => assert.equal(router.state.historyAction, 'REPLACE', 'Reentering root replaces the current history entry'));
+  check(() => assert.notEqual(navigationSession.archiveScroll, rootVisitPositions));
+  check(() => assert.equal(navigationSession.archiveScroll.size, 0));
   await click(navLink('Create'));
   check(() => assert.equal(router.state.location.search, '?name=Louise&v=2', 'Create resumes last URL session'));
 

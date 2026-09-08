@@ -1,7 +1,8 @@
 import React from 'react';
-import { Grid, Stack, Divider } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
+import Divider from '@mui/material/Divider';
 import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 
 /**
  * LineGrid Component
@@ -42,10 +43,10 @@ const LineGrid = React.forwardRef(({
   borderColor = 'text.primary',
   equalHeight = false,
   rowHeights = null, // [1, 2, 1] means row ratios
+  sx,
   ...props
 }, ref) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Stack mode (no container prop)
   if (!container) {
@@ -63,6 +64,7 @@ const LineGrid = React.forwardRef(({
           />
         }
         {...props}
+        sx={sx}
       >
         {children}
       </Stack>
@@ -72,44 +74,33 @@ const LineGrid = React.forwardRef(({
   // Grid container mode
   const childrenArray = React.Children.toArray(children);
 
-  // Calculate each item's span (size prop - MUI Grid v2)
-  const spans = childrenArray.map((child) => {
-    if (!React.isValidElement(child)) return 12;
-    const sizeProps = child.props.size || {};
-    let span;
-    if (isMobile) {
-      span = sizeProps.xs || sizeProps.sm || 12;
-    } else {
-      span = sizeProps.md || sizeProps.lg || sizeProps.xl || sizeProps.xs || 12;
-    }
-    return Math.max(1, Math.min(12, typeof span === 'number' ? span : 12));
+  // Resolve Grid sizes at every breakpoint, including inherited values. CSS
+  // controls both item width and separators, so SSR and resizing stay aligned.
+  const layouts = theme.breakpoints.keys.map((breakpoint, breakpointIndex) => {
+    let row = 0;
+    let column = 0;
+    const items = childrenArray.map((child) => {
+      let span = 12;
+      if (React.isValidElement(child)) {
+        const size = child.props.size ?? 12;
+        if (typeof size === 'number') span = size;
+        else for (const key of theme.breakpoints.keys.slice(0, breakpointIndex + 1)) {
+          if (typeof size[key] === 'number') span = size[key];
+        }
+      }
+      span = Math.max(1, Math.min(12, span));
+      if (column + span > 12) { row++; column = 0; }
+      const item = { row, column, span };
+      column += span;
+      if (column === 12) { row++; column = 0; }
+      return item;
+    });
+    return { breakpoint, items, totalRows: items.length ? items.at(-1).row + 1 : 1 };
   });
-
-  // Calculate row and column positions
-  const layout = [];
-  let rowIndex = 0;
-  let colCursor = 0;
-
-  spans.forEach((span, i) => {
-    if (span > 12 - colCursor) {
-      rowIndex += 1;
-      colCursor = 0;
-    }
-
-    layout[i] = { row: rowIndex, colStart: colCursor, span };
-    colCursor += span;
-
-    if (colCursor >= 12) {
-      rowIndex += 1;
-      colCursor = 0;
-    }
-  });
-
-  // Calculate total number of rows for equalHeight
-  const totalRows = layout.length > 0 ? Math.max(...layout.map(l => l.row)) + 1 : 1;
+  const responsive = (index, value) => Object.fromEntries(layouts.map(({ breakpoint, items, totalRows }) => [breakpoint, value(items[index], totalRows)]));
 
   // Calculate row height percentages from rowHeights
-  const getRowHeight = (rowIndex) => {
+  const getRowHeight = (rowIndex, totalRows) => {
     if (rowHeights && Array.isArray(rowHeights)) {
       const totalRatio = rowHeights.reduce((sum, ratio) => sum + ratio, 0);
       const rowRatio = rowHeights[rowIndex] || 1;
@@ -125,52 +116,27 @@ const LineGrid = React.forwardRef(({
   const shouldFixHeight = equalHeight || (rowHeights && Array.isArray(rowHeights));
 
   return (
-    <Grid container spacing={gap / 8} ref={ref} {...props} sx={{ width: '100%', height: shouldFixHeight ? '100%' : 'auto' }}>
+    <Grid container spacing={gap / 8} ref={ref} {...props}
+      sx={[{ width: '100%', height: shouldFixHeight ? '100%' : 'auto', alignItems: 'stretch' }, ...(Array.isArray(sx) ? sx : [sx])]}>
       {childrenArray.map((child, index) => {
         if (!React.isValidElement(child)) return child;
-
-        const meta = layout[index] || { row: 0, colStart: 0, span: 12 };
-        const isFirstRow = meta.row === 0;
-        const isFirstInRow = meta.colStart === 0;
-
         return React.cloneElement(child, {
-          ...child.props,
-          sx: {
+          sx: [{
             position: 'relative',
-            // Set height based on equalHeight or rowHeights
-            ...(shouldFixHeight && {
-              height: getRowHeight(meta.row),
-            }),
-            // Vertical line (left border, skip first item in row)
-            ...(!isFirstInRow && {
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                left: `-${gap / 2}px`,
-                top: 0,
-                bottom: 0,
-                width: '1px',
-                bgcolor: borderColor,
-                transition: 'background-color 1s ease',
-                zIndex: 10,
-              },
-            }),
-            // Horizontal line (top border, skip first row)
-            ...(!isFirstRow && {
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                top: `-${gap / 2}px`,
-                left: 0,
-                right: 0,
-                height: '1px',
-                bgcolor: borderColor,
-                transition: 'background-color 1s ease',
-                zIndex: 10,
-              },
-            }),
-            ...child.props.sx,
-          },
+            ...(shouldFixHeight && { height: responsive(index, (item, rows) => getRowHeight(item.row, rows)) }),
+            '--line-grid-vertical': responsive(index, (item) => item.column > 0 ? 'block' : 'none'),
+            '--line-grid-horizontal': responsive(index, (item) => item.row > 0 ? 'block' : 'none'),
+            '&::before': {
+              display: 'var(--line-grid-vertical)', content: '""', position: 'absolute',
+              left: `-${gap / 2}px`, top: 0, bottom: 0, width: '1px', bgcolor: borderColor,
+              pointerEvents: 'none', transition: 'background-color 1s ease', zIndex: 1,
+            },
+            '&::after': {
+              display: 'var(--line-grid-horizontal)', content: '""', position: 'absolute',
+              top: `-${gap / 2}px`, left: 0, right: 0, height: '1px', bgcolor: borderColor,
+              pointerEvents: 'none', transition: 'background-color 1s ease', zIndex: 1,
+            },
+          }, ...(Array.isArray(child.props.sx) ? child.props.sx : [child.props.sx])],
         });
       })}
     </Grid>

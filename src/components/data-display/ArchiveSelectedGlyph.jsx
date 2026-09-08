@@ -22,7 +22,7 @@ const headingSx = { typography: 'editorialTitle' };
 /** One person's stored form, followed by exact-type peers and observed fragments.
  * Interpretation DTOs are supplied by the parent; this view never classifies names.
  */
-export default function ArchiveSelectedGlyph({ glyph, interpretation, interpretations = {}, members = [], onSelect, onBack, onShare, navigationRef, onObservationModeChange }) {
+export default function ArchiveSelectedGlyph({ glyph, interpretation, interpretations = {}, members = [], onSelect, onBack, onShare, onFormationStart, navigationRef, onObservationModeChange }) {
   const { locale, localize, t } = useI18n();
   const ref = useRef(null);
   const controlsRef = useRef(null);
@@ -106,13 +106,18 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
           position: 'relative', gridColumn: 2, gridRow: 1,
           width: glyphSize, height: glyphSize,
           overflow: 'hidden', '& [data-glyph-centered-name]': { opacity: 0 },
-        } : {} }>
-          <ArchiveGlyph glyph={ glyph } showName nameComponent="h1" maxSize={ 520 } analysis={ !compact && analysis } anchors={ compact ? [] : selectedAnchors }
+        } : { display: 'flow-root' } }>
+          <ArchiveGlyph glyph={ glyph } onFormationStart={ onFormationStart } showName nameComponent="h1" maxSize={ 520 } analysis={ !compact && analysis } anchors={ compact ? [] : selectedAnchors }
             sx={ compact ? {
               // Scale the existing surface; changing Canvas size would restart formation.
               width: 'var(--archive-expanded-width)', maxWidth: 'none',
               transform: 'scale(var(--archive-glyph-scale))', transformOrigin: 'top left',
-            } : { maxWidth: (theme) => ({ xs: '100%', md: theme.editorial.archiveFigure.maxWidth }) } } />
+            } : {
+              maxWidth: (theme) => ({ xs: '100%', md: theme.editorial.archiveFigure.maxWidth }),
+              // The ring ends near 80% of the square. Reclaim 14% of its empty
+              // lower canvas without cropping ink or moving the centered name.
+              mb: (theme) => `calc(var(--glyph-surface-size, 0px) * -${theme.editorial.visualizationControls.canvasBottomOverlap})`,
+            } } />
           <Box component="button" type="button" data-observation-expand onClick={ returnToFigure }
             aria-label={ t('archiveDepthExplorer.returnToFullGlyph', { name: glyphLabel(glyph) }) }
             sx={ { display: compact ? 'block' : 'none', position: 'absolute', inset: 0,
@@ -120,10 +125,14 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
               '&:focus-visible': { outline: '2px solid currentColor', outlineOffset: -2 },
             } } />
         </Box>
-        <Box ref={ controlsRef } data-archive-figure-controls inert={ compact } aria-hidden={ compact || undefined } sx={ { display: compact ? 'none' : 'grid', justifyItems: 'center', gap: (theme) => theme.editorial.visualizationControls.gap, p: (theme) => theme.editorial.visualizationControls.padding } }>
+        <Box ref={ controlsRef } data-archive-figure-controls inert={ compact } aria-hidden={ compact || undefined } sx={ { display: compact ? 'none' : 'grid', justifyItems: 'center', gap: (theme) => theme.editorial.visualizationControls.actionGap, px: (theme) => theme.editorial.visualizationControls.padding, pb: (theme) => theme.editorial.visualizationControls.padding, pt: 0 } }>
+          <GlyphObservationChips entries={ entries } selectedIds={ selectedIds }
+            sx={ { justifyContent: 'center' } }
+            onToggle={ (entry) => setSelectedIds((ids) => ids.includes(entry.id) ? ids.filter((id) => id !== entry.id) : [...ids, entry.id]) } />
+          <Box data-selected-actions sx={ { display: 'grid', gridTemplateColumns: onShare ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)', width: '100%', gap: 1 } }>
           {onShare && <Button data-selected-share onClick={ onShare } fullWidth variant="contained"
             aria-label={ t('publishDialog.share') } startIcon={ <ShareOutlinedIcon /> }
-            sx={ { typography: 'editorialAction', minHeight: 56, borderRadius: 0, boxShadow: 'none',
+            sx={ { typography: 'editorialAction', height: 56, minHeight: 56, minWidth: 0, px: 1, borderRadius: 0, boxShadow: 'none',
               bgcolor: 'custom.chamber.ink', color: 'custom.chamber.fog',
               '&:hover': { bgcolor: 'custom.chamber.ink', boxShadow: 'none' },
             } }>{ t('publishDialog.share') }</Button>}
@@ -131,20 +140,18 @@ export default function ArchiveSelectedGlyph({ glyph, interpretation, interpreta
             onClick={ () => setAnalysis((open) => !open) } variant="text"
             sx={ (theme) => ({
               typography: 'editorialAction', fontFamily: theme.typography.custom.mono.fontFamily,
-              minHeight: theme.editorial.observationChip.minHeight, borderRadius: 0,
-              width: 'fit-content',
-              px: theme.editorial.archiveReading.inset,
+              height: 56, minHeight: 56, minWidth: 0, borderRadius: 0,
+              width: '100%', px: 1,
               color: 'custom.chamber.ink', border: '1px solid',
               borderColor: alpha(theme.palette.custom.chamber.ink, analysis ? 0.5 : 0.2),
+              bgcolor: analysis ? alpha(theme.palette.custom.chamber.ink, 0.1) : 'transparent',
               justifyContent: 'center', gap: theme.editorial.archivePage.introGap,
               '&:hover': { bgcolor: alpha(theme.palette.custom.chamber.ink, 0.06), borderColor: alpha(theme.palette.custom.chamber.ink, 0.6) },
             }) }>
             <span>{ t('heptapodEncoderPage.analysis2') }</span>
-            <span>{ t(analysis ? 'heptapodEncoderPage.on' : 'heptapodEncoderPage.off') }</span>
           </Button>
-          <GlyphObservationChips entries={ entries } selectedIds={ selectedIds }
-            sx={ { justifyContent: 'center' } }
-            onToggle={ (entry) => setSelectedIds((ids) => ids.includes(entry.id) ? ids.filter((id) => id !== entry.id) : [...ids, entry.id]) } />
+          </Box>
+
         </Box>
 
         </Box>

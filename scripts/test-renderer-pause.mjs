@@ -68,13 +68,16 @@ try {
   const { default: Renderer } = await server.ssrLoadModule('/src/components/motion/LogogramRendererCanvas.jsx');
   const model = buildArchiveModel('Louise');
   let completed = 0;
-  const props = { model, size: 300, onFormationComplete: () => { completed++; } };
+  let started = 0;
+  const props = { model, size: 300, onFormationStart: () => { started++; }, onFormationComplete: () => { completed++; } };
   const render = (extra = {}) => act(async () => root.render(h(Renderer, { ...props, ...extra })));
   root = createRoot(document.getElementById('root'));
   await render();
   const canvas = document.querySelector('canvas');
   check(() => assert.equal(frames.size, 1));
+  check(() => assert.equal(started, 0, 'No sound before the first drawing frame'));
   await frame(500);
+  check(() => assert.equal(started, 1));
   check(() => assert.equal(globalThis.__rendererTicks.at(-1), 500));
   const before = { draws, clears, contexts };
   await render({ isPaused: true });
@@ -98,6 +101,7 @@ try {
   const completeContexts = contexts;
   for (let i = 0; i < 10; i++) { await render({ isPaused: true }); await frame(1000); await render(); await frame(16); }
   check(() => assert.equal(completed, 1, 'Pause/resume never repeats formation completion'));
+  check(() => assert.equal(started, 1, 'Pause/resume never replays formation sound'));
   check(() => assert.equal(contexts, completeContexts, 'Repeated pause does not accumulate backing surfaces'));
   check(() => assert.equal(frames.size, 1));
   await act(async () => root.unmount()); root = null;

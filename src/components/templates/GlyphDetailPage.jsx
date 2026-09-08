@@ -7,6 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 import AppGNB from '../navigation/AppGNB';
+import useGlyphFormationSound from '../../hooks/useGlyphFormationSound';
 import ArchiveDepthExplorer from '../data-display/ArchiveDepthExplorer';
 import ArchiveSelectedGlyph from '../data-display/ArchiveSelectedGlyph';
 import LogogramChamber from '../motion/LogogramChamber';
@@ -43,6 +44,7 @@ export default function GlyphDetailPage({ client }) {
   const [shareError, setShareError] = useState('');
   const musicRef = useRef(null);
   const [isMusicOn, setIsMusicOn] = useState(publicEnv.musicAutoplay);
+  const onFormationStart = useGlyphFormationSound(isMusicOn);
 
   useEffect(() => {
     const music = createBackgroundMusic();
@@ -105,8 +107,8 @@ export default function GlyphDetailPage({ client }) {
               <Button sx={ actionSx } onClick={ back }>← { t('archiveDepthExplorer.backToList') }</Button>
             </Box>
             <Alert severity="info">{ t('glyphDetailPage.theMeaningRulesInThisLinkAre') }</Alert>
-            <ArchiveSelectedGlyph key={ id } glyph={ glyph } onBack={ back } onShare={ share } />
-          </> : <ArchiveDepthExplorer key={ id } detailOnly glyphs={ glyphs } meanings={ meanings } focusedId={ id }
+            <ArchiveSelectedGlyph onFormationStart={ onFormationStart } key={ id } glyph={ glyph } onBack={ back } onShare={ share } />
+          </> : <ArchiveDepthExplorer onFormationStart={ onFormationStart } key={ id } detailOnly glyphs={ glyphs } meanings={ meanings } focusedId={ id }
             onFocusGlyph={ select } onFilterChange={ (filter) => navigate(archiveDepthPath(filter)) } onShare={ share } /> }
         <Box sx={ { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 1, pb: theme.editorial.archivePage.bottomInset } }>
           <Button component={ RouterLink } to={ `/compare/${id}` } sx={ actionSx }>{ t('glyphDetailPage.encodeMyNameAndCompare') }</Button>

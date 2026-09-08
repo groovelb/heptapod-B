@@ -84,6 +84,18 @@ try {
         assert.equal(dom.getComputedStyle(dom.document.querySelector('[data-archive-index]')).backgroundColor, 'transparent', 'Index bar has no background'); checks += 1;
       }
       if (name === 'detail') {
+        const narrative = dom.document.querySelector('[data-selected-glyph-detail] [data-narrative-type]');
+        assert.equal(dom.getComputedStyle(narrative).display, 'flex', 'Detail uses LineGrid/MUI Grid'); checks += 1;
+        const familyCell = narrative.querySelector('[data-narrative-family]').parentElement;
+        const leftCell = narrative.querySelector('[data-narrative-composition]').parentElement;
+        const rightCell = narrative.querySelector('[data-narrative-story]').parentElement;
+        assert.equal(dom.getComputedStyle(familyCell).getPropertyValue('--line-grid-vertical').trim(), 'none', 'Full-width meaning has no center line'); checks += 1;
+        assert.equal(dom.getComputedStyle(leftCell).getPropertyValue('--line-grid-vertical').trim(), 'none'); checks += 1;
+        assert.equal(dom.getComputedStyle(rightCell).getPropertyValue('--line-grid-vertical').trim(), width >= 1200 ? 'block' : 'none', 'Center line follows the actual two-column breakpoint'); checks += 1;
+        assert.equal(dom.getComputedStyle(rightCell).width, dom.getComputedStyle(leftCell).width, 'Paired sections share equal column widths'); checks += 1;
+        const sectionTitle = narrative.querySelector('h3');
+        assert.ok(parseFloat(dom.getComputedStyle(sectionTitle).fontSize) > parseFloat(dom.getComputedStyle(narrative.querySelector('p')).fontSize), 'Section titles are larger than body copy'); checks += 1;
+        assert.equal(dom.getComputedStyle(sectionTitle).marginBottom, '8px', 'Bold titles sit close to their body'); checks += 1;
         const figure = dom.document.querySelector('[data-archive-sticky-figure]');
         const style = dom.getComputedStyle(figure);
         assert.equal(style.position, 'sticky'); checks += 1;
@@ -128,6 +140,18 @@ try {
         assert.equal(dom.getComputedStyle(dom.document.querySelector('[data-archive-index]')).backgroundColor, 'transparent', 'Index bar has no background'); checks += 1;
       }
       if (name === 'detail') {
+        const narrative = dom.document.querySelector('[data-selected-glyph-detail] [data-narrative-type]');
+        assert.equal(dom.getComputedStyle(narrative).display, 'flex', 'Detail uses LineGrid/MUI Grid'); checks += 1;
+        const familyCell = narrative.querySelector('[data-narrative-family]').parentElement;
+        const leftCell = narrative.querySelector('[data-narrative-composition]').parentElement;
+        const rightCell = narrative.querySelector('[data-narrative-story]').parentElement;
+        assert.equal(dom.getComputedStyle(familyCell).getPropertyValue('--line-grid-vertical').trim(), 'none', 'Full-width meaning has no center line'); checks += 1;
+        assert.equal(dom.getComputedStyle(leftCell).getPropertyValue('--line-grid-vertical').trim(), 'none'); checks += 1;
+        assert.equal(dom.getComputedStyle(rightCell).getPropertyValue('--line-grid-vertical').trim(), width >= 1200 ? 'block' : 'none', 'Center line follows the actual two-column breakpoint'); checks += 1;
+        assert.equal(dom.getComputedStyle(rightCell).width, dom.getComputedStyle(leftCell).width, 'Paired sections share equal column widths'); checks += 1;
+        const sectionTitle = narrative.querySelector('h3');
+        assert.ok(parseFloat(dom.getComputedStyle(sectionTitle).fontSize) > parseFloat(dom.getComputedStyle(narrative.querySelector('p')).fontSize), 'Section titles are larger than body copy'); checks += 1;
+        assert.equal(dom.getComputedStyle(sectionTitle).marginBottom, '8px', 'Bold titles sit close to their body'); checks += 1;
         const figure = dom.document.querySelector('[data-archive-sticky-figure]');
         assert.equal(dom.getComputedStyle(figure).position, 'static', 'One-column reading remains unobstructed'); checks += 1;
         assert.ok(figure.querySelector('[data-selected-analysis-toggle]')); checks += 1;

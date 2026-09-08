@@ -1,5 +1,6 @@
 import { localizedShareUrl } from '../../i18n/shareLocale.js';
 import AppGNB from '../navigation/AppGNB';
+import useGlyphFormationSound from '../../hooks/useGlyphFormationSound';
 import { useArchiveScroll } from '../../routes/useArchiveScroll';
 import { useI18n } from '../../i18n/useI18n.js';
 import { useState, useEffect, useRef, useMemo } from 'react';
@@ -15,7 +16,6 @@ import ArchiveDepthExplorer from '../data-display/ArchiveDepthExplorer';
 import SocialShareDialog from '../overlay-feedback/SocialShareDialog';
 import { filterMeaningGlyphs } from '../../utils/heptapod/archiveDepthView';
 import { archiveDepthPath as depthPath, parseArchiveDepthSearch, glyphArchetypeShareCopy } from '../../utils/heptapod/shareArchive';
-import LogogramChamber from '../motion/LogogramChamber';
 import { createBackgroundMusic } from '../../utils/heptapod/backgroundMusic';
 import { APP_PATHS } from '../../routes/paths';
 
@@ -41,6 +41,7 @@ export default function MyArchivePage({ client, meaningProvider, musicAutoplay =
   const [socialShare, setSocialShare] = useState(null);
   const musicRef = useRef(null);
   const [isMusicOn, setIsMusicOn] = useState(musicAutoplay);
+  const onFormationStart = useGlyphFormationSound(isMusicOn);
   const visibleGlyphs = useMemo(() => order ? glyphs : filterMeaningGlyphs(glyphs, meanings, meaningFilter), [glyphs, meanings, meaningFilter, order]);
   const shareable = Boolean((order || meanings) && (!focusedId || visibleGlyphs.some((glyph) => glyph.id === focusedId)));
 
@@ -93,7 +94,6 @@ export default function MyArchivePage({ client, meaningProvider, musicAutoplay =
 
   return (
     <Box sx={ { position: 'relative', isolation: 'isolate', minHeight: '100svh', bgcolor: { xs: 'custom.chamber.mobile.fog', md: 'custom.chamber.fog' }, color: 'custom.chamber.ink', overflowX: 'clip' } }>
-      <Box aria-hidden="true" sx={ { position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none' } }><LogogramChamber isFullscreen /></Box>
       <AppGNB soundOn={ isMusicOn } onToggleSound={ handleToggleMusic } />
 
       <Box component="main" sx={ { px: theme.editorial.archivePage.gutter, pb: theme.editorial.archivePage.bottomInset,
@@ -116,7 +116,7 @@ export default function MyArchivePage({ client, meaningProvider, musicAutoplay =
         </Box> : glyphs.length === 0 ? <Box role="status" sx={ { textAlign: 'center', py: 12 } }>
           <Typography sx={ { fontFamily: SERIF, fontSize: 26 } }>{ t('myArchivePage.waitingForTheFirstResponse') }</Typography>
           <Button sx={ { ...actionSx, mt: 3 } } onClick={ () => navigate(APP_PATHS.canvas) }>{ t('myArchivePage.startWithMyName') }</Button>
-        </Box> : <ArchiveDepthExplorer order={ order } onOrderChange={ (next) => navigate(depthPath({}, null, { order: next })) } glyphs={ glyphs } meanings={ meanings } filter={ meaningFilter } focusedId={ focusedId }
+        </Box> : <ArchiveDepthExplorer onFormationStart={ onFormationStart } order={ order } onOrderChange={ (next) => navigate(depthPath({}, null, { order: next })) } glyphs={ glyphs } meanings={ meanings } filter={ meaningFilter } focusedId={ focusedId }
           onFilterChange={ changeMeaningFilter } onFocusGlyph={ focusGlyph } onShare={ shareable ? shareSpace : undefined } /> }
       </Box>
       <SocialShareDialog payload={ socialShare } onClose={ () => setSocialShare(null) } />

@@ -74,6 +74,27 @@ try {
   equal(document.querySelectorAll('img').length, 1, 'Returning from detail restores image list');
   equal(canvasCalls, 0, 'Mobile list and offscreen live surfaces perform zero Canvas work');
   equal(workerCalls, 0, 'Offscreen public forms and prebuilt authored assets never start Worker');
+  const { default: Depth } = await server.ssrLoadModule('/src/components/data-display/ArchiveDepthExplorer.jsx');
+  const { default: depthStory } = await server.ssrLoadModule('/src/components/data-display/ArchiveDepthExplorer.stories.jsx');
+  const { ARCHIVE_STORY_GLYPHS } = await server.ssrLoadModule('/src/test-fixtures/archiveClient.js');
+  const { groupArchiveMeanings } = await server.ssrLoadModule('/src/utils/heptapod/groupArchiveMeanings.js');
+  const depthArgs = { ...depthStory.args, glyphs: ARCHIVE_STORY_GLYPHS, meanings: groupArchiveMeanings(ARCHIVE_STORY_GLYPHS) };
+  await act(async () => root.render(wrap(h(Depth, { ...depthArgs, onOrderChange() {} }))));
+  equal(document.querySelectorAll('[data-archive-portal]').length, 4, 'Mobile Archive landing keeps four portals');
+  equal(document.querySelectorAll('[data-static-glyph-image]').length, 0, 'All four landing forms use the live Canvas scope');
+  equal(canvasCalls, 0, 'Offscreen landing forms defer Canvas work until visible');
+  const { InsideFamily } = await server.ssrLoadModule('/src/components/data-display/ArchiveDepthExplorer.stories.jsx');
+  for (const width of [390, 1440]) {
+    await act(async () => dom.happyDOM.setWindowSize({ width, height: 844 }));
+    for (const extra of [InsideFamily.args, { order: 'newest' }]) {
+      await act(async () => root.render(wrap(h(Depth, { key: `${width}:${extra.order || 'family'}`, ...depthArgs, ...extra }))));
+      equal(document.querySelectorAll('canvas').length, 0, `${width}: group and timeline lists never mount Canvas`);
+      equal(document.querySelectorAll('[data-static-glyph-image]').length > 0, true, `${width}: group symbols and member lists render static images`);
+    }
+  }
+  await act(async () => dom.happyDOM.setWindowSize({ width: 390, height: 844 }));
+
+  await act(async () => root.render(wrap(h(ArchiveGlyph, { glyph, showName: true }))));
   // Simulate image failure without network: no Canvas fallback, layout persists.
   await act(async () => document.querySelector('img').dispatchEvent(new dom.Event('error')));
   equal(document.querySelector('[data-image-state]').dataset.imageState, 'pending', 'Saved image failure still allows the frontend preview to arrive');

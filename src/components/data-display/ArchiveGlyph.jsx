@@ -17,10 +17,11 @@ import { glyphLabel } from '../../utils/heptapod/resonanceView';
  * Decorative cluster samples have no controls; people are real, labelled buttons.
  */
 export default function ArchiveGlyph({ glyph, onSelect, showName = false, nameComponent = 'span', maxSize = 420,
-  anchors = [], analysis = false, fragmentAnchors = null, sx }) {
+  onFormationStart, anchors = [], analysis = false, fragmentAnchors = null, sx }) {
   const { t } = useI18n();
   const isStatic = useStaticGlyphRendering();
   const ref = useRef(null);
+  const soundedModel = useRef(null);
   const [visible, setVisible] = useState(false);
   const [canvasSize, setCanvasSize] = useState(0);
   const hasModel = useMemo(() => isRenderableGlyphModel(glyph.model_data), [glyph.model_data]);
@@ -43,6 +44,7 @@ export default function ArchiveGlyph({ glyph, onSelect, showName = false, nameCo
 
   return (
     <Box component={ onSelect ? 'button' : 'div' } type={ onSelect ? 'button' : undefined }
+      style={ { '--glyph-surface-size': `${canvasSize}px` } }
       onClick={ onSelect ? () => onSelect(glyph.id) : undefined }
       aria-label={ onSelect ? t('archiveGlyph.viewSGlyphUpClose', { p0: glyphLabel(glyph) }) : undefined }
       sx={ {
@@ -59,7 +61,13 @@ export default function ArchiveGlyph({ glyph, onSelect, showName = false, nameCo
         </Box> }
         { !isStatic && visible && hasModel && canvasSize > 0 && (
           <Box data-glyph-fragment={ fragmentAnchors ? true : undefined } sx={ { position: 'relative', width: canvasSize, height: canvasSize, maskImage: mask, WebkitMaskImage: mask } }>
-            <LogogramRendererCanvas model={ glyph.model_data } size={ canvasSize } isActive={ visible } />
+            <LogogramRendererCanvas model={ glyph.model_data } size={ canvasSize } isActive={ visible }
+              onFormationStart={ () => {
+                // Layout/analysis changes retain the same model and must not replay its cue.
+                if (soundedModel.current === glyph.model_data) return;
+                soundedModel.current = glyph.model_data;
+                onFormationStart?.();
+              } } />
           </Box>
         ) }
         { hasModel && <Box data-glyph-analysis={ analysis ? 'on' : 'off' } sx={ { position: 'absolute', inset: 0, pointerEvents: 'none', '& > span > svg': { width: '100%', height: '100%' } } }>

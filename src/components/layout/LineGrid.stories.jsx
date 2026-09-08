@@ -19,6 +19,7 @@ MUI Grid를 확장하여 아이템 사이에 선(border)을 자동으로 그려�
 
 ### 주요 기능
 - **Grid Container 모드**: \`container\` prop 사용 시 Grid 아이템 사이에 수직/수평선 자동 생성
+- **Responsive**: xs/sm/md/lg/xl의 실제 Grid 크기와 구분선을 함께 전환하며 SSR에서도 동일 CSS를 사용합니다. 숫자 size와 함수/배열 sx를 지원합니다.
 - **Stack 모드**: \`container\` prop 없이 사용 시 Stack + Divider로 동작
 - **Equal Height**: \`equalHeight\` prop으로 모든 행 높이 균등 분배
 - **Row Heights**: \`rowHeights\` prop으로 행별 비율 지정 가능
@@ -242,4 +243,14 @@ export const BorderColorVariants = {
       </Box>
     </Box>
   ),
+};
+
+/** Archive reading rhythm: full-width meaning, paired sections with a center rule. */
+export const FullAndPaired = {
+  render: () => <LineGrid container gap={ 24 } borderColor="text.primary" sx={ { maxWidth: 640 } }>
+    <Grid size={ 12 } sx={ { p: 3 } }><Placeholder.Box label="전체 폭 · 이름의 큰 뜻" height={ 100 } /></Grid>
+    <Grid size={ { xs: 12, lg: 6 } } sx={ { p: 3 } }><Placeholder.Box label="이름의 중심" height={ 180 } /></Grid>
+    <Grid size={ { xs: 12, lg: 6 } } sx={ { p: 3 } }><Placeholder.Box label="이름이 그리는 당신" height={ 180 } /></Grid>
+    <Grid size={ 12 } sx={ { p: 3 } }><Placeholder.Box label="전체 폭 · 관계" height={ 100 } /></Grid>
+  </LineGrid>,
 };

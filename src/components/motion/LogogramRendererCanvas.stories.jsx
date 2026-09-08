@@ -25,6 +25,7 @@ export default {
   component: LogogramRendererCanvas,
   tags: ['autodocs'],
   argTypes: {
+    onFormationStart: { action: 'formationStart', description: '첫 실제 형성 프레임에 한 번 호출. 감소 모션에서는 생략' },
     model: {
       control: false,
       description: '불변 LogogramModel. 같은 객체의 입자·vapor 기하는 재사용하고 형성 시계는 각각 유지. 형태 변경 시 새 객체 전달. 스토리에서는 name arg로 실제 생성',
