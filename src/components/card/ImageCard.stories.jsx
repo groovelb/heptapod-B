@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Placeholder, { placeholderSvg } from '../../common/ui/Placeholder';
 
 export default {
-  title: 'Component/3. Card/ImageCard',
+  title: 'Custom Component/3. Card/ImageCard',
   component: ImageCard,
   tags: ['autodocs'],
 };

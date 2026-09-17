@@ -21,7 +21,7 @@ function modelOf(name, questionHook = false) {
 }
 
 export default {
-  title: 'Interactive/9. Overlay & Feedback/AnalysisOverlay',
+  title: 'Custom Component/9. Overlay & Feedback/AnalysisOverlay',
   component: AnalysisOverlay,
   tags: ['autodocs'],
   argTypes: {

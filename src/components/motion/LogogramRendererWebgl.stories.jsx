@@ -19,7 +19,7 @@ function modelOf(name, questionHook = false) {
 }
 
 export default {
-  title: 'Interactive/14. Motion/LogogramRendererWebgl',
+  title: 'Custom Component/14. Motion/LogogramRendererWebgl',
   component: LogogramRendererWebgl,
   tags: ['autodocs'],
   argTypes: {

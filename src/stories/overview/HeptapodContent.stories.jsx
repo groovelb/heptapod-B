@@ -30,6 +30,7 @@ import {
   HERO_AUDIO_CLIP_BASE,
 } from '../../data/heptapodHeroStory';
 import narratives from '../../data/archetypeNarratives.json';
+import assetInventory from '../../data/assetInventory.js';
 
 export default {
   title: 'Overview/Heptapod B/06 Content Data',
@@ -55,6 +56,26 @@ const CONSTANTS = {
   HERO_AUDIO_BED_SRC,
   HERO_AUDIO_CLIP_BASE,
 };
+
+/**
+ * 샷 번호별 스틸.
+ * 비트의 shot 문자열에서 첫 두 자리를 읽어 hero-scenes 의 같은 번호 폴더에서 대표 한 장을 고른다.
+ * 번호가 같은 폴더를 고를 뿐이고 그 샷의 실제 프레임이라는 뜻은 아니다. s08 이상은 폴더가 없어 비어 있다.
+ */
+const SHOT_STILLS = assetInventory.items.reduce((acc, item) => {
+  const match = item.folder.match(/hero-scenes\/s(\d\d)-/);
+  if (!match || item.kind !== 'image') return acc;
+  const key = match[1];
+  const prefer = item.name === 'start.png' || item.name === 'mid.png';
+  if (!acc[key] || (prefer && acc[key].name !== 'start.png')) acc[key] = item;
+  return acc;
+}, {});
+
+/** 인트로가 실제로 거는 포스터 두 장 */
+const POSTERS = [
+  { src: HERO_POSTER_SRC, label: `넓은 화면 포스터 · ${HERO_VIDEO_SRC.split('/').pop()}` },
+  { src: HERO_POSTER_SRC_MOBILE, label: `좁은 화면 포스터 · ${HERO_VIDEO_SRC_MOBILE.split('/').pop()}` },
+];
 
 /** 유형 원고에서 표로 뽑는 필드 */
 const NARRATIVE_FIELDS = [
@@ -156,6 +177,7 @@ function BeatTable({ beats }) {
             <TableCell sx={ { fontWeight: 600 } }>kinetic</TableCell>
             <TableCell sx={ { fontWeight: 600 } }>placement</TableCell>
             <TableCell sx={ { fontWeight: 600 } }>emphasis</TableCell>
+            <TableCell sx={ { fontWeight: 600, width: 130 } }>샷 스틸</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -168,11 +190,43 @@ function BeatTable({ beats }) {
               <TableCell sx={ { fontFamily: 'monospace', fontSize: 12 } }>{ b.kinetic }</TableCell>
               <TableCell sx={ { fontFamily: 'monospace', fontSize: 12 } }>{ b.placement }</TableCell>
               <TableCell sx={ { fontFamily: 'monospace', fontSize: 12, color: 'text.secondary' } }>{ b.isEmphasis ? 'yes' : '-' }</TableCell>
+              <TableCell>
+                <ShotStill shot={ b.shot } />
+              </TableCell>
             </TableRow>
           )) }
         </TableBody>
       </Table>
     </TableContainer>
+  );
+}
+
+/**
+ * 샷 스틸 한 칸
+ *
+ * Props:
+ * @param {string} shot - 비트의 샷 범위 문자열 (예: '02→03') [Required]
+ *
+ * Example usage:
+ * <ShotStill shot="02→03" />
+ */
+function ShotStill({ shot }) {
+  const key = String(shot).slice(0, 2);
+  const item = SHOT_STILLS[key];
+  if (!item) return <Box component="span" sx={ { color: 'text.disabled', fontSize: 11 } }>없음</Box>;
+  return (
+    <Stack spacing={ 0.5 }>
+      <Box
+        component="img"
+        src={ item.url }
+        alt={ `${shot} 샷 스틸` }
+        loading="lazy"
+        sx={ { width: '100%', maxWidth: 120, height: 'auto', display: 'block', backgroundColor: 'action.hover' } }
+      />
+      <Typography variant="caption" sx={ { fontFamily: 'monospace', fontSize: 9, color: 'text.secondary' } }>
+        { `s${key} · ${item.name}` }
+      </Typography>
+    </Stack>
   );
 }
 
@@ -324,7 +378,7 @@ export const Default = {
 
           <SectionTitle
             title="HERO_STORY_BEATS (staging)"
-            description="셀 가중치가 페이싱을 정한다. 읽는 비트는 길게, 액션 비트는 짧게 둔다."
+            description="셀 가중치가 페이싱을 정한다. 읽는 비트는 길게, 액션 비트는 짧게 둔다. 오른쪽 스틸은 hero-scenes 에서 번호만 맞춰 고른 참고 이미지이고 그 샷의 실제 프레임이 아니다. 같은 번호 폴더가 없으면 비워 둔다."
           />
           <BeatTable beats={ HERO_STORY_BEATS } />
 
@@ -333,6 +387,20 @@ export const Default = {
             description="표제·라벨·길이·자산 경로. 영상과 소리 파일은 public 경로 문자열로 참조하고 넓은 화면과 좁은 화면이 서로 다른 파일을 쓴다."
           />
           <KeyValueTable data={ CONSTANTS } />
+          <Stack direction="row" spacing={ 2 } sx={ { mb: 4, flexWrap: 'wrap' } }>
+            { POSTERS.map((poster) => (
+              <Stack key={ poster.src } spacing={ 0.5 } sx={ { width: { xs: '100%', sm: 300 } } }>
+                <Box
+                  component="img"
+                  src={ poster.src }
+                  alt={ poster.label }
+                  loading="lazy"
+                  sx={ { width: '100%', height: 'auto', display: 'block', backgroundColor: 'action.hover' } }
+                />
+                <Typography variant="caption" sx={ { fontSize: 11, color: 'text.secondary' } }>{ poster.label }</Typography>
+              </Stack>
+            )) }
+          </Stack>
 
           <SectionTitle
             title="계열 원고"

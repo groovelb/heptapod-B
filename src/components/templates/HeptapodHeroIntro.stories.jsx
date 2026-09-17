@@ -10,7 +10,7 @@ function CompletionDemo(args) {
 }
 
 export default {
-  title: 'Template/HeptapodHeroIntro',
+  title: 'Page/Response Archive/HeptapodHeroIntro',
   component: HeptapodHeroIntro,
   tags: ['autodocs'],
   parameters: {

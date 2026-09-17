@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -25,7 +26,10 @@ import {
   ARCHETYPE_NARRATIVE_VERSION,
 } from '../../data/heptapodArchetypeCatalog';
 import { getArchiveArchetypeSymbol } from '../../data/archiveArchetypeSymbols';
-import { ARCHIVE_FAMILY_SYMBOLS } from '../../data/archiveFamilySymbols';
+import { ARCHIVE_FAMILY_SYMBOLS, ARCHIVE_TIMELINE_SYMBOL } from '../../data/archiveFamilySymbols';
+import { AUTHORED_GLYPH_IMAGES_BY_MODEL } from '../../lib/glyphImages/authoredManifest';
+import { canonicalModelJson } from '../../lib/glyphImages/contract';
+import { HERO_POSTER_SRC, HERO_POSTER_SRC_MOBILE } from '../../data/heptapodHeroStory';
 import modelContract from '../../utils/heptapod/MODEL.md?raw';
 
 export default {
@@ -68,6 +72,46 @@ const NAME_DICTIONARY = [
 
 /** 소수 자리 고정 표기 (undefined 안전) */
 const fixed = (value, digits = 2) => (typeof value === 'number' ? value.toFixed(digits) : '-');
+
+/**
+ * 저작 모델에 대응하는 사전 생성 PNG를 찾는다.
+ * 화면이 쓰는 것과 같은 manifest이므로 여기 뜨는 그림이 실제로 목록에 뜨는 그림이다.
+ *
+ * @param {object} model - 저작 상징의 모델 [Required]
+ * @param {number} size - 256 또는 512 [Optional, 기본값: 256]
+ * @returns {?string} public 경로. 없으면 null
+ */
+function symbolImage(model, size = 256) {
+  try {
+    return AUTHORED_GLYPH_IMAGES_BY_MODEL[canonicalModelJson(model)]?.[size]?.src || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 표식 썸네일 한 칸
+ *
+ * Props:
+ * @param {string} src - 이미지 경로 [Required]
+ * @param {string} alt - 대체 텍스트 [Required]
+ * @param {number} size - 화면 크기(px) [Optional, 기본값: 48]
+ *
+ * Example usage:
+ * <GlyphThumb src={ src } alt="첫 신호" />
+ */
+function GlyphThumb({ src, alt, size = 48 }) {
+  if (!src) return <Box sx={ { width: size, height: size } } />;
+  return (
+    <Box
+      component="img"
+      src={ src }
+      alt={ alt }
+      loading="lazy"
+      sx={ { width: size, height: size, display: 'block', backgroundColor: 'action.hover' } }
+    />
+  );
+}
 
 /** 의미 ID 목록 → 한글 라벨 문자열 */
 const meaningLabels = (ids) => (ids.length
@@ -167,7 +211,7 @@ function ArchetypeTable({ archetypes }) {
             <TableCell sx={ { fontWeight: 600 } }>추가 의미</TableCell>
             <TableCell sx={ { fontWeight: 600 } }>유형</TableCell>
             <TableCell sx={ { fontWeight: 600 } }>이름의 뜻</TableCell>
-            <TableCell sx={ { fontWeight: 600, width: 70 } }>상징</TableCell>
+            <TableCell sx={ { fontWeight: 600, width: 72 } }>상징</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -178,8 +222,11 @@ function ArchetypeTable({ archetypes }) {
               <TableCell sx={ { fontSize: 12, color: 'text.secondary' } }>{ meaningLabels(a.modifierIds) }</TableCell>
               <TableCell sx={ { fontSize: 13, fontWeight: 600 } }>{ a.title }</TableCell>
               <TableCell sx={ { fontSize: 13, color: 'text.secondary' } }>{ a.reading }</TableCell>
-              <TableCell sx={ { fontFamily: 'monospace', fontSize: 12 } }>
-                { getArchiveArchetypeSymbol(a.meaningKey) ? 'yes' : '-' }
+              <TableCell>
+                <GlyphThumb
+                  src={ symbolImage(getArchiveArchetypeSymbol(a.meaningKey)?.model) }
+                  alt={ `${a.title} 상징` }
+                />
               </TableCell>
             </TableRow>
           )) }
@@ -275,10 +322,44 @@ export const Default = {
           <ArchetypeTable archetypes={ archetypes } />
 
           <SectionTitle
+            title="계열 상징과 시간순 상징"
+            description="화면이 쓰는 사전 생성 PNG 그대로다. 사람의 표식이 아니라 안내용 저작 모델이고 소속·집계에 들어가지 않는다."
+          />
+          <Stack direction="row" spacing={ 3 } sx={ { mb: 4, flexWrap: 'wrap' } }>
+            { familyIds.map((id) => (
+              <Stack key={ id } spacing={ 0.5 } alignItems="center">
+                <GlyphThumb src={ symbolImage(ARCHIVE_FAMILY_SYMBOLS[id].model) } alt={ `${id} 계열 상징` } size={ 96 } />
+                <Typography variant="caption" sx={ { fontFamily: 'monospace', fontSize: 11 } }>{ id }</Typography>
+              </Stack>
+            )) }
+            <Stack spacing={ 0.5 } alignItems="center">
+              <GlyphThumb src={ symbolImage(ARCHIVE_TIMELINE_SYMBOL.model_data) } alt="시간순 상징" size={ 96 } />
+              <Typography variant="caption" sx={ { fontFamily: 'monospace', fontSize: 11 } }>timeline</Typography>
+            </Stack>
+          </Stack>
+
+          <SectionTitle
             title="HERO_SCRUB_TIMELINE"
             description={ `영상 ${timeline.total}초 · 타이틀 셀 ${timeline.titleCells} · 트랙 셀 합 ${timeline.scrubCells} (1셀 = 100vh) · 클립 ${timeline.clips.length}개. 좁은 화면은 같은 순서를 트랙 셀 합 ${mobile.scrubCells}로 지난다.` }
           />
           <TimelineTable clips={ timeline.clips } />
+          <Stack direction="row" spacing={ 2 } sx={ { mb: 4, flexWrap: 'wrap' } }>
+            { [
+              { src: HERO_POSTER_SRC, label: '넓은 화면 첫 프레임' },
+              { src: HERO_POSTER_SRC_MOBILE, label: '좁은 화면 첫 프레임' },
+            ].map((poster) => (
+              <Stack key={ poster.src } spacing={ 0.5 } sx={ { width: { xs: '100%', sm: 280 } } }>
+                <Box
+                  component="img"
+                  src={ poster.src }
+                  alt={ poster.label }
+                  loading="lazy"
+                  sx={ { width: '100%', height: 'auto', display: 'block', backgroundColor: 'action.hover' } }
+                />
+                <Typography variant="caption" sx={ { fontSize: 11, color: 'text.secondary' } }>{ poster.label }</Typography>
+              </Stack>
+            )) }
+          </Stack>
 
           <SectionTitle
             title="LogogramModel 계약"

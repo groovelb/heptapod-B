@@ -32,7 +32,7 @@ const GRID_NAMES = [
 ];
 
 export default {
-  title: 'Interactive/14. Motion/LogogramRendererSvg',
+  title: 'Custom Component/14. Motion/LogogramRendererSvg',
   component: LogogramRendererSvg,
   tags: ['autodocs'],
   argTypes: {

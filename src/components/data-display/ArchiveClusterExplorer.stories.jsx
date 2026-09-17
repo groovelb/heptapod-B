@@ -5,7 +5,7 @@ import { clusterArchiveGlyphs } from '../../utils/heptapod/clusterArchiveGlyphs'
 const glyphs = ARCHIVE_STORY_GLYPHS.filter((glyph) => glyph.is_public);
 const clusters = clusterArchiveGlyphs(glyphs);
 export default {
-  title: 'Custom Component/Data Display/ArchiveClusterExplorer', component: ArchiveClusterExplorer, tags: ['autodocs'],
+  title: 'Custom Component/5. Data Display/ArchiveClusterExplorer', component: ArchiveClusterExplorer, tags: ['autodocs'],
   parameters: { docs: { description: { component: '실제 로컬 인코더로 만든 표식에서 계산한 중첩 군집입니다. 군집 선택 이벤트는 갤러리의 필터로 전달되며, 선택 상태는 Controls의 selectedId로 확인합니다. 공개 DB·인증·네트워크를 사용하지 않습니다. 같은 군집의 모든 구성원 쌍과 같은 관측 부위를 검증합니다.' } } },
   argTypes: {
     clusters: { control: 'object', description: '직렬화 가능한 군집 계산 결과' },

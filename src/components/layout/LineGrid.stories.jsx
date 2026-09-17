@@ -5,7 +5,7 @@ import Placeholder from '../../common/ui/Placeholder';
 import LineGrid from './LineGrid';
 
 export default {
-  title: 'Component/8. Layout/LineGrid',
+  title: 'Custom Component/8. Layout/LineGrid',
   component: LineGrid,
   tags: ['autodocs'],
   parameters: {

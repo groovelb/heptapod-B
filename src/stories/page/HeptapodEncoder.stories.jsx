@@ -4,7 +4,7 @@ import HeptapodEncoderPage from '../../components/templates/HeptapodEncoderPage'
 import { createArchiveStoryClient } from '../../test-fixtures/archiveClient';
 
 export default {
-  title: 'Page/HeptapodEncoder',
+  title: 'Page/Response Archive/HeptapodEncoderPage',
   component: HeptapodEncoderPage,
   tags: ['autodocs'],
   decorators: [(Story) => <MemoryRouter initialEntries={ ['/canvas'] }>{createElement(Story)}</MemoryRouter>],

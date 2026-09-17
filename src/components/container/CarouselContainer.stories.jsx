@@ -158,7 +158,7 @@ function NoNavigationDemo() {
 }
 
 export default {
-  title: 'Component/2. Container/CarouselContainer',
+  title: 'Custom Component/2. Container/CarouselContainer',
   component: CarouselContainer,
   tags: ['autodocs'],
   parameters: {

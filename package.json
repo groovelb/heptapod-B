@@ -24,7 +24,8 @@
     "test:next-migration": "node scripts/test-next-migration.mjs",
     "prepare:hero-video": "node scripts/prepare-hero-video.mjs",
     "test:static-glyphs": "node scripts/test-static-glyph-renderer.mjs && node scripts/test-glyph-image-pipeline.mjs && node scripts/test-static-glyph-ui.mjs",
-    "generate-structure": "node scripts/generate-project-structure.js"
+    "generate-structure": "node scripts/generate-project-structure.js",
+    "generate-assets": "node scripts/generate-asset-inventory.js"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.4.0",

@@ -127,9 +127,29 @@ function extractStoryTitle(storyFile) {
   return m ? m[1] : null;
 }
 
-/** 파일 경로를 받아 짝이 되는 .stories.jsx 경로를 반환 */
+const STORIES_DIR = join(SRC, 'stories');
+let storiesIndex = null;
+/** src/stories/** 아래 스토리 파일을 이름(확장자 제외)으로 찾는 색인 */
+function findStoryByName(name) {
+  if (!storiesIndex) {
+    storiesIndex = new Map();
+    for (const f of walk(STORIES_DIR)) {
+      const m = basename(f).match(/^(.+)\.stories\.(jsx|tsx|js|ts)$/);
+      if (m && !storiesIndex.has(m[1])) storiesIndex.set(m[1], f);
+    }
+  }
+  return storiesIndex.get(name) || null;
+}
+
+/** 소스 파일의 스토리: 형제 X.stories.(jsx|tsx) → 없으면 src/stories/**\/X.stories.* */
 function storyFileFor(sourceFile) {
-  return sourceFile.replace(/\.jsx$/, '.stories.jsx');
+  const ext = extname(sourceFile);
+  const name = basename(sourceFile, ext);
+  for (const e of ['.stories.jsx', '.stories.tsx']) {
+    const sib = join(dirname(sourceFile), name + e);
+    if (existsSync(sib)) return sib;
+  }
+  return findStoryByName(name) || sourceFile.replace(/\.(jsx|tsx)$/, '.stories.jsx');
 }
 
 // ── 1) 컴포넌트/페이지/훅 메타 수집 ───────────────────────────

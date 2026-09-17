@@ -4,7 +4,7 @@
  * 수동 편집 금지. 재생성: pnpm generate-structure
  */
 export default {
-  "generatedAt": "2026-09-17T09:16:36.287Z",
+  "generatedAt": "2026-09-17T09:51:35.106Z",
   "root": {
     "name": "app",
     "kind": "root",
@@ -58,8 +58,8 @@ export default {
                             "kind": "component",
                             "category": "components/templates",
                             "file": "components/templates/HeptapodHeroIntro.jsx",
-                            "storyTitle": "Template/HeptapodHeroIntro",
-                            "storyId": "template-heptapodherointro",
+                            "storyTitle": "Page/Response Archive/HeptapodHeroIntro",
+                            "storyId": "page-response-archive-heptapodherointro",
                             "children": [
                               {
                                 "name": "AppGNB",
@@ -74,8 +74,8 @@ export default {
                                     "kind": "component",
                                     "category": "components/navigation",
                                     "file": "components/navigation/GNB.jsx",
-                                    "storyTitle": "Component/10. Navigation/GNB",
-                                    "storyId": "component-10-navigation-gnb",
+                                    "storyTitle": "Custom Component/10. Navigation/GNB",
+                                    "storyId": "custom-component-10-navigation-gnb",
                                     "children": [
                                       {
                                         "name": "LanguageSwitcher",
@@ -119,8 +119,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/scroll",
                                 "file": "components/scroll/VideoScrubbing.jsx",
-                                "storyTitle": "Interactive/12. Scroll/VideoScrubbing",
-                                "storyId": "interactive-12-scroll-videoscrubbing",
+                                "storyTitle": "Custom Component/12. Scroll/VideoScrubbing",
+                                "storyId": "custom-component-12-scroll-videoscrubbing",
                                 "children": [],
                                 "hooks": [],
                                 "data": []
@@ -130,8 +130,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/scroll",
                                 "file": "components/scroll/ScrubHud.jsx",
-                                "storyTitle": null,
-                                "storyId": null,
+                                "storyTitle": "Section/ScrubHud",
+                                "storyId": "section-scrubhud",
                                 "children": [],
                                 "hooks": [],
                                 "data": []
@@ -415,8 +415,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/motion",
                                 "file": "components/motion/LogogramChamber.jsx",
-                                "storyTitle": "Interactive/14. Motion/LogogramChamber",
-                                "storyId": "interactive-14-motion-logogramchamber",
+                                "storyTitle": "Custom Component/14. Motion/LogogramChamber",
+                                "storyId": "custom-component-14-motion-logogramchamber",
                                 "children": [
                                   {
                                     "name": "RatioContainer",
@@ -438,8 +438,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/motion",
                                 "file": "components/motion/LogogramRendererCanvas.jsx",
-                                "storyTitle": "Interactive/14. Motion/LogogramRendererCanvas",
-                                "storyId": "interactive-14-motion-logogramrenderercanvas",
+                                "storyTitle": "Custom Component/14. Motion/LogogramRendererCanvas",
+                                "storyId": "custom-component-14-motion-logogramrenderercanvas",
                                 "children": [],
                                 "hooks": [
                                   {
@@ -494,8 +494,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/overlay-feedback",
                                 "file": "components/overlay-feedback/AnalysisOverlay.jsx",
-                                "storyTitle": "Interactive/9. Overlay & Feedback/AnalysisOverlay",
-                                "storyId": "interactive-9-overlay-feedback-analysisoverlay",
+                                "storyTitle": "Custom Component/9. Overlay & Feedback/AnalysisOverlay",
+                                "storyId": "custom-component-9-overlay-feedback-analysisoverlay",
                                 "children": [],
                                 "hooks": [
                                   {
@@ -511,8 +511,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/overlay-feedback",
                                 "file": "components/overlay-feedback/GlyphObservationOverlay.jsx",
-                                "storyTitle": "Custom Component/Overlay Feedback/GlyphObservationOverlay",
-                                "storyId": "custom-component-overlay-feedback-glyphobservationoverlay",
+                                "storyTitle": "Custom Component/9. Overlay & Feedback/GlyphObservationOverlay",
+                                "storyId": "custom-component-9-overlay-feedback-glyphobservationoverlay",
                                 "children": [],
                                 "hooks": [],
                                 "data": []
@@ -555,8 +555,8 @@ export default {
                                         "kind": "component",
                                         "category": "components/layout",
                                         "file": "components/layout/LineGrid.jsx",
-                                        "storyTitle": "Component/8. Layout/LineGrid",
-                                        "storyId": "component-8-layout-linegrid",
+                                        "storyTitle": "Custom Component/8. Layout/LineGrid",
+                                        "storyId": "custom-component-8-layout-linegrid",
                                         "children": [],
                                         "hooks": [],
                                         "data": []

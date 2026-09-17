@@ -21,7 +21,7 @@ function modelOf(name, questionHook = false) {
 const PARTICLE_TIERS = [800, 2400, 4000];
 
 export default {
-  title: 'Interactive/14. Motion/LogogramRendererCanvas',
+  title: 'Custom Component/14. Motion/LogogramRendererCanvas',
   component: LogogramRendererCanvas,
   tags: ['autodocs'],
   argTypes: {
