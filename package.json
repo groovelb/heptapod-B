@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/prepare-hero-video.mjs && next dev",
-    "build": "node scripts/prepare-hero-video.mjs && next build",
+    "build": "node scripts/prepare-hero-video.mjs && SB_STATIC=0 storybook build -o public/storybook && next build",
     "lint": "eslint .",
     "preview": "next start",
     "storybook": "node scripts/prepare-hero-video.mjs && storybook dev -p 6006",
@@ -23,7 +23,8 @@
     "test:next-og": "node --test scripts/test-next-og.mjs",
     "test:next-migration": "node scripts/test-next-migration.mjs",
     "prepare:hero-video": "node scripts/prepare-hero-video.mjs",
-    "test:static-glyphs": "node scripts/test-static-glyph-renderer.mjs && node scripts/test-glyph-image-pipeline.mjs && node scripts/test-static-glyph-ui.mjs"
+    "test:static-glyphs": "node scripts/test-static-glyph-renderer.mjs && node scripts/test-glyph-image-pipeline.mjs && node scripts/test-static-glyph-ui.mjs",
+    "generate-structure": "node scripts/generate-project-structure.js"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.4.0",

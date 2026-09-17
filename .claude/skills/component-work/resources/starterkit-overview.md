@@ -1,4 +1,4 @@
-# Project Summary
+# Starter Kit Overview
 
 ## 프로젝트 개요
 

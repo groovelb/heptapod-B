@@ -189,6 +189,7 @@ Vibe Dictionary 텍소노미 v0.4 기반 분류. 번호는 텍소노미 카테�
 
 ## Common (유틸리티)
 
+- EditorialDocument: 기획 문서(md 원문)를 문서 전용 테마(Pretendard)로 브랜드 북처럼 그리는 스토리북 전용 렌더러. 제목 번호 라벨화, 가로 괘선 표, 넉넉한 여백 (`components/storybookDocumentation/EditorialDocument.jsx`)
 - AppRoutes / EncoderRoutes / paths: 라우트 등록·랜딩 완료/Canvas 쿼리 어댑터·공통 경로 계약. `/` 실제 영상 종료 후 `/canvas` replace, Canvas의 Archive 클릭은 `/archive` push. 기존 이름·생성 쿼리 호환, 이름/버전 변경 시에만 입력 세션 재마운트. App의 provider·Lenis 수명과 분리 (`routes/`)
 - Indicator: 범용 인디케이터 (`common/ui/Indicator.jsx`)
 - Placeholder: 스토리 예제용 FPO 플레이스홀더 시스템. Box/Image/Media/Text/Line/Paragraph/Card 서브컴포넌트 (`common/ui/Placeholder.jsx`)

@@ -44,3 +44,6 @@ out
 # Local generation outputs and review caches (production media lives in public).
 /output/
 /tmp/
+
+# 배포 빌드가 생성하는 스토리북 (사이트의 /storybook/)
+/public/storybook
