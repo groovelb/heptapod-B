@@ -73,7 +73,7 @@ when_to_use: ALWAYS invoke this skill when files under src/components/ are creat
 | `components.md` | 기존 컴포넌트 목록 | 생성/수정/삭제 시 (중복 방지) |
 | `mui-theme.md` | MUI 테마 설정 | 테마/스타일 수정 시 |
 | `refactoring-guide.md` | 리팩토링 가이드 | 리팩토링 시 |
-| `project-summary.md` | 프로젝트 개요/맥락 | 온보딩/맥락 파악 시 |
+| `starterkit-overview.md` | 프로젝트 개요/맥락 | 온보딩/맥락 파악 시 |
 | `taxonomy-v0.4.md` | 전체 분류체계 상세 | 카테고리 상세 정보 필요 시 |
 | `taxonomy-index.md` | 빠른 인덱스 | 생성 시 카테고리 후보 파악 (우선) |
 | `storybook-writing.md` | 스토리 작성 규칙 | 스토리 작성/수정 시 |

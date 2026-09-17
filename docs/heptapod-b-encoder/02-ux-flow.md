@@ -1,204 +1,250 @@
-# Heptapod B Encoder — UX Flow
+# Heptapod B: UX Flow
 
-> 히어로 인트로의 스크롤 비트·카피 상세는 `06-hero-storyline.md` 참조.
+> 이 문서가 결정하는 것: 각 과업을 어떤 화면과 데이터로 이루는가
+> 입력: 01 4절 사용자·대상, 01 5절 과업 · 출력 대상: 03-visual-direction, /supabase-integration, /component-work (넘기는 항목은 이 문서 6절 표)
 
-## 유저 시나리오
+## 결정 현황
 
-### 시나리오 0: 히어로 인트로 진입 (스크롤 스크러빙)
+이 표의 확정 항목만 다음 문서가 그대로 인용한다. 잠정은 `(잠정)` 표시를 달고 인용하고, 미정은 인용하지 않는다.
 
-- **사용자**: 최초 진입(랜딩) 사용자
-- **목표**: 외계 비행체 진입 여정을 **스크롤로 직접 스크럽하며** 세계관을 흡수하고, 자연스럽게 인코더에 도달
-- **내러티브 프레임**: "그들이 먼저 말을 걸었다 → 이제 당신이 답한다" (영상=발화/초대, 인코더=응답)
-- **플로우**:
-  1. 타이틀 셀(100vh): `HEPTAPOD B` + **START**. 누르기 전엔 스크롤 잠금(강제). START 클릭 = 사운드 언락 → 잠금 해제 + 첫 비트로 부드럽게 이동
-  2. 트랙(타이틀 1셀 + 비트 셀 6.4셀, 1셀 = 100vh): 스크롤 위치가 영상 `currentTime` 을 **양방향으로 스크럽**(muted). 비트별 셀 가중치가 페이싱을 정하고(읽기 비트 길게, 액션 비트 짧게) Lenis 감쇠가 속도를 연속화한다
-  3. 사운드: 영상 오디오를 비트 구간대로 잘라낸 클립(B0~B5) + 베드 루프 + 오프닝 드론이 스크롤 위치에 결속되어 난다. 스크롤이 멈추면 클립은 잦아들고 베드만 남으며, 완주하면 전부 무음. 우하단 토글
-  4. 캡션(B0~B5)은 트랙 좌표에 실배치되어 자연 스크롤로 영상 위를 지나가고(애니메이션 없음), 하단 HUD 가 `01 — 06` 카운터·진행바를 보여준다
-  5. 트랙 뒤 핸드오프 스페이서(120vh) 진입 → 고정 캔버스(인코더)가 마지막 프레임(화이트아웃) 위에서 제자리 fade-in → **OST 시작**(인트로=스크럽 사운드 / 인코더=OST 단계 분리)
-- **성공 조건**: 스크롤 연속성이 끊기지 않고(잠금 없음, 역방향 가능) 화면과 소리가 같은 지점을 가리키며, 인코더 도달 시 "응답할 차례" 동기가 형성됨
-- **예외 상황**:
-  - `prefers-reduced-motion` → 스크럽·Lenis 생략(정지 프레임), START 게이트와 캡션 자연 스크롤만
-  - iOS → 첫 제스처 완료(touchend/pointerup)에서 디코더 예열 후 스크럽. 무음 스위치는 audioSession 'playback' 으로 우회
-  - `SKIP INTRO →` → 잠금 해제 + 핸드오프로 이동(스크럽 사운드 무음 → OST)
-  - URL 공유 진입(`?name=`) → 인트로 생략, 인코더만 노출(재현 우선)
-  > 셀 가중치·사운드 엔진·자산 빌드 상세: `07-scroll-scrub-sound-plan.md` · 비트·카피: `06-hero-storyline.md`
+| 섹션 | 상태 | 비고 |
+|---|---|---|
+| 1. UX-flow 시나리오 | 확정 | 화면 코드와 대조 |
+| 2.1 페이지 리스트 | 확정 | 단일 경로 확인 |
+| 2.2 계층 트리 | 확정 | 원문 정보 구조 계승 |
+| 3.1 대상 정의 | 확정 | 모델 계약 문서 대조 |
+| 3.2 이름 사전 | 확정 | 서버 데이터 없음 |
+| 4. 인터랙션 원칙 | 잠정 | 상류 01 3절 잠정 |
+| 5. 컴포넌트 리스트 | 확정 | 파일 diff로 대조 |
+| 6. 다음 문서로 넘기는 것 | 확정 | |
 
-### 시나리오 1: 이름 인코딩 (핵심 플로우)
+문서 상태: 잠정 승인 (하드 게이트 충족)
+개정: 2026-09-17 v2 · 변경: 새 포맷으로 재구성 (교육 예제)
 
-- **사용자**: 처음 방문한 일반 사용자
-- **목표**: 자기 이름이 헵타포드 B 로고그램으로 변환되는 것을 본다
-- **플로우**:
-  1. 챔버(안개 낀 서리 유리 공간)와 입력 필드가 있는 메인 화면 진입. 안개 배경은 평상시 천천히 안으로 전진(Z-depth creep). 배경음악(Heptapod B OST) 기본 재생 — 첫 상호작용에서 시작 (자동재생 정책)
-  2. 이름 입력 (한글/영문) 후 ENCODE 실행 → **그 즉시** 시네마틱 전환음(whoosh+boom) + 안개 가속(dive) 동시 발화
-  3. 이름 → 해시(xmur3) → 시드 → sfc32 PRNG → 형태 파라미터 결정 (순간)
-  4. 입자들이 안개 속에서 모여들며 로고그램 형태로 응집 (형성 애니메이션)
-  5. 완성 후 가장자리가 미세하게 살아 움직이는 "살아있는 문자" 상태 유지
-  6. 데이터 리드아웃에 시드·NFD 유닛 수·활성 슬롯 등 표기
+비고:
 
-  > 오디오·Z-depth 모션 상세: `04-audio-and-motion.md`
-- **성공 조건**: 같은 이름은 항상 같은 로고그램. 형태가 "규칙이 있어 보임"
-- **예외 상황**:
-  - 빈 입력 → ENCODE 비활성
-  - `prefers-reduced-motion` → 형성 애니메이션·Z-depth 모션 생략, 즉시 완성형/정적 안개
-  - 저성능/비WebGL 기기 → 렌더러 자동 폴백(WebGL→Canvas→SVG)
-  - 브라우저 자동재생 차단 → 배경음악은 첫 클릭/키 입력에서 시작
+- **1절 근거**: 원문 시나리오 0~5를 01 5절 과업 4개에 맞춰 재편했다. 원문 흐름도 두 개는 버리고 그 내용을 단계 표와 2.2절 트리로 옮겼다. 인코딩 내부 흐름(자모 분해에서 형태 값까지)은 3절로 옮겼다.
+- **3.1절 근거**: 01 4.2절의 확정 6행을 그대로 받았다. 속성과 영속성은 `src/utils/heptapod/MODEL.md`, `reversibleCodec.js`, `detectRenderTier.js`, `src/data/heptapodHeroStory.js`로 확인했다.
+- **4절 압축**: 원문 시나리오의 예외 규칙과 04·07·08 문서의 원칙을 5줄로 묶었다. 스크럽 사운드와 키네틱 타이포의 상세 규칙은 각각 `07-scroll-scrub-sound-plan.md`, `08-kinetic-typography-ideation.md`에 있다.
+- **5절 근거**: 스타터킷 `src/components`와 파일 단위 diff로 대조했다. 비교한 92개 중 60개가 동일, 3개가 다름, 29개가 이 저장소에만 있다.
+- **분량**: 250줄(권장 250). 1절 시나리오 비고를 `appendix-scenario-notes.md`로 분리 가능하다.
 
-### 시나리오 2: 해독 과정 탐색 (분석 오버레이)
+---
 
-- **사용자**: 어떻게 만들어지는지 궁금한 사용자
-- **목표**: 로고그램의 구조(12세그먼트·슬롯·유형)를 이해
-- **플로우**:
-  1. 완성된 로고그램 위에서 "분석 오버레이" 토글 ON
-  2. 12세그먼트 분할선·활성 슬롯 마커·가지 유형 코드가 영화적 연출로 오버레이
-  3. 데이터 리드아웃의 각 값과 시각 요소가 연결되어 강조
-  4. 토글 OFF로 순수 로고그램으로 복귀
-- **성공 조건**: "발견된 구조가 아니라 심어둔 디자인 장치"라는 메시지가 전달됨
-- **예외 상황**: 형성 애니메이션 진행 중에는 오버레이 토글 비활성(완성 후 활성)
+## 1. UX-flow 시나리오 (01 5절 과업과 1:1)
 
-### 시나리오 3: 표현 변형 (의문형 갈고리)
+R 읽기 · W 생성 · D 갱신/삭제.
 
-- **사용자**: 반복 탐색하는 사용자
-- **목표**: 같은 이름의 변주(의문문 형태)를 본다
-- **플로우**:
-  1. "의문형 갈고리" 토글 ON
-  2. 본체와 분리된 시드 스트림으로 갈고리 장식만 추가
-  3. 본체 형태는 한 픽셀도 변하지 않음
-- **성공 조건**: 토글이 본체 형태에 영향 없음 (시드 분리 검증)
-- **예외 상황**: 없음
+### 1.1 그들이 먼저 건넨 말을 따라가며 세계관을 받아들인다
 
-### 시나리오 4: 저장 및 공유
+- **사용자**: 영화 팬, 제너러티브 관심층
+- **진입**: 직접 방문 · **성공 조건**: 인코더에 닿을 때 답할 차례라는 동기가 생김 · **예외**: 아래 비고
 
-- **사용자**: 결과물을 간직/공유하려는 사용자
-- **목표**: 고해상도 PNG 저장 또는 링크 공유
-- **플로우**:
-  1. SAVE → 현재 로고그램을 고해상도 PNG로 추출(canvas toBlob)
-  2. SHARE → 이름을 인코딩한 URL 쿼리 복사
-  3. 공유 URL 진입 시 → 쿼리에서 이름 디코딩 → 동일 로고그램 즉시 재현
-- **성공 조건**: URL만으로 완전 재현(결정론). 저장 이미지가 화면 품질 이상
-- **예외 상황**: 비WebGL 기기 공유 진입 시에도 SVG로 동일 형태 재현(질감만 다름)
+| 단계 | 화면 | 사용자 행동 | 다루는 대상 (R/W/D) | 결과 |
+|---|---|---|---|---|
+| 1 | HeroIntro | 시작을 누른다 | HeroBeat R | 스크롤 잠금이 풀리고 소리가 열린다 |
+| 2 | HeroIntro | 스크롤을 내린다 | HeroBeat R (몇 개) | 영상이 스크롤을 따라 앞뒤로 움직인다 |
+| 3 | HeroIntro | 비트 카피를 읽는다 | HeroBeat R | 카피가 영상 위를 지나며 세계관을 쌓는다 |
+| 4 | 전역 오버레이 | 소리를 끄거나 켠다 | 없음 | 소리가 전부 잦아든다 |
+| 5 | HeroIntro | 트랙을 완주한다 | HeroBeat R | 밝아진 화면 위로 챔버가 겹쳐 떠오른다 |
+| 6 | Encoder | 입력 줄 앞에 선다 | EncodeInput R | 소리가 배경음악으로 바뀐다 |
 
-### 시나리오 5: 제작 비하인드 (인터랙티브 에세이)
+비고:
 
-- **사용자**: 콘텐츠를 깊이 소비하는 사용자
-- **목표**: 헵타포드 B가 어떻게 reverse-engineering 되었는지 읽는다
-- **플로우**:
-  1. 메인 하단 또는 별도 섹션에서 "How it works / The real story" 진입
-  2. 영화 제작 실체(연출 우선·사후 체계화) + 본 프로젝트의 동일 방법론 서술
-  3. 강한 사피어-워프 가설의 학계 위치 등 정직한 한계 명시
-- **성공 조건**: "번역이 아니라 인코딩"이라는 프레임이 일관되게 전달
-- **예외 상황**: 없음
+- 예외: 감속 선호를 켜면 스크럽 없이 정지 프레임으로 지나간다. 건너뛰기를 누르면 인계 지점으로 바로 이동한다. 공유 주소로 들어오면 인트로가 통째로 생략된다.
+- 단계 1: 시작을 누르기 전에는 스크롤이 잠겨 있다. 이 클릭이 소리를 여는 제스처를 겸한다.
+- 단계 2: 되돌아 올리면 영상도 되감긴다. 비트마다 스크롤 길이가 달라 읽는 구간은 길고 액션 구간은 짧다.
 
-## UX 플로우
+### 1.2 자기 이름을 넣어 하나의 형태로 응축시킨다
 
-```mermaid
-flowchart TD
-    Z[랜딩 진입] --> Z1[히어로 인트로<br/>영상 스크럽 + 세계관 카피]
-    Z1 -->|화이트아웃 매치컷| A
-    Z1 -.SKIP / reduced-motion / 공유URL.-> A
-    A[메인 진입: 챔버 + 입력] --> B{이름 입력?}
-    B -->|빈 값| A
-    B -->|입력 후 ENCODE| C[인코딩 엔진: 해시→시드→파라미터]
-    C --> D{reduced-motion?}
-    D -->|No| E[입자 형성 애니메이션]
-    D -->|Yes| F[즉시 완성형 표시]
-    E --> G[완성: 살아있는 문자 + 데이터 리드아웃]
-    F --> G
-    G --> H{사용자 액션}
-    H -->|분석 오버레이| I[12세그먼트·슬롯·유형 코드 표시]
-    H -->|의문형 갈고리| J[분리 시드로 갈고리 추가]
-    H -->|SAVE| K[고해상도 PNG 추출]
-    H -->|SHARE| L[이름 인코딩 URL 복사]
-    H -->|새 이름| B
-    I --> G
-    J --> G
-    L --> M[URL 진입 시 동일 로고그램 재현]
-```
+- **사용자**: 영화 팬
+- **진입**: 인트로 인계 또는 공유 주소 · **성공 조건**: 같은 이름이 언제나 같은 형태로 완성 · **예외**: 아래 비고
 
-```mermaid
-flowchart LR
-    N[이름 문자열] --> O[NFD 정규화·자모 분해]
-    O --> P[xmur3 해시 → 시드]
-    P --> Q[sfc32 PRNG 스트림]
-    Q --> R[형태 모델 파라미터<br/>링·슬롯·가지·스플래터]
-    R --> S{렌더러 선택}
-    S -->|고성능| T[WebGL 유체]
-    S -->|중간| U[Canvas 2D 입자]
-    S -->|기본/폴백| V[SVG 리본 path]
-    T --> W[로고그램 출력]
-    U --> W
-    V --> W
-```
+| 단계 | 화면 | 사용자 행동 | 다루는 대상 (R/W/D) | 결과 |
+|---|---|---|---|---|
+| 1 | Encoder | 이름을 친다 | EncodeInput W | 방금 친 글자 하나가 미리보기로 뜬다 |
+| 2 | Encoder | 엔터를 누른다 | Seed W | 전환음과 안개 가속이 함께 터진다 |
+| 3 | Encoder | 형성 과정을 본다 | LogogramModel W | 입자가 모여 하나의 형태로 응축된다 |
+| 4 | Encoder | 완성된 형태를 본다 | LogogramModel R | 가장자리가 미세하게 계속 움직인다 |
+| 5 | Encoder | 계측 패널을 읽는다 | Readout R | 시드와 자모 수, 복원된 이름이 뜬다 |
+| 6 | Encoder | 물음표를 붙여 다시 넣는다 | EncodeInput W | 본체는 그대로, 갈고리만 더해진다 |
 
-## 정보 구조 (IA)
+비고:
+
+- 예외: 빈 입력은 무시된다. 감속 선호를 켜면 형성 과정 없이 즉시 완성형이 뜬다. 담을 수 있는 길이를 넘기면 복원 칸에 길이 초과가 표기된다.
+- 단계 6: 의문형은 토글이 아니라 입력의 물음표로 결정된다. 갈고리는 분리된 자리에서 만들어져 본체 값에 영향을 주지 않는다.
+
+### 1.3 형태에 심어 둔 규칙과 복원 과정을 확인한다
+
+- **사용자**: 제너러티브 관심층, 디자이너·개발자
+- **진입**: 완성된 형태 · **성공 조건**: 발견된 구조가 아니라 심어 둔 장치임이 전달됨 · **예외**: 형성 중에는 분석 토글이 잠긴다
+
+| 단계 | 화면 | 사용자 행동 | 다루는 대상 (R/W/D) | 결과 |
+|---|---|---|---|---|
+| 1 | Encoder | 분석을 켠다 | LogogramModel R | 12세그먼트 격자와 특징점이 덮인다 |
+| 2 | 전역 오버레이 | 계측 수치를 훑는다 | Readout R | 패널이 형태 설정 값으로 바뀐다 |
+| 3 | Encoder | 형태를 클릭한다 | LogogramModel R | 문장이 하위 단위 형태로 분해된다 |
+| 4 | Encoder | 한 단계 위로 올라간다 | LogogramModel R | 처음의 한 덩어리로 돌아온다 |
+| 5 | 전역 오버레이 | 원자료를 연다 | Seed R, Readout R | 글자, 수, 형태 설정, 그림 네 단계 |
+| 6 | Encoder | 복원 값을 확인한다 | Readout R | 형태를 되읽은 이름이 입력과 같다 |
+
+비고:
+
+- 단계 3: 문장은 줄, 문장, 단어, 글자 순으로 한 단계씩 쪼개진다. 더 못 쪼개면 멈춘다.
+- 단계 5: 원자료는 넓은 화면에서 분석 화면이 대신하고, 좁은 화면에서는 모달로 연다.
+- 원문 시나리오 5(제작 비하인드)는 별도 화면이 없다. 복원 표기와 원자료 네 단계가 그 자리를 대신한다.
+
+### 1.4 만든 형태를 간직하거나 남에게 건넨다
+
+- **사용자**: 영화 팬
+- **진입**: 계측 패널 · **성공 조건**: 주소만으로 같은 형태가 재현됨 · **예외**: 복사가 막히면 조용히 무시한다
+
+| 단계 | 화면 | 사용자 행동 | 다루는 대상 (R/W/D) | 결과 |
+|---|---|---|---|---|
+| 1 | 전역 오버레이 | 저장을 누른다 | LogogramModel R | 화면보다 큰 정지 이미지가 떨어진다 |
+| 2 | 전역 오버레이 | 공유를 누른다 | EncodeInput R | 이름이 담긴 주소가 복사된다 |
+| 3 | Encoder | 공유 주소로 들어온다 | EncodeInput R | 인트로 없이 같은 형태가 재현된다 |
+
+비고: 저장 이미지는 기준 960px의 두 배(1920px)로 다시 그려 추출한다. 실패해도 별도 경고를 띄우지 않는다(무채색 원칙).
+
+---
+
+## 2. 정보 구조
+
+### 2.1 페이지 리스트
+
+| 페이지 | 경로 | 한 줄 목적 | 다루는 대상 | 등장 시나리오 |
+|---|---|---|---|---|
+| HeroIntro | `/` 인트로 구간 | 세계관 전달과 인코더 인계 | HeroBeat | 1 |
+| Encoder | `/` 인계 이후, `/?name=` | 이름 인코딩과 결과 확인 | EncodeInput, Seed, LogogramModel | 2, 3, 4 |
+| 전역 오버레이 | 경로 없음 | 분석, 원자료, 소리, 저장·공유 | LogogramModel, Readout | 1, 3, 4 |
+
+비고: 경로는 하나뿐이다. HeroIntro와 Encoder는 같은 주소 안에서 스크롤 위치로 갈린다. `?name=`으로 들어오면 Encoder만 마운트된다.
+
+### 2.2 계층 트리
 
 ```
-Heptapod B Encoder
-├── 히어로 인트로 (Hero Intro — 영상 스크러빙)
-│   ├── 스크럽 영상 (sticky, 47s, Shot 02→11)
-│   ├── 세계관 카피 비트 (B0~B6 페이드 오버레이)
-│   ├── SKIP INTRO 컨트롤
-│   └── 화이트아웃 매치컷 → 챔버 핸드오프
-├── 메인 (Encoder)
-│   ├── 챔버 (로고그램 렌더 영역, 정방형, 서리 유리, 안개 Z-depth 모션)
-│   ├── 타이틀 블록 (Heptapod B + 배경음악 토글 ► PLAY OST)
-│   ├── 입력 컨트롤 (이름 입력 + ENCODE)
-│   ├── 토글 컨트롤 (분석 오버레이 / 의문형 갈고리)
-│   ├── 데이터 리드아웃 (시드·NFD·슬롯·무게중심)
-│   └── 액션 (SAVE / SHARE)
-├── 제작 비하인드 (The Real Story)
-│   ├── 영화 제작 실체 (연출 우선·사후 체계화)
-│   ├── 본 프로젝트 방법론 (동일 reverse-engineering)
-│   └── 정직한 한계 (사피어-워프·인코더 ≠ 번역기)
-└── 푸터
-    └── 정직한 카피 (인코딩 명시) + 출처
+단일 경로 (/)
+├── HeroIntro (비트 셀 6.4 + 인계 스페이서 1.2, 1셀 = 100vh)
+│   ├── 타이틀 (작품 표제 + 시작 버튼)
+│   ├── 스크럽 트랙 (영상 + 비트 카피 6마디)
+│   ├── 하단 HUD (마디 카운터 + 진행바)
+│   └── 인계 스페이서 (챔버가 겹쳐 떠오르는 구간)
+└── Encoder (고정 화면)
+    ├── 챔버 (화면 전체 안개 + 형태)
+    ├── 타이틀 블록 (작품명 + 배경음악 토글)
+    ├── 계측 패널 (리드아웃 + 분석 토글 + 저장·공유)
+    └── 입력 줄 (이름 입력 + 타이핑 미리보기 + 정직한 카피)
+
+전역 오버레이 (경로 없음)
+├── 분석 화면
+├── 원자료 모달
+└── 소리 토글
 ```
 
-## 데이터 모델
+---
 
-프론트엔드 상태/엔티티 중심.
+## 3. 데이터 모델 (01 4.2절 이름 그대로)
 
-| 엔티티 | 주요 필드 | 관계 |
-|--------|----------|------|
-| `EncodeInput` | name(string), hasQuestionHook(bool), showAnalysis(bool) | 사용자 입력 상태 |
-| `Seed` | hash(uint32), prng(sfc32 state), nfdUnits(string[]) | name으로부터 파생(순수 함수) |
-| `LogogramModel` | ring{radius, harmonics[], weightCenterAngle}, slots[12], branches[], splatter[], questionHook | Seed로부터 결정. 렌더러 입력 |
-| `Branch` | type('wisp'\|'hook'\|'blob'\|'spike'), direction, length, curl, widthMul, angleJitter, droplet | LogogramModel에 N개 포함 |
-| `Slot` | index(0-11), active(bool), branchRef | 12개 고정, 활성은 시드로 선택 |
-| `Readout` | seedHash, nfdCount, activeSegments, weightCenterAngle, slotStates[12] | LogogramModel 파생 표시값 |
-| `RenderConfig` | tier('webgl'\|'canvas'\|'svg'), reducedMotion(bool) | 디바이스 능력 감지 결과 |
+### 3.1 대상 정의
 
-**아키텍처 분리 원칙** (기획서 4.1): `encode(name) → Seed` (순수) / `buildModel(seed) → LogogramModel` (데이터) / `render(model, config)` (교체 가능). 앞 두 단계는 모든 렌더러가 공유.
+정의와 영속성:
 
-## 컴포넌트 리스트
+| 이름 | 식별자 | 주요 속성 (윤곽) | 영속성 |
+|---|---|---|---|
+| 입력 이름 | EncodeInput | 이름 문자열, 물음표 유무 | 휘발 |
+| 시드 | Seed | 이름을 옮긴 수, 자모 단위, 토큰 수 | 휘발 |
+| 로고그램 모델 | LogogramModel | 링, 슬롯 12, 가지, 덩어리, 비산점 | 휘발 |
+| 데이터 리드아웃 | Readout | 시드, 자모 수, 세그먼트, 복원 이름 | 휘발 |
+| 렌더 설정 | RenderConfig | 표현 등급, 감속 여부, 판정 근거 | 휘발 |
+| 인트로 비트 | HeroBeat | 카피, 영상 구간, 셀 가중치, 변주 | 정적 |
 
-기존 디자인 시스템 재활용 우선. 핵심 렌더링은 본 프로젝트 고유라 신규 불가피.
+흐름과 관계:
 
-| 컴포넌트 | 용도 | 구분 | 기존 경로 / 비고 |
-|----------|------|------|-----------------|
-| TextField | 이름 입력 | 재활용 | MUI `components/input/TextField` — 모노스페이스·차가운 톤 sx 적용 |
-| Button | ENCODE / SAVE / SHARE | 재활용 | MUI `components/input/Button` |
-| Switch | 분석 오버레이·의문형 갈고리 토글 | 재활용 | MUI `components/input/Switch` |
-| Table | 데이터 리드아웃(12슬롯 상태) | 재활용 | MUI `components/data-display/Table` — 모노스페이스 sx |
-| RatioContainer | 챔버 정방형 비율 고정 | 재활용 | `components/container/RatioContainer.jsx` |
-| SectionContainer | 제작 비하인드 섹션 | 재활용 | `components/container/SectionContainer.jsx` |
-| FadeTransition | 섹션·오버레이·**인트로 카피 비트** 등장 페이드 | 재활용 | `components/motion/FadeTransition.jsx` |
-| VideoScrubbing | 히어로 인트로 스크롤→영상 프레임 스크럽 | 재활용 | `components/scroll/VideoScrubbing.jsx` |
-| ScrambleText | 데이터 리드아웃 값 전환 연출(연구 장비 톤) | 재활용 | `components/kinetic-typography/ScrambleText.jsx` |
-| GradientOverlay | 안개 배경의 기반(Three.js·Simplex Noise·필름 그레인) | 수정 | `components/dynamic-color/GradientOverlay.jsx` — 저채도 모노크롬 안개로 파라미터 조정 |
-| StyledParagraph / Title | 제작 비하인드 텍스트 | 재활용 | `components/typography/` |
-| **HeptapodHeroIntro** | 영상 스크럽 + 카피 비트 + 챔버 매치컷 핸드오프 컨테이너 | 신규 | 카테고리: `templates` (또는 `motion`). 상세: `06-hero-storyline.md` |
-| **LogogramChamber** | 로고그램 렌더 컨테이너(서리 유리·안개·렌더러 마운트) | 신규 | 카테고리: `motion` |
-| **LogogramRenderer (SVG)** | MVP 렌더러: 리본 path + feTurbulence 번짐 + 다층 opacity 농담 | 신규 | 카테고리: `motion` |
-| **LogogramRenderer (Canvas)** | 입자 형성 애니메이션: jitter + 단순 boids 응집 | 신규 | 카테고리: `motion` |
-| **LogogramRenderer (WebGL)** | 유체 시뮬레이션(Navier-Stokes) 밀도 소스 주입 | 신규 | 카테고리: `motion` |
-| **AnalysisOverlay** | 12세그먼트 분할선·슬롯 마커·유형 코드 오버레이 | 신규 | 카테고리: `overlay-feedback` (확정) |
-| **DataReadout** | 시드·NFD·슬롯 상태 모노스페이스 패널 | 신규 | 카테고리: `data-display` (Table 조합) |
+| 이름 | 만드는 곳 | 보이는 페이지 | 관계 |
+|---|---|---|---|
+| 입력 이름 | 입력 줄, 공유 주소 | Encoder | 시드의 유일한 출처 |
+| 시드 | 인코딩 규칙 | 전역 오버레이 | 입력 이름에서 파생 |
+| 로고그램 모델 | 형태 생성 규칙 | Encoder, 전역 오버레이 | 되읽으면 이름으로 복원 |
+| 데이터 리드아웃 | 모델 파생값 | Encoder, 전역 오버레이 | 로고그램 모델을 참조 |
+| 렌더 설정 | 기기 능력 감지 | Encoder | 모델의 표현 방식을 고른다 |
+| 인트로 비트 | 정적 데이터 | HeroIntro | 영상 구간에 결속 |
 
-**신규 로직 모듈** (컴포넌트 아님 — `utils/heptapod/` 배치):
-- `encode.js`: xmur3 해시 + sfc32 PRNG + NFD 분해 (순수 함수)
-- `buildModel.js` / `reversibleModel.js` / `reversibleCodec.js`: 시드 → LogogramModel 변환 + 가역 인코딩/디코딩
-- `logogramParticles.js`: 입자 형성 타임라인(`totalMs`) 생성 (Canvas 렌더러 입력)
-- `detectRenderTier.js`: WebGL/Canvas 능력 감지 + reduced-motion
-- `exportPng.js`: 고해상도 PNG 추출
-- `ambientAudio.js`: 시네마틱 효과음 합성 컨트롤러 (`04-audio-and-motion.md` §1.1)
-- `backgroundMusic.js`: YouTube IFrame 배경음악 컨트롤러 — API key 불필요 (`04-audio-and-motion.md` §1.2)
+비고:
+
+- 영속성 값은 정적 / 휘발 / 세션 / 브라우저 / 서버다. 저장하는 값이 하나도 없고, 재현은 저장이 아니라 주소의 이름 한 조각으로 한다.
+- 링 아래의 가지와 슬롯, 덩어리, 비산점은 별도 대상이 아니라 로고그램 모델의 내부 구조다. 범위와 단위는 `src/utils/heptapod/MODEL.md`에 있다.
+- 로고그램 모델은 복원 가능한 데이터 채널과 장식만 담당하는 표현 채널로 나뉜다. 번짐과 붓질 지터는 정보를 담지 않는다.
+
+### 3.2 데이터 모델 활용 (이름 사전)
+
+| 데이터명 | 한국어 | 코드 식별자 | 예상 테이블명 | 생성 책임 페이지 |
+|---|---|---|---|---|
+| `EncodeInput` | 입력 이름 | `encodeInput` | (클라이언트) | Encoder |
+| `Seed` | 시드 | `seed` | (클라이언트) | Encoder |
+| `LogogramModel` | 로고그램 모델 | `logogramModel` | (클라이언트) | Encoder |
+| `Readout` | 데이터 리드아웃 | `readout` | (클라이언트) | Encoder |
+| `RenderConfig` | 렌더 설정 | `renderConfig` | (클라이언트) | Encoder |
+| `HeroBeat` | 인트로 비트 | `heroBeat` | (정적) | 없음 |
+
+비고: 서버 데이터가 없는 프로젝트다. `/supabase-integration`을 부르게 되면 이 표부터 다시 정한다.
+
+---
+
+## 4. 인터랙션 원칙 (최대 5)
+
+| 원칙 | 근거 (01 3절 가치) | 드러나는 곳 | 유도되는 컴포넌트 유형 |
+|---|---|---|---|
+| 같은 이름은 언제나 같은 형태로 돌아온다 | Determinism (잠정, Q2) | Encoder, 공유 주소 진입 | 순수 인코딩 모듈, 형태 렌더러 |
+| 형태는 되읽혀 이름으로 돌아간다 | Honesty (잠정, Q2) | 계측 패널, 원자료 | 가역 코덱, 계측 패널 |
+| 움직임은 시간이 아니라 스크롤의 함수다 | Determinism (잠정, Q2) | HeroIntro 전 구간 | 영상 스크럽, 위치 결속 사운드 |
+| UI는 형태의 들러리로 물러난다 | Stillness (잠정, Q2) | Encoder 전역 | 배경 없는 계기 패널, 헤어라인 |
+| 감속을 선호하면 전부 정지 상태가 된다 | Stillness (잠정, Q2) | 전역 | 감속 감지 유틸, 정적 대체 표시 |
+
+비고:
+
+- 원칙 3: 소리도 같은 손을 따른다. 스크롤이 멎으면 클립이 잦아들고 베드만 남으며, 위치가 벌어지면 다시 맞춘다 (`07-scroll-scrub-sound-plan.md`).
+- 원칙 3: 캡션 글자도 같은 진행도 하나로 움직인다. 등장과 퇴장은 번짐과 자간으로만 하고 슬라이드와 바운스를 쓰지 않는다 (`08-kinetic-typography-ideation.md`).
+
+---
+
+## 5. 컴포넌트 리스트
+
+| 컴포넌트 | 페이지/섹션 | 구분 | 카테고리 | 비고 |
+|---|---|---|---|---|
+| RatioContainer | Encoder · 챔버 | 재활용 | container | 정방형 비율 고정 |
+| FadeTransition | Encoder · 계측 패널 | 재활용 | motion | 패널 등장 페이드 |
+| ScrambleText | 계측 패널 값 전환 | 재활용 | kinetic-typography | DataReadout 안에서만, 화면 미노출 |
+| VideoScrubbing | HeroIntro · 스크럽 트랙 | 수정 | scroll | 되감기 게이팅, iOS 예열 |
+| HeptapodHeroIntro | HeroIntro 전체 | 신규 | templates | 트랙과 인계 컨테이너 |
+| HeptapodEncoderPage | Encoder 전체 | 신규 | templates | 인코딩·소리·분해 흐름 |
+| LogogramChamber | Encoder · 챔버 | 신규 | motion | 안개 깊이 모션 |
+| LogogramRendererCanvas | Encoder · 챔버 | 신규 | motion | 입자 형성, 현재 유일 사용 |
+| LogogramRendererSvg | 챔버 대체 표현 | 신규 | motion | 정지 고품질, 현재 미사용 |
+| LogogramRendererWebgl | 챔버 대체 표현 | 신규 | motion | 유체 표현, 현재 미사용 |
+| AnalysisOverlay | 전역 오버레이 | 신규 | overlay-feedback | 12세그먼트 분해 화면 |
+| DataReadout | 계측 패널 후보 | 신규 | data-display | 화면은 자체 패널을 쓴다 |
+| ScrubHud | HeroIntro · HUD | 신규 | scroll | 마디 카운터와 진행바 |
+| useScrubSoundEngine | HeroIntro · 소리 | 신규 | scroll | 위치 결속, 드리프트 보정 |
+| SoundFab | 전역 오버레이 | 신규 | input | 히어로 구간 소리 토글 |
+| 스크럽 캡션 묶음 | HeroIntro · 비트 카피 | 신규 | kinetic-typography | 변주 7종 + 공통 4 |
+
+비고:
+
+- **합계**: 재활용 3 · 수정 1 · 신규 12 (행 기준, 묶음은 한 건). 파일 기준으로는 비교 92개 중 동일 60, 다름 3, 이 저장소에만 29다.
+- **구분 근거**: 스타터킷 `src/components`와 같은 상대 경로 파일을 전부 비교했다. 내용이 다른 3개는 `scroll/VideoScrubbing.jsx`와 배럴 2개(`scroll/index.js`, `templates/index.js`)이고, 배럴은 내보내기만 늘어 표에 넣지 않았다.
+- **묶음 구성**: 스크럽 캡션 묶음 = ScrubCaption, CaptionFrame, InkLetters, inkMotion, captionStyles, SeamCaption, RingCaption, MirrorCaption, ScrambleCaption, RotateCaption, FlipReflowCaption, TypeCaption, TitleDisperse, InstrumentLine.
+- **범위 원칙**: 재활용이 기본이고, 신규는 형태 생성과 스크럽 연출이라는 이 프로젝트 고유 영역에만 쓴다.
+- **직접 사용**: 입력 줄, 버튼, 모달, 본문은 MUI 기본 컴포넌트를 그대로 쓴다. 파일이 없어 diff 대상이 아니라 표에 넣지 않았다.
+- **로직 모듈** (컴포넌트 아님, `src/utils/heptapod/`): `encode.js`, `buildModel.js`, `reversibleCodec.js`, `reversibleModel.js`, `logogramParticles.js`, `detectRenderTier.js`, `exportPng.js`, `ambientAudio.js`, `backgroundMusic.js`, 검증용 `verify.mjs`, 계약 문서 `MODEL.md`.
+- **재활용 제외**: GradientOverlay(안개를 가벼운 CSS 레이어로 직접 만들어 제외, 파일 미변경), SectionContainer·StyledParagraph·Title(별도 읽기 섹션을 두지 않아 미사용), AppShell·GNB(전역 셸과 내비게이션이 없다).
+
+---
+
+## 6. 다음 문서로 넘기는 것
+
+| 받는 곳 | 가져가는 것 |
+|---|---|
+| 03-visual-direction | 2.1절 페이지 목록, 페이지별 콘텐츠 신호, 4절 원칙 |
+| /supabase-integration | 3.2절 사전, 2.1절, 1절 단계 표, 5절 컴포넌트 리스트 |
+| /component-work | 5절 신규·수정 항목 |

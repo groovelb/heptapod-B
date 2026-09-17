@@ -5,7 +5,7 @@
  * 직접 수정하지 마세요. 수정이 필요하면 스크립트를 수정하세요.
  *
  * 생성: pnpm generate-rules
- * 생성일: 2026-06-12
+ * 생성일: 2026-09-17
  */
 
 export const priorityMeta = {
@@ -82,18 +82,18 @@ export const ruleNodes = [
     "description": "MUI 커스텀 테마 설정 규칙"
   },
   {
-    "id": "component-work--project-summary",
-    "name": "project-summary.md",
-    "priority": "Skill Resource",
-    "path": ".claude/skills/component-work/resources/project-summary.md",
-    "description": "**Starter Kit Basic**은 React + MUI + Storybook 환경을 디자이너에게 마치 디자인 툴처럼 사용할 수 있도록 도와주는 개발 환경입니다."
-  },
-  {
     "id": "component-work--refactoring-guide",
     "name": "refactoring-guide.md",
     "priority": "Skill Resource",
     "path": ".claude/skills/component-work/resources/refactoring-guide.md",
     "description": "> 리팩토링 작업 시 준수해야 할 가이드."
+  },
+  {
+    "id": "component-work--starterkit-overview",
+    "name": "starterkit-overview.md",
+    "priority": "Skill Resource",
+    "path": ".claude/skills/component-work/resources/starterkit-overview.md",
+    "description": "**Starter Kit Basic**은 React + MUI + Storybook 환경을 디자이너에게 마치 디자인 툴처럼 사용할 수 있도록 도와주는 개발 환경입니다."
   },
   {
     "id": "component-work--storybook-writing",
@@ -135,14 +135,21 @@ export const ruleNodes = [
     "name": "project-planning (Skill)",
     "priority": "Skill",
     "path": ".claude/skills/project-planning/SKILL.md",
-    "description": "Creates structured planning documents (project-summary, ux-flow, visual-direction) in docs/ for new feature or project initiatives."
+    "description": "Creates structured planning documents (01-project-summary, 02-ux-flow, 03-visual-direction) in docs/{project}/ with a shared skeleton, a per-section status block (확정/잠정/미정), and hard gates that allow provisional approval so work can continue before every section is final."
   },
   {
     "id": "project-planning--doc-templates",
     "name": "doc-templates.md",
     "priority": "Skill Resource",
     "path": ".claude/skills/project-planning/resources/doc-templates.md",
-    "description": "> 각 Phase에서 문서 작성 시 이 템플릿의 구조를 따른다."
+    "description": "> `/project-planning` 스킬이 만드는 문서 3종(01-project-summary, 02-ux-flow, 03-visual-direction)의 단일 기준."
+  },
+  {
+    "id": "project-planning--sql-reserved-words",
+    "name": "sql-reserved-words.md",
+    "priority": "Skill Resource",
+    "path": ".claude/skills/project-planning/resources/sql-reserved-words.md",
+    "description": "`supabase-integration` 스킬의 Phase 0에서 참조하는 SSOT. ux-flow의 Entity ID Dictionary에서 뽑은 \"예상 테이블명/컬럼명\"이 아래 목록과 충돌하면 **차단**하고 사용자에게 ux-flow 갱신(이름 변경)을 요청한다."
   },
   {
     "id": "rule-visualization",
@@ -313,13 +320,13 @@ export const ruleEdges = [
   },
   {
     "from": "component-work",
-    "to": "component-work--project-summary",
+    "to": "component-work--refactoring-guide",
     "type": "resources",
     "note": ""
   },
   {
     "from": "component-work",
-    "to": "component-work--refactoring-guide",
+    "to": "component-work--starterkit-overview",
     "type": "resources",
     "note": ""
   },
@@ -362,6 +369,12 @@ export const ruleEdges = [
   {
     "from": "project-planning",
     "to": "project-planning--doc-templates",
+    "type": "resources",
+    "note": ""
+  },
+  {
+    "from": "project-planning",
+    "to": "project-planning--sql-reserved-words",
     "type": "resources",
     "note": ""
   },

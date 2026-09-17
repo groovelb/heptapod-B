@@ -4,7 +4,7 @@
 > 이 문서는 후속 렌더러 3종(SVG / Canvas 2D / WebGL)의 **단일 입력 계약**이다.
 > 렌더러는 이 문서에 정의된 필드만 읽는다. 모델에는 렌더링 관심사(path, 색상,
 > 질감, 애니메이션)가 전혀 없다 — 기하·구조만 담는다.
-> 수치 범위의 근거: `docs/heptapod-b-encoder/03-visual-direction.md` §1.2 (F1~F8), §1.3 (S1~S4).
+> 수치 범위의 근거: `docs/heptapod-b-encoder/03-visual-direction.md` 4절 (F1~F8, S1~S4).
 
 ## 0. 공통 규약
 

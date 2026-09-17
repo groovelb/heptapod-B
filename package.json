@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && SB_STATIC=0 storybook build -o dist/storybook",
     "lint": "eslint .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "generate-rules": "node scripts/generate-rules.js"
+    "generate-rules": "node scripts/generate-rules.js",
+    "generate-structure": "node scripts/generate-project-structure.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
