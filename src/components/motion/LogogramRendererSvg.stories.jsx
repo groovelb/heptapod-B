@@ -1,18 +1,18 @@
 import Box from '@mui/material/Box';
 import LogogramChamber from './LogogramChamber';
 import LogogramRendererSvg from './LogogramRendererSvg';
-import { encode } from '../../utils/heptapod/encode';
-import { buildModel } from '../../utils/heptapod/buildModel';
+import { contractModelOf } from '../../stories/encoder/contractModel';
 
 /**
- * 이름 → LogogramModel — 실제 인코딩 파이프라인 (encode → buildModel, mock 금지).
+ * 이름 → LogogramModel. 실제 인코딩 파이프라인(encode → buildModel)을 돌린 뒤
+ * 이 렌더러가 읽는 MODEL.md 계약 형태로 환산한다(src/stories/encoder/contractModel.js).
  *
  * @param {string} name - 인코딩할 이름
  * @param {boolean} questionHook - 의문형 갈고리 포함 여부
  * @returns {object} LogogramModel
  */
 function modelOf(name, questionHook = false) {
-  return buildModel(encode(name), { questionHook });
+  return contractModelOf(name, { questionHook });
 }
 
 /** 다양성 그리드 표본 — 한/영 · 장/단 혼합 (NFD 자모 수 1~17, 가지 3~9개 전 구간) */

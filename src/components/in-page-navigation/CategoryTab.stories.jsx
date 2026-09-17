@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Box from '@mui/material/Box';
-import CategoryTab from './CategoryTab';
+import { CategoryTab } from './CategoryTab';
 
 const CATEGORIES = [
   { id: 'arrival', label: '도래' },

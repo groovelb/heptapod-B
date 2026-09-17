@@ -16,6 +16,9 @@ import { buildMeaningReading } from '../../utils/heptapod/buildMeaningReading';
 import { getGlyphArchetype } from '../../data/heptapodArchetypeCatalog';
 import { ARCHIVE_ENCODER_VERSION } from '../../utils/heptapod/archiveGlyph';
 
+/** 배열이면 길이, 없으면 '해당 없음' */
+const countOf = (value) => (Array.isArray(value) ? value.length : '해당 없음');
+
 /** 소수 자리 정리 (깊은 JSON 을 읽을 수 있게) */
 const round = (value, digits = 3) => (typeof value === 'number' && Number.isFinite(value)
   ? Number(value.toFixed(digits)) : value);
@@ -79,19 +82,25 @@ export function runEncoderPipeline(name) {
     id: 'buildModel',
     title: '4. 형태 파라미터 (v1)',
     module: 'utils/heptapod/buildModel.js',
-    summary: '시드에서 링, 슬롯 12, 가지, 덩어리, 비산점을 뽑는다. 렌더링 관심사는 들어가지 않는다',
+    summary: '시드에서 링, 슬롯 12, 가지, 덩어리를 뽑는다. 렌더링 관심사는 들어가지 않는다',
     data: {
       meta: legacyModel.meta,
       ring: readable({
         ellipticity: legacyModel.ring.ellipticity,
         harmonics: legacyModel.ring.harmonics,
         strokeWidth: legacyModel.ring.strokeWidth,
-        gap: legacyModel.ring.gap,
         weightCenterAngle: legacyModel.ring.weightCenterAngle,
       }),
-      branchCount: legacyModel.branches.length,
-      clusterCount: legacyModel.clusters.length,
-      splatterCount: legacyModel.splatter.length,
+      slotCount: countOf(legacyModel.slots),
+      activeSlots: Array.isArray(legacyModel.slots)
+        ? legacyModel.slots.filter((slot) => slot.active).length : '해당 없음',
+      branchCount: countOf(legacyModel.branches),
+      clusterCount: countOf(legacyModel.clusters),
+      strandCount: countOf(legacyModel.strands),
+      inkLoadCount: countOf(legacyModel.inkLoads),
+      dropZoneCount: countOf(legacyModel.dropZones),
+      gap: legacyModel.gap ? readable(legacyModel.gap) : '해당 없음 (닫힌 링)',
+      splatter: countOf(legacyModel.splatter),
     },
   });
 
@@ -103,9 +112,10 @@ export function runEncoderPipeline(name) {
     summary: '이름을 큰 정수 하나로 바꾸고 그 자릿수를 덩어리와 가닥에 나눠 담는다. 공개 아카이브가 쓰는 모델이다',
     data: {
       meta: model.meta,
-      clusterCount: model.clusters.length,
-      strandCount: model.strands.length,
-      gap: readable(model.gap),
+      clusterCount: countOf(model.clusters),
+      strandCount: countOf(model.strands),
+      gap: model.gap ? readable(model.gap) : '해당 없음 (닫힌 링)',
+      questionHook: model.questionHook ? readable(model.questionHook) : '해당 없음',
     },
   });
 
@@ -137,9 +147,9 @@ export function runEncoderPipeline(name) {
       clusterCount: features.clusterCount,
       weightCenterAngle: features.weightCenterAngle,
       gap: features.gap,
-      ringPeaks: features.ringPeaks,
-      inkPeaks: features.inkPeaks,
-      pressurePeaks: features.pressurePeaks,
+      ringPeakCount: countOf(features.ringPeaks),
+      inkPeakCount: countOf(features.inkPeaks),
+      pressurePeakCount: countOf(features.pressurePeaks),
       contourLineage: features.contourLineage,
     }),
   });
@@ -174,7 +184,7 @@ export function runEncoderPipeline(name) {
       modifiers: interpretation.modifiers,
       meaningKey: interpretation.meaningKey,
       title: interpretation.title,
-      observationCount: interpretation.observations.length,
+      observationCount: countOf(interpretation.observations),
     },
   });
 
@@ -183,11 +193,11 @@ export function runEncoderPipeline(name) {
     title: '11. 관측 문장',
     module: 'utils/heptapod/buildMeaningReading.js',
     summary: '각 의미가 형태의 어느 부위에서 나왔는지 문장과 좌표로 잇는다',
-    data: buildMeaningReading(interpretation, 'ko').map((entry) => ({
+    data: (buildMeaningReading(interpretation, 'ko') || []).map((entry) => ({
       meaningId: entry.meaningId,
       label: entry.label,
       reason: entry.reason,
-      anchors: entry.anchors.length,
+      anchors: countOf(entry.anchors),
     })),
   });
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Box from '@mui/material/Box';
-import FilterBar from './FilterBar';
+import { FilterBar } from './FilterBar';
 
 const TAGS = ['동시성', '여백', '잔향'];
 
