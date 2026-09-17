@@ -289,7 +289,7 @@ const overrides = {
  *
  * 기획 문서(마크다운 원문)를 브랜드 북처럼 그린다. 스토리북 Docs 페이지 전용.
  * 문서 본문을 복사하지 않고 `docs/` 원본을 그대로 받는다.
- * 서체와 색은 제품 디자인 시스템과 분리된 문서 전용 테마(Pretendard, 무채색, 배경 없음)를 쓴다.
+ * 서체와 색은 제품 디자인 시스템과 분리된 문서 전용 테마(Pretendard, 무채색, 흰 지면)를 쓴다.
  * 글자색은 요소마다 문서 테마 값을 명시한다. 제품 테마가 다크(흰 글자)여도 전역 규칙에 밀리지 않기 위해서다.
  * 제목의 번호("## 1. …", "### 3.1 …")를 라벨로 분리하고, 표는 가로 괘선만 남긴다.
  *
@@ -305,8 +305,11 @@ export function EditorialDocument({ source, theme = documentTheme, maxWidth = 96
   usePretendard();
   return (
     <ThemeProvider theme={ theme }>
-      <Box sx={ { maxWidth, mx: 'auto', px: { xs: 3, md: 8 }, py: { xs: 6, md: 10 }, color: 'text.primary' } }>
-        <Markdown options={ { overrides, forceBlock: true } }>{ source }</Markdown>
+      {/* 호스트(제품 테마·스토리북)가 다크여도 문서는 자기 지면 색과 글자색을 갖는다 */}
+      <Box sx={ { bgcolor: 'background.default', color: 'text.primary', minHeight: '100vh', colorScheme: 'light' } }>
+        <Box sx={ { maxWidth, mx: 'auto', px: { xs: 3, md: 8 }, py: { xs: 6, md: 10 } } }>
+          <Markdown options={ { overrides, forceBlock: true } }>{ source }</Markdown>
+        </Box>
       </Box>
     </ThemeProvider>
   );

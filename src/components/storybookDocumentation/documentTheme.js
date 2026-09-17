@@ -18,7 +18,7 @@ export const documentTheme = createTheme({
     mode: 'light',
     text: { primary: '#141414', secondary: '#6F6F6F' },
     divider: '#E3E3E3',
-    background: { default: 'transparent', paper: 'transparent' },
+    background: { default: '#FFFFFF', paper: '#FFFFFF' },
   },
   typography: {
     fontFamily: DOCUMENT_FONT_FAMILY,
