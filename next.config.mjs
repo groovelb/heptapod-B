@@ -19,7 +19,11 @@ const nextConfig = {
   // Every share client receives complete head metadata without executing JavaScript.
   htmlLimitedBots: /.*/,
   async redirects() {
-    return [{ source: '/me', destination: '/archive', permanent: false }];
+    return [
+      { source: '/me', destination: '/archive', permanent: false },
+      // 스토리북 정적 빌드(public/storybook). Next 가 /storybook/ 를 /storybook 으로 정규화하므로 index.html 로 보낸다.
+      { source: '/storybook', destination: '/storybook/index.html', permanent: false },
+    ];
   },
 };
 
