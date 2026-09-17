@@ -112,6 +112,13 @@ const FOLDERS = [
     note: '샷별 스틸 s01~s07과 폐기 파일럿',
   },
   {
+    path: 'public/apple-touch-icon.png · favicon 3종',
+    files: 4,
+    size: '20K',
+    usage: '사용 중',
+    note: '탭과 홈 화면 아이콘. app/layout.jsx의 metadata.icons가 건다',
+  },
+  {
     path: 'public/storybook',
     files: 479,
     size: '37M',
@@ -161,6 +168,10 @@ const REFERENCED = [
   {
     path: '/glyph-symbols/v1/{modelHash}-{256|512}-1c2226.png',
     where: 'lib/glyphImages/authoredManifest.js · 저작 표식',
+  },
+  {
+    path: '/apple-touch-icon.png, /favicon.ico, /favicon-32.png, /favicon.svg',
+    where: 'app/layout.jsx · metadata.icons',
   },
 ];
 

@@ -19,9 +19,9 @@ const SRC = join(ROOT, 'src');
 const PAGE_DIR = join(SRC, 'stories', 'page');
 const DATA_DIR = join(SRC, 'data');
 const NEXT_APP_DIR = join(ROOT, 'app');
-const NEXT_LAYOUT = join(NEXT_APP_DIR, 'layout.jsx');
+const NEXT_LAYOUT = ['layout.jsx', 'layout.tsx'].map((f) => join(NEXT_APP_DIR, f)).find((f) => existsSync(f)) || join(NEXT_APP_DIR, 'layout.jsx');
 /** 루트: Next.js 앱이면 app/layout.jsx, 아니면 src/App.jsx */
-const APP_FILE = existsSync(NEXT_LAYOUT) ? NEXT_LAYOUT : join(SRC, 'App.jsx');
+const APP_FILE = existsSync(NEXT_LAYOUT) ? NEXT_LAYOUT : (['App.jsx', 'App.tsx', 'main.jsx', 'main.tsx'].map((f) => join(SRC, f)).find((f) => existsSync(f)) || join(SRC, 'App.jsx'));
 const OUT = join(SRC, 'data', 'projectStructure.js');
 
 // ── 유틸 ──────────────────────────────────────────────────────
@@ -40,13 +40,13 @@ function walk(dir) {
 }
 
 function isComponentSourceFile(file) {
-  return file.endsWith('.jsx') && !file.endsWith('.stories.jsx');
+  return /\.(jsx|tsx)$/.test(file) && !/\.stories\.(jsx|tsx)$/.test(file) && !/\.test\.(jsx|tsx)$/.test(file);
 }
 
 function isHookSourceFile(file) {
   return (
-    (file.endsWith('.js') || file.endsWith('.jsx')) &&
-    /\/use[A-Z][A-Za-z0-9]*\.(js|jsx)$/.test(file)
+    /\.(js|jsx|ts|tsx)$/.test(file) &&
+    /\/use[A-Z][A-Za-z0-9]*\.(js|jsx|ts|tsx)$/.test(file)
   );
 }
 
@@ -57,13 +57,34 @@ function sanitizeStoryId(str) {
     .replace(/^-+|-+$/g, '');
 }
 
-/** import 문에서 module specifier 를 추출 */
+/** import 절에서 가져온 이름 목록. `{ A, B as C }` → [A, B], default/namespace 는 빈 목록(전부) */
+function parseImportNames(clause) {
+  if (!clause) return [];
+  const names = [];
+  const braces = clause.match(/\{([^}]*)\}/);
+  if (braces) {
+    for (const part of braces[1].split(',')) {
+      const name = part.trim().split(/\s+as\s+/)[0].trim();
+      if (name) names.push(name);
+    }
+  }
+  const outside = clause.replace(/\{[^}]*\}/, '').replace(/\*\s+as\s+\w+/, '').replace(/,/g, ' ').trim();
+  if (outside) names.push(outside.split(/\s+/)[0]);
+  return names;
+}
+
+/** import 문에서 { spec, names } 를 추출. names 가 비면 모듈 전체를 뜻한다 */
 function extractImportSpecifiers(source) {
   const specs = [];
-  const re = /import\s+(?:[\s\S]+?\s+from\s+)?['"]([^'"]+)['"]/g;
+  const re = /import\s+(?:([\s\S]+?)\s+from\s+)?['"]([^'"]+)['"]/g;
   let m;
   while ((m = re.exec(source)) !== null) {
-    specs.push(m[1]);
+    specs.push({ spec: m[2], names: parseImportNames(m[1]) });
+  }
+  // React.lazy(() => import('./X')) 같은 동적 로드
+  const dyn = /import\(\s*['"]([^'"]+)['"]\s*\)/g;
+  while ((m = dyn.exec(source)) !== null) {
+    specs.push({ spec: m[1], names: [] });
   }
   return specs;
 }
@@ -75,7 +96,7 @@ function resolveImport(spec, fromFile) {
     const rest = spec.slice(2);
     const inSrc = join(SRC, rest);
     const inRoot = join(ROOT, rest);
-    const hit = [inSrc, inSrc + '.jsx', inSrc + '.js', join(inSrc, 'index.jsx'), join(inSrc, 'index.js')].some((c) => existsSync(c));
+    const hit = [inSrc, inSrc + '.jsx', inSrc + '.js', inSrc + '.tsx', inSrc + '.ts', join(inSrc, 'index.jsx'), join(inSrc, 'index.js'), join(inSrc, 'index.tsx'), join(inSrc, 'index.ts')].some((c) => existsSync(c));
     spec = hit ? inSrc : inRoot;
   } else if (!spec.startsWith('.') && !spec.startsWith('/')) {
     return null;
@@ -85,8 +106,12 @@ function resolveImport(spec, fromFile) {
     baseAbs,
     baseAbs + '.jsx',
     baseAbs + '.js',
+    baseAbs + '.tsx',
+    baseAbs + '.ts',
     join(baseAbs, 'index.jsx'),
     join(baseAbs, 'index.js'),
+    join(baseAbs, 'index.tsx'),
+    join(baseAbs, 'index.ts'),
   ];
   for (const c of candidates) {
     if (existsSync(c) && statSync(c).isFile()) return c;
@@ -181,18 +206,56 @@ function classifyResolvedImport(resolved) {
   return { type: 'ignore' };
 }
 
+/**
+ * 배럴 파일(등록되지 않은 .js/.ts)이면 export ... from 대상을 펼친다.
+ * names 가 있으면 그 이름을 내보내는 줄만 따라간다 (`export { A as B } from './F'` 의 B, `export * from` 은 재귀).
+ */
+function expandBarrel(resolved, names = [], seen = new Set()) {
+  if (!resolved || seen.has(resolved)) return [];
+  seen.add(resolved);
+  const wanted = new Set(names);
+  if (fileInfo.has(resolved) || resolved.startsWith(DATA_DIR)) {
+    const base = basename(resolved, extname(resolved));
+    return wanted.size === 0 || wanted.has(base) || seen.size === 1 ? [resolved] : [];
+  }
+  if (!/\.(js|ts)$/.test(resolved)) return [];
+  const src = readFileSync(resolved, 'utf-8');
+  const out = [];
+  const re = /export\s+(\*(?:\s+as\s+\w+)?|\{[^}]*\})\s+from\s+['"]([^'"]+)['"]/g;
+  let m;
+  while ((m = re.exec(src)) !== null) {
+    const inner = resolveImport(m[2], resolved);
+    if (!inner) continue;
+    if (m[1].startsWith('*')) {
+      out.push(...expandBarrel(inner, names, seen));
+      continue;
+    }
+    const exported = m[1].slice(1, -1).split(',').map((x) => x.trim()).filter(Boolean)
+      .map((x) => x.split(/\s+as\s+/).pop().trim());
+    if (wanted.size === 0 || exported.some((n) => wanted.has(n))) {
+      if (fileInfo.has(inner) || inner.startsWith(DATA_DIR)) out.push(inner);
+      else out.push(...expandBarrel(inner, [], seen));
+    }
+  }
+  return out;
+}
+
 for (const [, info] of fileInfo) {
   info.resolvedImports = [];
-  for (const spec of info.specs) {
+  for (const { spec, names } of info.specs) {
     const resolved = resolveImport(spec, info.abs);
-    const classified = classifyResolvedImport(resolved);
-    if (classified.type !== 'ignore') {
-      info.resolvedImports.push(classified);
+    for (const target of expandBarrel(resolved, names)) {
+      const classified = classifyResolvedImport(target);
+      if (classified.type !== 'ignore') {
+        info.resolvedImports.push(classified);
+      }
     }
   }
 }
 
 // ── 3) 트리 빌드 (App.jsx 를 루트로) ──────────────────────────
+
+const expandedOnce = new Set(); // 같은 파일의 하위 트리는 처음 한 번만 펼친다
 
 function buildNode(file, pathStack) {
   const info = fileInfo.get(file);
@@ -206,6 +269,10 @@ function buildNode(file, pathStack) {
       circular: true,
     };
   }
+  if (expandedOnce.has(file)) {
+    return { name: info.name, kind: info.kind, category: info.category, file: info.rel, ref: true, children: [], hooks: [], data: [] };
+  }
+  expandedOnce.add(file);
 
   const nextStack = new Set(pathStack);
   nextStack.add(file);
@@ -257,7 +324,7 @@ let root = buildNode(APP_FILE, new Set());
 
 // Next.js 앱: 파일 기반 라우트(app/**/page.jsx)는 layout 이 import 하지 않으므로 루트 아래에 나란히 둔다
 if (existsSync(NEXT_LAYOUT)) {
-  const pageFiles = walk(NEXT_APP_DIR).filter((f) => /\/page\.jsx$/.test(f) && fileInfo.has(f));
+  const pageFiles = walk(NEXT_APP_DIR).filter((f) => /\/page\.(jsx|tsx)$/.test(f) && fileInfo.has(f));
   const pageNodes = pageFiles.map((f) => buildNode(f, new Set())).filter(Boolean);
   root = { name: 'app', kind: 'root', category: 'app', file: 'app', storyTitle: null, storyId: null, children: [root, ...pageNodes], hooks: [], data: [] };
 }

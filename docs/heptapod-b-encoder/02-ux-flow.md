@@ -29,7 +29,7 @@
 - **4절 압축**: 감속 선호와 모바일 정적 이미지 규칙은 원칙 4의 비고로 묶었다. 스크럽 사운드와 키네틱 타이포의 상세 규칙은 각각 `07-scroll-scrub-sound-plan.md`, `08-kinetic-typography-ideation.md`에 있다.
 - **5절 근거**: 스타터킷 `src/components`와 파일 단위로 비교했다. 비교한 215개 중 99개가 동일, 17개가 다름, 99개가 이 저장소에만 있다.
 - **v2에서 바뀐 것**: 시나리오가 4개에서 5개로 늘었고 화면이 하나에서 여섯으로 갈라졌다. 대상에 공개 기록·의미 판독·유형·연결이 들어왔고 서버 테이블 셋이 생겼다.
-- **분량**: 330줄(권장 250). 화면이 여섯으로 갈라지며 시나리오가 늘었다. 1절 시나리오 비고를 `appendix-scenario-notes.md`로 분리 가능하다.
+- **분량**: 339줄(권장 250). 화면이 여섯으로 갈라지며 시나리오가 늘었다. 1절 시나리오 비고를 `appendix-scenario-notes.md`로 분리 가능하다.
 
 ---
 
@@ -55,7 +55,7 @@ R 읽기 · W 생성 · D 갱신/삭제.
 
 - 예외: 감속 선호를 켜면 스크럽 없이 정지 프레임으로 지나간다. 건너뛰기를 누르면 완주 지점으로 이동한다. 옛 이름 주소로 들어오면 인트로 없이 생성 화면이 열린다.
 - 단계 1: 시작을 누르기 전에는 스크롤이 잠겨 있다. 이 클릭이 소리를 여는 제스처를 겸한다.
-- 단계 2: 되돌아 올리면 영상도 되감긴다. 비트마다 스크롤 길이가 달라 읽는 구간은 길고 액션 구간은 짧다. 좁은 화면은 같은 순서를 더 짧은 트랙으로 지난다.
+- 단계 2: 스크롤 위치가 영상의 `currentTime`을 양방향으로 움직인다. 되돌아 올리면 영상도 되감긴다. 트랙은 1셀이 100vh이고 비트마다 셀 수가 달라 읽는 구간은 길고 액션 구간은 짧다. 좁은 화면은 같은 순서를 더 짧은 트랙으로 지난다.
 - 단계 5: 타이머가 아니라 영상이 실제로 끝나야 완주다. 이동은 주소 대체라서 뒤로 가기로 인트로가 다시 시작되지 않는다.
 
 ### 1.2 자기 이름을 넣어 하나의 형태로 응축시킨다
@@ -120,6 +120,7 @@ R 읽기 · W 생성 · D 갱신/삭제.
 
 - 예외: 공개 실패와 취소는 입력을 보존한다. 공유 실패는 공개를 되돌리지 않는다. 같은 이름과 같은 버전은 새 기록을 만들지 않고 이미 있는 형태에 기여를 더한다.
 - 단계 3: 서버는 보내온 형태를 믿지 않고 이름에서 다시 만들어 지문을 맞춘다. 지문은 다듬은 이름과 의문 여부와 버전으로 만든다.
+- 단계 4: 버튼 라벨이 `PUBLISH`에서 공유로 바뀐다. 같은 자리에서 상태만 바뀌고 버튼이 늘지 않는다.
 - 단계 5: 이름이 아니라 공개 주소만 나간다. 링크 복사는 별도 동작이고 기기 공유창은 어느 경로에서도 열지 않는다.
 - 단계 6: 미리보기 그림은 저장된 형태로 그 자리에서 만든다. 공개를 내리면 새 요청부터 막히지만 이미 퍼진 미리보기는 회수할 수 없다.
 - 세션이 사라지면 열람은 되지만 관리 권한은 돌아오지 않는다. 주소를 직접 보관하도록 안내한다.
@@ -174,7 +175,7 @@ R 읽기 · W 생성 · D 갱신/삭제.
 ```
 / (Landing)
 ├── 타이틀 (작품 표제 + 시작 + 건너뛰기)
-├── 스크럽 트랙 (영상 + 비트 카피 6마디)
+├── 스크럽 트랙 (영상 + 비트 카피 6마디, 1셀 = 100vh)
 └── 하단 HUD (마디 카운터 + 진행바)
 
 /canvas (Canvas)
@@ -236,6 +237,9 @@ R 읽기 · W 생성 · D 갱신/삭제.
 - 영속성 값은 정적 / 휘발 / 세션 / 브라우저 / 서버다. 표식과 공개 기록만 동의 후에 서버로 간다. 연결은 저장된 행이 남아 있지만 화면이 보는 값은 요청할 때 다시 계산한다.
 - 시드와 슬롯, 가지, 덩어리, 비산점은 별도 대상이 아니라 표식의 내부 구조다. 범위와 단위는 `src/utils/heptapod/MODEL.md`에 있다.
 - 표식은 복원 가능한 데이터 채널과 장식만 담당하는 표현 채널로 나뉜다. 번짐과 붓질 지터는 정보를 담지 않는다.
+- 표식에서 뽑은 특징 묶음(옛 이름 `GlyphFeature`)은 관계 계산의 입력이고 공개 행에서는 `feature_vector` 열에 남는다. 연결 종류는 전체 형태, 일부 구조, 그리고 질문 갈고리만 다른 `VARIANT` 세 가지다.
+- 과거 분류는 계산에서 뺐다. Canvas가 실제 기하에 쓰지 않는 `cluster.type`과 무게중심 사분면(`Crown`, `Wake`, `Root`, `Veil`, 열 이름은 `contour_primary`·`contour_quadrant`)은 기록으로만 남기고 연결 조건이나 형태 설명에 쓰지 않는다.
+- 같은 이름의 다른 표기는 하나로 모인다. `Louise`, ` louise `, `LOUISE`는 같은 다듬은 이름이 되고 원래 표기는 공개 기록 쪽에만 남는다. 의문 여부는 다듬는 단계의 `isInterrogative` 값이 그대로 `is_interrogative` 열이 되고, 공개 여부는 `is_public` 열이다.
 - 공개 표식의 정지 이미지는 파생 데이터라서 원본 형태를 바꾸지 않는다. 별도 작업 테이블이 그 생성 상태만 들고 있다.
 
 ### 3.2 데이터 모델 활용 (이름 사전)
@@ -251,7 +255,11 @@ R 읽기 · W 생성 · D 갱신/삭제.
 | `Resonance` | 연결 | `resonance` | `glyph_relations` | GlyphDetail |
 | `HeroBeat` | 인트로 비트 | `heroBeat` | (정적) | 없음 |
 
-비고: 네 번째 테이블 `glyph_image_jobs`는 공개 표식의 정지 이미지 생성 상태만 담는 파생 테이블이라 대상 표에 올리지 않았다. 세 테이블명과 예약어 사전(`sql-reserved-words.md`)의 충돌은 없다.
+비고:
+
+- 네 번째 테이블 `glyph_image_jobs`는 공개 표식의 정지 이미지 생성 상태만 담는 파생 테이블이라 대상 표에 올리지 않았다. 세 테이블명과 예약어 사전(`sql-reserved-words.md`)의 충돌은 없다.
+- 이름을 옮긴 것: 옛 문서의 `GlyphContribution`과 `GlyphRelation`은 각각 `Response`와 `Resonance`가 됐고 테이블 이름은 그대로다. 옛 문서가 따로 세웠던 인증 주체는 별도 대상이 아니라 `auth.users`의 익명 사용자다.
+- 쓰지 않는 테이블: `bookmarks`와 `reports`는 초기 마이그레이션에 남아 있지만 화면과 조회 경로가 없다. 지우지 않고 그대로 둔다.
 
 ---
 
@@ -269,7 +277,7 @@ R 읽기 · W 생성 · D 갱신/삭제.
 
 - 원칙 3: 소리도 같은 손을 따른다. 스크롤이 멎으면 클립이 잦아들고 베드만 남으며, 위치가 벌어지면 다시 맞춘다 (`07-scroll-scrub-sound-plan.md`).
 - 원칙 3: 캡션 글자도 같은 진행도 하나로 움직인다. 등장과 퇴장은 번짐과 자간으로만 하고 슬라이드와 바운스를 쓰지 않는다 (`08-kinetic-typography-ideation.md`).
-- 원칙 4: 감속을 선호하면 안개와 캡션과 형성이 모두 최종 상태로 고정된다. 좁은 화면의 목록과 지도는 움직이는 형태 대신 같은 형태의 정지 이미지를 쓰고, 상세와 생성 결과만 살아 움직인다.
+- 원칙 4: 감속 선호(`prefers-reduced-motion`)를 켜면 안개와 캡션과 형성이 모두 최종 상태로 고정된다. 좁은 화면의 목록과 지도는 움직이는 형태 대신 같은 형태의 정지 이미지를 쓰고, 상세와 생성 결과만 살아 움직인다.
 - 원칙 5: 공개 실패는 실패로 표시한다. 조용히 성공 화면으로 넘어가거나 재시도로 다시 올리지 않는다.
 
 ---
@@ -316,8 +324,9 @@ R 읽기 · W 생성 · D 갱신/삭제.
 - **묶음 구성**: 관계 표시 묶음 = ResonanceMap, ResonanceList, RelationInspector, GlyphNode. 스크럽 캡션 묶음 = ScrubCaption, CaptionFrame, InkLetters, inkMotion, captionStyles, SeamCaption, RingCaption, MirrorCaption, ScrambleCaption, RotateCaption, FlipReflowCaption, TypeCaption, TitleDisperse, InstrumentLine.
 - **이름 주의**: Archive를 그리는 것은 `MyArchivePage`다. 개인 응답 화면이 사라지면서 역할이 공개 아카이브로 바뀌었고 파일 이름만 남았다.
 - **직접 사용**: 입력 줄, 버튼, 칩, 모달, 본문은 MUI 기본 컴포넌트를 그대로 쓴다. 파일이 없어 대조 대상이 아니라 표에 넣지 않았다.
-- **로직 모듈** (컴포넌트 아님): `src/utils/heptapod/` 32개(인코딩, 형태 분류, 의미 해석, 관계 계산, 공유), `src/lib/` 16개(서버 클라이언트, 미리보기 이미지, 정지 이미지), `src/hooks/` 18개(조회와 공개), `src/routes/` 10개(경로와 스크롤), `src/workers/` 1개(정지 이미지 생성).
-- **재활용 제외**: GradientOverlay(안개를 가벼운 레이어로 직접 만들어 제외), SectionContainer·StyledParagraph·Title(별도 읽기 섹션을 두지 않음), AppShell(전역 셸 없이 라우트가 직접 그린다).
+- **파일 경로**: 표의 항목은 카테고리 폴더 그대로다. `components/container/`, `components/layout/`, `components/data-display/`, `components/kinetic-typography/`, `components/overlay-feedback/AnalysisOverlay.jsx`, `components/templates/HeptapodHeroIntro.jsx`, `components/templates/HeptapodEncoderPage.jsx` 식이다.
+- **로직 모듈** (컴포넌트 아님): `src/utils/heptapod/` 32개. 인코딩은 `normalizeName.js`, `validateName.js`, `reversibleCodec.js`, `reversibleModel.js`, `buildModel.js`, 표현은 `logogramParticles.js`, `detectRenderTier.js`, 관계는 `extractGlyphFeatures.js`, `scoreFormRelation.js`, `relateGlyphs.js`, `buildRelationReasons.js`, `resonanceView.js`, 소리는 `backgroundMusic.js`(YouTube 내장 플레이어로 OST 루프)와 `ambientAudio.js`다. 서버 쪽은 `src/lib/supabase.js`와 `src/hooks/data/` 아래 조회·공개 훅, 그리고 `src/lib/` 16개(미리보기 카드, 정지 이미지), `src/routes/` 10개(경로와 스크롤), `src/workers/` 1개(정지 이미지 생성)다.
+- **재활용 제외**: GradientOverlay(안개를 가벼운 레이어로 직접 만들어 제외), SectionContainer·StyledParagraph·Title(별도 읽기 섹션을 두지 않음), FullPageContainer(라우트가 화면 전체를 직접 그린다), CustomCard(`components/card/CustomCard.jsx`, 목록을 카드로 감싸지 않고 표식만 세운다), TagInput(`components/input/TagInput.jsx`, 태그 체계를 접었다), AppShell(전역 셸 없이 라우트가 직접 그린다).
 
 ---
 

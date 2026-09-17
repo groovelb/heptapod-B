@@ -4,7 +4,7 @@
  * 수동 편집 금지. 재생성: pnpm generate-structure
  */
 export default {
-  "generatedAt": "2026-09-17T08:20:11.483Z",
+  "generatedAt": "2026-09-17T09:16:36.287Z",
   "root": {
     "name": "app",
     "kind": "root",
@@ -52,7 +52,646 @@ export default {
                         "file": "routes/EncoderRoutes.jsx",
                         "storyTitle": null,
                         "storyId": null,
-                        "children": [],
+                        "children": [
+                          {
+                            "name": "HeptapodHeroIntro",
+                            "kind": "component",
+                            "category": "components/templates",
+                            "file": "components/templates/HeptapodHeroIntro.jsx",
+                            "storyTitle": "Template/HeptapodHeroIntro",
+                            "storyId": "template-heptapodherointro",
+                            "children": [
+                              {
+                                "name": "AppGNB",
+                                "kind": "component",
+                                "category": "components/navigation",
+                                "file": "components/navigation/AppGNB.jsx",
+                                "storyTitle": "Custom Component/10. Navigation/AppGNB",
+                                "storyId": "custom-component-10-navigation-appgnb",
+                                "children": [
+                                  {
+                                    "name": "GNB",
+                                    "kind": "component",
+                                    "category": "components/navigation",
+                                    "file": "components/navigation/GNB.jsx",
+                                    "storyTitle": "Component/10. Navigation/GNB",
+                                    "storyId": "component-10-navigation-gnb",
+                                    "children": [
+                                      {
+                                        "name": "LanguageSwitcher",
+                                        "kind": "component",
+                                        "category": "components/navigation",
+                                        "file": "components/navigation/LanguageSwitcher.jsx",
+                                        "storyTitle": "Custom Component/10. Navigation/LanguageSwitcher",
+                                        "storyId": "custom-component-10-navigation-languageswitcher",
+                                        "children": [],
+                                        "hooks": [
+                                          {
+                                            "name": "useI18n",
+                                            "file": "i18n/useI18n.js",
+                                            "category": "i18n"
+                                          }
+                                        ],
+                                        "data": []
+                                      }
+                                    ],
+                                    "hooks": [
+                                      {
+                                        "name": "useI18n",
+                                        "file": "i18n/useI18n.js",
+                                        "category": "i18n"
+                                      }
+                                    ],
+                                    "data": []
+                                  }
+                                ],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": []
+                              },
+                              {
+                                "name": "VideoScrubbing",
+                                "kind": "component",
+                                "category": "components/scroll",
+                                "file": "components/scroll/VideoScrubbing.jsx",
+                                "storyTitle": "Interactive/12. Scroll/VideoScrubbing",
+                                "storyId": "interactive-12-scroll-videoscrubbing",
+                                "children": [],
+                                "hooks": [],
+                                "data": []
+                              },
+                              {
+                                "name": "ScrubHud",
+                                "kind": "component",
+                                "category": "components/scroll",
+                                "file": "components/scroll/ScrubHud.jsx",
+                                "storyTitle": null,
+                                "storyId": null,
+                                "children": [],
+                                "hooks": [],
+                                "data": []
+                              },
+                              {
+                                "name": "HeroAffordance",
+                                "kind": "component",
+                                "category": "components/overlay-feedback",
+                                "file": "components/overlay-feedback/HeroAffordance.jsx",
+                                "storyTitle": "Custom Component/9. Overlay & Feedback/HeroAffordance",
+                                "storyId": "custom-component-9-overlay-feedback-heroaffordance",
+                                "children": [],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": [
+                                  {
+                                    "name": "heptapodHeroStory",
+                                    "file": "data/heptapodHeroStory.js"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "ScrubCaption",
+                                "kind": "component",
+                                "category": "components/kinetic-typography/scrub",
+                                "file": "components/kinetic-typography/scrub/ScrubCaption.jsx",
+                                "storyTitle": null,
+                                "storyId": null,
+                                "children": [
+                                  {
+                                    "name": "CaptionFrame",
+                                    "kind": "component",
+                                    "category": "components/kinetic-typography/scrub",
+                                    "file": "components/kinetic-typography/scrub/CaptionFrame.jsx",
+                                    "storyTitle": null,
+                                    "storyId": null,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "SeamCaption",
+                                    "kind": "component",
+                                    "category": "components/kinetic-typography/scrub",
+                                    "file": "components/kinetic-typography/scrub/SeamCaption.jsx",
+                                    "storyTitle": null,
+                                    "storyId": null,
+                                    "children": [
+                                      {
+                                        "name": "InkLetters",
+                                        "kind": "component",
+                                        "category": "components/kinetic-typography/scrub",
+                                        "file": "components/kinetic-typography/scrub/InkLetters.jsx",
+                                        "storyTitle": null,
+                                        "storyId": null,
+                                        "children": [],
+                                        "hooks": [],
+                                        "data": []
+                                      }
+                                    ],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "RingCaption",
+                                    "kind": "component",
+                                    "category": "components/kinetic-typography/scrub",
+                                    "file": "components/kinetic-typography/scrub/RingCaption.jsx",
+                                    "storyTitle": null,
+                                    "storyId": null,
+                                    "children": [
+                                      {
+                                        "name": "InkLetters",
+                                        "kind": "component",
+                                        "category": "components/kinetic-typography/scrub",
+                                        "file": "components/kinetic-typography/scrub/InkLetters.jsx",
+                                        "ref": true,
+                                        "children": [],
+                                        "hooks": [],
+                                        "data": []
+                                      }
+                                    ],
+                                    "hooks": [],
+                                    "data": [
+                                      {
+                                        "name": "heptapodHeroStory",
+                                        "file": "data/heptapodHeroStory.js"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "name": "MirrorCaption",
+                                    "kind": "component",
+                                    "category": "components/kinetic-typography/scrub",
+                                    "file": "components/kinetic-typography/scrub/MirrorCaption.jsx",
+                                    "storyTitle": null,
+                                    "storyId": null,
+                                    "children": [
+                                      {
+                                        "name": "InkLetters",
+                                        "kind": "component",
+                                        "category": "components/kinetic-typography/scrub",
+                                        "file": "components/kinetic-typography/scrub/InkLetters.jsx",
+                                        "ref": true,
+                                        "children": [],
+                                        "hooks": [],
+                                        "data": []
+                                      }
+                                    ],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "ScrambleCaption",
+                                    "kind": "component",
+                                    "category": "components/kinetic-typography/scrub",
+                                    "file": "components/kinetic-typography/scrub/ScrambleCaption.jsx",
+                                    "storyTitle": null,
+                                    "storyId": null,
+                                    "children": [
+                                      {
+                                        "name": "InkLetters",
+                                        "kind": "component",
+                                        "category": "components/kinetic-typography/scrub",
+                                        "file": "components/kinetic-typography/scrub/InkLetters.jsx",
+                                        "ref": true,
+                                        "children": [],
+                                        "hooks": [],
+                                        "data": []
+                                      },
+                                      {
+                                        "name": "InstrumentLine",
+                                        "kind": "component",
+                                        "category": "components/kinetic-typography/scrub",
+                                        "file": "components/kinetic-typography/scrub/InstrumentLine.jsx",
+                                        "storyTitle": null,
+                                        "storyId": null,
+                                        "children": [],
+                                        "hooks": [
+                                          {
+                                            "name": "useI18n",
+                                            "file": "i18n/useI18n.js",
+                                            "category": "i18n"
+                                          }
+                                        ],
+                                        "data": []
+                                      }
+                                    ],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "RotateCaption",
+                                    "kind": "component",
+                                    "category": "components/kinetic-typography/scrub",
+                                    "file": "components/kinetic-typography/scrub/RotateCaption.jsx",
+                                    "storyTitle": null,
+                                    "storyId": null,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "FlipReflowCaption",
+                                    "kind": "component",
+                                    "category": "components/kinetic-typography/scrub",
+                                    "file": "components/kinetic-typography/scrub/FlipReflowCaption.jsx",
+                                    "storyTitle": null,
+                                    "storyId": null,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "TypeCaption",
+                                    "kind": "component",
+                                    "category": "components/kinetic-typography/scrub",
+                                    "file": "components/kinetic-typography/scrub/TypeCaption.jsx",
+                                    "storyTitle": "Custom Component/11. Kinetic Typography/TypeCaption",
+                                    "storyId": "custom-component-11-kinetic-typography-typecaption",
+                                    "children": [
+                                      {
+                                        "name": "InkLetters",
+                                        "kind": "component",
+                                        "category": "components/kinetic-typography/scrub",
+                                        "file": "components/kinetic-typography/scrub/InkLetters.jsx",
+                                        "ref": true,
+                                        "children": [],
+                                        "hooks": [],
+                                        "data": []
+                                      },
+                                      {
+                                        "name": "InstrumentLine",
+                                        "kind": "component",
+                                        "category": "components/kinetic-typography/scrub",
+                                        "file": "components/kinetic-typography/scrub/InstrumentLine.jsx",
+                                        "ref": true,
+                                        "children": [],
+                                        "hooks": [],
+                                        "data": []
+                                      }
+                                    ],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "InkLetters",
+                                    "kind": "component",
+                                    "category": "components/kinetic-typography/scrub",
+                                    "file": "components/kinetic-typography/scrub/InkLetters.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  }
+                                ],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": []
+                              },
+                              {
+                                "name": "TitleDisperse",
+                                "kind": "component",
+                                "category": "components/kinetic-typography/scrub",
+                                "file": "components/kinetic-typography/scrub/TitleDisperse.jsx",
+                                "storyTitle": null,
+                                "storyId": null,
+                                "children": [],
+                                "hooks": [],
+                                "data": []
+                              }
+                            ],
+                            "hooks": [
+                              {
+                                "name": "useScrubSoundEngine",
+                                "file": "components/scroll/useScrubSoundEngine.js",
+                                "category": "components/scroll"
+                              }
+                            ],
+                            "data": [
+                              {
+                                "name": "heptapodScrubTimeline",
+                                "file": "data/heptapodScrubTimeline.js"
+                              },
+                              {
+                                "name": "heptapodHeroStory",
+                                "file": "data/heptapodHeroStory.js"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "HeptapodEncoderPage",
+                            "kind": "component",
+                            "category": "components/templates",
+                            "file": "components/templates/HeptapodEncoderPage.jsx",
+                            "storyTitle": null,
+                            "storyId": null,
+                            "children": [
+                              {
+                                "name": "AppGNB",
+                                "kind": "component",
+                                "category": "components/navigation",
+                                "file": "components/navigation/AppGNB.jsx",
+                                "ref": true,
+                                "children": [],
+                                "hooks": [],
+                                "data": []
+                              },
+                              {
+                                "name": "LogogramChamber",
+                                "kind": "component",
+                                "category": "components/motion",
+                                "file": "components/motion/LogogramChamber.jsx",
+                                "storyTitle": "Interactive/14. Motion/LogogramChamber",
+                                "storyId": "interactive-14-motion-logogramchamber",
+                                "children": [
+                                  {
+                                    "name": "RatioContainer",
+                                    "kind": "component",
+                                    "category": "components/container",
+                                    "file": "components/container/RatioContainer.jsx",
+                                    "storyTitle": "Component/2. Container/RatioContainer",
+                                    "storyId": "component-2-container-ratiocontainer",
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  }
+                                ],
+                                "hooks": [],
+                                "data": []
+                              },
+                              {
+                                "name": "LogogramRendererCanvas",
+                                "kind": "component",
+                                "category": "components/motion",
+                                "file": "components/motion/LogogramRendererCanvas.jsx",
+                                "storyTitle": "Interactive/14. Motion/LogogramRendererCanvas",
+                                "storyId": "interactive-14-motion-logogramrenderercanvas",
+                                "children": [],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": []
+                              },
+                              {
+                                "name": "StaticGlyphImage",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/StaticGlyphImage.jsx",
+                                "storyTitle": "Custom Component/5. Data Display/StaticGlyphImage",
+                                "storyId": "custom-component-5-data-display-staticglyphimage",
+                                "children": [],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": []
+                              },
+                              {
+                                "name": "GlyphRenderScope",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/GlyphRenderScope.jsx",
+                                "storyTitle": "Custom Component/5. Data Display/GlyphRenderScope",
+                                "storyId": "custom-component-5-data-display-glyphrenderscope",
+                                "children": [],
+                                "hooks": [],
+                                "data": []
+                              },
+                              {
+                                "name": "FadeTransition",
+                                "kind": "component",
+                                "category": "components/motion",
+                                "file": "components/motion/FadeTransition.jsx",
+                                "storyTitle": "Interactive/14. Motion/FadeTransition",
+                                "storyId": "interactive-14-motion-fadetransition",
+                                "children": [],
+                                "hooks": [],
+                                "data": []
+                              },
+                              {
+                                "name": "AnalysisOverlay",
+                                "kind": "component",
+                                "category": "components/overlay-feedback",
+                                "file": "components/overlay-feedback/AnalysisOverlay.jsx",
+                                "storyTitle": "Interactive/9. Overlay & Feedback/AnalysisOverlay",
+                                "storyId": "interactive-9-overlay-feedback-analysisoverlay",
+                                "children": [],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": []
+                              },
+                              {
+                                "name": "GlyphObservationOverlay",
+                                "kind": "component",
+                                "category": "components/overlay-feedback",
+                                "file": "components/overlay-feedback/GlyphObservationOverlay.jsx",
+                                "storyTitle": "Custom Component/Overlay Feedback/GlyphObservationOverlay",
+                                "storyId": "custom-component-overlay-feedback-glyphobservationoverlay",
+                                "children": [],
+                                "hooks": [],
+                                "data": []
+                              },
+                              {
+                                "name": "GlyphMeaningSummary",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/GlyphMeaningSummary.jsx",
+                                "storyTitle": "Custom Component/5. Data Display/GlyphMeaningSummary",
+                                "storyId": "custom-component-5-data-display-glyphmeaningsummary",
+                                "children": [
+                                  {
+                                    "name": "GlyphObservationChips",
+                                    "kind": "component",
+                                    "category": "components/input",
+                                    "file": "components/input/GlyphObservationChips.jsx",
+                                    "storyTitle": "Custom Component/7. Input & Control/GlyphObservationChips",
+                                    "storyId": "custom-component-7-input-control-glyphobservationchips",
+                                    "children": [],
+                                    "hooks": [
+                                      {
+                                        "name": "useI18n",
+                                        "file": "i18n/useI18n.js",
+                                        "category": "i18n"
+                                      }
+                                    ],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "ArchetypeNarrative",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/ArchetypeNarrative.jsx",
+                                    "storyTitle": "Custom Component/5. Data Display/ArchetypeNarrative",
+                                    "storyId": "custom-component-5-data-display-archetypenarrative",
+                                    "children": [
+                                      {
+                                        "name": "LineGrid",
+                                        "kind": "component",
+                                        "category": "components/layout",
+                                        "file": "components/layout/LineGrid.jsx",
+                                        "storyTitle": "Component/8. Layout/LineGrid",
+                                        "storyId": "component-8-layout-linegrid",
+                                        "children": [],
+                                        "hooks": [],
+                                        "data": []
+                                      },
+                                      {
+                                        "name": "ArchetypeMotto",
+                                        "kind": "component",
+                                        "category": "components/data-display",
+                                        "file": "components/data-display/ArchetypeMotto.jsx",
+                                        "storyTitle": "Custom Component/5. Data Display/ArchetypeMotto",
+                                        "storyId": "custom-component-5-data-display-archetypemotto",
+                                        "children": [],
+                                        "hooks": [
+                                          {
+                                            "name": "useI18n",
+                                            "file": "i18n/useI18n.js",
+                                            "category": "i18n"
+                                          }
+                                        ],
+                                        "data": []
+                                      }
+                                    ],
+                                    "hooks": [
+                                      {
+                                        "name": "useI18n",
+                                        "file": "i18n/useI18n.js",
+                                        "category": "i18n"
+                                      }
+                                    ],
+                                    "data": [
+                                      {
+                                        "name": "heptapodArchetypeCatalog",
+                                        "file": "data/heptapodArchetypeCatalog.js"
+                                      },
+                                      {
+                                        "name": "heptapodMeaningCatalog",
+                                        "file": "data/heptapodMeaningCatalog.js"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "name": "ArchetypeMotto",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/ArchetypeMotto.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  }
+                                ],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": [
+                                  {
+                                    "name": "heptapodMeaningCatalog",
+                                    "file": "data/heptapodMeaningCatalog.js"
+                                  },
+                                  {
+                                    "name": "heptapodArchetypeCatalog",
+                                    "file": "data/heptapodArchetypeCatalog.js"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "GlyphClusterLink",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/GlyphClusterLink.jsx",
+                                "storyTitle": "Custom Component/5. Data Display/GlyphClusterLink",
+                                "storyId": "custom-component-5-data-display-glyphclusterlink",
+                                "children": [],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": [
+                                  {
+                                    "name": "heptapodArchetypeCatalog",
+                                    "file": "data/heptapodArchetypeCatalog.js"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "PublishDialog",
+                                "kind": "component",
+                                "category": "components/overlay-feedback",
+                                "file": "components/overlay-feedback/PublishDialog.jsx",
+                                "storyTitle": "Custom Component/9. Overlay & Feedback/PublishDialog",
+                                "storyId": "custom-component-9-overlay-feedback-publishdialog",
+                                "children": [
+                                  {
+                                    "name": "GlyphClusterLink",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/GlyphClusterLink.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  }
+                                ],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": []
+                              }
+                            ],
+                            "hooks": [
+                              {
+                                "name": "useI18n",
+                                "file": "i18n/useI18n.js",
+                                "category": "i18n"
+                              },
+                              {
+                                "name": "usePublish",
+                                "file": "hooks/data/usePublish.js",
+                                "category": "hooks/data"
+                              }
+                            ],
+                            "data": []
+                          }
+                        ],
                         "hooks": [],
                         "data": []
                       },
@@ -72,25 +711,469 @@ export default {
                         "kind": "component",
                         "category": "components/navigation",
                         "file": "components/navigation/AppGNB.jsx",
-                        "storyTitle": "Custom Component/10. Navigation/AppGNB",
-                        "storyId": "custom-component-10-navigation-appgnb",
+                        "ref": true,
+                        "children": [],
+                        "hooks": [],
+                        "data": []
+                      },
+                      {
+                        "name": "GlyphDetailPage",
+                        "kind": "component",
+                        "category": "components/templates",
+                        "file": "components/templates/GlyphDetailPage.jsx",
+                        "storyTitle": "Page/Response Archive/GlyphDetailPage",
+                        "storyId": "page-response-archive-glyphdetailpage",
                         "children": [
                           {
-                            "name": "GNB",
+                            "name": "AppGNB",
                             "kind": "component",
                             "category": "components/navigation",
-                            "file": "components/navigation/GNB.jsx",
-                            "storyTitle": "Component/10. Navigation/GNB",
-                            "storyId": "component-10-navigation-gnb",
+                            "file": "components/navigation/AppGNB.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          },
+                          {
+                            "name": "ArchiveDepthExplorer",
+                            "kind": "component",
+                            "category": "components/data-display",
+                            "file": "components/data-display/ArchiveDepthExplorer.jsx",
+                            "storyTitle": "Custom Component/5. Data Display/ArchiveDepthExplorer",
+                            "storyId": "custom-component-5-data-display-archivedepthexplorer",
                             "children": [
                               {
-                                "name": "LanguageSwitcher",
+                                "name": "ArchiveArchetypeFeed",
                                 "kind": "component",
-                                "category": "components/navigation",
-                                "file": "components/navigation/LanguageSwitcher.jsx",
-                                "storyTitle": "Custom Component/10. Navigation/LanguageSwitcher",
-                                "storyId": "custom-component-10-navigation-languageswitcher",
+                                "category": "components/data-display",
+                                "file": "components/data-display/ArchiveArchetypeFeed.jsx",
+                                "storyTitle": "Custom Component/5. Data Display/ArchiveArchetypeFeed",
+                                "storyId": "custom-component-5-data-display-archivearchetypefeed",
+                                "children": [
+                                  {
+                                    "name": "ArchiveGlyph",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/ArchiveGlyph.jsx",
+                                    "storyTitle": "Custom Component/5. Data Display/ArchiveGlyph",
+                                    "storyId": "custom-component-5-data-display-archiveglyph",
+                                    "children": [
+                                      {
+                                        "name": "StaticGlyphImage",
+                                        "kind": "component",
+                                        "category": "components/data-display",
+                                        "file": "components/data-display/StaticGlyphImage.jsx",
+                                        "ref": true,
+                                        "children": [],
+                                        "hooks": [],
+                                        "data": []
+                                      },
+                                      {
+                                        "name": "GlyphRenderScope",
+                                        "kind": "component",
+                                        "category": "components/data-display",
+                                        "file": "components/data-display/GlyphRenderScope.jsx",
+                                        "ref": true,
+                                        "children": [],
+                                        "hooks": [],
+                                        "data": []
+                                      },
+                                      {
+                                        "name": "LogogramRendererCanvas",
+                                        "kind": "component",
+                                        "category": "components/motion",
+                                        "file": "components/motion/LogogramRendererCanvas.jsx",
+                                        "ref": true,
+                                        "children": [],
+                                        "hooks": [],
+                                        "data": []
+                                      },
+                                      {
+                                        "name": "GlyphObservationOverlay",
+                                        "kind": "component",
+                                        "category": "components/overlay-feedback",
+                                        "file": "components/overlay-feedback/GlyphObservationOverlay.jsx",
+                                        "ref": true,
+                                        "children": [],
+                                        "hooks": [],
+                                        "data": []
+                                      },
+                                      {
+                                        "name": "AnalysisOverlay",
+                                        "kind": "component",
+                                        "category": "components/overlay-feedback",
+                                        "file": "components/overlay-feedback/AnalysisOverlay.jsx",
+                                        "ref": true,
+                                        "children": [],
+                                        "hooks": [],
+                                        "data": []
+                                      }
+                                    ],
+                                    "hooks": [
+                                      {
+                                        "name": "useI18n",
+                                        "file": "i18n/useI18n.js",
+                                        "category": "i18n"
+                                      }
+                                    ],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "ArchetypeNarrative",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/ArchetypeNarrative.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "ArchiveFeedIndex",
+                                    "kind": "component",
+                                    "category": "components/in-page-navigation",
+                                    "file": "components/in-page-navigation/ArchiveFeedIndex.jsx",
+                                    "storyTitle": "Custom Component/6. In-page Navigation/ArchiveFeedIndex",
+                                    "storyId": "custom-component-6-in-page-navigation-archivefeedindex",
+                                    "children": [],
+                                    "hooks": [
+                                      {
+                                        "name": "useI18n",
+                                        "file": "i18n/useI18n.js",
+                                        "category": "i18n"
+                                      }
+                                    ],
+                                    "data": []
+                                  }
+                                ],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": [
+                                  {
+                                    "name": "archiveArchetypeSymbols",
+                                    "file": "data/archiveArchetypeSymbols.js"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "ArchiveFamilySymbol",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/ArchiveFamilySymbol.jsx",
+                                "storyTitle": "Custom Component/5. Data Display/ArchiveFamilySymbol",
+                                "storyId": "custom-component-5-data-display-archivefamilysymbol",
+                                "children": [
+                                  {
+                                    "name": "ArchiveGlyph",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/ArchiveGlyph.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  }
+                                ],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": [
+                                  {
+                                    "name": "archiveFamilySymbols",
+                                    "file": "data/archiveFamilySymbols.js"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "ArchiveGlyph",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/ArchiveGlyph.jsx",
+                                "ref": true,
                                 "children": [],
+                                "hooks": [],
+                                "data": []
+                              },
+                              {
+                                "name": "GlyphRenderScope",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/GlyphRenderScope.jsx",
+                                "ref": true,
+                                "children": [],
+                                "hooks": [],
+                                "data": []
+                              },
+                              {
+                                "name": "ArchiveSelectedGlyph",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/ArchiveSelectedGlyph.jsx",
+                                "storyTitle": "Custom Component/5. Data Display/ArchiveSelectedGlyph",
+                                "storyId": "custom-component-5-data-display-archiveselectedglyph",
+                                "children": [
+                                  {
+                                    "name": "ArchiveGlyph",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/ArchiveGlyph.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "GlyphRenderScope",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/GlyphRenderScope.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "GlyphObservationChips",
+                                    "kind": "component",
+                                    "category": "components/input",
+                                    "file": "components/input/GlyphObservationChips.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "ArchetypeNarrative",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/ArchetypeNarrative.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "ArchetypeMotto",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/ArchetypeMotto.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  }
+                                ],
+                                "hooks": [
+                                  {
+                                    "name": "useArchiveMobileObservation",
+                                    "file": "hooks/useArchiveMobileObservation.js",
+                                    "category": "hooks"
+                                  },
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": [
+                                  {
+                                    "name": "heptapodArchetypeCatalog",
+                                    "file": "data/heptapodArchetypeCatalog.js"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "ArchetypeNarrative",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/ArchetypeNarrative.jsx",
+                                "ref": true,
+                                "children": [],
+                                "hooks": [],
+                                "data": []
+                              }
+                            ],
+                            "hooks": [
+                              {
+                                "name": "useI18n",
+                                "file": "i18n/useI18n.js",
+                                "category": "i18n"
+                              }
+                            ],
+                            "data": [
+                              {
+                                "name": "heptapodMeaningCatalog",
+                                "file": "data/heptapodMeaningCatalog.js"
+                              },
+                              {
+                                "name": "archiveFamilySymbols",
+                                "file": "data/archiveFamilySymbols.js"
+                              },
+                              {
+                                "name": "heptapodArchetypeCatalog",
+                                "file": "data/heptapodArchetypeCatalog.js"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "ArchiveSelectedGlyph",
+                            "kind": "component",
+                            "category": "components/data-display",
+                            "file": "components/data-display/ArchiveSelectedGlyph.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          },
+                          {
+                            "name": "LogogramChamber",
+                            "kind": "component",
+                            "category": "components/motion",
+                            "file": "components/motion/LogogramChamber.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          },
+                          {
+                            "name": "SocialShareDialog",
+                            "kind": "component",
+                            "category": "components/overlay-feedback",
+                            "file": "components/overlay-feedback/SocialShareDialog.jsx",
+                            "storyTitle": "Custom Component/9. Overlay & Feedback/SocialShareDialog",
+                            "storyId": "custom-component-9-overlay-feedback-socialsharedialog",
+                            "children": [],
+                            "hooks": [
+                              {
+                                "name": "useI18n",
+                                "file": "i18n/useI18n.js",
+                                "category": "i18n"
+                              }
+                            ],
+                            "data": []
+                          }
+                        ],
+                        "hooks": [
+                          {
+                            "name": "useGlyphFormationSound",
+                            "file": "hooks/useGlyphFormationSound.js",
+                            "category": "hooks"
+                          },
+                          {
+                            "name": "useI18n",
+                            "file": "i18n/useI18n.js",
+                            "category": "i18n"
+                          },
+                          {
+                            "name": "useGlyph",
+                            "file": "hooks/data/useGlyph.js",
+                            "category": "hooks/data"
+                          },
+                          {
+                            "name": "useArchiveGlyphs",
+                            "file": "hooks/data/useArchiveGlyphs.js",
+                            "category": "hooks/data"
+                          },
+                          {
+                            "name": "useArchiveMeanings",
+                            "file": "hooks/data/useArchiveMeanings.js",
+                            "category": "hooks/data"
+                          }
+                        ],
+                        "data": []
+                      },
+                      {
+                        "name": "ResonanceFieldPage",
+                        "kind": "component",
+                        "category": "components/templates",
+                        "file": "components/templates/ResonanceFieldPage.jsx",
+                        "storyTitle": "Page/Response Archive/ResonanceFieldPage",
+                        "storyId": "page-response-archive-resonancefieldpage",
+                        "children": [
+                          {
+                            "name": "AppGNB",
+                            "kind": "component",
+                            "category": "components/navigation",
+                            "file": "components/navigation/AppGNB.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          },
+                          {
+                            "name": "ResonanceMap",
+                            "kind": "component",
+                            "category": "components/data-display",
+                            "file": "components/data-display/ResonanceMap.jsx",
+                            "storyTitle": "Custom Component/5. Data Display/ResonanceMap",
+                            "storyId": "custom-component-5-data-display-resonancemap",
+                            "children": [
+                              {
+                                "name": "GlyphNode",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/GlyphNode.jsx",
+                                "storyTitle": "Custom Component/5. Data Display/GlyphNode",
+                                "storyId": "custom-component-5-data-display-glyphnode",
+                                "children": [
+                                  {
+                                    "name": "StaticGlyphImage",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/StaticGlyphImage.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "GlyphRenderScope",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/GlyphRenderScope.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  }
+                                ],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": []
+                              },
+                              {
+                                "name": "ResonanceList",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/ResonanceList.jsx",
+                                "storyTitle": "Custom Component/5. Data Display/ResonanceList",
+                                "storyId": "custom-component-5-data-display-resonancelist",
+                                "children": [
+                                  {
+                                    "name": "GlyphNode",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/GlyphNode.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  }
+                                ],
                                 "hooks": [
                                   {
                                     "name": "useI18n",
@@ -109,6 +1192,97 @@ export default {
                               }
                             ],
                             "data": []
+                          },
+                          {
+                            "name": "ResonanceList",
+                            "kind": "component",
+                            "category": "components/data-display",
+                            "file": "components/data-display/ResonanceList.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          },
+                          {
+                            "name": "RelationInspector",
+                            "kind": "component",
+                            "category": "components/overlay-feedback",
+                            "file": "components/overlay-feedback/RelationInspector.jsx",
+                            "storyTitle": "Custom Component/9. Overlay & Feedback/RelationInspector",
+                            "storyId": "custom-component-9-overlay-feedback-relationinspector",
+                            "children": [
+                              {
+                                "name": "GlyphNode",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/GlyphNode.jsx",
+                                "ref": true,
+                                "children": [],
+                                "hooks": [],
+                                "data": []
+                              },
+                              {
+                                "name": "GlyphPairComparison",
+                                "kind": "component",
+                                "category": "components/data-display",
+                                "file": "components/data-display/GlyphPairComparison.jsx",
+                                "storyTitle": "Custom Component/5. Data Display/GlyphPairComparison",
+                                "storyId": "custom-component-5-data-display-glyphpaircomparison",
+                                "children": [
+                                  {
+                                    "name": "GlyphNode",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/GlyphNode.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "GlyphMeaningSummary",
+                                    "kind": "component",
+                                    "category": "components/data-display",
+                                    "file": "components/data-display/GlyphMeaningSummary.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  },
+                                  {
+                                    "name": "GlyphObservationOverlay",
+                                    "kind": "component",
+                                    "category": "components/overlay-feedback",
+                                    "file": "components/overlay-feedback/GlyphObservationOverlay.jsx",
+                                    "ref": true,
+                                    "children": [],
+                                    "hooks": [],
+                                    "data": []
+                                  }
+                                ],
+                                "hooks": [
+                                  {
+                                    "name": "useI18n",
+                                    "file": "i18n/useI18n.js",
+                                    "category": "i18n"
+                                  }
+                                ],
+                                "data": [
+                                  {
+                                    "name": "heptapodMeaningCatalog",
+                                    "file": "data/heptapodMeaningCatalog.js"
+                                  }
+                                ]
+                              }
+                            ],
+                            "hooks": [
+                              {
+                                "name": "useI18n",
+                                "file": "i18n/useI18n.js",
+                                "category": "i18n"
+                              }
+                            ],
+                            "data": []
                           }
                         ],
                         "hooks": [
@@ -116,6 +1290,162 @@ export default {
                             "name": "useI18n",
                             "file": "i18n/useI18n.js",
                             "category": "i18n"
+                          },
+                          {
+                            "name": "useGlyph",
+                            "file": "hooks/data/useGlyph.js",
+                            "category": "hooks/data"
+                          },
+                          {
+                            "name": "useGlyphRelations",
+                            "file": "hooks/data/useGlyphRelations.js",
+                            "category": "hooks/data"
+                          }
+                        ],
+                        "data": []
+                      },
+                      {
+                        "name": "MyArchivePage",
+                        "kind": "component",
+                        "category": "components/templates",
+                        "file": "components/templates/MyArchivePage.jsx",
+                        "storyTitle": "Page/Response Archive/MyArchivePage",
+                        "storyId": "page-response-archive-myarchivepage",
+                        "children": [
+                          {
+                            "name": "AppGNB",
+                            "kind": "component",
+                            "category": "components/navigation",
+                            "file": "components/navigation/AppGNB.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          },
+                          {
+                            "name": "ArchiveDepthExplorer",
+                            "kind": "component",
+                            "category": "components/data-display",
+                            "file": "components/data-display/ArchiveDepthExplorer.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          },
+                          {
+                            "name": "SocialShareDialog",
+                            "kind": "component",
+                            "category": "components/overlay-feedback",
+                            "file": "components/overlay-feedback/SocialShareDialog.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          }
+                        ],
+                        "hooks": [
+                          {
+                            "name": "useGlyphFormationSound",
+                            "file": "hooks/useGlyphFormationSound.js",
+                            "category": "hooks"
+                          },
+                          {
+                            "name": "useArchiveScroll",
+                            "file": "routes/useArchiveScroll.js",
+                            "category": "routes"
+                          },
+                          {
+                            "name": "useI18n",
+                            "file": "i18n/useI18n.js",
+                            "category": "i18n"
+                          },
+                          {
+                            "name": "useArchiveGlyphs",
+                            "file": "hooks/data/useArchiveGlyphs.js",
+                            "category": "hooks/data"
+                          },
+                          {
+                            "name": "useArchiveMeanings",
+                            "file": "hooks/data/useArchiveMeanings.js",
+                            "category": "hooks/data"
+                          }
+                        ],
+                        "data": []
+                      },
+                      {
+                        "name": "ArchiveComparePage",
+                        "kind": "component",
+                        "category": "components/templates",
+                        "file": "components/templates/ArchiveComparePage.jsx",
+                        "storyTitle": "Page/Response Archive/ArchiveComparePage",
+                        "storyId": "page-response-archive-archivecomparepage",
+                        "children": [
+                          {
+                            "name": "AppGNB",
+                            "kind": "component",
+                            "category": "components/navigation",
+                            "file": "components/navigation/AppGNB.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          },
+                          {
+                            "name": "GlyphNode",
+                            "kind": "component",
+                            "category": "components/data-display",
+                            "file": "components/data-display/GlyphNode.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          },
+                          {
+                            "name": "GlyphPairComparison",
+                            "kind": "component",
+                            "category": "components/data-display",
+                            "file": "components/data-display/GlyphPairComparison.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          },
+                          {
+                            "name": "PublishDialog",
+                            "kind": "component",
+                            "category": "components/overlay-feedback",
+                            "file": "components/overlay-feedback/PublishDialog.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          },
+                          {
+                            "name": "SocialShareDialog",
+                            "kind": "component",
+                            "category": "components/overlay-feedback",
+                            "file": "components/overlay-feedback/SocialShareDialog.jsx",
+                            "ref": true,
+                            "children": [],
+                            "hooks": [],
+                            "data": []
+                          }
+                        ],
+                        "hooks": [
+                          {
+                            "name": "useI18n",
+                            "file": "i18n/useI18n.js",
+                            "category": "i18n"
+                          },
+                          {
+                            "name": "useGlyph",
+                            "file": "hooks/data/useGlyph.js",
+                            "category": "hooks/data"
+                          },
+                          {
+                            "name": "usePublish",
+                            "file": "hooks/data/usePublish.js",
+                            "category": "hooks/data"
                           }
                         ],
                         "data": []
@@ -150,16 +1480,9 @@ export default {
                 "kind": "component",
                 "category": "i18n",
                 "file": "i18n/LocaleProvider.jsx",
-                "storyTitle": null,
-                "storyId": null,
+                "ref": true,
                 "children": [],
-                "hooks": [
-                  {
-                    "name": "useI18n",
-                    "file": "i18n/useI18n.js",
-                    "category": "i18n"
-                  }
-                ],
+                "hooks": [],
                 "data": []
               },
               {
@@ -178,8 +1501,7 @@ export default {
                 "kind": "component",
                 "category": "routes",
                 "file": "routes/NavigationSessionProvider.jsx",
-                "storyTitle": null,
-                "storyId": null,
+                "ref": true,
                 "children": [],
                 "hooks": [],
                 "data": []
@@ -207,7 +1529,18 @@ export default {
             "file": "routes/NextRouteView.jsx",
             "storyTitle": null,
             "storyId": null,
-            "children": [],
+            "children": [
+              {
+                "name": "AppRoutes",
+                "kind": "component",
+                "category": "routes",
+                "file": "routes/AppRoutes.jsx",
+                "ref": true,
+                "children": [],
+                "hooks": [],
+                "data": []
+              }
+            ],
             "hooks": [],
             "data": []
           }
@@ -228,8 +1561,7 @@ export default {
             "kind": "component",
             "category": "routes",
             "file": "routes/NextRouteView.jsx",
-            "storyTitle": null,
-            "storyId": null,
+            "ref": true,
             "children": [],
             "hooks": [],
             "data": []
@@ -251,8 +1583,7 @@ export default {
             "kind": "component",
             "category": "routes",
             "file": "routes/NextRouteView.jsx",
-            "storyTitle": null,
-            "storyId": null,
+            "ref": true,
             "children": [],
             "hooks": [],
             "data": []
@@ -274,8 +1605,7 @@ export default {
             "kind": "component",
             "category": "routes",
             "file": "routes/NextRouteView.jsx",
-            "storyTitle": null,
-            "storyId": null,
+            "ref": true,
             "children": [],
             "hooks": [],
             "data": []
@@ -297,8 +1627,7 @@ export default {
             "kind": "component",
             "category": "routes",
             "file": "routes/NextRouteView.jsx",
-            "storyTitle": null,
-            "storyId": null,
+            "ref": true,
             "children": [],
             "hooks": [],
             "data": []
@@ -320,8 +1649,7 @@ export default {
             "kind": "component",
             "category": "routes",
             "file": "routes/NextRouteView.jsx",
-            "storyTitle": null,
-            "storyId": null,
+            "ref": true,
             "children": [],
             "hooks": [],
             "data": []

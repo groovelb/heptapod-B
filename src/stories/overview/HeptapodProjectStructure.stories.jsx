@@ -39,9 +39,82 @@ const DESCRIPTIONS = {
   AppRoutes: '경로 등록. 랜딩·캔버스·아카이브와 UUID 경로 3종',
   EncoderRoutes: '랜딩 완료 인계와 옛 이름 쿼리 어댑터',
 
+  // 페이지 템플릿
+  HeptapodHeroIntro: '랜딩 전체. 스크럽 트랙과 완주 인계',
+  HeptapodEncoderPage: '생성 화면 전체. 인코딩·판독·공개 흐름',
+  MyArchivePage: '아카이브 전체. 이름은 옛 개인 화면에서 남았다',
+  GlyphDetailPage: '공개 표식 상세와 주요 연결',
+  ResonanceFieldPage: '연결 지도와 목록 전환',
+  ArchiveComparePage: '두 표식을 나란히 놓고 대응 부위 확인',
+
+  // 전역 내비게이션
+  AppGNB: '전역 헤더 래퍼. 경로와 언어 전환을 얹는다',
+  GNB: '스타터킷 헤더. 모바일 서랍은 전면 폭',
+  LanguageSwitcher: '한국어와 영어 전환',
+
+  // 표식 렌더링
+  LogogramChamber: '화면 전체 안개와 깊이 모션',
+  LogogramRendererCanvas: '입자 형성. 현재 유일하게 쓰는 렌더러',
+  StaticGlyphImage: '좁은 화면 목록과 미리보기의 정지 표식',
+  GlyphRenderScope: '살아 있는 표식과 정지 이미지의 적용 범위',
+  RatioContainer: '정방형 비율 고정 컨테이너',
+  FadeTransition: '패널 등장 페이드',
+  LineGrid: '에디토리얼 괘선 격자',
+
+  // 아카이브 표시
+  ArchiveDepthExplorer: '계열 상징과 유형 묶음의 깊이 탐색',
+  ArchiveArchetypeFeed: '유형별 세로 피드와 실제 구성원',
+  ArchiveFamilySymbol: '도래·수용·상호성 계열의 안내용 상징',
+  ArchiveSelectedGlyph: '선택 표식 상세. 같은 유형과 부위 그리드',
+  ArchiveGlyph: '목록 한 칸의 표식과 중앙 이름',
+  ArchiveFeedIndex: '피드 안의 유형 인덱스',
+  ArchetypeNarrative: '유형 서사. 조합·특징·질문·관계',
+  ArchetypeMotto: '유형의 한마디 인용',
+  GlyphMeaningSummary: '이름의 뜻과 관측 근거 요약',
+  GlyphClusterLink: '같은 의미군으로 건너가는 링크',
+  GlyphObservationChips: '의미 다중 선택 칩',
+
+  // 연결과 비교
+  GlyphNode: '지도와 비교에 쓰는 가벼운 표식 노드',
+  GlyphPairComparison: '두 표식의 대응 부위에 같은 번호',
+  ResonanceMap: '중심 둘레의 이웃 배치',
+  ResonanceList: '같은 데이터를 목록으로',
+  RelationInspector: '연결 근거 문장과 수치',
+
+  // 오버레이
+  AnalysisOverlay: '초록 격자·정점·순차 스캔',
+  GlyphObservationOverlay: '선택한 의미의 실제 부위 강조',
+  PublishDialog: '공개 동의 확인과 상태 전환',
+  SocialShareDialog: '보낼 곳 선택. 기기 공유창은 열지 않는다',
+  HeroAffordance: '랜딩의 시작·건너뛰기·소리 안내',
+
+  // 랜딩 스크럽
+  VideoScrubbing: '스크롤 위치를 영상 재생 위치로',
+  ScrubHud: '마디 카운터와 진행바',
+  ScrubCaption: '비트 하나의 캡션. 변주를 골라 그린다',
+  CaptionFrame: '캡션의 격자 배치와 진행도 창',
+  InkLetters: '글자별 번짐과 자간 변형',
+  InstrumentLine: '계기 톤의 보조 라인',
+  TitleDisperse: '표제가 스크럽과 함께 흩어진다',
+  SeamCaption: '이음매 변주',
+  RingCaption: '링 왼쪽을 지나는 패럴럭스 변주',
+  MirrorCaption: '위아래 거울 대칭 변주',
+  ScrambleCaption: '글자 뒤섞임 변주',
+  RotateCaption: '덩어리 회전 변주(구버전)',
+  FlipReflowCaption: '세로 기둥에서 문장으로 재배치',
+  TypeCaption: '타자 변주',
+
   // Hooks
   useI18n: 'Hook · 현재 언어와 문구 조회',
   useScrubSoundEngine: 'Hook · 스크롤 위치에 결속된 베드·클립 사운드 엔진',
+  useGlyphFormationSound: 'Hook · 표식이 맺힐 때의 소리',
+  useArchiveGlyphs: 'Hook · 공개 표식 목록 조회',
+  useArchiveMeanings: 'Hook · 목록의 의미 판독 집계',
+  useArchiveScroll: 'Hook · 목록과 상세의 스크롤 위치 보존',
+  useArchiveMobileObservation: 'Hook · 좁은 화면의 관측 표시 배치',
+  useGlyph: 'Hook · 공개 표식 하나 조회',
+  useGlyphRelations: 'Hook · 중심 표식의 연결 조회',
+  usePublish: 'Hook · 동의 확인과 공개 요청',
 
   // Data
   heptapodHeroStory: 'Data · 인트로 비트 6마디의 카피·영상 구간·셀 가중치',
@@ -65,6 +138,7 @@ const isContextName = (name) => /Context$|Provider$/.test(name);
  * - 자식이 있는 컴포넌트: 중첩 객체
  * - Context/Provider: 자식 유무와 상관없이 리프(설명 문자열)로 표시
  * - 잎 컴포넌트/Hook/Data: 리프(설명 문자열)
+ * - 중복 가지(ref): 설명 뒤에 이미 펼친 곳이 있다고 표시
  */
 function nodeToTree(node) {
   const out = {};
@@ -84,9 +158,12 @@ function nodeToTree(node) {
       nameCount[key] = 0;
     }
     const subtree = nodeToTree(child);
-    out[key] = Object.keys(subtree).length
-      ? subtree
-      : DESCRIPTIONS[child.name] || 'Component';
+    if (Object.keys(subtree).length) {
+      out[key] = subtree;
+      continue;
+    }
+    const text = DESCRIPTIONS[child.name] || 'Component';
+    out[key] = child.ref ? `${text} (다른 가지에 이미 펼침)` : text;
   }
 
   for (const h of node.hooks || []) {
