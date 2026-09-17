@@ -4,7 +4,7 @@
  * 수동 편집 금지. 재생성: pnpm generate-assets
  */
 export default {
-  "generatedAt": "2026-09-17T09:44:05.171Z",
+  "generatedAt": "2026-09-17T15:52:04.955Z",
   "summary": {
     "public/(root)": {
       "files": 5,
@@ -455,6 +455,16 @@ export default {
       "font": 4,
       "model": 0,
       "other": 3
+    },
+    "public/research": {
+      "files": 1,
+      "bytes": 3109101,
+      "image": 0,
+      "video": 0,
+      "audio": 0,
+      "font": 0,
+      "model": 0,
+      "other": 1
     },
     "src/assets/(root)": {
       "files": 1,
@@ -3314,6 +3324,17 @@ export default {
       "kind": "other",
       "bytes": 1970,
       "url": "/og/README.md",
+      "importKey": null
+    },
+    {
+      "path": "public/research/hero-storyboard.html",
+      "root": "public",
+      "folder": "research",
+      "name": "hero-storyboard.html",
+      "ext": ".html",
+      "kind": "other",
+      "bytes": 3109101,
+      "url": "/research/hero-storyboard.html",
       "importKey": null
     },
     {

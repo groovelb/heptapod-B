@@ -6,7 +6,7 @@ import { ARCHIVE_STORY_IDS } from '../../test-fixtures/archiveClient';
 import { interpretGlyphMeaning } from '../../utils/heptapod/interpretGlyphMeaning';
 
 export default {
-  title: 'Custom Component/9. Overlay & Feedback/PublishDialog', component: PublishDialog, tags: ['autodocs'],
+  title: 'Custom Component/6. Publish & Share/PublishDialog', component: PublishDialog, tags: ['autodocs'],
   parameters: { docs: { description: { component: 'md 미만은 12px 바깥 여백·동적 화면 높이·44px 닫기 영역으로 대응합니다. 공개 완료 시 링크를 한 번 자동 복사하고 성공 스낵바를 표시합니다. 차단되면 수동 복사 안내를 표시합니다. 내 표식 페이지 열기는 56px 높이·전체 너비 메인 CTA이며, 아래 공유하기 섹션에 링크 복사·X·Threads·Facebook을 흰색 아이콘 한 줄로 표시합니다. OS 공유창은 호출하지 않습니다. 완료 스토리는 즉시 표시되고 Flow 스토리는 동의 후 공개하기를 누르세요. 콜백은 로컬 결과만 반환하며 공개 API·인증·실제 공유창·클립보드를 호출하지 않습니다.' } } },
   decorators: [(Story) => <MemoryRouter>{ createElement(Story) }</MemoryRouter>],
   argTypes: {

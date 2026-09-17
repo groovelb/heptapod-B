@@ -154,7 +154,7 @@ function InteractiveDemo() {
 }
 
 export default {
-  title: 'Common/Indicator',
+  title: 'Custom Component/8. Adapted Starter/Indicator',
   component: Indicator,
   tags: ['autodocs'],
   parameters: {

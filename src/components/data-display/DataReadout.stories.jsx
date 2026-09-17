@@ -13,7 +13,7 @@ function modelFor(name) {
 const SAMPLE_NAMES = ['김민준', 'LOUISE', 'ABBOT', '이수현', 'IAN'];
 
 export default {
-  title: 'Custom Component/5. Data Display/DataReadout',
+  title: 'Custom Component/4. Canvas & Analysis/DataReadout',
   component: DataReadout,
   tags: ['autodocs'],
   argTypes: {

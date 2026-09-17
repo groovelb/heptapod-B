@@ -55,7 +55,7 @@ function Masthead({ children }) {
   return (
     <Box component="header" sx={ { mb: 5 } }>
       { name && <Overline sx={ { mb: 3 } }>{ name }</Overline> }
-      <Typography variant="h1" component="h1" sx={ { fontSize: 'clamp(2.75rem, 6vw, 4.5rem)', m: 0 } }>
+      <Typography variant="h1" component="h1" sx={ { fontSize: 'clamp(2.75rem, 6vw, 4.5rem)', m: 0, color: 'text.primary' } }>
         { kind }
       </Typography>
     </Box>
@@ -83,7 +83,7 @@ function Quote({ children }) {
     const [lead, ...rest] = lines;
     return (
       <Box sx={ { m: 0, mb: 8, maxWidth: '64ch' } }>
-        <Typography variant="h6" component="p" sx={ { fontWeight: 400, lineHeight: 1.5, mb: 1.5 } }>
+        <Typography variant="h6" component="p" sx={ { fontWeight: 400, lineHeight: 1.5, mb: 1.5, color: 'text.primary' } }>
           { lead }
         </Typography>
         { rest.map((line) => (
@@ -112,7 +112,7 @@ function Quote({ children }) {
         { '“' }
       </Box>
       { lines.map((line) => (
-        <Typography key={ line } variant="h4" component="p" sx={ { m: 0 } }>
+        <Typography key={ line } variant="h4" component="p" sx={ { m: 0, color: 'text.primary' } }>
           { line }
         </Typography>
       )) }
@@ -126,7 +126,7 @@ function SectionHeading({ children }) {
   const match = text ? text.match(NUMBERED_H2) : null;
   if (!match) {
     return (
-      <Typography variant="h6" component="h2" sx={ { mt: 0, mb: 3 } }>
+      <Typography variant="h6" component="h2" sx={ { mt: 0, mb: 3, color: 'text.primary' } }>
         { children }
       </Typography>
     );
@@ -134,7 +134,7 @@ function SectionHeading({ children }) {
   return (
     <Box component="h2" sx={ { m: 0, mb: 5 } }>
       <Overline sx={ { mb: 2.5 } }>{ match[1].padStart(2, '0') }</Overline>
-      <Typography variant="h3" component="span" sx={ { display: 'block' } }>
+      <Typography variant="h3" component="span" sx={ { display: 'block', color: 'text.primary' } }>
         { match[2] }
       </Typography>
     </Box>
@@ -149,7 +149,7 @@ function SubHeading({ children }) {
     <Typography
       variant="h6"
       component="h3"
-      sx={ { display: 'flex', alignItems: 'baseline', gap: 1.5, mt: 7, mb: 2.5 } }
+      sx={ { display: 'flex', alignItems: 'baseline', gap: 1.5, mt: 7, mb: 2.5, color: 'text.primary' } }
     >
       { match && (
         <Box component="span" sx={ { fontSize: '0.75em', fontWeight: 400, color: 'text.secondary' } }>
@@ -171,14 +171,14 @@ function Paragraph({ children }) {
     return (
       <Box sx={ { mt: 5, mb: 2 } }>
         <Overline sx={ { mb: 1.5 } }>Tagline</Overline>
-        <Typography variant="h5" component="p" sx={ { m: 0 } }>
+        <Typography variant="h5" component="p" sx={ { m: 0, color: 'text.primary' } }>
           { text.slice(match[0].length) }
         </Typography>
       </Box>
     );
   }
   return (
-    <Typography variant="body1" sx={ { maxWidth: '72ch', mb: 2 } }>
+    <Typography variant="body1" sx={ { maxWidth: '72ch', mb: 2, color: 'text.primary' } }>
       { children }
     </Typography>
   );
@@ -222,6 +222,7 @@ function Table({ children }) {
             pr: 3,
             fontSize: '0.9375rem',
             lineHeight: 1.6,
+            color: 'text.primary',
             borderBottom: '1px solid',
             borderColor: 'divider',
           },
@@ -261,7 +262,7 @@ const overrides = {
   p: { component: Paragraph },
   ul: { component: Box, props: { component: 'ul', sx: listSx } },
   ol: { component: Box, props: { component: 'ol', sx: listSx } },
-  li: { component: Typography, props: { component: 'li', variant: 'body1', sx: { mb: 1 } } },
+  li: { component: Typography, props: { component: 'li', variant: 'body1', sx: { mb: 1, color: 'text.primary' } } },
   strong: { component: 'strong', props: { style: { fontWeight: 600 } } },
   a: { component: 'a', props: { style: { color: 'inherit' } } },
   pre: {
@@ -274,6 +275,7 @@ const overrides = {
         lineHeight: 1.7,
         p: 3,
         my: 3,
+        color: 'text.primary',
         border: '1px solid',
         borderColor: 'divider',
         overflowX: 'auto',
@@ -288,6 +290,7 @@ const overrides = {
  * 기획 문서(마크다운 원문)를 브랜드 북처럼 그린다. 스토리북 Docs 페이지 전용.
  * 문서 본문을 복사하지 않고 `docs/` 원본을 그대로 받는다.
  * 서체와 색은 제품 디자인 시스템과 분리된 문서 전용 테마(Pretendard, 무채색, 배경 없음)를 쓴다.
+ * 글자색은 요소마다 문서 테마 값을 명시한다. 제품 테마가 다크(흰 글자)여도 전역 규칙에 밀리지 않기 위해서다.
  * 제목의 번호("## 1. …", "### 3.1 …")를 라벨로 분리하고, 표는 가로 괘선만 남긴다.
  *
  * Props:

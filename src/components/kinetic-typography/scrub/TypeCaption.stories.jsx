@@ -21,7 +21,7 @@ function Preview({ entry, exit, reduced }) {
 }
 
 export default {
-  title: 'Custom Component/11. Kinetic Typography/TypeCaption',
+  title: 'Custom Component/3. Hero Scrub/TypeCaption',
   component: TypeCaption,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen', docs: { description: { component: '마지막 씬의 기존 blur 등장·타자 효과를 유지합니다. 등장 완료 후 문구를 유지하며 퇴장 진행도에 따라 글자가 랜덤 순서로 흐려지고 사라집니다.' } } },

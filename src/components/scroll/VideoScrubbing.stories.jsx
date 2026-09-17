@@ -16,7 +16,7 @@ import testVideo from '../../assets/video/9-motion.mp4';
 const TEST_VIDEO_URL = testVideo;
 
 export default {
-  title: 'Custom Component/12. Scroll/VideoScrubbing',
+  title: 'Custom Component/3. Hero Scrub/VideoScrubbing',
   component: VideoScrubbing,
   tags: ['autodocs'],
   parameters: {

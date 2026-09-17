@@ -14,7 +14,7 @@ function Preview({ videoProgress, ...args }) {
 }
 
 export default {
-  title: 'Custom Component/9. Overlay & Feedback/HeroAffordance',
+  title: 'Custom Component/3. Hero Scrub/HeroAffordance',
   component: HeroAffordance,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen', docs: { description: { component: '랜딩 하단에서 현재 상태의 안내 하나만 표시합니다. 스크롤 구간에서는 스크롤 안내를 유지하고, 자동 재생·로딩이 시작되면 해당 안내로 교체합니다.' } } },

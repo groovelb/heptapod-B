@@ -9,7 +9,7 @@ import { DocumentTitle, PageContainer } from '../storybookDocumentation';
 import { SectionContainer } from '../container/SectionContainer';
 
 export default {
-  title: 'Custom Component/10. Navigation/GNB',
+  title: 'Custom Component/7. Shell & Navigation/GNB',
   component: GNB,
   tags: ['autodocs'],
   argTypes: {

@@ -2,7 +2,7 @@ import ArchetypeNarrative from './ArchetypeNarrative';
 import { ARCHETYPE_CATALOG } from '../../data/heptapodArchetypeCatalog.js';
 
 export default {
-  title: 'Custom Component/5. Data Display/ArchetypeNarrative', component: ArchetypeNarrative, tags: ['autodocs'],
+  title: 'Custom Component/5. Archive Feed/ArchetypeNarrative', component: ArchetypeNarrative, tags: ['autodocs'],
   parameters: { docs: { description: { component: '개인 상세는 LineGrid에 행·열 gap 24px을 적용하고 간격 중앙에 구분선을 표시합니다. 섹션 타이틀은 20/22px bold(본문 18/20px), 본문과 간격은 8px입니다. 1200px 이상에서 큰 뜻·관계·차이 구역을 전체 폭으로, 중심/조합·당신, 특징·일상, 주의점·질문을 두 열씩 짝지어 표시합니다. 좁은 화면은 읽는 순서 그대로 한 열입니다. 페이지·섹션 제목은 bold, 핵심 산세리프 문장은 20/24px로 제목 아래 위계를 유지합니다. 본문·핵심 문장·제목·소제목·보조 정보에 editorial 시맨틱 타이포를 적용하고, 줄 길이·여백·구분선도 테마 토큰으로 관리합니다. 특징·일상 장면 목록은 표식과 같은 테두리 원 불릿을 쓰고, 여러 줄 본문은 같은 시작선으로 정렬합니다. 배포 JSON에서 내 이름의 뜻을 먼저 보여주고, 상위 군집·메타데이터 조합을 참여자의 행동·관계·일상 장면으로 풉니다. Create 분석·Archive 피드·개별 상세가 재사용하며 분류나 네트워크 요청은 하지 않습니다.' } } },
   argTypes: {
     archetype: { control: 'object', description: '완전 판독한 ARCHETYPE_CATALOG 항목. 미제공하면 군집 설명만 표시' },

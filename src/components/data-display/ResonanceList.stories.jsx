@@ -14,7 +14,7 @@ const neighbors = ['Hannah', 'Louise?', 'Louis'].map((name) => {
 }).filter((neighbor) => neighbor.relations.length);
 
 export default {
-  title: 'Custom Component/5. Data Display/ResonanceList', component: ResonanceList, tags: ['autodocs'],
+  title: 'Custom Component/5. Archive Feed/ResonanceList', component: ResonanceList, tags: ['autodocs'],
   parameters: { docs: { description: { component: '실제 변환 모델에서 관측한 가지·개구부·잉크·링의 공명을 이웃 ID별로 표시합니다. 전체 형태와 일부 구조의 공명을 구분하며, 관측 부위 확인과 중심 이동은 별도 동작입니다.' } } },
   argTypes: {
     centerName: { control: 'text', description: '중심 이름' },

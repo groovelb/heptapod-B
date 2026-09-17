@@ -1,6 +1,6 @@
 import SocialShareDialog from './SocialShareDialog';
 export default {
-  title: 'Custom Component/9. Overlay & Feedback/SocialShareDialog', component: SocialShareDialog, tags: ['autodocs'],
+  title: 'Custom Component/6. Publish & Share/SocialShareDialog', component: SocialShareDialog, tags: ['autodocs'],
   parameters: { docs: { description: { component: 'X·Threads·Facebook 작성 링크를 고르는 공유창. OS 공유창을 열지 않고, 사용자가 선택한 소셜에서 게시 여부를 결정합니다. 링크 복사는 별도 버튼이며 실패하면 주소 선택과 수동 복사를 제공합니다.' } } },
   argTypes: {
     payload: { control: 'object', description: '공개 링크의 title, text, url. null이면 닫힘' },

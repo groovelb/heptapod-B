@@ -4,7 +4,7 @@
  * 수동 편집 금지. 재생성: pnpm generate-structure
  */
 export default {
-  "generatedAt": "2026-09-17T09:51:35.106Z",
+  "generatedAt": "2026-09-17T15:52:05.512Z",
   "root": {
     "name": "app",
     "kind": "root",
@@ -58,32 +58,32 @@ export default {
                             "kind": "component",
                             "category": "components/templates",
                             "file": "components/templates/HeptapodHeroIntro.jsx",
-                            "storyTitle": "Page/Response Archive/HeptapodHeroIntro",
-                            "storyId": "page-response-archive-heptapodherointro",
+                            "storyTitle": "Template/HeptapodHeroIntro",
+                            "storyId": "template-heptapodherointro",
                             "children": [
                               {
                                 "name": "AppGNB",
                                 "kind": "component",
                                 "category": "components/navigation",
                                 "file": "components/navigation/AppGNB.jsx",
-                                "storyTitle": "Custom Component/10. Navigation/AppGNB",
-                                "storyId": "custom-component-10-navigation-appgnb",
+                                "storyTitle": "Custom Component/7. Shell & Navigation/AppGNB",
+                                "storyId": "custom-component-7-shell-navigation-appgnb",
                                 "children": [
                                   {
                                     "name": "GNB",
                                     "kind": "component",
                                     "category": "components/navigation",
                                     "file": "components/navigation/GNB.jsx",
-                                    "storyTitle": "Custom Component/10. Navigation/GNB",
-                                    "storyId": "custom-component-10-navigation-gnb",
+                                    "storyTitle": "Custom Component/7. Shell & Navigation/GNB",
+                                    "storyId": "custom-component-7-shell-navigation-gnb",
                                     "children": [
                                       {
                                         "name": "LanguageSwitcher",
                                         "kind": "component",
                                         "category": "components/navigation",
                                         "file": "components/navigation/LanguageSwitcher.jsx",
-                                        "storyTitle": "Custom Component/10. Navigation/LanguageSwitcher",
-                                        "storyId": "custom-component-10-navigation-languageswitcher",
+                                        "storyTitle": "Custom Component/7. Shell & Navigation/LanguageSwitcher",
+                                        "storyId": "custom-component-7-shell-navigation-languageswitcher",
                                         "children": [],
                                         "hooks": [
                                           {
@@ -119,8 +119,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/scroll",
                                 "file": "components/scroll/VideoScrubbing.jsx",
-                                "storyTitle": "Custom Component/12. Scroll/VideoScrubbing",
-                                "storyId": "custom-component-12-scroll-videoscrubbing",
+                                "storyTitle": "Custom Component/3. Hero Scrub/VideoScrubbing",
+                                "storyId": "custom-component-3-hero-scrub-videoscrubbing",
                                 "children": [],
                                 "hooks": [],
                                 "data": []
@@ -141,8 +141,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/overlay-feedback",
                                 "file": "components/overlay-feedback/HeroAffordance.jsx",
-                                "storyTitle": "Custom Component/9. Overlay & Feedback/HeroAffordance",
-                                "storyId": "custom-component-9-overlay-feedback-heroaffordance",
+                                "storyTitle": "Custom Component/3. Hero Scrub/HeroAffordance",
+                                "storyId": "custom-component-3-hero-scrub-heroaffordance",
                                 "children": [],
                                 "hooks": [
                                   {
@@ -163,16 +163,16 @@ export default {
                                 "kind": "component",
                                 "category": "components/kinetic-typography/scrub",
                                 "file": "components/kinetic-typography/scrub/ScrubCaption.jsx",
-                                "storyTitle": null,
-                                "storyId": null,
+                                "storyTitle": "Custom Component/3. Hero Scrub/ScrubCaption",
+                                "storyId": "custom-component-3-hero-scrub-scrubcaption",
                                 "children": [
                                   {
                                     "name": "CaptionFrame",
                                     "kind": "component",
                                     "category": "components/kinetic-typography/scrub",
                                     "file": "components/kinetic-typography/scrub/CaptionFrame.jsx",
-                                    "storyTitle": null,
-                                    "storyId": null,
+                                    "storyTitle": "Custom Component/3. Hero Scrub/CaptionFrame",
+                                    "storyId": "custom-component-3-hero-scrub-captionframe",
                                     "children": [],
                                     "hooks": [],
                                     "data": []
@@ -182,16 +182,16 @@ export default {
                                     "kind": "component",
                                     "category": "components/kinetic-typography/scrub",
                                     "file": "components/kinetic-typography/scrub/SeamCaption.jsx",
-                                    "storyTitle": null,
-                                    "storyId": null,
+                                    "storyTitle": "Custom Component/3. Hero Scrub/SeamCaption",
+                                    "storyId": "custom-component-3-hero-scrub-seamcaption",
                                     "children": [
                                       {
                                         "name": "InkLetters",
                                         "kind": "component",
                                         "category": "components/kinetic-typography/scrub",
                                         "file": "components/kinetic-typography/scrub/InkLetters.jsx",
-                                        "storyTitle": null,
-                                        "storyId": null,
+                                        "storyTitle": "Custom Component/3. Hero Scrub/InkLetters",
+                                        "storyId": "custom-component-3-hero-scrub-inkletters",
                                         "children": [],
                                         "hooks": [],
                                         "data": []
@@ -205,8 +205,8 @@ export default {
                                     "kind": "component",
                                     "category": "components/kinetic-typography/scrub",
                                     "file": "components/kinetic-typography/scrub/RingCaption.jsx",
-                                    "storyTitle": null,
-                                    "storyId": null,
+                                    "storyTitle": "Custom Component/3. Hero Scrub/RingCaption",
+                                    "storyId": "custom-component-3-hero-scrub-ringcaption",
                                     "children": [
                                       {
                                         "name": "InkLetters",
@@ -232,8 +232,8 @@ export default {
                                     "kind": "component",
                                     "category": "components/kinetic-typography/scrub",
                                     "file": "components/kinetic-typography/scrub/MirrorCaption.jsx",
-                                    "storyTitle": null,
-                                    "storyId": null,
+                                    "storyTitle": "Custom Component/3. Hero Scrub/MirrorCaption",
+                                    "storyId": "custom-component-3-hero-scrub-mirrorcaption",
                                     "children": [
                                       {
                                         "name": "InkLetters",
@@ -254,8 +254,8 @@ export default {
                                     "kind": "component",
                                     "category": "components/kinetic-typography/scrub",
                                     "file": "components/kinetic-typography/scrub/ScrambleCaption.jsx",
-                                    "storyTitle": null,
-                                    "storyId": null,
+                                    "storyTitle": "Custom Component/3. Hero Scrub/ScrambleCaption",
+                                    "storyId": "custom-component-3-hero-scrub-scramblecaption",
                                     "children": [
                                       {
                                         "name": "InkLetters",
@@ -272,8 +272,8 @@ export default {
                                         "kind": "component",
                                         "category": "components/kinetic-typography/scrub",
                                         "file": "components/kinetic-typography/scrub/InstrumentLine.jsx",
-                                        "storyTitle": null,
-                                        "storyId": null,
+                                        "storyTitle": "Custom Component/3. Hero Scrub/InstrumentLine",
+                                        "storyId": "custom-component-3-hero-scrub-instrumentline",
                                         "children": [],
                                         "hooks": [
                                           {
@@ -293,8 +293,8 @@ export default {
                                     "kind": "component",
                                     "category": "components/kinetic-typography/scrub",
                                     "file": "components/kinetic-typography/scrub/RotateCaption.jsx",
-                                    "storyTitle": null,
-                                    "storyId": null,
+                                    "storyTitle": "Custom Component/3. Hero Scrub/RotateCaption",
+                                    "storyId": "custom-component-3-hero-scrub-rotatecaption",
                                     "children": [],
                                     "hooks": [],
                                     "data": []
@@ -304,8 +304,8 @@ export default {
                                     "kind": "component",
                                     "category": "components/kinetic-typography/scrub",
                                     "file": "components/kinetic-typography/scrub/FlipReflowCaption.jsx",
-                                    "storyTitle": null,
-                                    "storyId": null,
+                                    "storyTitle": "Custom Component/3. Hero Scrub/FlipReflowCaption",
+                                    "storyId": "custom-component-3-hero-scrub-flipreflowcaption",
                                     "children": [],
                                     "hooks": [],
                                     "data": []
@@ -315,8 +315,8 @@ export default {
                                     "kind": "component",
                                     "category": "components/kinetic-typography/scrub",
                                     "file": "components/kinetic-typography/scrub/TypeCaption.jsx",
-                                    "storyTitle": "Custom Component/11. Kinetic Typography/TypeCaption",
-                                    "storyId": "custom-component-11-kinetic-typography-typecaption",
+                                    "storyTitle": "Custom Component/3. Hero Scrub/TypeCaption",
+                                    "storyId": "custom-component-3-hero-scrub-typecaption",
                                     "children": [
                                       {
                                         "name": "InkLetters",
@@ -367,8 +367,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/kinetic-typography/scrub",
                                 "file": "components/kinetic-typography/scrub/TitleDisperse.jsx",
-                                "storyTitle": null,
-                                "storyId": null,
+                                "storyTitle": "Custom Component/3. Hero Scrub/TitleDisperse",
+                                "storyId": "custom-component-3-hero-scrub-titledisperse",
                                 "children": [],
                                 "hooks": [],
                                 "data": []
@@ -415,8 +415,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/motion",
                                 "file": "components/motion/LogogramChamber.jsx",
-                                "storyTitle": "Custom Component/14. Motion/LogogramChamber",
-                                "storyId": "custom-component-14-motion-logogramchamber",
+                                "storyTitle": "Custom Component/2. Glyph Renderer/LogogramChamber",
+                                "storyId": "custom-component-2-glyph-renderer-logogramchamber",
                                 "children": [
                                   {
                                     "name": "RatioContainer",
@@ -438,8 +438,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/motion",
                                 "file": "components/motion/LogogramRendererCanvas.jsx",
-                                "storyTitle": "Custom Component/14. Motion/LogogramRendererCanvas",
-                                "storyId": "custom-component-14-motion-logogramrenderercanvas",
+                                "storyTitle": "Custom Component/2. Glyph Renderer/LogogramRendererCanvas",
+                                "storyId": "custom-component-2-glyph-renderer-logogramrenderercanvas",
                                 "children": [],
                                 "hooks": [
                                   {
@@ -455,8 +455,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/data-display",
                                 "file": "components/data-display/StaticGlyphImage.jsx",
-                                "storyTitle": "Custom Component/5. Data Display/StaticGlyphImage",
-                                "storyId": "custom-component-5-data-display-staticglyphimage",
+                                "storyTitle": "Custom Component/2. Glyph Renderer/StaticGlyphImage",
+                                "storyId": "custom-component-2-glyph-renderer-staticglyphimage",
                                 "children": [],
                                 "hooks": [
                                   {
@@ -472,8 +472,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/data-display",
                                 "file": "components/data-display/GlyphRenderScope.jsx",
-                                "storyTitle": "Custom Component/5. Data Display/GlyphRenderScope",
-                                "storyId": "custom-component-5-data-display-glyphrenderscope",
+                                "storyTitle": "Custom Component/2. Glyph Renderer/GlyphRenderScope",
+                                "storyId": "custom-component-2-glyph-renderer-glyphrenderscope",
                                 "children": [],
                                 "hooks": [],
                                 "data": []
@@ -494,8 +494,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/overlay-feedback",
                                 "file": "components/overlay-feedback/AnalysisOverlay.jsx",
-                                "storyTitle": "Custom Component/9. Overlay & Feedback/AnalysisOverlay",
-                                "storyId": "custom-component-9-overlay-feedback-analysisoverlay",
+                                "storyTitle": "Custom Component/4. Canvas & Analysis/AnalysisOverlay",
+                                "storyId": "custom-component-4-canvas-analysis-analysisoverlay",
                                 "children": [],
                                 "hooks": [
                                   {
@@ -511,8 +511,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/overlay-feedback",
                                 "file": "components/overlay-feedback/GlyphObservationOverlay.jsx",
-                                "storyTitle": "Custom Component/9. Overlay & Feedback/GlyphObservationOverlay",
-                                "storyId": "custom-component-9-overlay-feedback-glyphobservationoverlay",
+                                "storyTitle": "Custom Component/4. Canvas & Analysis/GlyphObservationOverlay",
+                                "storyId": "custom-component-4-canvas-analysis-glyphobservationoverlay",
                                 "children": [],
                                 "hooks": [],
                                 "data": []
@@ -522,16 +522,16 @@ export default {
                                 "kind": "component",
                                 "category": "components/data-display",
                                 "file": "components/data-display/GlyphMeaningSummary.jsx",
-                                "storyTitle": "Custom Component/5. Data Display/GlyphMeaningSummary",
-                                "storyId": "custom-component-5-data-display-glyphmeaningsummary",
+                                "storyTitle": "Custom Component/4. Canvas & Analysis/GlyphMeaningSummary",
+                                "storyId": "custom-component-4-canvas-analysis-glyphmeaningsummary",
                                 "children": [
                                   {
                                     "name": "GlyphObservationChips",
                                     "kind": "component",
                                     "category": "components/input",
                                     "file": "components/input/GlyphObservationChips.jsx",
-                                    "storyTitle": "Custom Component/7. Input & Control/GlyphObservationChips",
-                                    "storyId": "custom-component-7-input-control-glyphobservationchips",
+                                    "storyTitle": "Custom Component/4. Canvas & Analysis/GlyphObservationChips",
+                                    "storyId": "custom-component-4-canvas-analysis-glyphobservationchips",
                                     "children": [],
                                     "hooks": [
                                       {
@@ -547,16 +547,16 @@ export default {
                                     "kind": "component",
                                     "category": "components/data-display",
                                     "file": "components/data-display/ArchetypeNarrative.jsx",
-                                    "storyTitle": "Custom Component/5. Data Display/ArchetypeNarrative",
-                                    "storyId": "custom-component-5-data-display-archetypenarrative",
+                                    "storyTitle": "Custom Component/5. Archive Feed/ArchetypeNarrative",
+                                    "storyId": "custom-component-5-archive-feed-archetypenarrative",
                                     "children": [
                                       {
                                         "name": "LineGrid",
                                         "kind": "component",
                                         "category": "components/layout",
                                         "file": "components/layout/LineGrid.jsx",
-                                        "storyTitle": "Custom Component/8. Layout/LineGrid",
-                                        "storyId": "custom-component-8-layout-linegrid",
+                                        "storyTitle": "Custom Component/8. Adapted Starter/LineGrid",
+                                        "storyId": "custom-component-8-adapted-starter-linegrid",
                                         "children": [],
                                         "hooks": [],
                                         "data": []
@@ -566,8 +566,8 @@ export default {
                                         "kind": "component",
                                         "category": "components/data-display",
                                         "file": "components/data-display/ArchetypeMotto.jsx",
-                                        "storyTitle": "Custom Component/5. Data Display/ArchetypeMotto",
-                                        "storyId": "custom-component-5-data-display-archetypemotto",
+                                        "storyTitle": "Custom Component/5. Archive Feed/ArchetypeMotto",
+                                        "storyId": "custom-component-5-archive-feed-archetypemotto",
                                         "children": [],
                                         "hooks": [
                                           {
@@ -631,8 +631,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/data-display",
                                 "file": "components/data-display/GlyphClusterLink.jsx",
-                                "storyTitle": "Custom Component/5. Data Display/GlyphClusterLink",
-                                "storyId": "custom-component-5-data-display-glyphclusterlink",
+                                "storyTitle": "Custom Component/4. Canvas & Analysis/GlyphClusterLink",
+                                "storyId": "custom-component-4-canvas-analysis-glyphclusterlink",
                                 "children": [],
                                 "hooks": [
                                   {
@@ -653,8 +653,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/overlay-feedback",
                                 "file": "components/overlay-feedback/PublishDialog.jsx",
-                                "storyTitle": "Custom Component/9. Overlay & Feedback/PublishDialog",
-                                "storyId": "custom-component-9-overlay-feedback-publishdialog",
+                                "storyTitle": "Custom Component/6. Publish & Share/PublishDialog",
+                                "storyId": "custom-component-6-publish-share-publishdialog",
                                 "children": [
                                   {
                                     "name": "GlyphClusterLink",
@@ -739,24 +739,24 @@ export default {
                             "kind": "component",
                             "category": "components/data-display",
                             "file": "components/data-display/ArchiveDepthExplorer.jsx",
-                            "storyTitle": "Custom Component/5. Data Display/ArchiveDepthExplorer",
-                            "storyId": "custom-component-5-data-display-archivedepthexplorer",
+                            "storyTitle": "Custom Component/5. Archive Feed/ArchiveDepthExplorer",
+                            "storyId": "custom-component-5-archive-feed-archivedepthexplorer",
                             "children": [
                               {
                                 "name": "ArchiveArchetypeFeed",
                                 "kind": "component",
                                 "category": "components/data-display",
                                 "file": "components/data-display/ArchiveArchetypeFeed.jsx",
-                                "storyTitle": "Custom Component/5. Data Display/ArchiveArchetypeFeed",
-                                "storyId": "custom-component-5-data-display-archivearchetypefeed",
+                                "storyTitle": "Custom Component/5. Archive Feed/ArchiveArchetypeFeed",
+                                "storyId": "custom-component-5-archive-feed-archivearchetypefeed",
                                 "children": [
                                   {
                                     "name": "ArchiveGlyph",
                                     "kind": "component",
                                     "category": "components/data-display",
                                     "file": "components/data-display/ArchiveGlyph.jsx",
-                                    "storyTitle": "Custom Component/5. Data Display/ArchiveGlyph",
-                                    "storyId": "custom-component-5-data-display-archiveglyph",
+                                    "storyTitle": "Custom Component/5. Archive Feed/ArchiveGlyph",
+                                    "storyId": "custom-component-5-archive-feed-archiveglyph",
                                     "children": [
                                       {
                                         "name": "StaticGlyphImage",
@@ -833,8 +833,8 @@ export default {
                                     "kind": "component",
                                     "category": "components/in-page-navigation",
                                     "file": "components/in-page-navigation/ArchiveFeedIndex.jsx",
-                                    "storyTitle": "Custom Component/6. In-page Navigation/ArchiveFeedIndex",
-                                    "storyId": "custom-component-6-in-page-navigation-archivefeedindex",
+                                    "storyTitle": "Custom Component/5. Archive Feed/ArchiveFeedIndex",
+                                    "storyId": "custom-component-5-archive-feed-archivefeedindex",
                                     "children": [],
                                     "hooks": [
                                       {
@@ -865,8 +865,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/data-display",
                                 "file": "components/data-display/ArchiveFamilySymbol.jsx",
-                                "storyTitle": "Custom Component/5. Data Display/ArchiveFamilySymbol",
-                                "storyId": "custom-component-5-data-display-archivefamilysymbol",
+                                "storyTitle": "Custom Component/5. Archive Feed/ArchiveFamilySymbol",
+                                "storyId": "custom-component-5-archive-feed-archivefamilysymbol",
                                 "children": [
                                   {
                                     "name": "ArchiveGlyph",
@@ -918,8 +918,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/data-display",
                                 "file": "components/data-display/ArchiveSelectedGlyph.jsx",
-                                "storyTitle": "Custom Component/5. Data Display/ArchiveSelectedGlyph",
-                                "storyId": "custom-component-5-data-display-archiveselectedglyph",
+                                "storyTitle": "Custom Component/5. Archive Feed/ArchiveSelectedGlyph",
+                                "storyId": "custom-component-5-archive-feed-archiveselectedglyph",
                                 "children": [
                                   {
                                     "name": "ArchiveGlyph",
@@ -1049,8 +1049,8 @@ export default {
                             "kind": "component",
                             "category": "components/overlay-feedback",
                             "file": "components/overlay-feedback/SocialShareDialog.jsx",
-                            "storyTitle": "Custom Component/9. Overlay & Feedback/SocialShareDialog",
-                            "storyId": "custom-component-9-overlay-feedback-socialsharedialog",
+                            "storyTitle": "Custom Component/6. Publish & Share/SocialShareDialog",
+                            "storyId": "custom-component-6-publish-share-socialsharedialog",
                             "children": [],
                             "hooks": [
                               {
@@ -1114,16 +1114,16 @@ export default {
                             "kind": "component",
                             "category": "components/data-display",
                             "file": "components/data-display/ResonanceMap.jsx",
-                            "storyTitle": "Custom Component/5. Data Display/ResonanceMap",
-                            "storyId": "custom-component-5-data-display-resonancemap",
+                            "storyTitle": "Custom Component/5. Archive Feed/ResonanceMap",
+                            "storyId": "custom-component-5-archive-feed-resonancemap",
                             "children": [
                               {
                                 "name": "GlyphNode",
                                 "kind": "component",
                                 "category": "components/data-display",
                                 "file": "components/data-display/GlyphNode.jsx",
-                                "storyTitle": "Custom Component/5. Data Display/GlyphNode",
-                                "storyId": "custom-component-5-data-display-glyphnode",
+                                "storyTitle": "Custom Component/5. Archive Feed/GlyphNode",
+                                "storyId": "custom-component-5-archive-feed-glyphnode",
                                 "children": [
                                   {
                                     "name": "StaticGlyphImage",
@@ -1160,8 +1160,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/data-display",
                                 "file": "components/data-display/ResonanceList.jsx",
-                                "storyTitle": "Custom Component/5. Data Display/ResonanceList",
-                                "storyId": "custom-component-5-data-display-resonancelist",
+                                "storyTitle": "Custom Component/5. Archive Feed/ResonanceList",
+                                "storyId": "custom-component-5-archive-feed-resonancelist",
                                 "children": [
                                   {
                                     "name": "GlyphNode",
@@ -1208,8 +1208,8 @@ export default {
                             "kind": "component",
                             "category": "components/overlay-feedback",
                             "file": "components/overlay-feedback/RelationInspector.jsx",
-                            "storyTitle": "Custom Component/9. Overlay & Feedback/RelationInspector",
-                            "storyId": "custom-component-9-overlay-feedback-relationinspector",
+                            "storyTitle": "Custom Component/5. Archive Feed/RelationInspector",
+                            "storyId": "custom-component-5-archive-feed-relationinspector",
                             "children": [
                               {
                                 "name": "GlyphNode",
@@ -1226,8 +1226,8 @@ export default {
                                 "kind": "component",
                                 "category": "components/data-display",
                                 "file": "components/data-display/GlyphPairComparison.jsx",
-                                "storyTitle": "Custom Component/5. Data Display/GlyphPairComparison",
-                                "storyId": "custom-component-5-data-display-glyphpaircomparison",
+                                "storyTitle": "Custom Component/5. Archive Feed/GlyphPairComparison",
+                                "storyId": "custom-component-5-archive-feed-glyphpaircomparison",
                                 "children": [
                                   {
                                     "name": "GlyphNode",

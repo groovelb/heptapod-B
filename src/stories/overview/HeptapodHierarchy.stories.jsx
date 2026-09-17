@@ -13,6 +13,7 @@ import {
   TreeNode,
 } from '../../components/storybookDocumentation';
 import projectStructure from '../../data/projectStructure.js';
+import { ASSEMBLY_STEPS } from './assemblySteps';
 
 export default {
   title: 'Custom Component/0. Hierarchy',
@@ -121,6 +122,53 @@ function collect(node, acc) {
 }
 
 /**
+ * 조립 순서 표: 단계마다 무엇을 만들고 어느 스토리로 가는지
+ *
+ * Props:
+ * @param {Array} steps - ASSEMBLY_STEPS [Required]
+ *
+ * Example usage:
+ * <AssemblyTable steps={ ASSEMBLY_STEPS } />
+ */
+function AssemblyTable({ steps }) {
+  return (
+    <TableContainer sx={ { mb: 4 } }>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell sx={ { fontWeight: 600, width: 56 } }>단계</TableCell>
+            <TableCell sx={ { fontWeight: 600, width: 170 } }>이름</TableCell>
+            <TableCell sx={ { fontWeight: 600 } }>하는 일</TableCell>
+            <TableCell sx={ { fontWeight: 600, width: 220 } }>스토리</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          { steps.map((step) => (
+            <TableRow key={ step.step } sx={ { '&:hover': { backgroundColor: 'action.hover' } } }>
+              <TableCell sx={ { fontFamily: 'monospace', fontSize: 12, verticalAlign: 'top' } }>{ step.step }</TableCell>
+              <TableCell sx={ { fontSize: 13, fontWeight: 600, verticalAlign: 'top' } }>{ step.title }</TableCell>
+              <TableCell sx={ { fontSize: 12, verticalAlign: 'top' } }>
+                { step.what }
+                <Box component="span" sx={ { display: 'block', fontFamily: 'monospace', fontSize: 11, color: 'text.secondary', mt: 0.5 } }>
+                  { step.where }
+                </Box>
+              </TableCell>
+              <TableCell sx={ { fontSize: 12, verticalAlign: 'top' } }>
+                { step.stories.map((story) => (
+                  <Box key={ story.id } sx={ { mb: 0.25 } }>
+                    <a href={ `?path=/story/${story.id}` } target="_top">{ story.label }</a>
+                  </Box>
+                )) }
+              </TableCell>
+            </TableRow>
+          )) }
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
+
+/**
  * 분류별 수 표
  *
  * Props:
@@ -224,6 +272,12 @@ export const Default = {
           <Typography variant="body2" color="text.secondary" sx={ { mb: 4 } }>
             <code>src/data/projectStructure.js</code>의 실제 import 그래프다. 재생성은 <code>pnpm generate-structure</code>. 스타터킷 그대로인 컴포넌트는 회색 한 줄로 접고, 수정·신규만 펼친다.
           </Typography>
+
+          <SectionTitle
+            title="조립 순서"
+            description="리서치에서 라우트까지 아홉 단계다. 08 Research 와 이 스토리가 같은 목록(src/stories/overview/assemblySteps.js)을 읽는다."
+          />
+          <AssemblyTable steps={ ASSEMBLY_STEPS } />
 
           <SectionTitle
             title="분류별 수"

@@ -20,7 +20,7 @@ function ControlledExplorer(args) {
 }
 
 export default {
-  title: 'Custom Component/5. Data Display/ArchiveMeaningExplorer', component: ArchiveMeaningExplorer, tags: ['autodocs'],
+  title: 'Custom Component/5. Archive Feed/ArchiveMeaningExplorer', component: ArchiveMeaningExplorer, tags: ['autodocs'],
   parameters: { docs: { description: { component: '네트워크 없이 실제 생성 모델을 판독한 의미군입니다. 기본 의미 하나와 추가 의미 AND 조건, 정확히 같은 복합 의미군, 판독 상태를 선택합니다. 1개짜리 의미군도 그대로 유지합니다. 구성원이 둘 이상인 그룹에서는 이름으로 두 표식을 선택해 의미 비교로 이동할 수 있습니다. 같은 ID를 고르면 비교가 비활성화됩니다. 숫자는 현재 불러온 표본에 한정하며 정밀 형태 공명 점수가 아닙니다. filterMeaningGlyphs를 부모 갤러리와 공유합니다.' } } },
   argTypes: {
     meanings: { control: 'object', description: 'groupArchiveMeanings/provider의 검증된 집계 DTO' },

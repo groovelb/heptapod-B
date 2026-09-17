@@ -5,7 +5,7 @@ import { ARCHIVE_STORY_GLYPHS } from '../../test-fixtures/archiveClient';
 
 const model = ARCHIVE_STORY_GLYPHS[0].model_data;
 export default {
-  title: 'Custom Component/9. Overlay & Feedback/GlyphObservationOverlay', component: GlyphObservationOverlay, tags: ['autodocs'],
+  title: 'Custom Component/4. Canvas & Analysis/GlyphObservationOverlay', component: GlyphObservationOverlay, tags: ['autodocs'],
   parameters: { docs: { description: { component: '원래 표식의 Canvas 좌표를 유지한 관측 부위 표시입니다. 표식을 돌리거나 형태를 변형하지 않습니다. 아카이브의 생성 애니메이션과 정적 쌍 비교 위에 같은 표시부를 사용합니다.' } } },
   argTypes: {
     model: { control: 'object', description: '관측 대상의 실제 저장 모델' },

@@ -16,7 +16,7 @@ function InteractiveChips(args) {
 }
 
 export default {
-  title: 'Custom Component/7. Input & Control/GlyphObservationChips',
+  title: 'Custom Component/4. Canvas & Analysis/GlyphObservationChips',
   component: GlyphObservationChips, tags: ['autodocs'],
   parameters: { docs: { description: { component: '분석과 각 메타데이터를 같은 위계에서 독립적으로 켜고 끄는 텍스트 칩. 안내 문구와 아이콘 없이 채움색·aria-pressed로 상태를 표시하고, 선택 배열과 실제 시각화는 부모가 관리합니다. 분석 패널이나 서사를 만들지 않아 Archive의 기존 설명과 함께 사용할 수 있습니다.' } } },
   decorators: [(Story) => <Box sx={ { p: 3, bgcolor: 'custom.chamber.fog', color: 'custom.chamber.ink' } }>{ createElement(Story) }</Box>],

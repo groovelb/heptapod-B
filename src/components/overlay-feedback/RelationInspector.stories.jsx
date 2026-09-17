@@ -13,7 +13,7 @@ const variant = glyph('Louise?');
 const variantRelations = relateGlyphs(left, variant);
 
 export default {
-  title: 'Custom Component/9. Overlay & Feedback/RelationInspector', component: RelationInspector, tags: ['autodocs'],
+  title: 'Custom Component/5. Archive Feed/RelationInspector', component: RelationInspector, tags: ['autodocs'],
   parameters: { docs: { description: { component: '두 실제 표식을 나란히 놓고 형태 공명의 관측 부위를 확인합니다. 관측 설명·측정값·다른 표식으로의 중심 이동을 제공하며, 원본 이름은 각 표식의 라벨로만 표시합니다.' } } },
   argTypes: {
     relation: { control: 'object', description: 'leftGlyph·neighborGlyph·이름 라벨·v3 형태 관측 배열' },

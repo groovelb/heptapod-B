@@ -3,7 +3,7 @@ import Placeholder from '../../common/ui/Placeholder';
 import LogogramChamber from './LogogramChamber';
 
 export default {
-  title: 'Custom Component/14. Motion/LogogramChamber',
+  title: 'Custom Component/2. Glyph Renderer/LogogramChamber',
   component: LogogramChamber,
   tags: ['autodocs'],
   argTypes: {

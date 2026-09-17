@@ -4,7 +4,7 @@ import ArchetypeMotto from './ArchetypeMotto';
 import { ARCHETYPE_CATALOG } from '../../data/heptapodArchetypeCatalog';
 
 export default {
-  title: 'Custom Component/5. Data Display/ArchetypeMotto', component: ArchetypeMotto, tags: ['autodocs'],
+  title: 'Custom Component/5. Archive Feed/ArchetypeMotto', component: ArchetypeMotto, tags: ['autodocs'],
   parameters: { docs: { description: { component: '유형 제목 바로 아래에 놓는 내 이름 한마디. 배포 JSON의 motto를 현재 언어로 표시하는 blockquote이며 editorialQuote 타이포를 사용합니다.' } } },
   decorators: [(Story) => <Box sx={ { p: 3, bgcolor: 'custom.chamber.fog', color: 'custom.chamber.ink' } }>{ createElement(Story) }</Box>],
   argTypes: {
