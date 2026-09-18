@@ -31,6 +31,13 @@ export default {
 /** 중복 제거한 정렬 목록 */
 const uniqueSorted = (matches) => [...new Set(matches || [])].sort();
 
+/** 원문을 그대로 렌더하는 Appendix MDX 페이지. 값을 손으로 적지 않고 이 표에서만 참조한다 */
+const APPENDIX_DOCS = {
+  hero: { label: '05 원문: Hero Cinematic Prompt Template', id: 'overview-heptapod-b-appendix-hero-cinematic-prompt-template--docs' },
+  storyline: { label: '06 원문: Hero Storyline', id: 'overview-heptapod-b-appendix-hero-storyline--docs' },
+  scrubSound: { label: '07 원문: Scroll Scrub Sound Plan', id: 'overview-heptapod-b-appendix-scroll-scrub-sound-plan--docs' },
+};
+
 /**
  * 문서 원문에서 헤딩 바로 아래 한 덩어리를 뽑는다. 원문을 복사하지 않고 raw import 에서 계산한다.
  *
@@ -118,6 +125,8 @@ const FLOW_ROWS = [
     artifact: 'public/heptapod-b-encoder/hero-scenes · scripts/build-hero-scrub.mjs',
     stories: [
       { label: '07 Assets', id: 'overview-heptapod-b-07-assets--default' },
+      APPENDIX_DOCS.hero,
+      APPENDIX_DOCS.scrubSound,
     ],
   },
   {
@@ -127,6 +136,7 @@ const FLOW_ROWS = [
     artifact: 'src/components/templates/HeptapodEncoderPage.jsx',
     stories: [
       { label: 'HeptapodEncoderPage', id: 'page-response-archive-heptapodencoderpage--default' },
+      APPENDIX_DOCS.storyline,
     ],
   },
 ];
@@ -167,6 +177,7 @@ const EVIDENCE_ROWS = [
     source: '아래 메타 학습 근거 표 (docs 05 · 07 · 03 4절 · 10 에서 파생)',
     status: '파생',
     note: '저장소에 전문가 여부를 묻는 자기 평가 문장은 없다. 슬라이드의 서사다',
+    story: [APPENDIX_DOCS.hero, APPENDIX_DOCS.scrubSound],
   },
   {
     id: 'E6',
@@ -377,6 +388,7 @@ const EVIDENCE_COLUMNS = [
   { key: 'source', label: '저장소 근거', mono: true },
   { key: 'status', label: '상태', width: 70 },
   { key: 'note', label: '비고' },
+  { key: 'story', label: '원문', width: 150 },
 ];
 
 const RESEARCH_COLUMNS = [
@@ -416,6 +428,15 @@ const renderCell = (row, column) => {
     );
   }
   if (column.key === 'story') {
+    if (Array.isArray(row.story)) {
+      return (
+        <Stack spacing={ 0.5 }>
+          { row.story.map((story) => (
+            <StoryLink key={ story.id } id={ story.id }>{ story.label }</StoryLink>
+          )) }
+        </Stack>
+      );
+    }
     if (row.story) return <StoryLink id={ row.story.id }>{ row.story.label }</StoryLink>;
     return <Box component="span" sx={ { color: 'text.disabled' } }>없음</Box>;
   }
@@ -488,6 +509,15 @@ export const Default = {
           </Typography>
           <Typography variant="caption" color="text.secondary">
             { `01 문서의 한 줄 요약: ${ONE_LINER}` }
+          </Typography>
+          <Typography variant="body2" sx={ { mt: 1.5 } }>
+            영상 프롬프트 원문:
+            {' '}
+            <StoryLink id={ APPENDIX_DOCS.hero.id }>{ APPENDIX_DOCS.hero.label }</StoryLink>
+            {' · '}
+            <StoryLink id={ APPENDIX_DOCS.storyline.id }>{ APPENDIX_DOCS.storyline.label }</StoryLink>
+            {' · '}
+            <StoryLink id={ APPENDIX_DOCS.scrubSound.id }>{ APPENDIX_DOCS.scrubSound.label }</StoryLink>
           </Typography>
         </Box>
 
