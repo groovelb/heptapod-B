@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { themes } from 'storybook/theming';
 
 import { defaultTheme } from '../src/styles/themes';
 import LocaleProvider from '../src/i18n/LocaleProvider';
@@ -33,6 +34,8 @@ const preview = {
     },
   },
   parameters: {
+    // 제품 테마가 다크(body 어두움)라 스토리북 docs 테마도 다크로. 밝은 docs 테마의 검정 글자가 어두운 body 위에 놓이는 것을 막는다
+    docs: { theme: themes.dark },
     controls: {
       matchers: {
         color: /(background|color)$/i,
